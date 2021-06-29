@@ -5,3 +5,4 @@
 #include <stdarg.h>
 
 #include "log.h"
+#include "mem.h"

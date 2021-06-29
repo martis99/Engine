@@ -2,11 +2,16 @@
 #include "app.h"
 
 static App* create_app(App* app) {
+	if (stats_create(&app->stats) == NULL) {
+		log_error("Failed to create stats");
+		return NULL;
+	}
+
 	return app;
 }
 
 static void delete_app(App* app) {
-	
+	stats_delete(&app->stats);
 }
 
 static void main_loop(App* app) {
