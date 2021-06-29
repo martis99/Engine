@@ -1,5 +1,6 @@
 #include "pch.h"
+#include "app.h"
 
 int main(int argc, char** argv) {
-	return 0;
+	return app_run();
 }
