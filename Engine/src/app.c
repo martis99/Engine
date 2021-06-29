@@ -70,17 +70,23 @@ static App* create_app(App* app, int width, int height) {
 		return NULL;
 	}
 
+	if (context_create(&app->context, &app->window) == NULL) {
+		log_error("Failed to create context");
+		return NULL;
+	}
+
 	return app;
 }
 
 static void delete_app(App* app) {
+	context_delete(&app->context);
 	window_delete(&app->window);
 	cursor_delete(&app->cursor);
 	stats_delete(&app->stats);
 }
 
 static void loop(App* app, float dt) {
-
+	context_swap_buffers(&app->context);
 }
 
 static void main_loop(App* app) {

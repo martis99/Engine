@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\api\ctx\wgl\acontext.c" />
     <ClCompile Include="src\api\wnd\windows\acursor.c" />
     <ClCompile Include="src\api\wnd\windows\awindow.c" />
     <ClCompile Include="src\app.c" />
@@ -174,10 +175,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\stats.c" />
+    <ClCompile Include="src\window\context.c" />
     <ClCompile Include="src\window\cursor.c" />
     <ClCompile Include="src\window\window.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\api\ctx\acontext.h" />
     <ClInclude Include="src\api\wnd\acursor.h" />
     <ClInclude Include="src\api\wnd\awindow.h" />
     <ClInclude Include="src\app.h" />
@@ -188,6 +191,7 @@
     <ClInclude Include="src\mem.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\stats.h" />
+    <ClInclude Include="src\window\context.h" />
     <ClInclude Include="src\window\cursor.h" />
     <ClInclude Include="src\window\window.h" />
   </ItemGroup>
