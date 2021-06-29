@@ -1,6 +1,7 @@
 #include "pch.h"
 #ifdef E_WINDOWS
 #include "api/wnd/awindow.h"
+#include "api/wnd/acursor.h"
 
 #include <Windows.h>
 
@@ -16,6 +17,7 @@ struct AWindow {
 	HINSTANCE instance;
 	HWND wnd;
 	AWindowCallbacks callbacks;
+	ACursor* cursor;
 };
 
 static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM param_l) {
@@ -31,6 +33,10 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 		return DefWindowProc(wnd, message, param_w, param_l);
 	}
 
+	ACursor* cursor = window->cursor;
+	byte cursor_enbled = acursor_get_enabled(window->cursor);
+	byte cursor_in_window = acursor_get_in_window(window->cursor);
+
 	switch (message) {
 	case WM_CLOSE:
 		PostQuitMessage(0);
@@ -41,14 +47,138 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 	case WM_KEYUP:
 		window->callbacks.key_released((byte)param_w);
 		break;
+	case WM_ACTIVATE:
+	{
+		if (cursor_enbled == 0) {
+			if (param_w & WA_ACTIVE) {
+				acursor_confine(cursor);
+				acursor_hide(cursor);
+			} else {
+				acursor_free(cursor);
+				acursor_show(cursor);
+			}
+		}
+		break;
+	}
+	case WM_MOUSEMOVE:
+	{
+		POINTS pt = MAKEPOINTS(param_l);
+		if (cursor_enbled == 0) {
+			if (cursor_in_window == 0) {
+				SetCapture(wnd);
+				acursor_set_in_window(cursor, 1);
+				acursor_hide(cursor);
+			}
+			break;
+		}
+		if (pt.x >= 0 && pt.x < 1600 && pt.y >= 0 && pt.y < 900) {
+			window->callbacks.mouse_moved((float)pt.x, (float)pt.y);
+			if (cursor_in_window == 0) {
+				SetCapture(wnd);
+				acursor_set_in_window(cursor, 1);
+			}
+		} else {
+			if (param_w & (MK_LBUTTON | MK_RBUTTON | MK_MBUTTON)) {
+				window->callbacks.mouse_moved((float)pt.x, (float)pt.y);
+			} else {
+				ReleaseCapture();
+				acursor_set_in_window(cursor, 0);
+			}
+		}
+		break;
+	}
+
+	case WM_LBUTTONDOWN:
+	{
+		SetForegroundWindow(wnd);
+		if (cursor_enbled == 0) {
+			acursor_confine(cursor);
+			acursor_hide(cursor);
+		}
+		window->callbacks.mouse_pressed(0);
+		break;
+	}
+	case WM_RBUTTONDOWN:
+		SetForegroundWindow(wnd);
+		if (cursor_enbled == 0) {
+			acursor_confine(cursor);
+			acursor_hide(cursor);
+		}
+		window->callbacks.mouse_pressed(1);
+		break;
+	case WM_MBUTTONDOWN:
+		SetForegroundWindow(wnd);
+		if (cursor_enbled == 0) {
+			acursor_confine(cursor);
+			acursor_hide(cursor);
+		}
+		window->callbacks.mouse_pressed(2);
+		break;
+
+	case WM_LBUTTONUP:
+	{
+		POINTS pt = MAKEPOINTS(param_l);
+		if (pt.x < 0 || pt.x >= 1600 || pt.y < 0 || pt.y >= 900) {
+			ReleaseCapture();
+			acursor_set_in_window(cursor, 0);
+		}
+		window->callbacks.mouse_released(0);
+		break;
+	}
+
+	case WM_RBUTTONUP:
+	{
+		POINTS pt = MAKEPOINTS(param_l);
+		if (pt.x < 0 || pt.x >= 1600 || pt.y < 0 || pt.y >= 900) {
+			ReleaseCapture();
+			acursor_set_in_window(cursor, 0);
+		}
+		window->callbacks.mouse_released(1);
+		break;
+	}
+	case WM_MBUTTONUP:
+	{
+		POINTS pt = MAKEPOINTS(param_l);
+		if (pt.x < 0 || pt.x >= 1600 || pt.y < 0 || pt.y >= 900) {
+			ReleaseCapture();
+			acursor_set_in_window(cursor, 0);
+		}
+		window->callbacks.mouse_released(2);
+		break;
+	}
+
+	case WM_MOUSEWHEEL:
+	{
+		short delta = GET_WHEEL_DELTA_WPARAM(param_w);
+		window->callbacks.mouse_wheel((float)delta);
+		break;
+	}
+	case WM_INPUT:
+	{
+		UINT size = 0;
+		if (GetRawInputData((HRAWINPUT)param_l, RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER)) == (UINT)-1) {
+			break;
+		}
+		BYTE* data = (BYTE*)m_malloc(size);
+		if (GetRawInputData((HRAWINPUT)param_l, RID_INPUT, data, &size, sizeof(RAWINPUTHEADER)) != size) {
+			break;
+		}
+		RAWINPUT* ri = (RAWINPUT*)data;
+		if (ri->header.dwType == RIM_TYPEMOUSE && (ri->data.mouse.lLastX != 0 || ri->data.mouse.lLastY != 0)) {
+			window->callbacks.mouse_moved_delta((float)ri->data.mouse.lLastX, (float)ri->data.mouse.lLastY);
+		}
+		m_free(data, size);
+		break;
+	}
 	}
 	return DefWindowProc(wnd, message, param_w, param_l);
 }
 
-AWindow* awindow_create(AWindowCallbacks* callbacks, int width, int height) {
+AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width, int height) {
 	AWindow* window = m_malloc(sizeof(AWindow));
 	window->instance = GetModuleHandleW(0);
 	window->callbacks = *callbacks;
+	window->cursor = cursor;
 
 	WNDCLASS wc = { 0 };
 	wc.lpfnWndProc = wnd_proc;
@@ -83,6 +213,17 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, int width, int height) {
 	);
 
 	ShowWindow(window->wnd, SW_SHOW);
+
+	RAWINPUTDEVICE rid;
+	rid.usUsagePage = 0x01;
+	rid.usUsage = 0x02;
+	rid.dwFlags = 0;
+	rid.hwndTarget = NULL;
+	if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE) {
+		log_error("Failed to register raw input device");
+		return NULL;
+	}
+
 	return window;
 }
 

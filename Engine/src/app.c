@@ -3,6 +3,8 @@
 
 #include <time.h>
 
+#include "input/keyboard.h"
+#include "input/mouse.h"
 #include "input/keys.h"
 
 static void key_pressed(byte key) {
@@ -19,9 +21,34 @@ static void key_released(byte key) {
 	kb_key_released(key);
 }
 
+static void mouse_pressed(byte button) {
+	ms_button_pressed(button);
+}
+
+static void mouse_released(byte button) {
+	ms_button_released(button);
+}
+
+static void mouse_moved(float x, float y) {
+	ms_moved(x, y);
+}
+
+static void mouse_moved_delta(float dx, float dy) {
+	ms_moved_delta(dx, dy);
+}
+
+static void mouse_wheel(float delta) {
+	ms_mouse_wheel(delta);
+}
+
 static App* create_app(App* app, int width, int height) {
 	if (stats_create(&app->stats) == NULL) {
 		log_error("Failed to create stats");
+		return NULL;
+	}
+
+	if (cursor_create(&app->cursor, &app->window, 1) == NULL) {
+		log_error("Failed to create cursor");
 		return NULL;
 	}
 
@@ -32,8 +59,13 @@ static App* create_app(App* app, int width, int height) {
 	AWindowCallbacks callbacks;
 	callbacks.key_pressed = key_pressed;
 	callbacks.key_released = key_released;
+	callbacks.mouse_pressed = mouse_pressed;
+	callbacks.mouse_released = mouse_released;
+	callbacks.mouse_moved = mouse_moved;
+	callbacks.mouse_moved_delta = mouse_moved_delta;
+	callbacks.mouse_wheel = mouse_wheel;
 
-	if (window_create(&app->window, window_settings, &callbacks) == NULL) {
+	if (window_create(&app->window, window_settings, &callbacks, &app->cursor) == NULL) {
 		log_error("Failed to create window");
 		return NULL;
 	}
@@ -43,6 +75,7 @@ static App* create_app(App* app, int width, int height) {
 
 static void delete_app(App* app) {
 	window_delete(&app->window);
+	cursor_delete(&app->cursor);
 	stats_delete(&app->stats);
 }
 

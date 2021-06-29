@@ -12,5 +12,3 @@ typedef unsigned int uint;
 
 #include "log.h"
 #include "mem.h"
-
-#include "input/keyboard.h"

@@ -1,6 +1,8 @@
 #pragma once
 #include "api/wnd/awindow.h"
 
+typedef struct Cursor Cursor;
+
 typedef struct WindowSettings {
 	int width;
 	int height;
@@ -11,7 +13,7 @@ typedef struct Window {
 	WindowSettings settings;
 } Window;
 
-Window* window_create(Window* window, WindowSettings settings, AWindowCallbacks* callbacks);
+Window* window_create(Window* window, WindowSettings settings, AWindowCallbacks* callbacks, Cursor* cursor);
 void window_delete(Window* window);
 
 void window_set_title(Window* window, const char* title);

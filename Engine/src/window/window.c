@@ -1,8 +1,10 @@
 #include "pch.h"
 #include "app.h"
 
-Window* window_create(Window* window, WindowSettings settings, AWindowCallbacks* callbacks) {
-	window->window = awindow_create(callbacks, settings.width, settings.height);
+#include "cursor.h"
+
+Window* window_create(Window* window, WindowSettings settings, AWindowCallbacks* callbacks, Cursor* cursor) {
+	window->window = awindow_create(callbacks, cursor->cursor, settings.width, settings.height);
 	window->settings = settings;
 	return window;
 }
