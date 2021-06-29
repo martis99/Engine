@@ -3,6 +3,22 @@
 
 #include <time.h>
 
+#include "input/keys.h"
+
+static void key_pressed(byte key) {
+	kb_key_pressed(key);
+
+	switch (key) {
+	case K_ESCAPE:
+		window_close(&app.window);
+		break;
+	}
+}
+
+static void key_released(byte key) {
+	kb_key_released(key);
+}
+
 static App* create_app(App* app, int width, int height) {
 	if (stats_create(&app->stats) == NULL) {
 		log_error("Failed to create stats");
@@ -13,7 +29,11 @@ static App* create_app(App* app, int width, int height) {
 	window_settings.width = width;
 	window_settings.height = height;
 
-	if (window_create(&app->window, window_settings) == NULL) {
+	AWindowCallbacks callbacks;
+	callbacks.key_pressed = key_pressed;
+	callbacks.key_released = key_released;
+
+	if (window_create(&app->window, window_settings, &callbacks) == NULL) {
 		log_error("Failed to create window");
 		return NULL;
 	}

@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClCompile Include="src\api\wnd\windows\awindow.c" />
     <ClCompile Include="src\app.c" />
+    <ClCompile Include="src\input\keyboard.c" />
     <ClCompile Include="src\log.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\mem.c" />
@@ -176,6 +177,8 @@
   <ItemGroup>
     <ClInclude Include="src\api\wnd\awindow.h" />
     <ClInclude Include="src\app.h" />
+    <ClInclude Include="src\input\keyboard.h" />
+    <ClInclude Include="src\input\keys.h" />
     <ClInclude Include="src\log.h" />
     <ClInclude Include="src\mem.h" />
     <ClInclude Include="src\pch.h" />

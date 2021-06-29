@@ -15,14 +15,43 @@ static const DWORD s_Style = WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
 struct AWindow {
 	HINSTANCE instance;
 	HWND wnd;
+	AWindowCallbacks callbacks;
 };
 
-AWindow* awindow_create(int width, int height) {
+static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM param_l) {
+
+	if (message == WM_CREATE) {
+		CREATESTRUCT* create = (CREATESTRUCT*)param_l;
+		AWindow* data = (AWindow*)(create->lpCreateParams);
+		SetWindowLongPtr(wnd, GWLP_USERDATA, (LONG_PTR)data);
+	}
+
+	AWindow* window = (AWindow*)GetWindowLongPtr(wnd, GWLP_USERDATA);
+	if (window == NULL) {
+		return DefWindowProc(wnd, message, param_w, param_l);
+	}
+
+	switch (message) {
+	case WM_CLOSE:
+		PostQuitMessage(0);
+		break;
+	case WM_KEYDOWN:
+		window->callbacks.key_pressed((byte)param_w);
+		break;
+	case WM_KEYUP:
+		window->callbacks.key_released((byte)param_w);
+		break;
+	}
+	return DefWindowProc(wnd, message, param_w, param_l);
+}
+
+AWindow* awindow_create(AWindowCallbacks* callbacks, int width, int height) {
 	AWindow* window = m_malloc(sizeof(AWindow));
 	window->instance = GetModuleHandleW(0);
+	window->callbacks = *callbacks;
 
 	WNDCLASS wc = { 0 };
-	wc.lpfnWndProc = DefWindowProc;
+	wc.lpfnWndProc = wnd_proc;
 	wc.hInstance = window->instance;
 	wc.lpszClassName = s_ClassName;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -80,5 +109,9 @@ int awindow_poll_events(AWindow* window) {
 	}
 
 	return 1;
+}
+
+void awindow_close(AWindow* window) {
+	PostQuitMessage(0);
 }
 #endif

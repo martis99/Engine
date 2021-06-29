@@ -1,6 +1,9 @@
 #pragma once
 #define E_WINDOWS
 
+typedef unsigned char byte;
+typedef unsigned char bool;
+
 typedef unsigned int uint;
 
 #include <stdio.h>
@@ -9,3 +12,5 @@ typedef unsigned int uint;
 
 #include "log.h"
 #include "mem.h"
+
+#include "input/keyboard.h"

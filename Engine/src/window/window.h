@@ -11,8 +11,9 @@ typedef struct Window {
 	WindowSettings settings;
 } Window;
 
-Window* window_create(Window* window, WindowSettings settings);
+Window* window_create(Window* window, WindowSettings settings, AWindowCallbacks* callbacks);
 void window_delete(Window* window);
 
 void window_set_title(Window* window, const char* title);
 int window_poll_events(Window* window);
+void window_close(Window* window);
