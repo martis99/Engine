@@ -62,4 +62,23 @@ void awindow_delete(AWindow* window) {
 	UnregisterClassW(s_ClassName, window->instance);
 	m_free(window, sizeof(AWindow));
 }
+
+void awindow_set_title(AWindow* window, const char* title) {
+	if (SetWindowTextA(window->wnd, title) == 0) {
+		log_error("Failed to set title");
+	}
+}
+
+int awindow_poll_events(AWindow* window) {
+	MSG msg = { 0 };
+	while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) {
+		if (msg.message == WM_QUIT) {
+			return 0;
+		}
+		TranslateMessage(&msg);
+		DispatchMessageW(&msg);
+	}
+
+	return 1;
+}
 #endif

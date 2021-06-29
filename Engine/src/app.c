@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "app.h"
 
+#include <time.h>
+
 static App* create_app(App* app, int width, int height) {
 	if (stats_create(&app->stats) == NULL) {
 		log_error("Failed to create stats");
@@ -24,8 +26,35 @@ static void delete_app(App* app) {
 	stats_delete(&app->stats);
 }
 
-static void main_loop(App* app) {
+static void loop(App* app, float dt) {
 
+}
+
+static void main_loop(App* app) {
+	clock_t last = clock();
+	clock_t previous = last;
+	uint frames = 0;
+
+	while (window_poll_events(&app->window)) {
+		clock_t current = clock();
+		clock_t elapsed = current - last;
+
+		if (elapsed > CLOCKS_PER_SEC) {
+			char title[100];
+			float ms = elapsed / (float)frames;
+			sprintf_s(title, 100, "Engine %u FPS %.2f ms, mem: %u", frames, ms, (uint)app->stats.memory);
+			window_set_title(&app->window, title);
+
+			last = current;
+			frames = 0;
+		}
+
+		float dt = (current - previous) / (float)CLOCKS_PER_SEC;
+		loop(app, dt);
+
+		previous = current;
+		frames++;
+	}
 }
 
 int app_run() {
