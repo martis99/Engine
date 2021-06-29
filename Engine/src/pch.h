@@ -1,4 +1,5 @@
 #pragma once
+#define E_WINDOWS
 
 #include <stdio.h>
 #include <stdlib.h>
