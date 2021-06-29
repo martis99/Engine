@@ -75,10 +75,16 @@ static App* create_app(App* app, int width, int height) {
 		return NULL;
 	}
 
+	if (renderer_create(&app->renderer) == NULL) {
+		log_error("Failed to create renderer");
+		return NULL;
+	}
+
 	return app;
 }
 
 static void delete_app(App* app) {
+	renderer_delete(&app->renderer);
 	context_delete(&app->context);
 	window_delete(&app->window);
 	cursor_delete(&app->cursor);
@@ -86,6 +92,8 @@ static void delete_app(App* app) {
 }
 
 static void loop(App* app, float dt) {
+	renderer_begin(&app->renderer);
+	renderer_end(&app->renderer);
 	context_swap_buffers(&app->context);
 }
 

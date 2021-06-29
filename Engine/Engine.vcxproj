@@ -160,6 +160,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\api\ctx\wgl\acontext.c" />
+    <ClCompile Include="src\api\gfx\opengl\arenderer.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl\gl_renderer.c" />
     <ClCompile Include="src\api\wnd\windows\acursor.c" />
     <ClCompile Include="src\api\wnd\windows\awindow.c" />
     <ClCompile Include="src\app.c" />
@@ -174,6 +176,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\renderer\renderer.c" />
     <ClCompile Include="src\stats.c" />
     <ClCompile Include="src\window\context.c" />
     <ClCompile Include="src\window\cursor.c" />
@@ -181,8 +184,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\api\ctx\acontext.h" />
+    <ClInclude Include="src\api\gfx\arenderer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_defines.h" />
+    <ClInclude Include="src\api\gfx\opengl\gl\gl_renderer.h" />
     <ClInclude Include="src\api\wnd\acursor.h" />
     <ClInclude Include="src\api\wnd\awindow.h" />
     <ClInclude Include="src\app.h" />
@@ -192,6 +197,7 @@
     <ClInclude Include="src\log.h" />
     <ClInclude Include="src\mem.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\renderer\renderer.h" />
     <ClInclude Include="src\stats.h" />
     <ClInclude Include="src\window\context.h" />
     <ClInclude Include="src\window\cursor.h" />
