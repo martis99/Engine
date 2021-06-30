@@ -20,6 +20,8 @@ void gl_polygon_mode_line();
 void gl_cull_face_back();
 void gl_front_face_cw();
 
+void gl_unpack_alignment();
+
 void gl_blend_enable();
 void gl_blend_disable();
 void gl_blend_set_enabled(bool enabled);

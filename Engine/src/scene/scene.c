@@ -3,6 +3,7 @@
 
 #include "ecs/system/mesh_renderer.h"
 #include "ecs/system/sprite_renderer.h"
+#include "ecs/system/text_renderer.h"
 
 #include "ecs/component/transform.h"
 #include "ecs/component/mesh_component.h"
@@ -21,6 +22,7 @@ struct Scene {
 	Entity cube;
 	MeshRenderer mesh_renderer;
 	SpriteRenderer sprite_renderer;
+	TextRenderer text_renderer;
 	mat4 projection;
 };
 
@@ -33,6 +35,11 @@ static void create_systems(Scene* scene) {
 	if (sprite_renderer_create(&scene->sprite_renderer, &scene->assets, sprite_transform) == NULL) {
 		log_error("Failed to create sprite renderer");
 	}
+
+	Transform text_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+	if (text_renderer_create(&scene->text_renderer, &scene->assets, text_transform) == NULL) {
+		log_error("Failed to create text renderer");
+	}
 }
 
 static void create_assets(Scene* scene) {
@@ -43,6 +50,7 @@ static void create_assets(Scene* scene) {
 	Image* image_container = assets_image_load(&scene->assets, "container", "res/images/container.jpg");
 	Image* image_gui = assets_image_load(&scene->assets, "imgui", "res/images/gui.png");
 	Image* image_mountains = assets_image_load(&scene->assets, "mountains", "res/images/mountains.jpg");
+	Font* font = assets_font_load(&scene->assets, "font", "res/fonts/ProggyClean.ttf", 13);
 
 	Texture* texture_white = assets_texture_create_from_image(&scene->assets, "white", image_white, F_NEAREST);
 	Texture* texture_container = assets_texture_create_from_image(&scene->assets, "container", image_container, F_LINEAR);
@@ -57,13 +65,15 @@ static void create_assets(Scene* scene) {
 	Material* material_container = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "container", texture_container, color_white);
 
 	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
-	mesh_init_cube(mesh_cube);
+	mesh_init_cube(mesh_cube);;
 }
 
 static void create_entities2d(Scene* scene) {
 
 	Texture* texture_gui = assets_texture_get(&scene->assets, "gui");
 	Texture* texture_mountains = assets_texture_get(&scene->assets, "mountains");
+
+	Font* font = assets_font_get(&scene->assets, "font");
 
 	Entity panel = ecs_entity(&scene->ecs);
 	scene->panel = panel;
@@ -73,6 +83,14 @@ static void create_entities2d(Scene* scene) {
 
 		ecs_add(&scene->ecs, panel.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, panel.id, C_SPRITE, &sprite);
+	}
+	{
+		Entity entity = ecs_entity(&scene->ecs);
+		Transform transform = transform_create_2d((vec2i) { 400, 10 }, 0.0f, (vec2i) { 500, 50 });
+		Text text = text_create("The quick brown fox jumps over the lazy dog", font, (vec4) { 1, 1, 1, 1 });
+
+		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
+		ecs_add(&scene->ecs, entity.id, C_TEXT, &text);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
@@ -120,7 +138,7 @@ static void create_entities3d(Scene* scene) {
 }
 
 static void create_entities(Scene* scene) {
-	if (ecs_create(&scene->ecs, 3, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite)) == NULL) {
+	if (ecs_create(&scene->ecs, 4, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text)) == NULL) {
 		log_error("Failed to create ecs");
 	}
 
@@ -161,6 +179,7 @@ Scene* scene_create(float width, float height) {
 void scene_delete(Scene* scene) {
 	mesh_renderer_delete(&scene->mesh_renderer);
 	sprite_renderer_delete(&scene->sprite_renderer);
+	text_renderer_delete(&scene->text_renderer);
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
 	m_free(scene, sizeof(Scene));
@@ -177,6 +196,7 @@ void scene_render(Scene* scene, Renderer* renderer) {
 	renderer_clear_depth(renderer);
 
 	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs, &scene->projection);
+	text_renderer_render(&scene->text_renderer, &scene->ecs, &scene->projection);
 }
 
 void scene_key_pressed(Scene* scene, byte key) {

@@ -21,6 +21,8 @@ ARenderer* arenderer_create() {
 	gl_polygon_mode_fill();
 
 	gl_blend_func(S_SRC_ALPHA, D_ONE_MINUS_SRC_ALPHA);
+
+	gl_unpack_alignment();
 	return renderer;
 }
 

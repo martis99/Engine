@@ -7,6 +7,7 @@ Assets* assets_create(Assets* assets) {
 	assets->materials = dic_create(20, sizeof(Material));
 	assets->images = dic_create(20, sizeof(Image));
 	assets->textures = dic_create(20, sizeof(Texture));
+	assets->fonts = dic_create(5, sizeof(Font));
 	return assets;
 }
 
@@ -16,6 +17,7 @@ void assets_delete(Assets* assets) {
 	dic_delete(assets->materials, material_delete);
 	dic_delete(assets->images, image_delete);
 	dic_delete(assets->textures, texture_delete);
+	dic_delete(assets->fonts, font_delete);
 }
 
 Shader* assets_shader_create(Assets* assets, const char* name, const char* vertex_source, const char* fragment_source) {
@@ -60,4 +62,12 @@ Texture* assets_texture_create_from_image(Assets* assets, const char* name, Imag
 
 Texture* assets_texture_get(Assets* assets, const char* name) {
 	return dic_get(assets->textures, name);
+}
+
+Font* assets_font_load(Assets* assets, const char* name, const char* path, int size) {
+	return font_load(dic_add(assets->fonts, name), assets, path, size);
+}
+
+Font* assets_font_get(Assets* assets, const char* name) {
+	return dic_get(assets->fonts, name);
 }

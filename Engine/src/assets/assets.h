@@ -2,6 +2,7 @@
 
 #include "mesh.h"
 #include "material.h"
+#include "font.h"
 
 typedef struct Assets {
 	Dictionary* shaders;
@@ -9,6 +10,7 @@ typedef struct Assets {
 	Dictionary* materials;
 	Dictionary* images;
 	Dictionary* textures;
+	Dictionary* fonts;
 } Assets;
 
 Assets* assets_create(Assets* assets);
@@ -29,3 +31,6 @@ Image* assets_image_get(Assets* assets, const char* name);
 
 Texture* assets_texture_create_from_image(Assets* assets, const char* name, Image* image, AFilter filter);
 Texture* assets_texture_get(Assets* assets, const char* name);
+
+Font* assets_font_load(Assets* assets, const char* name, const char* path, int size);
+Font* assets_font_get(Assets* assets, const char* name);

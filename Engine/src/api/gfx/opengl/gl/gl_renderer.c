@@ -59,6 +59,10 @@ void gl_front_face_cw() {
 	glFrontFace(GL_CW);
 }
 
+void gl_unpack_alignment() {
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+}
+
 void gl_blend_enable() {
 	glEnable(GL_BLEND);
 }
