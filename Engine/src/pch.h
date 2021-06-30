@@ -20,3 +20,6 @@ typedef unsigned int uint;
 #include "math/maths.h"
 
 #include "utils/dictionary.h"
+#include "utils/stack.h"
+
+#include "ecs/ecs.h"
