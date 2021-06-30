@@ -51,9 +51,22 @@ GLuint gl_vb_create_static(GLuint vertex_array, GLsizeiptr size, const void* dat
 	return vertex_buffer;
 }
 
+GLuint gl_vb_create_dynamic(GLuint vertex_array, GLsizeiptr size) {
+	GLuint vertex_buffer;
+	glGenBuffers(1, &vertex_buffer);
+	gl_vb_bind(vertex_array, vertex_buffer);
+	glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
+	return vertex_buffer;
+}
+
 void gl_vb_bind(GLuint vertex_array, GLuint vertex_buffer) {
 	gl_va_bind(vertex_array);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+}
+
+void gl_vb_set_data(GLuint vertex_array, GLuint vertex_buffer, GLsizeiptr size, const void* data) {
+	gl_vb_bind(vertex_array, vertex_buffer);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 }
 
 void gl_vb_delete(GLuint vertex_buffer) {
@@ -68,9 +81,22 @@ GLuint gl_ib_create_static(GLuint vertex_array, GLsizeiptr size, const void* dat
 	return index_buffer;
 }
 
+GLuint gl_ib_create_dynamic(GLuint vertex_array, GLsizeiptr size) {
+	GLuint index_buffer;
+	glGenBuffers(1, &index_buffer);
+	gl_ib_bind(vertex_array, index_buffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
+	return index_buffer;
+}
+
 void gl_ib_bind(GLuint vertex_array, GLuint index_buffer) {
 	gl_va_bind(vertex_array);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+}
+
+void gl_ib_set_data(GLuint vertex_array, GLuint index_buffer, GLsizeiptr size, const void* data) {
+	gl_ib_bind(vertex_array, index_buffer);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, data);
 }
 
 void gl_ib_delete(GLuint index_buffer) {

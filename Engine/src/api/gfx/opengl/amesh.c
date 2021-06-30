@@ -32,7 +32,32 @@ void amesh_init_static(AMesh* mesh, float* vertices, uint vertices_size, uint* i
 	mesh->count = indices_size / sizeof(GLuint);
 }
 
+void amesh_init_dynamic(AMesh* mesh, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size) {
+	mesh->va = gl_va_create();
+	mesh->vb = gl_vb_create_dynamic(mesh->va, vertices_size);
+	mesh->ib = gl_ib_create_static(mesh->ib, indices_size, indices);
+	gl_va_layout_create(mesh->va, layout_size, layout);
+
+	mesh->count = vertices_size / sizeof(GLfloat);
+}
+
+void amesh_set_vertices(AMesh* mesh, float* vertices, uint vertices_size) {
+	gl_vb_set_data(mesh->va, mesh->vb, vertices_size, vertices);
+}
+
+void amesh_set_indices(AMesh* mesh, uint* indices, uint indices_size) {
+	gl_ib_set_data(mesh->va, mesh->ib, indices_size, indices);
+}
+
 void amesh_draw(AMesh* mesh) {
 	gl_va_draw_elements(mesh->va, mesh->ib, mesh->count);
+}
+
+void amesh_set_count(AMesh* mesh, int count) {
+	mesh->count = count;
+}
+
+void amesh_add_count(AMesh* mesh, int count) {
+	mesh->count += count;
 }
 #endif

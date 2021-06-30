@@ -183,9 +183,12 @@
     <ClCompile Include="src\assets\texture.c" />
     <ClCompile Include="src\assets\uniform.c" />
     <ClCompile Include="src\ecs\component\mesh_component.c" />
+    <ClCompile Include="src\ecs\component\sprite.c" />
     <ClCompile Include="src\ecs\component\transform.c" />
     <ClCompile Include="src\ecs\ecs.c" />
+    <ClCompile Include="src\ecs\system\batch_renderer.c" />
     <ClCompile Include="src\ecs\system\mesh_renderer.c" />
+    <ClCompile Include="src\ecs\system\sprite_renderer.c" />
     <ClCompile Include="src\input\keyboard.c" />
     <ClCompile Include="src\input\mouse.c" />
     <ClCompile Include="src\log.c" />
@@ -241,9 +244,12 @@
     <ClInclude Include="src\assets\texture.h" />
     <ClInclude Include="src\assets\uniform.h" />
     <ClInclude Include="src\ecs\component\mesh_component.h" />
+    <ClInclude Include="src\ecs\component\sprite.h" />
     <ClInclude Include="src\ecs\component\transform.h" />
     <ClInclude Include="src\ecs\ecs.h" />
+    <ClInclude Include="src\ecs\system\batch_renderer.h" />
     <ClInclude Include="src\ecs\system\mesh_renderer.h" />
+    <ClInclude Include="src\ecs\system\sprite_renderer.h" />
     <ClInclude Include="src\input\keyboard.h" />
     <ClInclude Include="src\input\keys.h" />
     <ClInclude Include="src\input\mouse.h" />

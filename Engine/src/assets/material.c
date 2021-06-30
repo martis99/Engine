@@ -31,6 +31,10 @@ static void set_uniform(Material* material, const char* name, AUniformType type,
 	uniform_set(uniform, data);
 }
 
+void material_set_vec1i(Material* material, const char* name, int count, int* value) {
+	set_uniform(material, name, VEC1I, count, value);
+}
+
 void material_set_vec4f(Material* material, const char* name, int count, vec4* value) {
 	set_uniform(material, name, VEC4F, count, value);
 }
