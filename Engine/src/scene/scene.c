@@ -3,13 +3,16 @@
 
 #include "renderer/renderer.h"
 #include "assets/mesh.h"
-#include "assets/shader.h"
+#include "assets/material.h"
 
 struct Scene {
 	Shader shader;
 	Mesh mesh;
 	mat4 projection;
-	mat4 model;
+	Material material1;
+	mat4 model1;
+	Material material2;
+	mat4 model2;
 };
 
 Scene* scene_create(float width, float height) {
@@ -27,32 +30,48 @@ Scene* scene_create(float width, float height) {
 	const char* src_frag =
 		"#version 330 core\n"
 		"out vec4 FragColor;\n"
+		"uniform vec4 u_color;\n"
 		"void main() {\n"
-		"	FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
+		"	FragColor = u_color;\n"
 		"}\0";
 
 	shader_create(&scene->shader, src_vert, src_frag);
 	mesh_init_quad(mesh_create(&scene->mesh));
 
-	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f);
-	scene->model = mat4_mul(mat4_scale((vec3) { 300.0f, 400.0f, 1.0f }), mat4_mul(quaternion_to_mat4(euler_to_quaternion((vec3) { 0.0f, 0.0f, 0.0f })), mat4_translation((vec3) {10.0f, 10.0f, 0.0f})));
+	vec4 color1 = (vec4){ 1.0f, 0.5f, 0.1f, 1.0f };
+	material_create(&scene->material1, &scene->shader);
+	material_set_vec4f(&scene->material1, "u_color", 1, &color1);
+	scene->model1 = mat4_mul(mat4_scale((vec3) { 300.0f, 400.0f, 1.0f }), mat4_mul(quaternion_to_mat4(euler_to_quaternion((vec3) { 0.0f, 0.0f, 0.0f })), mat4_translation((vec3) { 10.0f, 10.0f, 0.0f })));
 
+	vec4 color2 = (vec4){ 1.0f, 0.0f, 0.0f, 1.0f };
+	material_create(&scene->material2, &scene->shader);
+	material_set_vec4f(&scene->material2, "u_color", 1, &color2);
+	scene->model2 = mat4_mul(mat4_scale((vec3) { 100.0f, 200.0f, 1.0f }), mat4_mul(quaternion_to_mat4(euler_to_quaternion((vec3) { 0.0f, 0.0f, 0.0f })), mat4_translation((vec3) { 320.0f, 10.0f, 0.0f })));
+
+
+	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f);
 	return scene;
 }
 
 void scene_delete(Scene* scene) {
+	material_delete(&scene->material1);
+	material_delete(&scene->material2);
 	mesh_delete(&scene->mesh);
 	shader_delete(&scene->shader);
 	m_free(scene, sizeof(Scene));
 }
 
 void scene_update(Scene* scene, float dt) {
-	
+
 }
 
 void scene_render(Scene* scene, Renderer* renderer) {
 	shader_bind(&scene->shader, &scene->projection);
-	shader_set_model(&scene->shader, &scene->model);
+	shader_set_model(&scene->shader, &scene->model1);
+	material_bind(&scene->material1);
+	mesh_draw(&scene->mesh);
+	shader_set_model(&scene->shader, &scene->model2);
+	material_bind(&scene->material2);
 	mesh_draw(&scene->mesh);
 }
 
@@ -77,9 +96,9 @@ void scene_mouse_moved(Scene* scene, float x, float y) {
 }
 
 void scene_mouse_moved_delta(Scene* scene, float dx, float dy) {
-	
+
 }
 
 void scene_mouse_wheel(Scene* scene, float delta) {
-	
+
 }

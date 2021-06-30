@@ -171,6 +171,7 @@
     <ClCompile Include="src\api\wnd\windows\acursor.c" />
     <ClCompile Include="src\api\wnd\windows\awindow.c" />
     <ClCompile Include="src\app.c" />
+    <ClCompile Include="src\assets\material.c" />
     <ClCompile Include="src\assets\mesh.c" />
     <ClCompile Include="src\assets\shader.c" />
     <ClCompile Include="src\assets\uniform.c" />
@@ -193,6 +194,7 @@
     <ClCompile Include="src\renderer\renderer.c" />
     <ClCompile Include="src\scene\scene.c" />
     <ClCompile Include="src\stats.c" />
+    <ClCompile Include="src\utils\dictionary.c" />
     <ClCompile Include="src\window\context.c" />
     <ClCompile Include="src\window\cursor.c" />
     <ClCompile Include="src\window\window.c" />
@@ -212,6 +214,7 @@
     <ClInclude Include="src\api\wnd\acursor.h" />
     <ClInclude Include="src\api\wnd\awindow.h" />
     <ClInclude Include="src\app.h" />
+    <ClInclude Include="src\assets\material.h" />
     <ClInclude Include="src\assets\mesh.h" />
     <ClInclude Include="src\assets\shader.h" />
     <ClInclude Include="src\assets\uniform.h" />
@@ -232,6 +235,7 @@
     <ClInclude Include="src\renderer\renderer.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\stats.h" />
+    <ClInclude Include="src\utils\dictionary.h" />
     <ClInclude Include="src\window\context.h" />
     <ClInclude Include="src\window\cursor.h" />
     <ClInclude Include="src\window\window.h" />

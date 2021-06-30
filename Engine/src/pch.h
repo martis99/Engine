@@ -15,3 +15,5 @@ typedef unsigned int uint;
 #include "mem.h"
 
 #include "math/maths.h"
+
+#include "utils/dictionary.h"
