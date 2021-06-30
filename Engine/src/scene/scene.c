@@ -4,6 +4,7 @@
 #include "renderer/renderer.h"
 #include "assets/mesh.h"
 #include "assets/material.h"
+#include "assets/image.h"
 
 struct Scene {
 	Shader shader;
@@ -13,6 +14,7 @@ struct Scene {
 	mat4 model1;
 	Material material2;
 	mat4 model2;
+	Image image;
 };
 
 Scene* scene_create(float width, float height) {
@@ -48,12 +50,13 @@ Scene* scene_create(float width, float height) {
 	material_set_vec4f(&scene->material2, "u_color", 1, &color2);
 	scene->model2 = mat4_mul(mat4_scale((vec3) { 100.0f, 200.0f, 1.0f }), mat4_mul(quaternion_to_mat4(euler_to_quaternion((vec3) { 0.0f, 0.0f, 0.0f })), mat4_translation((vec3) { 320.0f, 10.0f, 0.0f })));
 
-
+	image_load(&scene->image, "res/images/container.jpg");
 	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f);
 	return scene;
 }
 
 void scene_delete(Scene* scene) {
+	image_delete(&scene->image);
 	material_delete(&scene->material1);
 	material_delete(&scene->material2);
 	mesh_delete(&scene->mesh);
