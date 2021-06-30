@@ -13,3 +13,5 @@ void text_renderer_delete(TextRenderer* text_renderer);
 
 void text_renderer_submit(TextRenderer* text_renderer);
 void text_renderer_render(TextRenderer* text_renderer, Ecs* ecs, mat4* view_projection);
+
+void text_renderer_calculate_preffered(Ecs* ecs);

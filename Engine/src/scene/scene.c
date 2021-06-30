@@ -4,9 +4,11 @@
 #include "ecs/system/mesh_renderer.h"
 #include "ecs/system/sprite_renderer.h"
 #include "ecs/system/text_renderer.h"
+#include "ecs/system/constraints_resolver.h"
 
 #include "ecs/component/transform.h"
 #include "ecs/component/mesh_component.h"
+#include "ecs/component/constraints.h"
 
 #include "camera.h"
 
@@ -65,7 +67,7 @@ static void create_assets(Scene* scene) {
 	Material* material_container = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "container", texture_container, color_white);
 
 	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
-	mesh_init_cube(mesh_cube);;
+	mesh_init_cube(mesh_cube);
 }
 
 static void create_entities2d(Scene* scene) {
@@ -80,16 +82,24 @@ static void create_entities2d(Scene* scene) {
 	{
 		Transform transform = transform_create_2d((vec2i) { 10, 10 }, 0.0f, (vec2i) { 350, 400 });
 		Sprite sprite = sprite_create(texture_gui, (vec4) { 1.0f, 1.0f, 1.0f, 1.0f }, (vec4) { 1, 10, 18, 10 });
+		Constraints constraints = constraints_create(0, 0);
 
 		ecs_add(&scene->ecs, panel.id, C_TRANSFORM, &transform);
+		ecs_add(&scene->ecs, panel.id, C_CONSTRAINTS, &constraints);
 		ecs_add(&scene->ecs, panel.id, C_SPRITE, &sprite);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create_2d((vec2i) { 400, 10 }, 0.0f, (vec2i) { 500, 50 });
+		Transform transform = transform_create_2d((vec2i) { 0, 10 }, 0.0f, (vec2i) { 500, 50 });
+		Constraints constraints = constraints_create(-1, -1);
+		constraints_add_b(&constraints, constraint_create(panel, 0, 0));
+		constraints_add_l(&constraints, constraint_create(panel, 0, 5));
+		constraints_add_r(&constraints, constraint_create(panel, 1, 5));
+		constraints_add_u(&constraints, constraint_create(panel, 0, 3));
 		Text text = text_create("The quick brown fox jumps over the lazy dog", font, (vec4) { 1, 1, 1, 1 });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
+		ecs_add(&scene->ecs, entity.id, C_CONSTRAINTS, &constraints);
 		ecs_add(&scene->ecs, entity.id, C_TEXT, &text);
 	}
 	{
@@ -138,7 +148,7 @@ static void create_entities3d(Scene* scene) {
 }
 
 static void create_entities(Scene* scene) {
-	if (ecs_create(&scene->ecs, 4, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text)) == NULL) {
+	if (ecs_create(&scene->ecs, 5, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints)) == NULL) {
 		log_error("Failed to create ecs");
 	}
 
@@ -186,6 +196,9 @@ void scene_delete(Scene* scene) {
 }
 
 void scene_update(Scene* scene, float dt) {
+	text_renderer_calculate_preffered(&scene->ecs);
+	constraints_resolver_resolve(&scene->ecs);
+
 	if (is_key_pressed('R')) {
 		((Transform*)ecs_get(&scene->ecs, scene->cube.id, C_TRANSFORM))->rotation.y -= 1.0f * dt;
 	}

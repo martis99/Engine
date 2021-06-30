@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "text_renderer.h"
+#include "ecs/component/constraints.h"
 
 TextRenderer* text_renderer_create(TextRenderer* text_renderer, Assets* assets, Transform transform) {
 	text_renderer->transform = transform;
@@ -59,6 +60,30 @@ void text_renderer_submit(TextRenderer* text_renderer) {
 	batch_renderer_submit(&text_renderer->batch_renderer);
 }
 
+static void calculate_preffered(Transform* transform, Text* text, Constraints* constraints) {
+	float x = 0;
+	float y = 0;
+
+	for (size_t i = 0; i < strlen(text->text); i++) {
+		FontCharacter fc = font_get_char(text->font, text->text[i]);
+
+		x += fc.advance;
+		if (i + 1 < strlen(text->text)) {
+			FontCharacter next = font_get_char(text->font, text->text[i + 1]);
+			if (constraints->w != -1 && x + next.offset.x + next.size.x > constraints->w) {
+				x = 0;
+				y += text->font->line_height;
+				if (text->text[i + 1] == ' ') {
+					i++;
+				}
+			}
+		}
+	}
+
+	transform->scale_pref.x = x + 1;
+	transform->scale_pref.y = y + text->font->line_height;
+}
+
 static void add_text(TextRenderer* text_renderer, Transform* transform, Text* text) {
 	float x = 0;
 	float y = 0;
@@ -99,4 +124,14 @@ void text_renderer_render(TextRenderer* text_renderer, Ecs* ecs, mat4* view_proj
 	}
 	text_renderer_submit(text_renderer);
 	batch_renderer_draw(&text_renderer->transform, &text_renderer->batch_renderer, view_projection);
+}
+
+void text_renderer_calculate_preffered(Ecs* ecs) {
+	QueryResult* qr = ecs_query(ecs, 3, C_TRANSFORM, C_TEXT, C_CONSTRAINTS);
+	for (uint i = 0; i < qr->count; ++i) {
+		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
+		Text* text = (Text*)ecs_get(ecs, qr->list[i], C_TEXT);
+		Constraints* constraints = (Constraints*)ecs_get(ecs, qr->list[i], C_CONSTRAINTS);
+		calculate_preffered(transform, text, constraints);
+	}
 }
