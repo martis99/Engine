@@ -12,3 +12,4 @@ void mesh_init_static(Mesh* mesh, float* vertices, uint vertices_size, uint* ind
 void mesh_draw(Mesh* mesh);
 
 void mesh_init_quad(Mesh* mesh);
+void mesh_init_cube(Mesh* mesh);

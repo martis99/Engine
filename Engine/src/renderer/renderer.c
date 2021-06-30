@@ -5,6 +5,8 @@
 
 Renderer* renderer_create(Renderer* renderer) {
 	renderer->renderer = arenderer_create();
+	renderer->wireframe = 0;
+	renderer->backface_culling = 1;
 	return renderer;
 }
 
@@ -19,4 +21,22 @@ void renderer_begin(Renderer* renderer) {
 
 void renderer_end(Renderer* renderer) {
 
+}
+
+void renderer_clear_depth(Renderer* renderer) {
+	arenderer_clear_depth(renderer->renderer);
+}
+
+void renderer_toggle_backface_culling(Renderer* renderer) {
+	renderer->backface_culling = 1 - renderer->backface_culling;
+	arenderer_cull_face_set_enabled(renderer->renderer, renderer->backface_culling);
+}
+
+void renderer_toggle_fireframe(Renderer* renderer) {
+	renderer->wireframe = 1 - renderer->wireframe;
+	if (renderer->wireframe == 0) {
+		arenderer_polygon_mode_fill(renderer->renderer);
+	} else {
+		arenderer_polygon_mode_line(renderer->renderer);
+	}
 }

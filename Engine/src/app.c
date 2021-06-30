@@ -15,6 +15,12 @@ static void key_pressed(byte key) {
 	case K_ESCAPE:
 		window_close(&app.window);
 		break;
+	case K_TAB:
+		renderer_toggle_fireframe(&app.renderer);
+		break;
+	case 'C':
+		renderer_toggle_backface_culling(&app.renderer);
+		break;
 	}
 }
 
