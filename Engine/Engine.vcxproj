@@ -176,6 +176,11 @@
     <ClCompile Include="src\input\mouse.c" />
     <ClCompile Include="src\log.c" />
     <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\math\convert.c" />
+    <ClCompile Include="src\math\mat4.c" />
+    <ClCompile Include="src\math\quaternion.c" />
+    <ClCompile Include="src\math\vec3.c" />
+    <ClCompile Include="src\math\vec4.c" />
     <ClCompile Include="src\mem.c" />
     <ClCompile Include="src\pch.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -210,6 +215,14 @@
     <ClInclude Include="src\input\keys.h" />
     <ClInclude Include="src\input\mouse.h" />
     <ClInclude Include="src\log.h" />
+    <ClInclude Include="src\math\convert.h" />
+    <ClInclude Include="src\math\mat4.h" />
+    <ClInclude Include="src\math\maths.h" />
+    <ClInclude Include="src\math\quaternion.h" />
+    <ClInclude Include="src\math\vec2.h" />
+    <ClInclude Include="src\math\vec2i.h" />
+    <ClInclude Include="src\math\vec3.h" />
+    <ClInclude Include="src\math\vec4.h" />
     <ClInclude Include="src\mem.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\renderer\renderer.h" />

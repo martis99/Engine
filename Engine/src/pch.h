@@ -13,3 +13,5 @@ typedef unsigned int uint;
 
 #include "log.h"
 #include "mem.h"
+
+#include "math/maths.h"
