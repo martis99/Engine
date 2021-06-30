@@ -1,27 +1,22 @@
 ﻿#include "pch.h"
 #include "scene.h"
 
-#include "renderer/renderer.h"
-#include "assets/mesh.h"
-#include "assets/material.h"
-#include "assets/texture.h"
+#include "assets/assets.h"
 
 struct Scene {
-	Shader shader;
-	Mesh mesh;
+	Assets assets;
+	Shader* shader;
+	Mesh* mesh;
+	Material* material_orange;
+	Material* material_container;
+	mat4 model_orange;
+	mat4 model_container;
 	mat4 projection;
-	Material material1;
-	mat4 model1;
-	Material material2;
-	mat4 model2;
-	Image image_white;
-	Image image_container;
-	Texture texture_white;
-	Texture texture_container;
 };
 
 Scene* scene_create(float width, float height) {
 	Scene* scene = m_malloc(sizeof(Scene));
+	assets_create(&scene->assets);
 
 	const char* src_vert =
 		"#version 330 core\n"
@@ -45,44 +40,40 @@ Scene* scene_create(float width, float height) {
 		"	FragColor = texture(u_texture, v_tex_coord) * u_color;\n"
 		"}\0";
 
-	shader_create(&scene->shader, src_vert, src_frag);
-	mesh_init_quad(mesh_create(&scene->mesh));
+	scene->shader = assets_shader_create(&scene->assets, "shader", src_vert, src_frag);
 
-	vec4 color1 = (vec4){ 1.0f, 0.5f, 0.1f, 1.0f };
-	material_create(&scene->material1, &scene->shader);
-	material_set_vec4f(&scene->material1, "u_color", 1, &color1);
-	scene->model1 = mat4_mul(mat4_scale((vec3) { 300.0f, 400.0f, 1.0f }), mat4_mul(quaternion_to_mat4(euler_to_quaternion((vec3) { 0.0f, 0.0f, 0.0f })), mat4_translation((vec3) { 10.0f, 10.0f, 0.0f })));
+	vec4 color_orange = (vec4){ 1.0f, 0.5f, 0.1f, 1.0f };
+	vec4 color_white = (vec4){ 1.0f, 1.0f, 1.0f, 1.0f };
 
-	vec4 color2 = (vec4){ 1.0f, 1.0f, 1.0f, 1.0f };
-	material_create(&scene->material2, &scene->shader);
-	material_set_vec4f(&scene->material2, "u_color", 1, &color2);
-	scene->model2 = mat4_mul(mat4_scale((vec3) { 200.0f, 200.0f, 1.0f }), mat4_mul(quaternion_to_mat4(euler_to_quaternion((vec3) { 0.0f, 0.0f, 0.0f })), mat4_translation((vec3) { 320.0f, 10.0f, 0.0f })));
+	scene->mesh = assets_mesh_create(&scene->assets, "mesh");
+	mesh_init_quad(scene->mesh);
 
-	Image* image_white = image_create(&scene->image_white, 1, 1, 4);
+	Image* image_white = assets_image_create(&scene->assets, "image_white", 1, 1, 4);
 	uint data = (uint)0xffffffff;
 	image_set_data(image_white, (unsigned char*)&data);
 
-	image_load(&scene->image_container, "res/images/container.jpg");
+	Image* image_container = assets_image_load(&scene->assets, "image_container", "res/images/container.jpg");
 
-	texture_create_from_image(&scene->texture_white, &scene->image_white, F_LINEAR);
-	texture_create_from_image(&scene->texture_container, &scene->image_container, F_LINEAR);
+	Texture* texture_white = assets_texture_create_from_image(&scene->assets, "texture_white", image_white, F_LINEAR);
+	Texture* texture_container = assets_texture_create_from_image(&scene->assets, "texture_container", image_container, F_LINEAR);
 
-	material_add_texture(&scene->material1, &scene->texture_white);
-	material_add_texture(&scene->material2, &scene->texture_container);
+	scene->material_orange = assets_material_create(&scene->assets, "material_orange", scene->shader);
+	material_add_texture(scene->material_orange, texture_white);
+	material_set_vec4f(scene->material_orange, "u_color", 1, &color_orange);
+
+	scene->material_container = assets_material_create(&scene->assets, "material_container", scene->shader);
+	material_add_texture(scene->material_container, texture_container);
+	material_set_vec4f(scene->material_container, "u_color", 1, &color_white);
+
+	scene->model_orange = mat4_mul(mat4_scale((vec3) { 300.0f, 400.0f, 1.0f }), mat4_mul(quaternion_to_mat4(euler_to_quaternion((vec3) { 0.0f, 0.0f, 0.0f })), mat4_translation((vec3) { 10.0f, 10.0f, 0.0f })));
+	scene->model_container = mat4_mul(mat4_scale((vec3) { 200.0f, 200.0f, 1.0f }), mat4_mul(quaternion_to_mat4(euler_to_quaternion((vec3) { 0.0f, 0.0f, 0.0f })), mat4_translation((vec3) { 320.0f, 10.0f, 0.0f })));
 
 	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f);
 	return scene;
 }
 
 void scene_delete(Scene* scene) {
-	texture_delete(&scene->texture_white);
-	texture_delete(&scene->texture_container);
-	image_delete(&scene->image_white);
-	image_delete(&scene->image_container);
-	material_delete(&scene->material1);
-	material_delete(&scene->material2);
-	mesh_delete(&scene->mesh);
-	shader_delete(&scene->shader);
+	assets_delete(&scene->assets);
 	m_free(scene, sizeof(Scene));
 }
 
@@ -91,15 +82,15 @@ void scene_update(Scene* scene, float dt) {
 }
 
 void scene_render(Scene* scene, Renderer* renderer) {
-	shader_bind(&scene->shader, &scene->projection);
-	
-	shader_set_model(&scene->shader, &scene->model1);
-	material_bind(&scene->material1);
-	mesh_draw(&scene->mesh);
+	shader_bind(scene->shader, &scene->projection);
 
-	shader_set_model(&scene->shader, &scene->model2);
-	material_bind(&scene->material2);
-	mesh_draw(&scene->mesh);
+	shader_set_model(scene->shader, &scene->model_orange);
+	material_bind(scene->material_orange);
+	mesh_draw(scene->mesh);
+
+	shader_set_model(scene->shader, &scene->model_container);
+	material_bind(scene->material_container);
+	mesh_draw(scene->mesh);
 }
 
 void scene_key_pressed(Scene* scene, byte key) {

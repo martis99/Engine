@@ -11,6 +11,9 @@ typedef unsigned int uint;
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include <string.h>
+#include <math.h>
+
 #include "log.h"
 #include "mem.h"
 

@@ -175,6 +175,7 @@
     <ClCompile Include="src\api\wnd\windows\acursor.c" />
     <ClCompile Include="src\api\wnd\windows\awindow.c" />
     <ClCompile Include="src\app.c" />
+    <ClCompile Include="src\assets\assets.c" />
     <ClCompile Include="src\assets\image.c" />
     <ClCompile Include="src\assets\material.c" />
     <ClCompile Include="src\assets\mesh.c" />
@@ -225,6 +226,7 @@
     <ClInclude Include="src\api\wnd\acursor.h" />
     <ClInclude Include="src\api\wnd\awindow.h" />
     <ClInclude Include="src\app.h" />
+    <ClInclude Include="src\assets\assets.h" />
     <ClInclude Include="src\assets\image.h" />
     <ClInclude Include="src\assets\material.h" />
     <ClInclude Include="src\assets\mesh.h" />
