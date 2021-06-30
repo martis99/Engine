@@ -128,7 +128,7 @@ static void main_loop(App* app) {
 		if (elapsed > CLOCKS_PER_SEC) {
 			char title[100];
 			float ms = elapsed / (float)frames;
-			sprintf_s(title, 100, "Engine %u FPS %.2f ms, mem: %u", frames, ms, (uint)app->stats.memory);
+			sprintf_s(title, 100, "Engine %u FPS %.2f ms, mem: %u, dc: %i", frames, ms, (uint)app->stats.memory, app->stats.draw_calls);
 			window_set_title(&app->window, title);
 
 			last = current;

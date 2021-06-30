@@ -3,6 +3,7 @@
 
 Stats* stats_create(Stats* stats) {
 	stats->memory = 0;
+	stats->draw_calls = 0;
 	return stats;
 }
 
