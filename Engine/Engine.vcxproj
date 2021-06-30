@@ -163,6 +163,7 @@
     <ClCompile Include="src\api\gfx\opengl\amesh.c" />
     <ClCompile Include="src\api\gfx\opengl\arenderer.c" />
     <ClCompile Include="src\api\gfx\opengl\ashader.c" />
+    <ClCompile Include="src\api\gfx\opengl\auniform.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_buffer.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_program.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_renderer.c" />
@@ -172,6 +173,7 @@
     <ClCompile Include="src\app.c" />
     <ClCompile Include="src\assets\mesh.c" />
     <ClCompile Include="src\assets\shader.c" />
+    <ClCompile Include="src\assets\uniform.c" />
     <ClCompile Include="src\input\keyboard.c" />
     <ClCompile Include="src\input\mouse.c" />
     <ClCompile Include="src\log.c" />
@@ -200,6 +202,7 @@
     <ClInclude Include="src\api\gfx\amesh.h" />
     <ClInclude Include="src\api\gfx\arenderer.h" />
     <ClInclude Include="src\api\gfx\ashader.h" />
+    <ClInclude Include="src\api\gfx\auniform.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_buffer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_defines.h" />
@@ -211,6 +214,7 @@
     <ClInclude Include="src\app.h" />
     <ClInclude Include="src\assets\mesh.h" />
     <ClInclude Include="src\assets\shader.h" />
+    <ClInclude Include="src\assets\uniform.h" />
     <ClInclude Include="src\input\keyboard.h" />
     <ClInclude Include="src\input\keys.h" />
     <ClInclude Include="src\input\mouse.h" />

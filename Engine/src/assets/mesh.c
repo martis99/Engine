@@ -23,10 +23,10 @@ void mesh_draw(Mesh* mesh) {
 
 void mesh_init_quad(Mesh* mesh) {
 	float vertices[] = {
-	-0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
-	0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-	0.5f,  -0.5f, 0.0f, 1.0f, 0.0f,
-	-0.5f,  -0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f,  1.0f, 0.0f,
+		1.0f,  1.0f, 0.0f,
+		1.0f,  0.0f, 0.0f,
+		0.0f,  0.0f, 0.0f,
 	};
 
 	uint indices[] = {
@@ -34,6 +34,6 @@ void mesh_init_quad(Mesh* mesh) {
 		3, 2, 1
 	};
 
-	uint layout[] = { 3, 2 };
+	uint layout[] = { 3 };
 	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout));
 }

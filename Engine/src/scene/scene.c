@@ -8,6 +8,8 @@
 struct Scene {
 	Shader shader;
 	Mesh mesh;
+	mat4 projection;
+	mat4 model;
 };
 
 Scene* scene_create(float width, float height) {
@@ -16,8 +18,10 @@ Scene* scene_create(float width, float height) {
 	const char* src_vert =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 a_pos;\n"
+		"uniform mat4 u_model;\n"
+		"uniform mat4 u_view_projection;\n"
 		"void main() {\n"
-		"	gl_Position = vec4(a_pos, 1.0);\n"
+		"	gl_Position = u_view_projection * u_model * vec4(a_pos, 1.0);\n"
 		"}\0";
 
 	const char* src_frag =
@@ -29,6 +33,10 @@ Scene* scene_create(float width, float height) {
 
 	shader_create(&scene->shader, src_vert, src_frag);
 	mesh_init_quad(mesh_create(&scene->mesh));
+
+	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f);
+	scene->model = mat4_mul(mat4_scale((vec3) { 300.0f, 400.0f, 1.0f }), mat4_mul(quaternion_to_mat4(euler_to_quaternion((vec3) { 0.0f, 0.0f, 0.0f })), mat4_translation((vec3) {10.0f, 10.0f, 0.0f})));
+
 	return scene;
 }
 
@@ -43,7 +51,8 @@ void scene_update(Scene* scene, float dt) {
 }
 
 void scene_render(Scene* scene, Renderer* renderer) {
-	shader_bind(&scene->shader);
+	shader_bind(&scene->shader, &scene->projection);
+	shader_set_model(&scene->shader, &scene->model);
 	mesh_draw(&scene->mesh);
 }
 
