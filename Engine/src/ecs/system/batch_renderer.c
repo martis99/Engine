@@ -30,7 +30,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* ma
 
 	uint layout[] = { 3, 4, 2, 1, 2, 4 };
 	mesh_create(&batch_renderer->mesh);
-	mesh_init_dynamic(&batch_renderer->mesh, MAX_VERTICES * sizeof(Vertex), indices, MAX_INDICES * sizeof(uint), layout, sizeof(layout));
+	mesh_init_dynamic(&batch_renderer->mesh, MAX_VERTICES * sizeof(Vertex), indices, MAX_INDICES * sizeof(uint), layout, sizeof(layout), P_TRIANGLES);
 
 	mesh_set_count(&batch_renderer->mesh, 0);
 

@@ -192,6 +192,7 @@
     <ClCompile Include="src\ecs\ecs.c" />
     <ClCompile Include="src\ecs\system\batch_renderer.c" />
     <ClCompile Include="src\ecs\system\constraints_resolver.c" />
+    <ClCompile Include="src\ecs\system\line_renderer.c" />
     <ClCompile Include="src\ecs\system\mesh_renderer.c" />
     <ClCompile Include="src\ecs\system\sprite_renderer.c" />
     <ClCompile Include="src\ecs\system\text_renderer.c" />
@@ -229,6 +230,7 @@
     <ClInclude Include="src\api\gfx\afactor.h" />
     <ClInclude Include="src\api\gfx\afilter.h" />
     <ClInclude Include="src\api\gfx\amesh.h" />
+    <ClInclude Include="src\api\gfx\aprimitive.h" />
     <ClInclude Include="src\api\gfx\arenderer.h" />
     <ClInclude Include="src\api\gfx\ashader.h" />
     <ClInclude Include="src\api\gfx\atexture.h" />
@@ -259,6 +261,7 @@
     <ClInclude Include="src\ecs\ecs.h" />
     <ClInclude Include="src\ecs\system\batch_renderer.h" />
     <ClInclude Include="src\ecs\system\constraints_resolver.h" />
+    <ClInclude Include="src\ecs\system\line_renderer.h" />
     <ClInclude Include="src\ecs\system\mesh_renderer.h" />
     <ClInclude Include="src\ecs\system\sprite_renderer.h" />
     <ClInclude Include="src\ecs\system\text_renderer.h" />

@@ -9,6 +9,8 @@ struct AMesh {
 	GLuint vb;
 	GLuint ib;
 	GLsizei count;
+
+	APrimitive primitive;
 };
 
 AMesh* amesh_create() {
@@ -23,7 +25,9 @@ void amesh_delete(AMesh* mesh) {
 	m_free(mesh, sizeof(AMesh));
 }
 
-void amesh_init_static(AMesh* mesh, float* vertices, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size) {
+void amesh_init_static(AMesh* mesh, float* vertices, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size, APrimitive primitive) {
+	mesh->primitive = primitive;
+
 	mesh->va = gl_va_create();
 	mesh->vb = gl_vb_create_static(mesh->va, vertices_size, vertices);
 	mesh->ib = gl_ib_create_static(mesh->va, indices_size, indices);
@@ -32,7 +36,9 @@ void amesh_init_static(AMesh* mesh, float* vertices, uint vertices_size, uint* i
 	mesh->count = indices_size / sizeof(GLuint);
 }
 
-void amesh_init_dynamic(AMesh* mesh, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size) {
+void amesh_init_dynamic(AMesh* mesh, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size, APrimitive primitive) {
+	mesh->primitive = primitive;
+
 	mesh->va = gl_va_create();
 	mesh->vb = gl_vb_create_dynamic(mesh->va, vertices_size);
 	mesh->ib = gl_ib_create_static(mesh->ib, indices_size, indices);
@@ -49,8 +55,12 @@ void amesh_set_indices(AMesh* mesh, uint* indices, uint indices_size) {
 	gl_ib_set_data(mesh->va, mesh->ib, indices_size, indices);
 }
 
+void amesh_draw_arrays(AMesh* mesh) {
+	gl_va_draw_arrays(mesh->va, mesh->primitive, mesh->count);
+}
+
 void amesh_draw(AMesh* mesh) {
-	gl_va_draw_elements(mesh->va, mesh->ib, mesh->count);
+	gl_va_draw_elements(mesh->va, mesh->ib, mesh->primitive, mesh->count);
 }
 
 void amesh_set_count(AMesh* mesh, int count) {

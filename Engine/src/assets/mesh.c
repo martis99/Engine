@@ -12,12 +12,12 @@ void mesh_delete(Mesh* mesh) {
 	amesh_delete(mesh->mesh);
 }
 
-void mesh_init_static(Mesh* mesh, float* vertices, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size) {
-	amesh_init_static(mesh->mesh, vertices, vertices_size, indices, indices_size, layout, layout_size);
+void mesh_init_static(Mesh* mesh, float* vertices, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size, APrimitive primitive) {
+	amesh_init_static(mesh->mesh, vertices, vertices_size, indices, indices_size, layout, layout_size, primitive);
 }
 
-void mesh_init_dynamic(Mesh* mesh, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size) {
-	amesh_init_dynamic(mesh->mesh, vertices_size, indices, indices_size, layout, layout_size);
+void mesh_init_dynamic(Mesh* mesh, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size, APrimitive primitive) {
+	amesh_init_dynamic(mesh->mesh, vertices_size, indices, indices_size, layout, layout_size, primitive);
 }
 
 void mesh_set_vertices(Mesh* mesh, float* vertices, uint vertices_size) {
@@ -26,6 +26,11 @@ void mesh_set_vertices(Mesh* mesh, float* vertices, uint vertices_size) {
 
 void mesh_set_indices(Mesh* mesh, uint* indices, uint indices_size) {
 	amesh_set_indices(mesh->mesh, indices, indices_size);
+}
+
+void mesh_draw_arrays(Mesh* mesh) {
+	amesh_draw_arrays(mesh->mesh);
+	app.stats.draw_calls++;
 }
 
 void mesh_draw(Mesh* mesh) {
@@ -55,7 +60,7 @@ void mesh_init_quad(Mesh* mesh) {
 	};
 
 	uint layout[] = { 3, 2 };
-	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout));
+	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), P_TRIANGLES);
 }
 
 void mesh_init_cube(Mesh* mesh) {
@@ -107,5 +112,5 @@ void mesh_init_cube(Mesh* mesh) {
 	};
 
 	uint layout[] = { 3, 2 };
-	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout));
+	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), P_TRIANGLES);
 }

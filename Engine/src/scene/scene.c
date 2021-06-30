@@ -5,6 +5,7 @@
 #include "ecs/system/sprite_renderer.h"
 #include "ecs/system/text_renderer.h"
 #include "ecs/system/constraints_resolver.h"
+#include "ecs/system/line_renderer.h"
 
 #include "ecs/component/transform.h"
 #include "ecs/component/mesh_component.h"
@@ -25,6 +26,7 @@ struct Scene {
 	MeshRenderer mesh_renderer;
 	SpriteRenderer sprite_renderer;
 	TextRenderer text_renderer;
+	LineRenderer line_renderer;
 	mat4 projection;
 };
 
@@ -41,6 +43,10 @@ static void create_systems(Scene* scene) {
 	Transform text_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (text_renderer_create(&scene->text_renderer, &scene->assets, text_transform) == NULL) {
 		log_error("Failed to create text renderer");
+	}
+	Transform line_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+	if (line_renderer_create(&scene->line_renderer, &scene->assets, line_transform) == NULL) {
+		log_error("Failed to create line renderer");
 	}
 }
 
@@ -145,6 +151,10 @@ static void create_entities3d(Scene* scene) {
 		ecs_add(&scene->ecs, cube.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, cube.id, C_MESH, &mesh);
 	}
+
+	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 0.0f, 0.0f }, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f });
+	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 1.0f, 0.0f }, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f });
+	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 1.0f }, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f });
 }
 
 static void create_entities(Scene* scene) {
@@ -190,6 +200,7 @@ void scene_delete(Scene* scene) {
 	mesh_renderer_delete(&scene->mesh_renderer);
 	sprite_renderer_delete(&scene->sprite_renderer);
 	text_renderer_delete(&scene->text_renderer);
+	line_renderer_delete(&scene->line_renderer);
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
 	m_free(scene, sizeof(Scene));
@@ -206,6 +217,8 @@ void scene_update(Scene* scene, float dt) {
 
 void scene_render(Scene* scene, Renderer* renderer) {
 	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs, &scene->camera.view_projection);
+	line_renderer_render(&scene->line_renderer, &scene->camera.view_projection);
+
 	renderer_clear_depth(renderer);
 
 	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs, &scene->projection);

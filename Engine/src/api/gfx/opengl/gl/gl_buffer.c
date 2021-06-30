@@ -34,9 +34,37 @@ void gl_va_bind(GLuint vertex_array) {
 	glBindVertexArray(vertex_array);
 }
 
-void gl_va_draw_elements(GLuint vertex_array, GLuint index_buffer, GLsizei count) {
+void gl_va_draw_arrays(GLuint vertex_array, APrimitive primitive, GLsizei count) {
+	gl_va_bind(vertex_array);
+	GLenum mode;
+	switch (primitive) {
+	case P_TRIANGLES:
+		mode = GL_TRIANGLES;
+		break;
+	case P_LINES:
+		mode = GL_LINES;
+		break;
+	default:
+		mode = GL_TRIANGLES;
+	}
+	glDrawArrays(mode, 0, count);
+}
+
+void gl_va_draw_elements(GLuint vertex_array, GLuint index_buffer, APrimitive primitive, GLsizei count) {
 	gl_ib_bind(vertex_array, index_buffer);
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, NULL);
+
+	GLenum mode;
+	switch (primitive) {
+	case P_TRIANGLES:
+		mode = GL_TRIANGLES;
+		break;
+	case P_LINES:
+		mode = GL_LINES;
+		break;
+	default:
+		mode = GL_TRIANGLES;
+	}
+	glDrawElements(mode, count, GL_UNSIGNED_INT, NULL);
 }
 
 void gl_va_delete(GLuint vertex_array) {
