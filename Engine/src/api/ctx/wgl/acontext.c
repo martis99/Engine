@@ -7,26 +7,27 @@
 #include <Windows.h>
 
 #include "api/gfx/opengl/gl/gl.h"
+#include "wgl.h"
 
 #pragma comment (lib, "opengl32.lib")
+#pragma warning( disable : 6387 )
 
 struct AWindow {
-	HINSTANCE instance;
-	HWND wnd;
+	LPCWSTR class_name;
+	HMODULE module;
+	HWND window;
 	AWindowCallbacks callbacks;
 	ACursor* cursor;
 };
 
 struct AContext {
-	AWindow* window;
+	HWND window;
 	HDC device;
-	HGLRC rendering;
+	HGLRC context;
 	HMODULE library;
 };
 
-#define LOAD_OPENGL_FUNCTION(name) (name = (name##Fn)load_opengl_func(library, #name))
-
-static PROC load_opengl_func(HMODULE library, const char* name) {
+static PROC load_function(HMODULE library, const char* name) {
 	PROC p = wglGetProcAddress(name);
 	if (p != 0) {
 		return p;
@@ -34,8 +35,13 @@ static PROC load_opengl_func(HMODULE library, const char* name) {
 	return GetProcAddress(library, name);
 }
 
+#define LOAD_OPENGL_FUNCTION(name) (name = (name##Fn)load_function(library, #name))
+
 static int load_functions(HMODULE library) {
 	return
+		LOAD_OPENGL_FUNCTION(wglChoosePixelFormatARB) &&
+		LOAD_OPENGL_FUNCTION(wglCreateContextAttribsARB) &&
+
 		LOAD_OPENGL_FUNCTION(glCreateProgram) &&
 		LOAD_OPENGL_FUNCTION(glDeleteProgram) &&
 		LOAD_OPENGL_FUNCTION(glLinkProgram) &&
@@ -84,14 +90,14 @@ static int load_functions(HMODULE library) {
 		LOAD_OPENGL_FUNCTION(glBlendEquation);
 }
 
-AContext* acontext_create(AWindow* window) {
-	AContext* context = m_malloc(sizeof(AContext));
-	context->window = window;
+static HMODULE load_opengl_functions(HMODULE module, LPCWSTR class_name) {
+	HWND window = CreateWindowExW(WS_EX_APPWINDOW, class_name, L"", WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, NULL, NULL, module, NULL);
+	HDC device = GetDC(window);
 
 	PIXELFORMATDESCRIPTOR pfd = {
 		sizeof(PIXELFORMATDESCRIPTOR),
-		3,
-		PFD_DRAW_TO_WINDOW,
+		1,
+		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
 		PFD_TYPE_RGBA,
 		32,
 		0, 0, 0, 0, 0, 0,
@@ -107,31 +113,63 @@ AContext* acontext_create(AWindow* window) {
 		0, 0, 0
 	};
 
-	context->device = GetDC(window->wnd);
-	int pixelFormat = ChoosePixelFormat(context->device, &pfd);
-	SetPixelFormat(context->device, pixelFormat, &pfd);
+	int kFormatIndex = ChoosePixelFormat(device, &pfd);
+	SetPixelFormat(device, kFormatIndex, &pfd);
+	HGLRC context = wglCreateContext(device);
+	wglMakeCurrent(device, context);
 
-	context->rendering = wglCreateContext(context->device);
-	wglMakeCurrent(context->device, context->rendering);
+	HMODULE library = LoadLibraryA("OpenGL32.dll");
+	load_functions(library);
+	wglDeleteContext(context);
+	DestroyWindow(window);
+	return library;
+}
 
-	context->library = LoadLibraryA("opengl32.dll");
-	if (context->library == 0) {
-		log_error("Failed to initialize OpenGL");
-		return NULL;
+static HGLRC create_context(HDC device) {
+	{
+		int attribs[] =
+		{
+			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+			WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+			WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+			WGL_COLOR_BITS_ARB, 32,
+			WGL_DEPTH_BITS_ARB, 24,
+			WGL_STENCIL_BITS_ARB, 8,
+			0
+		};
+
+		int format;
+		UINT num_formats;
+
+		wglChoosePixelFormatARB(device, attribs, NULL, 1, &format, &num_formats);
+		SetPixelFormat(device, format, 0);
 	}
-
-	if (load_functions(context->library) == 0) {
-		log_error("Failed to load OpenGL functions");
-		return NULL;
+	{
+		int attribs[] =
+		{
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+			0
+		};
+		return wglCreateContextAttribsARB(device, NULL, attribs);
 	}
+}
 
+AContext* acontext_create(AWindow* window) {
+	AContext* context = m_malloc(sizeof(AContext));
+	context->window = awindow_get_window(window);
+	context->library = load_opengl_functions(window->module, window->class_name);
+	context->device = GetDC(context->window);
+	context->context = create_context(context->device);
+	wglMakeCurrent(context->device, context->context);
 	return context;
 }
 
 void acontext_delete(AContext* context) {
 	FreeLibrary(context->library);
-	ReleaseDC(context->window->wnd, context->device);
-	wglDeleteContext(context->rendering);
+	ReleaseDC(context->window, context->device);
+	wglDeleteContext(context->context);
 	m_free(context, sizeof(AContext));
 }
 

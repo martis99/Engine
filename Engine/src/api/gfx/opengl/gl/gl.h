@@ -130,6 +130,4 @@ void WINAPI glDeleteTextures(GLsizei n, const GLuint* textures);
 void WINAPI glBlendFunc(GLenum sfactor, GLenum dfactor);
 void WINAPI glPixelStorei(GLenum pname, GLint param);
 void WINAPI glBindTextureUnit(GLuint unit, GLuint texture);
-
-int gl_load_functions(HMODULE library);
 #endif

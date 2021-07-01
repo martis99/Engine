@@ -5,13 +5,6 @@
 
 #include <Windows.h>
 
-struct AWindow {
-	HINSTANCE instance;
-	HWND wnd;
-	HDC device;
-	HGLRC rendering;
-};
-
 struct ACursor {
 	AWindow* window;
 	bool enabled;
@@ -31,8 +24,8 @@ void acursor_delete(ACursor* cursor) {
 
 void acursor_confine(ACursor* cursor) {
 	RECT rect;
-	GetClientRect(cursor->window->wnd, &rect);
-	MapWindowPoints(cursor->window->wnd, NULL, (POINT*)(&rect), 2);
+	GetClientRect(awindow_get_window(cursor->window), &rect);
+	MapWindowPoints(awindow_get_window(cursor->window), NULL, (POINT*)(&rect), 2);
 	ClipCursor(&rect);
 }
 

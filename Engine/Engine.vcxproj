@@ -227,6 +227,7 @@
     <ClInclude Include="lib\stb\stb_image_write.h" />
     <ClInclude Include="lib\stb\stb_truetype.h" />
     <ClInclude Include="src\api\ctx\acontext.h" />
+    <ClInclude Include="src\api\ctx\wgl\wgl.h" />
     <ClInclude Include="src\api\gfx\afactor.h" />
     <ClInclude Include="src\api\gfx\afilter.h" />
     <ClInclude Include="src\api\gfx\amesh.h" />

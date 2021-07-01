@@ -14,8 +14,9 @@ static const DWORD s_ExStyle = 0;
 static const DWORD s_Style = WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
 
 struct AWindow {
-	HINSTANCE instance;
-	HWND wnd;
+	LPCWSTR class_name;
+	HMODULE module;
+	HWND window;
 	AWindowCallbacks callbacks;
 	ACursor* cursor;
 };
@@ -176,13 +177,14 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 
 AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width, int height) {
 	AWindow* window = m_malloc(sizeof(AWindow));
-	window->instance = GetModuleHandleW(0);
+	window->class_name = s_ClassName;
+	window->module = GetModuleHandleW(0);
 	window->callbacks = *callbacks;
 	window->cursor = cursor;
 
 	WNDCLASS wc = { 0 };
 	wc.lpfnWndProc = wnd_proc;
-	wc.hInstance = window->instance;
+	wc.hInstance = window->module;
 	wc.lpszClassName = s_ClassName;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.style = CS_OWNDC;
@@ -197,7 +199,7 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 	int screen_w = GetSystemMetrics(SM_CXSCREEN);
 	int screen_h = GetSystemMetrics(SM_CYSCREEN);
 
-	window->wnd = CreateWindowExW(
+	window->window = CreateWindowExW(
 		s_ExStyle,
 		wc.lpszClassName,
 		s_WindowName,
@@ -208,11 +210,11 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 		rect.bottom - rect.top,
 		0,
 		0,
-		window->instance,
+		window->module,
 		window
 	);
 
-	ShowWindow(window->wnd, SW_SHOW);
+	ShowWindow(window->window, SW_SHOW);
 
 	RAWINPUTDEVICE rid;
 	rid.usUsagePage = 0x01;
@@ -228,13 +230,17 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 }
 
 void awindow_delete(AWindow* window) {
-	DestroyWindow(window->wnd);
-	UnregisterClassW(s_ClassName, window->instance);
+	DestroyWindow(window->window);
+	UnregisterClassW(s_ClassName, window->module);
 	m_free(window, sizeof(AWindow));
 }
 
+void* awindow_get_window(AWindow* window) {
+	return window->window;
+}
+
 void awindow_set_title(AWindow* window, const char* title) {
-	if (SetWindowTextA(window->wnd, title) == 0) {
+	if (SetWindowTextA(window->window, title) == 0) {
 		log_error("Failed to set title");
 	}
 }
