@@ -129,6 +129,7 @@ AContext* acontext_create(AWindow* window) {
 }
 
 void acontext_delete(AContext* context) {
+	FreeLibrary(context->library);
 	ReleaseDC(context->window->wnd, context->device);
 	wglDeleteContext(context->rendering);
 	m_free(context, sizeof(AContext));

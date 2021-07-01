@@ -41,7 +41,7 @@ void amesh_init_dynamic(AMesh* mesh, uint vertices_size, uint* indices, uint ind
 
 	mesh->va = gl_va_create();
 	mesh->vb = gl_vb_create_dynamic(mesh->va, vertices_size);
-	mesh->ib = gl_ib_create_static(mesh->ib, indices_size, indices);
+	mesh->ib = gl_ib_create_static(mesh->va, indices_size, indices);
 	gl_va_layout_create(mesh->va, layout_size, layout);
 
 	mesh->count = vertices_size / sizeof(GLfloat);
