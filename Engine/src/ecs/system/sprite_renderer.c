@@ -1,6 +1,23 @@
 #include "pch.h"
 #include "sprite_renderer.h"
 
+typedef struct SpriteVertex {
+	vec3 position;
+	vec4 color;
+	vec2 tex_coord;
+	int tex_index;
+	vec2 size;
+	vec4 borders;
+	int entity;
+} SpriteVertex;
+
+typedef struct SpriteVertexData {
+	vec4 color;
+	vec3 scale;
+	vec4 borders;
+	int entity;
+} SpriteVertexData;
+
 SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* assets, Transform transform) {
 	sprite_renderer->transform = transform;
 
@@ -9,13 +26,13 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 		"layout (location = 0) in vec3 a_pos;\n"
 		"layout (location = 1) in vec4 a_color;\n"
 		"layout (location = 2) in vec2 a_tex_coord;\n"
-		"layout (location = 3) in float a_tex_index;\n"
+		"layout (location = 3) in int a_tex_index;\n"
 		"layout (location = 4) in vec2 a_size;\n"
 		"layout (location = 5) in vec4 a_borders;\n"
 		"layout (location = 6) in int a_entity;\n"
 		"out vec4 v_color;\n"
 		"out vec2 v_tex_coord;\n"
-		"out float v_tex_index;\n"
+		"out flat int v_tex_index;\n"
 		"out vec2 v_size;\n"
 		"out vec4 v_borders;\n"
 		"out flat int v_entity;\n"
@@ -37,14 +54,14 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 		"layout (location = 1) out int color2;\n"
 		"in vec4 v_color;\n"
 		"in vec2 v_tex_coord;\n"
-		"in float v_tex_index;\n"
+		"in flat int v_tex_index;\n"
 		"in vec2 v_size;\n"
 		"in vec4 v_borders;\n"
 		"in flat int v_entity;\n"
 		"uniform vec4 u_color;\n"
 		"uniform sampler2D u_textures[16];"
 		"void main() {\n"
-		"	vec2 texture_size = textureSize(u_textures[int(v_tex_index)], 0);\n"
+		"	vec2 texture_size = textureSize(u_textures[v_tex_index], 0);\n"
 		"	vec2 tex_coord = v_tex_coord;\n"
 		"	vec2 pixel = v_tex_coord * v_size;\n"
 		"	float l = v_borders.x;\n"
@@ -84,7 +101,8 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 	}
 	Material* material = assets_material_create(assets, "sprite_material", shader);
 
-	if (batch_renderer_create(&sprite_renderer->batch_renderer, material) == NULL) {
+	ADataType layout[] = { VEC3F, VEC4F, VEC2F, VEC1I, VEC2F, VEC4F, VEC1I };
+	if (batch_renderer_create(&sprite_renderer->batch_renderer, material, layout, sizeof(layout), sizeof(SpriteVertex)) == NULL) {
 		log_error("Failed to create sprite batch renderer");
 		return NULL;
 	}
@@ -101,11 +119,29 @@ void sprite_renderer_submit(SpriteRenderer* text_renderer) {
 	batch_renderer_submit(&text_renderer->batch_renderer);
 }
 
+static void add_vertex(void* vvertex, vec3 position, vec2 tex_coord, int tex_index, void* vdata) {
+	SpriteVertex* vertex = vvertex;
+	SpriteVertexData* data = vdata;
+
+	vertex->position = position;
+	vertex->color = data->color;
+	vertex->tex_coord = tex_coord;
+	vertex->tex_index = tex_index;
+	vertex->size = vec3_to_vec2(data->scale);
+	vertex->borders = data->borders;
+	vertex->entity = data->entity;
+}
+
 static void add_sprite(SpriteRenderer* sprite_renderer, Transform* transform, Sprite* sprite, int entity) {
+	SpriteVertexData data;
+	data.color = sprite->color;
+	data.scale = transform->scale;
+	data.borders = sprite->borders;
+	data.entity = entity;
 	if (sprite->sub == 0) {
-		batch_renderer_add(&sprite_renderer->batch_renderer, transform, sprite->texture, sprite->color, sprite->borders, entity);
+		batch_renderer_add(&sprite_renderer->batch_renderer, transform, sprite->texture, &data, add_vertex);
 	} else {
-		batch_renderer_add_sub(&sprite_renderer->batch_renderer, transform, sprite->texture, sprite->color, sprite->pos, sprite->size, entity);
+		batch_renderer_add_sub(&sprite_renderer->batch_renderer, transform, sprite->texture, sprite->pos, sprite->size, &data, add_vertex);
 	}
 }
 

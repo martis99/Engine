@@ -74,7 +74,7 @@ void line_renderer_add(LineRenderer* line_renderer, vec3 start, vec3 end, vec4 c
 }
 
 void line_renderer_submit(LineRenderer* line_renderer) {
-	mesh_set_vertices(&line_renderer->mesh, (float*)line_renderer->vertices, line_renderer->vertices_count * sizeof(LineVertex));
+	mesh_set_vertices(&line_renderer->mesh, line_renderer->vertices, line_renderer->vertices_count * sizeof(LineVertex));
 }
 
 void line_renderer_render(LineRenderer* line_renderer, mat4* view_projection) {

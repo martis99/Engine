@@ -8,9 +8,9 @@ typedef struct Mesh {
 Mesh* mesh_create(Mesh* mesh);
 void mesh_delete(Mesh* mesh);
 
-void mesh_init_static(Mesh* mesh, float* vertices, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive);
+void mesh_init_static(Mesh* mesh, const void* data, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive);
 void mesh_init_dynamic(Mesh* mesh, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive);
-void mesh_set_vertices(Mesh* mesh, float* vertices, uint vertices_size);
+void mesh_set_vertices(Mesh* mesh, const void* data, uint vertices_size);
 void mesh_set_indices(Mesh* mesh, uint* indices, uint indices_size);
 void mesh_draw_arrays(Mesh* mesh);
 void mesh_draw(Mesh* mesh);

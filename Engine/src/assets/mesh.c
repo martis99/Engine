@@ -12,16 +12,16 @@ void mesh_delete(Mesh* mesh) {
 	amesh_delete(mesh->mesh);
 }
 
-void mesh_init_static(Mesh* mesh, float* vertices, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
-	amesh_init_static(mesh->mesh, vertices, vertices_size, indices, indices_size, layout, layout_size, primitive);
+void mesh_init_static(Mesh* mesh, const void* data, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
+	amesh_init_static(mesh->mesh, data, vertices_size, indices, indices_size, layout, layout_size, primitive);
 }
 
 void mesh_init_dynamic(Mesh* mesh, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
 	amesh_init_dynamic(mesh->mesh, vertices_size, indices, indices_size, layout, layout_size, primitive);
 }
 
-void mesh_set_vertices(Mesh* mesh, float* vertices, uint vertices_size) {
-	amesh_set_vertices(mesh->mesh, vertices, vertices_size);
+void mesh_set_vertices(Mesh* mesh, const void* data, uint vertices_size) {
+	amesh_set_vertices(mesh->mesh, data, vertices_size);
 }
 
 void mesh_set_indices(Mesh* mesh, uint* indices, uint indices_size) {

@@ -6,12 +6,13 @@
 #define MAX_VERTICES MAX_QUADS * 4
 #define MAX_INDICES MAX_QUADS * 6
 
-BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* material) {
+BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* material, ADataType* layout, uint layout_size, size_t vertex_size) {
 	batch_renderer->shader = material->shader;
 	batch_renderer->material = material;
 
-	batch_renderer->vertices = m_malloc(MAX_VERTICES * sizeof(Vertex));
+	batch_renderer->vertices = m_malloc(MAX_VERTICES * vertex_size);
 	batch_renderer->vertices_count = 0;
+	batch_renderer->vertex_size = vertex_size;
 
 	uint indices[MAX_INDICES];
 
@@ -28,9 +29,8 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* ma
 		offset += 4;
 	}
 
-	ADataType layout[] = { VEC3F, VEC4F, VEC2F, VEC1F, VEC2F, VEC4F, VEC1I };
 	mesh_create(&batch_renderer->mesh);
-	mesh_init_dynamic(&batch_renderer->mesh, MAX_VERTICES * sizeof(Vertex), indices, MAX_INDICES * sizeof(uint), layout, sizeof(layout), A_TRIANGLES);
+	mesh_init_dynamic(&batch_renderer->mesh, MAX_VERTICES * (uint)vertex_size, indices, MAX_INDICES * sizeof(uint), layout, layout_size, A_TRIANGLES);
 
 	mesh_set_count(&batch_renderer->mesh, 0);
 
@@ -47,7 +47,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* ma
 }
 
 void batch_renderer_delete(BatchRenderer* batch_renderer) {
-	m_free(batch_renderer->vertices, MAX_VERTICES * sizeof(Vertex));
+	m_free(batch_renderer->vertices, MAX_VERTICES * batch_renderer->vertex_size);
 	m_free(batch_renderer->textures, MAX_TEXTURES * sizeof(Texture*));
 	mesh_delete(&batch_renderer->mesh);
 }
@@ -70,7 +70,7 @@ static uint add_texture(BatchRenderer* batch_renderer, Texture* texture) {
 	return batch_renderer->textures_count - 1;
 }
 
-static void add_quad(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec2* tex_coords, vec4 borders, int entity) {
+static void add_quad(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec2* tex_coords, void* data, void(*add_vertex)(void*, vec3, vec2, int, void*)) {
 	vec3 vertices[] = {
 		{ 0.0f, 1.0f, 0.0f },
 		{ 1.0f, 1.0f, 0.0f },
@@ -80,20 +80,16 @@ static void add_quad(BatchRenderer* batch_renderer, Transform* transform, Textur
 
 	uint tex_index = add_texture(batch_renderer, texture);
 	for (int i = 0; i < 4; i++) {
-		batch_renderer->vertices[batch_renderer->vertices_count + i].position = transform_vec3(transform, vertices[i]);
-		batch_renderer->vertices[batch_renderer->vertices_count + i].color = color;
-		batch_renderer->vertices[batch_renderer->vertices_count + i].tex_coord = tex_coords[i];
-		batch_renderer->vertices[batch_renderer->vertices_count + i].tex_index = (float)tex_index;
-		batch_renderer->vertices[batch_renderer->vertices_count + i].size = vec3_to_vec2(transform->scale);
-		batch_renderer->vertices[batch_renderer->vertices_count + i].borders = borders;
-		batch_renderer->vertices[batch_renderer->vertices_count + i].entity = entity;
+		int index = batch_renderer->vertices_count + i;
+		void* vertex = (byte*)batch_renderer->vertices + index * batch_renderer->vertex_size;
+		add_vertex(vertex, transform_vec3(transform, vertices[i]), tex_coords[i], tex_index, data);
 	}
 
 	mesh_add_count(&batch_renderer->mesh, 6);
 	batch_renderer->vertices_count += 4;
 }
 
-void batch_renderer_add(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec4 borders, int entity) {
+void batch_renderer_add(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, void* data, void(*add_vertex)(void*, vec3, vec2, int, void*)) {
 	vec2 tex_coords[] = {
 		{0.0f, 1.0f},
 		{1.0f, 1.0f},
@@ -101,10 +97,10 @@ void batch_renderer_add(BatchRenderer* batch_renderer, Transform* transform, Tex
 		{0.0f, 0.0f}
 	};
 
-	add_quad(batch_renderer, transform, texture, color, tex_coords, borders, entity);
+	add_quad(batch_renderer, transform, texture, tex_coords, data, add_vertex);
 }
 
-void batch_renderer_add_sub(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec2i pos, vec2i size, int entity) {
+void batch_renderer_add_sub(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec2i pos, vec2i size, void* data, void(*add_vertex)(void*, vec3, vec2, int, void*)) {
 	vec2 min = (vec2){ (float)pos.x / texture->width, (float)pos.y / texture->height };
 	vec2 max = (vec2){ ((float)pos.x + size.x) / texture->width, ((float)pos.y + size.y) / texture->height };
 	vec2 tex_coords[] = {
@@ -114,11 +110,11 @@ void batch_renderer_add_sub(BatchRenderer* batch_renderer, Transform* transform,
 		{min.x, min.y}
 	};
 
-	add_quad(batch_renderer, transform, texture, color, tex_coords, (vec4) { 0, 0, 0, 0 }, entity);
+	add_quad(batch_renderer, transform, texture, tex_coords, data, add_vertex);
 }
 
 void batch_renderer_submit(BatchRenderer* batch_renderer) {
-	mesh_set_vertices(&batch_renderer->mesh, (float*)batch_renderer->vertices, batch_renderer->vertices_count * sizeof(Vertex));
+	mesh_set_vertices(&batch_renderer->mesh, batch_renderer->vertices, batch_renderer->vertices_count * (uint)batch_renderer->vertex_size);
 }
 
 void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer, mat4* view_projection) {
