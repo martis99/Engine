@@ -13,9 +13,11 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Assets* assets, 
 		"layout (location = 3) in float a_tex_index;\n"
 		"layout (location = 4) in vec2 a_size;\n"
 		"layout (location = 5) in vec4 a_borders;\n"
+		"layout (location = 6) in int a_entity;\n"
 		"out vec4 v_color;\n"
 		"out vec2 v_tex_coord;\n"
 		"out float v_tex_index;\n"
+		"out flat int v_entity;\n"
 		"uniform mat4 u_model;\n"
 		"uniform mat4 u_view_projection;\n"
 		"void main() {\n"
@@ -23,18 +25,22 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Assets* assets, 
 		"	v_color = a_color;\n"
 		"	v_tex_coord = a_tex_coord;\n"
 		"	v_tex_index = a_tex_index;\n"
+		"	v_entity = a_entity;\n"
 		"}\0";
 
 	const char* src_frag =
 		"#version 330 core\n"
-		"out vec4 FragColor;\n"
+		"layout (location = 0) out vec4 FragColor;\n"
+		"layout (location = 1) out int color2;\n"
 		"in vec4 v_color;\n"
 		"in vec2 v_tex_coord;\n"
 		"in float v_tex_index;\n"
+		"in flat int v_entity;\n"
 		"uniform vec4 u_color;\n"
 		"uniform sampler2D u_textures[16];"
 		"void main() {\n"
 		"	FragColor = v_color * vec4(1.0f, 1.0f, 1.0f, texture(u_textures[int(v_tex_index)], v_tex_coord).r);\n"
+		"	color2 = v_entity;\n"
 		"}\0";
 
 	Shader* shader = assets_shader_create(assets, "text_shader", src_vert, src_frag);
@@ -84,7 +90,7 @@ static void calculate_preffered(Transform* transform, Text* text, Constraints* c
 	transform->scale_pref.y = y + text->font->line_height;
 }
 
-static void add_text(TextRenderer* text_renderer, Transform* transform, Text* text) {
+static void add_text(TextRenderer* text_renderer, Transform* transform, Text* text, int entity) {
 	float x = 0;
 	float y = 0;
 
@@ -95,7 +101,7 @@ static void add_text(TextRenderer* text_renderer, Transform* transform, Text* te
 		float py = transform->position.y + y + fc.offset.y + text->font->ascent;
 		float pz = transform->position.z;
 		Transform tr = transform_create((vec3) { px, py, pz }, transform->rotation, vec2i_to_vec3(fc.size, 1.0f));
-		batch_renderer_add_sub(&text_renderer->batch_renderer, &tr, text->font->texture, text->color, fc.pos, fc.size);
+		batch_renderer_add_sub(&text_renderer->batch_renderer, &tr, text->font->texture, text->color, fc.pos, fc.size, entity);
 
 		x += fc.advance;
 		if (i + 1 < strlen(text->text)) {
@@ -120,7 +126,7 @@ void text_renderer_render(TextRenderer* text_renderer, Ecs* ecs, mat4* view_proj
 	for (uint i = 0; i < qr->count; ++i) {
 		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
 		Text* text = (Text*)ecs_get(ecs, qr->list[i], C_TEXT);
-		add_text(text_renderer, transform, text);
+		add_text(text_renderer, transform, text, qr->list[i]);
 	}
 	text_renderer_submit(text_renderer);
 	batch_renderer_draw(&text_renderer->transform, &text_renderer->batch_renderer, view_projection);

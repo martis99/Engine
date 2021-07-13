@@ -18,12 +18,15 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Assets* assets) 
 
 	const char* src_frag =
 		"#version 330 core\n"
-		"out vec4 FragColor;\n"
+		"layout (location = 0) out vec4 FragColor;\n"
+		"layout (location = 1) out int color2;\n"
 		"in vec2 v_tex_coord;\n"
 		"uniform vec4 u_color;\n"
+		"uniform int u_entity;\n"
 		"uniform sampler2D u_texture;\n"
 		"void main() {\n"
 		"	FragColor = texture(u_texture, v_tex_coord) * u_color;\n"
+		"	color2 = u_entity;\n"
 		"}\0";
 
 	mesh_renderer->shader = assets_shader_create(assets, "mesh_shader", src_vert, src_frag);
@@ -49,6 +52,7 @@ void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs, mat4* view_proj
 
 		mat4 model = transform_to_mat4(transform);
 		shader_set_model(mesh_renderer->shader, &model);
+		shader_set_entity(mesh_renderer->shader, qr->list[i]);
 		material_bind(mesh_component->material);
 		mesh_draw(&mesh_component->mesh);
 	}

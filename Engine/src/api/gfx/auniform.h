@@ -1,22 +1,10 @@
 #pragma once
 #include "ashader.h"
-
-typedef enum {
-	EMPTY,
-	VEC1I,
-	VEC2I,
-	VEC3I,
-	VEC4I,
-	VEC1F,
-	VEC2F,
-	VEC3F,
-	VEC4F,
-	MAT4F
-} AUniformType;
+#include "adatatype.h"
 
 typedef struct AUniform AUniform;
 
-AUniform* auniform_create(AShader* shader, const char* name, AUniformType type, int count);
+AUniform* auniform_create(AShader* shader, const char* name, ADataType type, int count);
 void auniform_delete(AUniform* unfiform);
 
 void auniform_set(AUniform* uniform, const void* data);

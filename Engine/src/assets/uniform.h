@@ -8,7 +8,7 @@ typedef struct Uniform {
 } Uniform;
 
 
-Uniform* uniform_create(Uniform* uniform, Shader* shader, const char* name, AUniformType type, int count);
+Uniform* uniform_create(Uniform* uniform, Shader* shader, const char* name, ADataType type, int count);
 void uniform_delete(Uniform* uniform);
 
 void uniform_set(Uniform* uniform, const void* data);

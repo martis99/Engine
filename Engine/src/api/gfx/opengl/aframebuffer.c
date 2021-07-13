@@ -7,36 +7,37 @@
 
 struct AFramebuffer {
 	GLuint fb;
-	GLuint attachment_color;
-	GLuint attachment_depth;
+	GLuint* attachments;
+	GLsizei attachments_count;
 };
 
-AFramebuffer* aframebuffer_create() {
+AFramebuffer* aframebuffer_create(AAttachmentFormat* attachments, int attachments_size, int width, int height) {
+	int attachments_count = attachments_size / sizeof(AAttachmentFormat);
+
 	AFramebuffer* framebuffer = m_malloc(sizeof(AFramebuffer));
 	framebuffer->fb = gl_fb_create();
-	framebuffer->attachment_color = 0;
-	framebuffer->attachment_depth = 0;
+	framebuffer->attachments = m_malloc(sizeof(GLuint) * attachments_count);
+	framebuffer->attachments_count = attachments_count;
+
+	for (int i = 0; i < attachments_count; i++) {
+		switch (attachments[i]) {
+		case A_RGBA8: framebuffer->attachments[i] = gl_fb_color_attachment(framebuffer->fb, GL_RGBA8, GL_RGBA, width, height, i); break;
+		case A_RED_INTEGER: framebuffer->attachments[i] = gl_fb_color_attachment(framebuffer->fb, GL_R32I, GL_RED_INTEGER, width, height, i); break;
+		case A_DEPTH24STENCIL8: framebuffer->attachments[i] = gl_fb_depth_stencil_attachment(framebuffer->fb, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, width, height); break;
+		default: break;
+		}
+	}
+
 	return framebuffer;
 }
 
 void aframebuffer_delete(AFramebuffer* framebuffer) {
-	if (framebuffer->attachment_color != 0) {
-		gl_texture_delete(framebuffer->attachment_color);
+	for (int i = 0; i < framebuffer->attachments_count; i++) {
+		gl_texture_delete(framebuffer->attachments[i]);
 	}
+	m_free(framebuffer->attachments, sizeof(GLuint) * framebuffer->attachments_count);
 	gl_fb_delete(framebuffer->fb);
 	m_free(framebuffer, sizeof(AFramebuffer));
-}
-
-void aframebuffer_attachment_color(AFramebuffer* framebuffer, int width, int height) {
-	framebuffer->attachment_color = gl_fb_attachment_color(framebuffer->fb, width, height);
-}
-
-void aframebuffer_attachment_depth_stencil(AFramebuffer* framebuffer, int width, int height) {
-	framebuffer->attachment_depth = gl_fb_attachment_depth_stencil(framebuffer->fb, width, height);
-}
-
-void aframebuffer_attachment_bind_color(AFramebuffer* framebuffer) {
-	gl_fb_attachment_bind_color(framebuffer->attachment_color);
 }
 
 void aframebuffer_bind(AFramebuffer* framebuffer) {
@@ -49,5 +50,26 @@ void aframebuffer_unbind(AFramebuffer* framebuffer) {
 
 bool aframebuffer_check_status(AFramebuffer* framebuffer) {
 	return gl_fb_check_status(framebuffer->fb);
+}
+
+void aframebuffer_attachment_bind(AFramebuffer* framebuffer, int index) {
+	gl_fb_attachment_bind(framebuffer->attachments[index]);
+}
+
+void aframebuffer_color_attachments_draw(AFramebuffer* framebuffer) {
+	GLenum buffers[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0 + 1 };
+	glDrawBuffers(2, buffers);
+}
+
+void aframebuffer_color_attachment_clear_i(AFramebuffer* framebuffer, int index, const int* value) {
+	gl_fb_color_attachment_clear_i(index, value);
+}
+
+void aframebuffer_color_attachment_clear_f(AFramebuffer* framebuffer, int index, const float* value) {
+	gl_fb_color_attachment_clear_f(index, value);
+}
+
+int aframebuffer_color_attachment_read_pixel(AFramebuffer* framebuffer, int index, int x, int y) {
+	return gl_fb_color_attachment_read_pixel(index, x, y);
 }
 #endif

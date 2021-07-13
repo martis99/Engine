@@ -6,6 +6,8 @@
 #include "assets/mesh.h"
 
 typedef struct Renderer {
+	int width;
+	int height;
 	ARenderer* renderer;
 	Framebuffer framebuffer;
 	Shader shader;
@@ -24,3 +26,5 @@ void renderer_clear_depth(Renderer* renderer);
 
 void renderer_toggle_backface_culling(Renderer* renderer);
 void renderer_toggle_fireframe(Renderer* renderer);
+
+int renderer_get_mouse_entity(Renderer* renderer);

@@ -2,9 +2,10 @@
 #ifdef E_OPENGL
 #include "gl.h"
 #include "api/gfx/aprimitive.h"
+#include "api/gfx/adatatype.h"
 
 GLuint gl_va_create();
-void gl_va_layout_create(GLuint vertex_array, GLuint layout_size, GLuint* layout);
+void gl_va_layout_create(GLuint vertex_array, GLuint layout_size, ADataType* layout);
 void gl_va_bind(GLuint vertex_array);
 void gl_va_draw_arrays(GLuint vertex_array, APrimitive primitive, GLsizei count);
 void gl_va_draw_elements(GLuint vertex_array, GLuint index_buffer, APrimitive primitive, GLsizei count);

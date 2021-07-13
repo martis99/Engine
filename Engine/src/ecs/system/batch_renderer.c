@@ -28,7 +28,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* ma
 		offset += 4;
 	}
 
-	uint layout[] = { 3, 4, 2, 1, 2, 4 };
+	ADataType layout[] = { VEC3F, VEC4F, VEC2F, VEC1F, VEC2F, VEC4F, VEC1I };
 	mesh_create(&batch_renderer->mesh);
 	mesh_init_dynamic(&batch_renderer->mesh, MAX_VERTICES * sizeof(Vertex), indices, MAX_INDICES * sizeof(uint), layout, sizeof(layout), P_TRIANGLES);
 
@@ -70,7 +70,7 @@ static uint add_texture(BatchRenderer* batch_renderer, Texture* texture) {
 	return batch_renderer->textures_count - 1;
 }
 
-static void add_quad(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec2* tex_coords, vec4 borders) {
+static void add_quad(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec2* tex_coords, vec4 borders, int entity) {
 	vec3 vertices[] = {
 		{ 0.0f, 1.0f, 0.0f },
 		{ 1.0f, 1.0f, 0.0f },
@@ -86,13 +86,14 @@ static void add_quad(BatchRenderer* batch_renderer, Transform* transform, Textur
 		batch_renderer->vertices[batch_renderer->vertices_count + i].tex_index = (float)tex_index;
 		batch_renderer->vertices[batch_renderer->vertices_count + i].size = vec3_to_vec2(transform->scale);
 		batch_renderer->vertices[batch_renderer->vertices_count + i].borders = borders;
+		batch_renderer->vertices[batch_renderer->vertices_count + i].entity = entity;
 	}
 
 	mesh_add_count(&batch_renderer->mesh, 6);
 	batch_renderer->vertices_count += 4;
 }
 
-void batch_renderer_add(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec4 borders) {
+void batch_renderer_add(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec4 borders, int entity) {
 	vec2 tex_coords[] = {
 		{0.0f, 1.0f},
 		{1.0f, 1.0f},
@@ -100,10 +101,10 @@ void batch_renderer_add(BatchRenderer* batch_renderer, Transform* transform, Tex
 		{0.0f, 0.0f}
 	};
 
-	add_quad(batch_renderer, transform, texture, color, tex_coords, borders);
+	add_quad(batch_renderer, transform, texture, color, tex_coords, borders, entity);
 }
 
-void batch_renderer_add_sub(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec2i pos, vec2i size) {
+void batch_renderer_add_sub(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec2i pos, vec2i size, int entity) {
 	vec2 min = (vec2){ (float)pos.x / texture->width, (float)pos.y / texture->height };
 	vec2 max = (vec2){ ((float)pos.x + size.x) / texture->width, ((float)pos.y + size.y) / texture->height };
 	vec2 tex_coords[] = {
@@ -113,7 +114,7 @@ void batch_renderer_add_sub(BatchRenderer* batch_renderer, Transform* transform,
 		{min.x, min.y}
 	};
 
-	add_quad(batch_renderer, transform, texture, color, tex_coords, (vec4) { 0, 0, 0, 0 });
+	add_quad(batch_renderer, transform, texture, color, tex_coords, (vec4) { 0, 0, 0, 0 }, entity);
 }
 
 void batch_renderer_submit(BatchRenderer* batch_renderer) {

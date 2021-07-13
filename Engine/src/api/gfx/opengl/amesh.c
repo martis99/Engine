@@ -25,7 +25,7 @@ void amesh_delete(AMesh* mesh) {
 	m_free(mesh, sizeof(AMesh));
 }
 
-void amesh_init_static(AMesh* mesh, float* vertices, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size, APrimitive primitive) {
+void amesh_init_static(AMesh* mesh, float* vertices, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
 	mesh->primitive = primitive;
 
 	mesh->va = gl_va_create();
@@ -36,7 +36,7 @@ void amesh_init_static(AMesh* mesh, float* vertices, uint vertices_size, uint* i
 	mesh->count = indices_size / sizeof(GLuint);
 }
 
-void amesh_init_dynamic(AMesh* mesh, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size, APrimitive primitive) {
+void amesh_init_dynamic(AMesh* mesh, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
 	mesh->primitive = primitive;
 
 	mesh->va = gl_va_create();

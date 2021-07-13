@@ -10,6 +10,7 @@ typedef struct Vertex {
 	float tex_index;
 	vec2 size;
 	vec4 borders;
+	int entity;
 } Vertex;
 
 typedef struct BatchRenderer {
@@ -26,7 +27,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* ma
 void batch_renderer_delete(BatchRenderer* batch_renderer);
 
 void batch_renderer_clear(BatchRenderer* batch_renderer);
-void batch_renderer_add(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec4 borders);
-void batch_renderer_add_sub(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec2i pos, vec2i size);
+void batch_renderer_add(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec4 borders, int entity);
+void batch_renderer_add_sub(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec4 color, vec2i pos, vec2i size, int entity);
 void batch_renderer_submit(BatchRenderer* batch_renderer);
 void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer, mat4* view_projection);

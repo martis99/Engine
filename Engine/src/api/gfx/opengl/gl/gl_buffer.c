@@ -9,24 +9,54 @@ GLuint gl_va_create() {
 	return vertex_array;
 }
 
-static void va_layout_add_element(GLuint index, GLint size, GLsizei stride, GLuint offset) {
-	glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride * sizeof(GLfloat), (void*)(offset * sizeof(GLfloat)));
+static GLint element_get_size(ADataType element) {
+	switch (element) {
+	case VEC1I: return 1;
+	case VEC2I: return 2;
+	case VEC3I: return 3;
+	case VEC4I: return 4;
+	case VEC1F: return 1;
+	case VEC2F: return 2;
+	case VEC3F: return 3;
+	case VEC4F: return 4;
+	default: return 0;
+	}
+	return 0;
+}
+
+static void va_layout_add_element(GLuint index, ADataType element, GLsizei stride, GLuint offset) {
+	int size = element_get_size(element);
+	switch (element) {
+	case VEC1I:
+	case VEC2I:
+	case VEC3I:
+	case VEC4I:
+		glVertexAttribIPointer(index, size, GL_INT, stride * sizeof(GLfloat), (void*)(offset * sizeof(GLfloat)));
+		break;
+	case VEC1F:
+	case VEC2F:
+	case VEC3F:
+	case VEC4F:
+		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride * sizeof(GLfloat), (void*)(offset * sizeof(GLfloat)));
+		break;
+	default: break;
+	}
 	glEnableVertexAttribArray(index);
 }
 
-void gl_va_layout_create(GLuint vertex_array, GLuint layout_size, GLuint* layout) {
+void gl_va_layout_create(GLuint vertex_array, GLuint layout_size, ADataType* layout) {
 	gl_va_bind(vertex_array);
 
 	GLuint layout_count = layout_size / sizeof(GLuint);
 	GLsizei stride = 0;
 	for (GLuint i = 0; i < layout_count; i++) {
-		stride += layout[i];
+		stride += element_get_size(layout[i]);
 	}
 
 	GLuint offset = 0;
 	for (GLuint i = 0; i < layout_count; i++) {
 		va_layout_add_element(i, layout[i], stride, offset);
-		offset += layout[i];
+		offset += element_get_size(layout[i]);
 	}
 }
 

@@ -3,7 +3,7 @@
 
 typedef struct Scene Scene;
 
-Scene* scene_create(float width, float height);
+Scene* scene_create(float width, float height, Renderer* renderer);
 void scene_delete(Scene* scene);
 
 void scene_update(Scene* scene, float dt);

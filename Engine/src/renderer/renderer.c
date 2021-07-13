@@ -6,14 +6,17 @@
 #include "assets/shader.h"
 #include "assets/mesh.h"
 
+#include "input/mouse.h"
+
 Renderer* renderer_create(Renderer* renderer, int width, int height) {
 	renderer->renderer = arenderer_create();
+	renderer->width = width;
+	renderer->height = height;
 	renderer->wireframe = 0;
 	renderer->backface_culling = 1;
 
-	framebuffer_create(&renderer->framebuffer);
-	framebuffer_attachment_color(&renderer->framebuffer, width, height);
-	framebuffer_attachment_depth_stencil(&renderer->framebuffer, width, height);
+	AAttachmentFormat attachments[] = { A_RGBA8, A_RED_INTEGER, A_DEPTH24STENCIL8 };
+	framebuffer_create(&renderer->framebuffer, attachments, sizeof(attachments), width, height);
 
 	if (!framebuffer_check_status(&renderer->framebuffer)) {
 		log_error("Framebuffer is not complete!");
@@ -53,7 +56,7 @@ Renderer* renderer_create(Renderer* renderer, int width, int height) {
 		0, 3, 2
 	};
 
-	uint layout[] = { 2, 2 };
+	ADataType layout[] = { VEC2F, VEC2F };
 	mesh_init_static(&renderer->mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), P_TRIANGLES);
 	return renderer;
 }
@@ -68,8 +71,14 @@ void renderer_delete(Renderer* renderer) {
 void renderer_begin(Renderer* renderer) {
 	framebuffer_bind(&renderer->framebuffer);
 	arenderer_depth_test_set_enabled(renderer->renderer, 1);
-	arenderer_clear_color(renderer->renderer, 0.1f, 0.1f, 0.1f, 1.0f);
-	arenderer_clear_buffers(renderer->renderer);
+
+	framebuffer_color_attachments_draw(&renderer->framebuffer);
+	float background_color[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	framebuffer_color_attachment_clear_f(&renderer->framebuffer, 0, background_color);
+	int entity_color[] = { -1 };
+	framebuffer_color_attachment_clear_i(&renderer->framebuffer, 1, entity_color);
+
+	arenderer_clear_buffer_depth(renderer->renderer);
 	app.stats.draw_calls = 0;
 }
 
@@ -77,14 +86,13 @@ void renderer_end(Renderer* renderer) {
 	framebuffer_unbind(&renderer->framebuffer);
 	arenderer_depth_test_set_enabled(renderer->renderer, 0);
 	arenderer_clear_buffer_color(renderer->renderer);
-	arenderer_clear_color(renderer->renderer, 1.0f, 1.0f, 1.0f, 1.0f);
 
 	arenderer_polygon_mode_fill(renderer->renderer);
 
 	mat4 view = mat4_identity();
 	shader_bind(&renderer->shader, &view);
 
-	framebuffer_attachment_bind_color(&renderer->framebuffer);
+	framebuffer_attachment_bind(&renderer->framebuffer, 0);
 	mesh_draw(&renderer->mesh);
 
 	if (renderer->wireframe == 0) {
@@ -110,4 +118,13 @@ void renderer_toggle_fireframe(Renderer* renderer) {
 	} else {
 		arenderer_polygon_mode_line(renderer->renderer);
 	}
+}
+
+int renderer_get_mouse_entity(Renderer* renderer) {
+	framebuffer_bind(&renderer->framebuffer);
+	int x = (int)get_mouse_x();
+	int y = renderer->height - (int)get_mouse_y();
+	int pixel = framebuffer_color_attachment_read_pixel(&renderer->framebuffer, 1, x, y);
+	framebuffer_unbind(&renderer->framebuffer);
+	return pixel;
 }

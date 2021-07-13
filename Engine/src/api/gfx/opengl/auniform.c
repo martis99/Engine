@@ -11,12 +11,12 @@ struct AShader {
 struct AUniform {
 	char* name;
 	GLint location;
-	AUniformType type;
+	ADataType type;
 	GLsizei count;
 	void* data;
 };
 
-static size_t get_size(AUniformType type, GLsizei count) {
+static size_t get_size(ADataType type, GLsizei count) {
 	size_t size;
 	switch (type) {
 	case EMPTY: size = 0; break;
@@ -34,7 +34,7 @@ static size_t get_size(AUniformType type, GLsizei count) {
 	return size * count;
 }
 
-AUniform* auniform_create(AShader* shader, const char* name, AUniformType type, int count) {
+AUniform* auniform_create(AShader* shader, const char* name, ADataType type, int count) {
 	AUniform* uniform = m_malloc(sizeof(AUniform));
 
 	uniform->name = m_malloc(strlen(name) + 1);

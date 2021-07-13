@@ -18,6 +18,7 @@
 #include "input/keys.h"
 
 struct Scene {
+	Renderer* renderer;
 	Assets assets;
 	Ecs ecs;
 	Camera camera;
@@ -152,9 +153,9 @@ static void create_entities3d(Scene* scene) {
 		ecs_add(&scene->ecs, cube.id, C_MESH, &mesh);
 	}
 
-	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 0.0f, 0.0f }, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f });
-	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 1.0f, 0.0f }, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f });
-	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 1.0f }, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f });
+	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 0.0f, 0.0f }, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }, -1);
+	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 1.0f, 0.0f }, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f }, -1);
+	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 1.0f }, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f }, -1);
 }
 
 static void create_entities(Scene* scene) {
@@ -183,8 +184,9 @@ static void create_camera(Scene* scene, float width, float height) {
 	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f);
 }
 
-Scene* scene_create(float width, float height) {
+Scene* scene_create(float width, float height, Renderer* renderer) {
 	Scene* scene = m_malloc(sizeof(Scene));
+	scene->renderer = renderer;
 
 	assets_create(&scene->assets);
 	create_systems(scene);
@@ -234,7 +236,10 @@ void scene_key_released(Scene* scene, byte key) {
 }
 
 void scene_mouse_pressed(Scene* scene, byte button) {
-
+	if (button == 0) {
+		int entity = renderer_get_mouse_entity(scene->renderer);
+		printf("Pressed entity: %i\n", entity);
+	}
 }
 
 void scene_mouse_released(Scene* scene, byte button) {

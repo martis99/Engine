@@ -3,7 +3,7 @@
 
 #include "shader.h"
 
-Uniform* uniform_create(Uniform* uniform, Shader* shader, const char* name, AUniformType type, int count) {
+Uniform* uniform_create(Uniform* uniform, Shader* shader, const char* name, ADataType type, int count) {
 	uniform->uniform = auniform_create(shader->shader, name, type, count);
 
 	if (uniform->uniform == NULL) {

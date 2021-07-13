@@ -93,7 +93,7 @@ static App* create_app(App* app, int width, int height) {
 		return NULL;
 	}
 
-	app->scene = scene_create((float)width, (float)height);
+	app->scene = scene_create((float)width, (float)height, &app->renderer);
 	if (app->scene == NULL) {
 		log_error("Failed to create scene");
 		return NULL;

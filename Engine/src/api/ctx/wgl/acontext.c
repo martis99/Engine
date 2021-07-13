@@ -72,6 +72,7 @@ static int load_functions(HMODULE library) {
 
 		LOAD_OPENGL_FUNCTION(glEnableVertexAttribArray) &&
 		LOAD_OPENGL_FUNCTION(glVertexAttribPointer) &&
+		LOAD_OPENGL_FUNCTION(glVertexAttribIPointer) &&
 
 		LOAD_OPENGL_FUNCTION(glGetUniformLocation) &&
 		LOAD_OPENGL_FUNCTION(glUniform1iv) &&
@@ -90,6 +91,13 @@ static int load_functions(HMODULE library) {
 		LOAD_OPENGL_FUNCTION(glFramebufferTexture2D) &&
 		LOAD_OPENGL_FUNCTION(glFramebufferRenderbuffer) &&
 		LOAD_OPENGL_FUNCTION(glCheckFramebufferStatus) &&
+
+		LOAD_OPENGL_FUNCTION(glReadBuffer) &&
+		LOAD_OPENGL_FUNCTION(glReadPixels) &&
+
+		LOAD_OPENGL_FUNCTION(glDrawBuffers) &&
+		LOAD_OPENGL_FUNCTION(glClearBufferiv) &&
+		LOAD_OPENGL_FUNCTION(glClearBufferfv) &&
 
 		LOAD_OPENGL_FUNCTION(glGenRenderbuffers) &&
 		LOAD_OPENGL_FUNCTION(glDeleteRenderbuffers) &&

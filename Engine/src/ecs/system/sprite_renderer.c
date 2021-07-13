@@ -12,11 +12,13 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 		"layout (location = 3) in float a_tex_index;\n"
 		"layout (location = 4) in vec2 a_size;\n"
 		"layout (location = 5) in vec4 a_borders;\n"
+		"layout (location = 6) in int a_entity;\n"
 		"out vec4 v_color;\n"
 		"out vec2 v_tex_coord;\n"
 		"out float v_tex_index;\n"
 		"out vec2 v_size;\n"
 		"out vec4 v_borders;\n"
+		"out flat int v_entity;\n"
 		"uniform mat4 u_model;\n"
 		"uniform mat4 u_view_projection;\n"
 		"void main() {\n"
@@ -26,16 +28,19 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 		"	v_tex_index = a_tex_index;\n"
 		"	v_size = a_size;\n"
 		"	v_borders = a_borders;\n"
+		"	v_entity = a_entity;\n"
 		"}\0";
 
 	const char* src_frag =
 		"#version 330 core\n"
-		"out vec4 FragColor;\n"
+		"layout (location = 0) out vec4 FragColor;\n"
+		"layout (location = 1) out int color2;\n"
 		"in vec4 v_color;\n"
 		"in vec2 v_tex_coord;\n"
 		"in float v_tex_index;\n"
 		"in vec2 v_size;\n"
 		"in vec4 v_borders;\n"
+		"in flat int v_entity;\n"
 		"uniform vec4 u_color;\n"
 		"uniform sampler2D u_textures[16];"
 		"void main() {\n"
@@ -69,6 +74,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 		"		tex_coord.y = 1.0 - (offset + coords * scale);\n"
 		"	}\n"
 		"	FragColor = v_color * texture(u_textures[int(v_tex_index)], tex_coord);\n"
+		"	color2 = v_entity;\n"
 		"}\0";
 
 	Shader* shader = assets_shader_create(assets, "sprite_shader", src_vert, src_frag);
@@ -82,7 +88,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 		log_error("Failed to create sprite batch renderer");
 		return NULL;
 	}
-	
+
 	return sprite_renderer;
 }
 
@@ -95,11 +101,11 @@ void sprite_renderer_submit(SpriteRenderer* text_renderer) {
 	batch_renderer_submit(&text_renderer->batch_renderer);
 }
 
-static void add_sprite(SpriteRenderer* sprite_renderer, Transform* transform, Sprite* sprite) {
+static void add_sprite(SpriteRenderer* sprite_renderer, Transform* transform, Sprite* sprite, int entity) {
 	if (sprite->sub == 0) {
-		batch_renderer_add(&sprite_renderer->batch_renderer, transform, sprite->texture, sprite->color, sprite->borders);
+		batch_renderer_add(&sprite_renderer->batch_renderer, transform, sprite->texture, sprite->color, sprite->borders, entity);
 	} else {
-		batch_renderer_add_sub(&sprite_renderer->batch_renderer, transform, sprite->texture, sprite->color, sprite->pos, sprite->size);
+		batch_renderer_add_sub(&sprite_renderer->batch_renderer, transform, sprite->texture, sprite->color, sprite->pos, sprite->size, entity);
 	}
 }
 
@@ -109,7 +115,7 @@ void sprite_renderer_render(SpriteRenderer* sprite_renderer, Ecs* ecs, mat4* vie
 	for (uint i = 0; i < qr->count; ++i) {
 		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
 		Sprite* sprite = (Sprite*)ecs_get(ecs, qr->list[i], C_SPRITE);
-		add_sprite(sprite_renderer, transform, sprite);
+		add_sprite(sprite_renderer, transform, sprite, qr->list[i]);
 	}
 	sprite_renderer_submit(sprite_renderer);
 	batch_renderer_draw(&sprite_renderer->transform, &sprite_renderer->batch_renderer, view_projection);

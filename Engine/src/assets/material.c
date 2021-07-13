@@ -26,7 +26,7 @@ void material_bind(Material* material) {
 	}
 }
 
-static void set_uniform(Material* material, const char* name, AUniformType type, int count, const void* data) {
+static void set_uniform(Material* material, const char* name, ADataType type, int count, const void* data) {
 	Uniform* uniform = uniform_create(dic_add(material->uniforms, name), material->shader, name, type, count);
 	uniform_set(uniform, data);
 }

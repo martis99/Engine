@@ -12,11 +12,11 @@ void mesh_delete(Mesh* mesh) {
 	amesh_delete(mesh->mesh);
 }
 
-void mesh_init_static(Mesh* mesh, float* vertices, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size, APrimitive primitive) {
+void mesh_init_static(Mesh* mesh, float* vertices, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
 	amesh_init_static(mesh->mesh, vertices, vertices_size, indices, indices_size, layout, layout_size, primitive);
 }
 
-void mesh_init_dynamic(Mesh* mesh, uint vertices_size, uint* indices, uint indices_size, uint* layout, uint layout_size, APrimitive primitive) {
+void mesh_init_dynamic(Mesh* mesh, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
 	amesh_init_dynamic(mesh->mesh, vertices_size, indices, indices_size, layout, layout_size, primitive);
 }
 
@@ -59,7 +59,7 @@ void mesh_init_quad(Mesh* mesh) {
 		3, 2, 1
 	};
 
-	uint layout[] = { 3, 2 };
+	ADataType layout[] = { VEC3F, VEC2F };
 	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), P_TRIANGLES);
 }
 
@@ -111,6 +111,6 @@ void mesh_init_cube(Mesh* mesh) {
 		23, 21, 22
 	};
 
-	uint layout[] = { 3, 2 };
+	ADataType layout[] = { VEC3F, VEC2F };
 	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), P_TRIANGLES);
 }
