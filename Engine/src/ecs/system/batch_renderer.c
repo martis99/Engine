@@ -30,7 +30,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* ma
 
 	ADataType layout[] = { VEC3F, VEC4F, VEC2F, VEC1F, VEC2F, VEC4F, VEC1I };
 	mesh_create(&batch_renderer->mesh);
-	mesh_init_dynamic(&batch_renderer->mesh, MAX_VERTICES * sizeof(Vertex), indices, MAX_INDICES * sizeof(uint), layout, sizeof(layout), P_TRIANGLES);
+	mesh_init_dynamic(&batch_renderer->mesh, MAX_VERTICES * sizeof(Vertex), indices, MAX_INDICES * sizeof(uint), layout, sizeof(layout), A_TRIANGLES);
 
 	mesh_set_count(&batch_renderer->mesh, 0);
 

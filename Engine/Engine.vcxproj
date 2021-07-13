@@ -170,6 +170,7 @@
     <ClCompile Include="src\api\gfx\opengl\atexture.c" />
     <ClCompile Include="src\api\gfx\opengl\auniform.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_buffer.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl\gl_enums.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_framebuffer.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_program.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_renderer.c" />
@@ -231,13 +232,9 @@
     <ClInclude Include="lib\stb\stb_truetype.h" />
     <ClInclude Include="src\api\ctx\acontext.h" />
     <ClInclude Include="src\api\ctx\wgl\wgl.h" />
-    <ClInclude Include="src\api\gfx\aatachmentformat.h" />
-    <ClInclude Include="src\api\gfx\adatatype.h" />
-    <ClInclude Include="src\api\gfx\afactor.h" />
-    <ClInclude Include="src\api\gfx\afilter.h" />
+    <ClInclude Include="src\api\gfx\aenums.h" />
     <ClInclude Include="src\api\gfx\aframebuffer.h" />
     <ClInclude Include="src\api\gfx\amesh.h" />
-    <ClInclude Include="src\api\gfx\aprimitive.h" />
     <ClInclude Include="src\api\gfx\arenderer.h" />
     <ClInclude Include="src\api\gfx\ashader.h" />
     <ClInclude Include="src\api\gfx\atexture.h" />
@@ -245,6 +242,7 @@
     <ClInclude Include="src\api\gfx\opengl\gl\gl.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_buffer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_defines.h" />
+    <ClInclude Include="src\api\gfx\opengl\gl\gl_enums.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_framebuffer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_program.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_renderer.h" />

@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "texture.h"
 
-Texture* texture_create(Texture* texture, AFilter filter) {
-	texture->texture = atexture_create(filter);
+Texture* texture_create(Texture* texture, AWrap wrap, AFilter filter) {
+	texture->texture = atexture_create(wrap, filter);
 	return texture;
 }
 
-Texture* texture_create_from_image(Texture* texture, Image* image, AFilter filter) {
-	return texture_set_image(texture_create(texture, filter), image);
+Texture* texture_create_from_image(Texture* texture, Image* image, AWrap wrap, AFilter filter) {
+	return texture_set_image(texture_create(texture, wrap, filter), image);
 }
 
 Texture* texture_set_image(Texture* texture, Image* image) {

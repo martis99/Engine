@@ -1,13 +1,8 @@
 #pragma once
 #ifdef E_OPENGL
 #include "gl.h"
-#include "api/gfx/afilter.h"
 
-typedef enum {
-	W_REPEAT
-} TextureWrap;
-
-GLuint gl_texture_create(TextureWrap wrap, AFilter filter);
+GLuint gl_texture_create(GLint wrap, GLint filter);
 GLuint gl_texture_generate();
 void gl_texture_bind(GLuint texture, GLuint slot);
 void gl_texture_generate_mipmap();

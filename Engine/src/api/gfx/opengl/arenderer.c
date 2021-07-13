@@ -3,6 +3,7 @@
 #include "api/gfx/arenderer.h"
 
 #include "gl/gl_renderer.h"
+#include "gl/gl_enums.h"
 
 struct ARenderer {
 	byte id;
@@ -20,7 +21,7 @@ ARenderer* arenderer_create() {
 	gl_front_face_cw();
 	gl_polygon_mode_fill();
 
-	gl_blend_func(S_SRC_ALPHA, D_ONE_MINUS_SRC_ALPHA);
+	gl_blend_func(gl_afactor(A_SRC_ALPHA), gl_afactor(A_ONE_MINUS_SRC_ALPHA));
 
 	gl_unpack_alignment();
 	return renderer;

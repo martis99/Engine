@@ -86,26 +86,8 @@ void gl_blend_set_enabled(bool enabled) {
 	}
 }
 
-void gl_blend_func(ASourceFactor sfactor, ADestinationFactor dfactor) {
-	GLenum fact_s;
-	switch (sfactor) {
-	case S_SRC_ALPHA:
-		fact_s = GL_SRC_ALPHA;
-	default:
-		fact_s = GL_SRC_ALPHA;
-		break;
-	}
-
-	GLenum fact_d;
-	switch (dfactor) {
-	case D_ONE_MINUS_SRC_ALPHA:
-		fact_d = GL_ONE_MINUS_SRC_ALPHA;
-	default:
-		fact_d = GL_ONE_MINUS_SRC_ALPHA;
-		break;
-	}
-
-	glBlendFunc(fact_s, fact_d);
+void gl_blend_func(GLenum sfactor, GLenum dfactor) {
+	glBlendFunc(sfactor, dfactor);
 }
 
 static void debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {

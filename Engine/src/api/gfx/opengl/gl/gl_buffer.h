@@ -1,14 +1,13 @@
 #pragma once
 #ifdef E_OPENGL
 #include "gl.h"
-#include "api/gfx/aprimitive.h"
-#include "api/gfx/adatatype.h"
+#include "api/gfx/aenums.h"
 
 GLuint gl_va_create();
 void gl_va_layout_create(GLuint vertex_array, GLuint layout_size, ADataType* layout);
 void gl_va_bind(GLuint vertex_array);
-void gl_va_draw_arrays(GLuint vertex_array, APrimitive primitive, GLsizei count);
-void gl_va_draw_elements(GLuint vertex_array, GLuint index_buffer, APrimitive primitive, GLsizei count);
+void gl_va_draw_arrays(GLuint vertex_array, GLenum mode, GLsizei count);
+void gl_va_draw_elements(GLuint vertex_array, GLuint index_buffer, GLenum mode, GLsizei count);
 void gl_va_delete(GLuint vertex_array);
 
 GLuint gl_vb_create_static(GLuint vertex_array, GLsizeiptr size, const void* data);

@@ -61,10 +61,10 @@ static void create_assets(Scene* scene) {
 	Image* image_mountains = assets_image_load(&scene->assets, "mountains", "res/images/mountains.jpg");
 	Font* font = assets_font_load(&scene->assets, "font", "res/fonts/ProggyClean.ttf", 13);
 
-	Texture* texture_white = assets_texture_create_from_image(&scene->assets, "white", image_white, F_NEAREST);
-	Texture* texture_container = assets_texture_create_from_image(&scene->assets, "container", image_container, F_LINEAR);
-	Texture* texture_gui = assets_texture_create_from_image(&scene->assets, "gui", image_gui, F_NEAREST);
-	Texture* texture_mountains = assets_texture_create_from_image(&scene->assets, "mountains", image_mountains, F_LINEAR);
+	Texture* texture_white = assets_texture_create_from_image(&scene->assets, "white", image_white, A_CLAMP_TO_EDGE, A_NEAREST);
+	Texture* texture_container = assets_texture_create_from_image(&scene->assets, "container", image_container, A_CLAMP_TO_EDGE, A_LINEAR);
+	Texture* texture_gui = assets_texture_create_from_image(&scene->assets, "gui", image_gui, A_CLAMP_TO_EDGE, A_NEAREST);
+	Texture* texture_mountains = assets_texture_create_from_image(&scene->assets, "mountains", image_mountains, A_CLAMP_TO_EDGE, A_LINEAR);
 
 	vec4 color_white = { 1.0f, 1.0f, 1.0f, 1.0f };
 	vec4 color_orange = { 1.0f, 0.5f, 0.2f, 1.0f };

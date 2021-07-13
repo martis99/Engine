@@ -3,6 +3,7 @@
 #include "api/gfx/amesh.h"
 
 #include "gl/gl_buffer.h"
+#include "gl/gl_enums.h"
 
 struct AMesh {
 	GLuint va;
@@ -56,11 +57,11 @@ void amesh_set_indices(AMesh* mesh, uint* indices, uint indices_size) {
 }
 
 void amesh_draw_arrays(AMesh* mesh) {
-	gl_va_draw_arrays(mesh->va, mesh->primitive, mesh->count);
+	gl_va_draw_arrays(mesh->va, gl_aprimitive(mesh->primitive), mesh->count);
 }
 
 void amesh_draw(AMesh* mesh) {
-	gl_va_draw_elements(mesh->va, mesh->ib, mesh->primitive, mesh->count);
+	gl_va_draw_elements(mesh->va, mesh->ib, gl_aprimitive(mesh->primitive), mesh->count);
 }
 
 void amesh_set_count(AMesh* mesh, int count) {

@@ -1,6 +1,6 @@
 #pragma once
 #include "ashader.h"
-#include "adatatype.h"
+#include "aenums.h"
 
 typedef struct AUniform AUniform;
 

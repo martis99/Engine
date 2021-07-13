@@ -57,7 +57,7 @@ Renderer* renderer_create(Renderer* renderer, int width, int height) {
 	};
 
 	ADataType layout[] = { VEC2F, VEC2F };
-	mesh_init_static(&renderer->mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), P_TRIANGLES);
+	mesh_init_static(&renderer->mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), A_TRIANGLES);
 	return renderer;
 }
 

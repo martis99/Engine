@@ -60,7 +60,7 @@ void mesh_init_quad(Mesh* mesh) {
 	};
 
 	ADataType layout[] = { VEC3F, VEC2F };
-	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), P_TRIANGLES);
+	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), A_TRIANGLES);
 }
 
 void mesh_init_cube(Mesh* mesh) {
@@ -112,5 +112,5 @@ void mesh_init_cube(Mesh* mesh) {
 	};
 
 	ADataType layout[] = { VEC3F, VEC2F };
-	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), P_TRIANGLES);
+	mesh_init_static(mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), A_TRIANGLES);
 }

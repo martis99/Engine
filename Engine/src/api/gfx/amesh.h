@@ -1,6 +1,5 @@
 #pragma once
-#include "aprimitive.h"
-#include "adatatype.h"
+#include "aenums.h"
 
 typedef struct AMesh AMesh;
 

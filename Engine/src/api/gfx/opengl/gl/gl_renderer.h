@@ -1,7 +1,6 @@
 #pragma once
 #ifdef E_OPENGL
 #include "gl.h"
-#include "api/gfx/afactor.h"
 
 void gl_clear_buffers();
 void gl_clear_buffer_color();
@@ -27,7 +26,7 @@ void gl_unpack_alignment();
 void gl_blend_enable();
 void gl_blend_disable();
 void gl_blend_set_enabled(bool enabled);
-void gl_blend_func(ASourceFactor sfactor, ADestinationFactor dfactor);
+void gl_blend_func(GLenum sfactor, GLenum dfactor);
 
 void gl_debug_output_enable();
 void gl_debug_output_disable();

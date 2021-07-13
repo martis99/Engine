@@ -1,5 +1,5 @@
 #pragma once
-#include "api/gfx/aatachmentformat.h"
+#include "api/gfx/aenums.h"
 
 typedef struct AFramebuffer AFramebuffer;
 

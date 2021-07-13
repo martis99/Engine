@@ -3,15 +3,15 @@
 #include "api/gfx/atexture.h"
 
 #include "gl/gl_texture.h"
+#include "gl/gl_enums.h"
 
 struct ATexture {
 	GLuint id;
 };
 
-ATexture* atexture_create(AFilter filter) {
+ATexture* atexture_create(AWrap wrap, AFilter filter) {
 	ATexture* texture = m_malloc(sizeof(ATexture));
-
-	texture->id = gl_texture_create(W_REPEAT, filter);
+	texture->id = gl_texture_create(gl_awrap(wrap), gl_afilter(filter));
 	return texture;
 }
 

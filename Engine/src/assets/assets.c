@@ -56,8 +56,8 @@ Image* assets_image_get(Assets* assets, const char* name) {
 	return dic_get(assets->images, name);
 }
 
-Texture* assets_texture_create_from_image(Assets* assets, const char* name, Image* image, AFilter filter) {
-	return texture_create_from_image(dic_add(assets->textures, name), image, filter);
+Texture* assets_texture_create_from_image(Assets* assets, const char* name, Image* image, AWrap wrap, AFilter filter) {
+	return texture_create_from_image(dic_add(assets->textures, name), image, wrap, filter);
 }
 
 Texture* assets_texture_get(Assets* assets, const char* name) {

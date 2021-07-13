@@ -44,7 +44,7 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Assets* assets, 
 
 	ADataType layout[] = { VEC3F, VEC4F, VEC1I };
 	mesh_create(&line_renderer->mesh);
-	mesh_init_dynamic(&line_renderer->mesh, MAX_VERTICES * sizeof(LineVertex), NULL, 0, layout, sizeof(layout), P_LINES);
+	mesh_init_dynamic(&line_renderer->mesh, MAX_VERTICES * sizeof(LineVertex), NULL, 0, layout, sizeof(layout), A_LINES);
 
 	mesh_set_count(&line_renderer->mesh, 0);
 

@@ -109,7 +109,7 @@ static Texture* create_texture(Font* font, Assets* assets, float scale, int area
 		x += fc->size.x;
 	}
 
-	Texture* texture = assets_texture_create_from_image(assets, "font", &img, F_NEAREST);
+	Texture* texture = assets_texture_create_from_image(assets, "font", &img, A_CLAMP_TO_EDGE, A_NEAREST);
 	image_delete(&img);
 	return texture;
 }

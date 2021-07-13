@@ -8,37 +8,14 @@ GLuint gl_texture_generate() {
 	return texture;
 }
 
-GLuint gl_texture_create(TextureWrap wrap, AFilter filter) {
+GLuint gl_texture_create(GLint wrap, GLint filter) {
 	GLuint texture = gl_texture_generate();
 	gl_texture_bind(texture, 0);
 
-	GLint texture_wrap;
-	switch (wrap) {
-	case W_REPEAT:
-		texture_wrap = GL_REPEAT;
-		break;
-	default:
-		texture_wrap = GL_REPEAT;
-		break;
-	}
-
-	GLint texture_filter;
-	switch (filter) {
-	case F_LINEAR:
-		texture_filter = GL_LINEAR;
-		break;
-	case F_NEAREST:
-		texture_filter = GL_NEAREST;
-		break;
-	default:
-		texture_filter = GL_LINEAR;
-		break;
-	}
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture_wrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture_wrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture_filter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture_filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
 	return texture;
 }
