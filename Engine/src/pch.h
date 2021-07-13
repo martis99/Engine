@@ -1,7 +1,4 @@
 #pragma once
-#define E_WINDOWS
-#define E_OPENGL
-
 typedef unsigned char byte;
 typedef unsigned char bool;
 

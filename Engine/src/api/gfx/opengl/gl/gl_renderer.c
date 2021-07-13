@@ -2,13 +2,20 @@
 #ifdef E_OPENGL
 #include "gl_renderer.h"
 
-void gl_clear(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) {
+void gl_clear_buffers() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(red, green, blue, alpha);
 }
 
-void gl_clear_depth() {
+void gl_clear_buffer_color() {
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void gl_clear_buffer_depth() {
 	glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void gl_clear_color(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) {
+	glClearColor(red, green, blue, alpha);
 }
 
 void gl_cull_face_enable() {

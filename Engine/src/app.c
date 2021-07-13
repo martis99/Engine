@@ -88,7 +88,7 @@ static App* create_app(App* app, int width, int height) {
 		return NULL;
 	}
 
-	if (renderer_create(&app->renderer) == NULL) {
+	if (renderer_create(&app->renderer, width, height) == NULL) {
 		log_error("Failed to create renderer");
 		return NULL;
 	}

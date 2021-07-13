@@ -3,8 +3,10 @@
 #include "gl.h"
 #include "api/gfx/afactor.h"
 
-void gl_clear(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-void gl_clear_depth();
+void gl_clear_buffers();
+void gl_clear_buffer_color();
+void gl_clear_buffer_depth();
+void gl_clear_color(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 
 void gl_cull_face_enable();
 void gl_cull_face_disable();

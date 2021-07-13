@@ -30,12 +30,24 @@ void arenderer_delete(ARenderer* renderer) {
 	m_free(renderer, sizeof(ARenderer));
 }
 
-void arenderer_clear(ARenderer* renderer, float red, float green, float blue, float alpha) {
-	gl_clear(red, green, blue, alpha);
+void arenderer_clear_buffers(ARenderer* renderer) {
+	gl_clear_buffers();
 }
 
-void arenderer_clear_depth(ARenderer* renderer) {
-	gl_clear_depth();
+void arenderer_clear_buffer_color(ARenderer* renderer) {
+	gl_clear_buffer_color();
+}
+
+void arenderer_clear_buffer_depth(ARenderer* renderer) {
+	gl_clear_buffer_depth();
+}
+
+void arenderer_clear_color(ARenderer* renderer, float red, float green, float blue, float alpha) {
+	gl_clear_color(red, green, blue, alpha);
+}
+
+void arenderer_depth_test_set_enabled(ARenderer* renderer, bool enabled) {
+	gl_depth_test_set_enabled(enabled);
 }
 
 void arenderer_cull_face_set_enabled(ARenderer* renderer, bool enabled) {

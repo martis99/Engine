@@ -94,7 +94,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>E_WINDOWS;E_OPENGL;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -111,7 +111,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>E_WINDOWS;E_OPENGL;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -128,7 +128,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>E_WINDOWS;E_OPENGL;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -145,7 +145,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>E_WINDOWS;E_OPENGL;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -163,12 +163,14 @@
     <ClCompile Include="lib\stb\stb_image_write.c" />
     <ClCompile Include="lib\stb\stb_truetype.c" />
     <ClCompile Include="src\api\ctx\wgl\acontext.c" />
+    <ClCompile Include="src\api\gfx\opengl\aframebuffer.c" />
     <ClCompile Include="src\api\gfx\opengl\amesh.c" />
     <ClCompile Include="src\api\gfx\opengl\arenderer.c" />
     <ClCompile Include="src\api\gfx\opengl\ashader.c" />
     <ClCompile Include="src\api\gfx\opengl\atexture.c" />
     <ClCompile Include="src\api\gfx\opengl\auniform.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_buffer.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl\gl_framebuffer.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_program.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_renderer.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_shader.c" />
@@ -178,6 +180,7 @@
     <ClCompile Include="src\app.c" />
     <ClCompile Include="src\assets\assets.c" />
     <ClCompile Include="src\assets\font.c" />
+    <ClCompile Include="src\assets\framebuffer.c" />
     <ClCompile Include="src\assets\image.c" />
     <ClCompile Include="src\assets\material.c" />
     <ClCompile Include="src\assets\mesh.c" />
@@ -230,6 +233,7 @@
     <ClInclude Include="src\api\ctx\wgl\wgl.h" />
     <ClInclude Include="src\api\gfx\afactor.h" />
     <ClInclude Include="src\api\gfx\afilter.h" />
+    <ClInclude Include="src\api\gfx\aframebuffer.h" />
     <ClInclude Include="src\api\gfx\amesh.h" />
     <ClInclude Include="src\api\gfx\aprimitive.h" />
     <ClInclude Include="src\api\gfx\arenderer.h" />
@@ -239,6 +243,7 @@
     <ClInclude Include="src\api\gfx\opengl\gl\gl.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_buffer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_defines.h" />
+    <ClInclude Include="src\api\gfx\opengl\gl\gl_framebuffer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_program.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_renderer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_shader.h" />
@@ -248,6 +253,7 @@
     <ClInclude Include="src\app.h" />
     <ClInclude Include="src\assets\assets.h" />
     <ClInclude Include="src\assets\font.h" />
+    <ClInclude Include="src\assets\framebuffer.h" />
     <ClInclude Include="src\assets\image.h" />
     <ClInclude Include="src\assets\material.h" />
     <ClInclude Include="src\assets\mesh.h" />

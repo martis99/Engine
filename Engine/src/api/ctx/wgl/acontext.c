@@ -42,6 +42,9 @@ static int load_functions(HMODULE library) {
 		LOAD_OPENGL_FUNCTION(wglChoosePixelFormatARB) &&
 		LOAD_OPENGL_FUNCTION(wglCreateContextAttribsARB) &&
 
+		LOAD_OPENGL_FUNCTION(glDebugMessageCallback) &&
+		LOAD_OPENGL_FUNCTION(glDebugMessageControl) &&
+
 		LOAD_OPENGL_FUNCTION(glCreateProgram) &&
 		LOAD_OPENGL_FUNCTION(glDeleteProgram) &&
 		LOAD_OPENGL_FUNCTION(glLinkProgram) &&
@@ -81,12 +84,20 @@ static int load_functions(HMODULE library) {
 		LOAD_OPENGL_FUNCTION(glUniform4fv) &&
 		LOAD_OPENGL_FUNCTION(glUniformMatrix4fv) &&
 
-		LOAD_OPENGL_FUNCTION(glDebugMessageCallback) &&
-		LOAD_OPENGL_FUNCTION(glDebugMessageControl) &&
+		LOAD_OPENGL_FUNCTION(glGenFramebuffers) &&
+		LOAD_OPENGL_FUNCTION(glDeleteFramebuffers) &&
+		LOAD_OPENGL_FUNCTION(glBindFramebuffer) &&
+		LOAD_OPENGL_FUNCTION(glFramebufferTexture2D) &&
+		LOAD_OPENGL_FUNCTION(glFramebufferRenderbuffer) &&
+		LOAD_OPENGL_FUNCTION(glCheckFramebufferStatus) &&
+
+		LOAD_OPENGL_FUNCTION(glGenRenderbuffers) &&
+		LOAD_OPENGL_FUNCTION(glDeleteRenderbuffers) &&
+		LOAD_OPENGL_FUNCTION(glBindRenderbuffer) &&
+		LOAD_OPENGL_FUNCTION(glRenderbufferStorage) &&
 
 		LOAD_OPENGL_FUNCTION(glGenerateMipmap) &&
 		LOAD_OPENGL_FUNCTION(glActiveTexture) &&
-
 		LOAD_OPENGL_FUNCTION(glBlendEquation);
 }
 
