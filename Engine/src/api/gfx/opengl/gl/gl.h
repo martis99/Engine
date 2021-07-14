@@ -27,9 +27,11 @@
 #define GL_FRAGMENT_SHADER                0x8B30
 #define GL_VERTEX_SHADER                  0x8B31
 #define GL_GEOMETRY_SHADER                0x8DD9
+#define GL_COMPUTE_SHADER                 0x91B9
 
 #define GL_ARRAY_BUFFER                   0x8892
 #define GL_ELEMENT_ARRAY_BUFFER           0x8893
+#define GL_UNIFORM_BUFFER                 0x8A11
 
 #define GL_STATIC_DRAW                    0x88E4
 #define GL_DYNAMIC_DRAW                   0x88E8
@@ -144,6 +146,7 @@ DECL_OPENGL_FUNC(void, glBindVertexArray, GLuint array)
 DECL_OPENGL_FUNC(void, glGenBuffers, GLsizei n, GLuint* buffers)
 DECL_OPENGL_FUNC(void, glDeleteBuffers, GLsizei n, const GLuint* buffers)
 DECL_OPENGL_FUNC(void, glBindBuffer, GLenum target, GLuint buffer)
+DECL_OPENGL_FUNC(void, glBindBufferBase, GLenum target, GLuint index, GLuint buffer)
 DECL_OPENGL_FUNC(void, glBufferData, GLenum target, GLsizeiptr size, const void* data, GLenum usage)
 DECL_OPENGL_FUNC(void, glBufferSubData, GLenum target, GLintptr offset, GLsizeiptr size, const void* data)
 
@@ -152,6 +155,7 @@ DECL_OPENGL_FUNC(void, glVertexAttribPointer, GLuint index, GLint size, GLenum t
 DECL_OPENGL_FUNC(void, glVertexAttribIPointer, GLuint index, GLint size, GLenum type, GLsizei stride, const void* pointer)
 
 DECL_OPENGL_FUNC(GLint, glGetUniformLocation, GLuint program, const GLchar* name)
+DECL_OPENGL_FUNC(GLint, glGetUniformBlockIndex, GLuint program, const GLchar* uniformBlockName)
 DECL_OPENGL_FUNC(void, glUniform1iv, GLint location, GLsizei count, const GLint* value)
 DECL_OPENGL_FUNC(void, glUniform2iv, GLint location, GLsizei count, const GLint* value)
 DECL_OPENGL_FUNC(void, glUniform3iv, GLint location, GLsizei count, const GLint* value)
@@ -161,6 +165,7 @@ DECL_OPENGL_FUNC(void, glUniform2fv, GLint location, GLsizei count, const GLfloa
 DECL_OPENGL_FUNC(void, glUniform3fv, GLint location, GLsizei count, const GLfloat* value)
 DECL_OPENGL_FUNC(void, glUniform4fv, GLint location, GLsizei count, const GLfloat* value)
 DECL_OPENGL_FUNC(void, glUniformMatrix4fv, GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+DECL_OPENGL_FUNC(void, glUniformBlockBinding, GLuint program, GLuint uniformBlockIndexm, GLuint uniformBlockBinding)
 
 DECL_OPENGL_FUNC(void, glGenFramebuffers, GLsizei n, GLuint* framebuffers)
 DECL_OPENGL_FUNC(void, glDeleteFramebuffers, GLsizei n, GLuint* framebuffers)

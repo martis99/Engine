@@ -8,9 +8,11 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Assets* assets) 
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 a_pos;\n"
 		"layout (location = 1) in vec2 a_tex_coord;\n"
+		"layout (std140) uniform Camera {\n"
+		"	mat4 u_view_projection;\n"
+		"};\n"
 		"out vec2 v_tex_coord;\n"
 		"uniform mat4 u_model;\n"
-		"uniform mat4 u_view_projection;\n"
 		"void main() {\n"
 		"	gl_Position = u_view_projection * u_model * vec4(a_pos.xy, -a_pos.z, 1.0);\n"
 		"	v_tex_coord = a_tex_coord;\n"
@@ -42,8 +44,8 @@ void mesh_renderer_delete(MeshRenderer* mesh_renderer) {
 
 }
 
-void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs, mat4* view_projection) {
-	shader_bind(mesh_renderer->shader, view_projection);
+void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs) {
+	shader_bind(mesh_renderer->shader);
 
 	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_MESH);
 	for (uint i = 0; i < qr->count; ++i) {

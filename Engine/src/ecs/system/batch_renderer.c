@@ -117,8 +117,8 @@ void batch_renderer_submit(BatchRenderer* batch_renderer) {
 	mesh_set_vertices(&batch_renderer->mesh, batch_renderer->vertices, batch_renderer->vertices_count * (uint)batch_renderer->vertex_size);
 }
 
-void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer, mat4* view_projection) {
-	shader_bind(batch_renderer->shader, view_projection);
+void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer) {
+	shader_bind(batch_renderer->shader);
 	mat4 model = transform_to_mat4(transform);
 	shader_set_model(batch_renderer->shader, &model);
 	material_bind(batch_renderer->material);

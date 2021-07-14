@@ -12,10 +12,12 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Assets* assets, 
 		"layout (location = 0) in vec3 a_pos;\n"
 		"layout (location = 1) in vec4 a_color;\n"
 		"layout (location = 2) in int a_entity;\n"
+		"layout (std140) uniform Camera {\n"
+		"	mat4 u_view_projection;\n"
+		"};\n"
 		"out vec4 v_color;\n"
 		"out flat int v_entity;\n"
 		"uniform mat4 u_model;\n"
-		"uniform mat4 u_view_projection;\n"
 		"void main() {\n"
 		"	gl_Position = u_view_projection * vec4(a_pos.xy, -a_pos.z, 1.0);\n"
 		"	v_color = a_color;\n"
@@ -77,8 +79,8 @@ void line_renderer_submit(LineRenderer* line_renderer) {
 	mesh_set_vertices(&line_renderer->mesh, line_renderer->vertices, line_renderer->vertices_count * sizeof(LineVertex));
 }
 
-void line_renderer_render(LineRenderer* line_renderer, mat4* view_projection) {
-	shader_bind(line_renderer->shader, view_projection);
+void line_renderer_render(LineRenderer* line_renderer) {
+	shader_bind(line_renderer->shader);
 	mat4 model = transform_to_mat4(&line_renderer->transform);
 	shader_set_model(line_renderer->shader, &model);
 

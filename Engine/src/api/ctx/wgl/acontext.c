@@ -67,6 +67,7 @@ static int load_functions(HMODULE library) {
 		LOAD_OPENGL_FUNCTION(glGenBuffers) &&
 		LOAD_OPENGL_FUNCTION(glDeleteBuffers) &&
 		LOAD_OPENGL_FUNCTION(glBindBuffer) &&
+		LOAD_OPENGL_FUNCTION(glBindBufferBase) &&
 		LOAD_OPENGL_FUNCTION(glBufferData) &&
 		LOAD_OPENGL_FUNCTION(glBufferSubData) &&
 
@@ -75,6 +76,7 @@ static int load_functions(HMODULE library) {
 		LOAD_OPENGL_FUNCTION(glVertexAttribIPointer) &&
 
 		LOAD_OPENGL_FUNCTION(glGetUniformLocation) &&
+		LOAD_OPENGL_FUNCTION(glGetUniformBlockIndex) &&
 		LOAD_OPENGL_FUNCTION(glUniform1iv) &&
 		LOAD_OPENGL_FUNCTION(glUniform2iv) &&
 		LOAD_OPENGL_FUNCTION(glUniform3iv) &&
@@ -84,6 +86,7 @@ static int load_functions(HMODULE library) {
 		LOAD_OPENGL_FUNCTION(glUniform3fv) &&
 		LOAD_OPENGL_FUNCTION(glUniform4fv) &&
 		LOAD_OPENGL_FUNCTION(glUniformMatrix4fv) &&
+		LOAD_OPENGL_FUNCTION(glUniformBlockBinding) &&
 
 		LOAD_OPENGL_FUNCTION(glGenFramebuffers) &&
 		LOAD_OPENGL_FUNCTION(glDeleteFramebuffers) &&

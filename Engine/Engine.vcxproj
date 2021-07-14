@@ -169,6 +169,7 @@
     <ClCompile Include="src\api\gfx\opengl\ashader.c" />
     <ClCompile Include="src\api\gfx\opengl\atexture.c" />
     <ClCompile Include="src\api\gfx\opengl\auniform.c" />
+    <ClCompile Include="src\api\gfx\opengl\auniform_buffer.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_buffer.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_enums.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_framebuffer.c" />
@@ -176,6 +177,7 @@
     <ClCompile Include="src\api\gfx\opengl\gl\gl_renderer.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_shader.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_texture.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl\gl_uniform_buffer.c" />
     <ClCompile Include="src\api\wnd\windows\acursor.c" />
     <ClCompile Include="src\api\wnd\windows\awindow.c" />
     <ClCompile Include="src\app.c" />
@@ -188,6 +190,7 @@
     <ClCompile Include="src\assets\shader.c" />
     <ClCompile Include="src\assets\texture.c" />
     <ClCompile Include="src\assets\uniform.c" />
+    <ClCompile Include="src\assets\uniform_buffer.c" />
     <ClCompile Include="src\ecs\component\constraints.c" />
     <ClCompile Include="src\ecs\component\mesh_component.c" />
     <ClCompile Include="src\ecs\component\sprite.c" />
@@ -239,6 +242,7 @@
     <ClInclude Include="src\api\gfx\ashader.h" />
     <ClInclude Include="src\api\gfx\atexture.h" />
     <ClInclude Include="src\api\gfx\auniform.h" />
+    <ClInclude Include="src\api\gfx\auniform_buffer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_buffer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_defines.h" />
@@ -248,6 +252,7 @@
     <ClInclude Include="src\api\gfx\opengl\gl\gl_renderer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_shader.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_texture.h" />
+    <ClInclude Include="src\api\gfx\opengl\gl\gl_uniform_buffer.h" />
     <ClInclude Include="src\api\wnd\acursor.h" />
     <ClInclude Include="src\api\wnd\awindow.h" />
     <ClInclude Include="src\app.h" />
@@ -260,6 +265,7 @@
     <ClInclude Include="src\assets\shader.h" />
     <ClInclude Include="src\assets\texture.h" />
     <ClInclude Include="src\assets\uniform.h" />
+    <ClInclude Include="src\assets\uniform_buffer.h" />
     <ClInclude Include="src\ecs\component\constraints.h" />
     <ClInclude Include="src\ecs\component\mesh_component.h" />
     <ClInclude Include="src\ecs\component\sprite.h" />

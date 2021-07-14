@@ -4,6 +4,7 @@
 
 #include "gl/gl_program.h"
 #include "gl/gl_shader.h"
+#include "gl/gl_enums.h"
 
 struct AShader {
 	GLuint program;
@@ -31,7 +32,7 @@ static AShader* create_program(AShader* shader, GLuint vert, GLuint frag) {
 	return shader;
 }
 
-static GLuint compile_shader(ShaderType type, const char* source) {
+static GLuint compile_shader(GLenum type, const char* source) {
 	int status;
 	GLuint shader = gl_shader_create(type, source, &status);
 
@@ -51,13 +52,13 @@ static GLuint compile_shader(ShaderType type, const char* source) {
 AShader* ashader_create(const char* src_vert, const char* src_frag) {
 	AShader* shader = m_malloc(sizeof(AShader));
 
-	GLuint vert = compile_shader(S_VERTEX, src_vert);
+	GLuint vert = compile_shader(gl_ashadertype(A_VERTEX), src_vert);
 	if (vert == 0) {
 		log_error("Failed to compile vertex shader");
 		return NULL;
 	}
 
-	GLuint frag = compile_shader(S_FRAGMENT, src_frag);
+	GLuint frag = compile_shader(gl_ashadertype(A_FRAGMENT), src_frag);
 	if (frag == 0) {
 		log_error("Failed to compile fragment shader");
 		return NULL;
@@ -82,4 +83,9 @@ void ashader_delete(AShader* shader) {
 void ashader_bind(AShader* shader) {
 	gl_program_use(shader->program);
 }
+
+void ashader_bind_uniform_block(AShader* shader, const char* name, uint index) {
+	gl_shader_bind_uniform_block(shader->program, name, index);
+}
+
 #endif

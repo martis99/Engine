@@ -30,6 +30,9 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 		"layout (location = 4) in vec2 a_size;\n"
 		"layout (location = 5) in vec4 a_borders;\n"
 		"layout (location = 6) in int a_entity;\n"
+		"layout (std140) uniform Camera {\n"
+		"	mat4 u_view_projection;\n"
+		"};\n"
 		"out vec4 v_color;\n"
 		"out vec2 v_tex_coord;\n"
 		"out flat int v_tex_index;\n"
@@ -37,7 +40,6 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 		"out vec4 v_borders;\n"
 		"out flat int v_entity;\n"
 		"uniform mat4 u_model;\n"
-		"uniform mat4 u_view_projection;\n"
 		"void main() {\n"
 		"	gl_Position = u_view_projection * u_model * vec4(a_pos.x, a_pos.y, -a_pos.z, 1.0);\n"
 		"	v_color = a_color;\n"
@@ -145,7 +147,7 @@ static void add_sprite(SpriteRenderer* sprite_renderer, Transform* transform, Sp
 	}
 }
 
-void sprite_renderer_render(SpriteRenderer* sprite_renderer, Ecs* ecs, mat4* view_projection) {
+void sprite_renderer_render(SpriteRenderer* sprite_renderer, Ecs* ecs) {
 	batch_renderer_clear(&sprite_renderer->batch_renderer);
 	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_SPRITE);
 	for (uint i = 0; i < qr->count; ++i) {
@@ -154,5 +156,5 @@ void sprite_renderer_render(SpriteRenderer* sprite_renderer, Ecs* ecs, mat4* vie
 		add_sprite(sprite_renderer, transform, sprite, qr->list[i]);
 	}
 	sprite_renderer_submit(sprite_renderer);
-	batch_renderer_draw(&sprite_renderer->transform, &sprite_renderer->batch_renderer, view_projection);
+	batch_renderer_draw(&sprite_renderer->transform, &sprite_renderer->batch_renderer);
 }

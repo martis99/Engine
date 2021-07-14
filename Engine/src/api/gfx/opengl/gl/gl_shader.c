@@ -2,21 +2,8 @@
 #ifdef E_OPENGL
 #include "gl_shader.h"
 
-GLuint gl_shader_create(ShaderType type, const GLchar* source, GLint* status) {
-	GLenum shader_type;
-	switch (type) {
-	case S_VERTEX:
-		shader_type = GL_VERTEX_SHADER;
-		break;
-	case S_FRAGMENT:
-		shader_type = GL_FRAGMENT_SHADER;
-		break;
-	default:
-		shader_type = GL_VERTEX_SHADER;
-		break;
-	}
-
-	GLuint shader = glCreateShader(shader_type);
+GLuint gl_shader_create(GLenum type, const GLchar* source, GLint* status) {
+	GLuint shader = glCreateShader(type);
 	glShaderSource(shader, 1, &source, NULL);
 	glCompileShader(shader);
 	glGetShaderiv(shader, GL_COMPILE_STATUS, status);
@@ -33,5 +20,9 @@ void gl_shader_info(GLuint shader, GLsizei length, GLchar* info) {
 
 void gl_shader_delete(GLuint shader) {
 	glDeleteShader(shader);
+}
+
+void gl_shader_bind_uniform_block(GLuint shader, const GLchar* name, GLuint index) {
+	glUniformBlockBinding(shader, glGetUniformBlockIndex(shader, name), index);
 }
 #endif

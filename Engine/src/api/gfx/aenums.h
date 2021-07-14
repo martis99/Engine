@@ -7,6 +7,13 @@ typedef enum APrimitive {
 	A_QUADS
 } APrimitive;
 
+typedef enum AShaderType {
+	A_FRAGMENT,
+	A_VERTEX,
+	A_GEOMETRY,
+	A_COMPUTE
+} AShaderType;
+
 typedef enum AWrap {
 	A_REPEAT,
 	A_CLAMP_TO_EDGE

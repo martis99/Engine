@@ -89,8 +89,7 @@ void renderer_end(Renderer* renderer) {
 
 	arenderer_polygon_mode_fill(renderer->renderer);
 
-	mat4 view = mat4_identity();
-	shader_bind(&renderer->shader, &view);
+	shader_bind(&renderer->shader);
 
 	framebuffer_attachment_bind(&renderer->framebuffer, 0);
 	mesh_draw(&renderer->mesh);

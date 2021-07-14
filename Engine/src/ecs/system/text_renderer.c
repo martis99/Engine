@@ -25,12 +25,14 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Assets* assets, 
 		"layout (location = 2) in vec2 a_tex_coord;\n"
 		"layout (location = 3) in int a_tex_index;\n"
 		"layout (location = 4) in int a_entity;\n"
+		"layout (std140) uniform Camera {\n"
+		"	mat4 u_view_projection;\n"
+		"};\n"
 		"out vec4 v_color;\n"
 		"out vec2 v_tex_coord;\n"
 		"out flat int v_tex_index;\n"
 		"out flat int v_entity;\n"
 		"uniform mat4 u_model;\n"
-		"uniform mat4 u_view_projection;\n"
 		"void main() {\n"
 		"	gl_Position = u_view_projection * u_model * vec4(a_pos.x, a_pos.y, -a_pos.z, 1.0);\n"
 		"	v_color = a_color;\n"
@@ -148,7 +150,7 @@ static void add_text(TextRenderer* text_renderer, Transform* transform, Text* te
 	}
 }
 
-void text_renderer_render(TextRenderer* text_renderer, Ecs* ecs, mat4* view_projection) {
+void text_renderer_render(TextRenderer* text_renderer, Ecs* ecs) {
 	batch_renderer_clear(&text_renderer->batch_renderer);
 	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_TEXT);
 	for (uint i = 0; i < qr->count; ++i) {
@@ -157,7 +159,7 @@ void text_renderer_render(TextRenderer* text_renderer, Ecs* ecs, mat4* view_proj
 		add_text(text_renderer, transform, text, qr->list[i]);
 	}
 	text_renderer_submit(text_renderer);
-	batch_renderer_draw(&text_renderer->transform, &text_renderer->batch_renderer, view_projection);
+	batch_renderer_draw(&text_renderer->transform, &text_renderer->batch_renderer);
 }
 
 void text_renderer_calculate_preffered(Ecs* ecs) {

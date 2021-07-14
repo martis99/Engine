@@ -3,6 +3,7 @@
 #include "mesh.h"
 #include "material.h"
 #include "font.h"
+#include "uniform_buffer.h"
 
 typedef struct Assets {
 	Dictionary* shaders;
@@ -11,6 +12,7 @@ typedef struct Assets {
 	Dictionary* images;
 	Dictionary* textures;
 	Dictionary* fonts;
+	Dictionary* uniform_buffers;
 } Assets;
 
 Assets* assets_create(Assets* assets);
@@ -34,3 +36,6 @@ Texture* assets_texture_get(Assets* assets, const char* name);
 
 Font* assets_font_load(Assets* assets, const char* name, const char* path, int size);
 Font* assets_font_get(Assets* assets, const char* name);
+
+UniformBuffer* assets_uniform_buffer_create(Assets* assets, const char* name);
+UniformBuffer* assets_uniform_buffer_get(Assets* assets, const char* name);

@@ -12,6 +12,16 @@ GLenum gl_aprimitive(APrimitive primitive) {
 	return 0;
 }
 
+GLenum gl_ashadertype(AShaderType type) {
+	switch (type) {
+	case A_FRAGMENT: return GL_FRAGMENT_SHADER;
+	case A_VERTEX: return GL_VERTEX_SHADER;
+	case A_GEOMETRY: return GL_GEOMETRY_SHADER;
+	case A_COMPUTE: return GL_COMPUTE_SHADER;
+	}
+	return 0;
+}
+
 GLint gl_awrap(AWrap wrap) {
 	switch (wrap) {
 	case A_REPEAT: return GL_REPEAT;

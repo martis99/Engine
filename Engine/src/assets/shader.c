@@ -3,8 +3,8 @@
 
 Shader* shader_create(Shader* shader, const char* src_vert, const char* src_frag) {
 	shader->shader = ashader_create(src_vert, src_frag);
+	ashader_bind_uniform_block(shader->shader, "Camera", 0);
 
-	uniform_create(&shader->view_projection, shader, "u_view_projection", MAT4F, 1);
 	uniform_create(&shader->model, shader, "u_model", MAT4F, 1);
 	uniform_create(&shader->entity, shader, "u_entity", VEC1I, 1);
 
@@ -12,15 +12,13 @@ Shader* shader_create(Shader* shader, const char* src_vert, const char* src_frag
 }
 
 void shader_delete(Shader* shader) {
-	uniform_delete(&shader->view_projection);
 	uniform_delete(&shader->model);
 	uniform_delete(&shader->entity);
 	ashader_delete(shader->shader);
 }
 
-void shader_bind(Shader* shader, mat4* view_projection) {
+void shader_bind(Shader* shader) {
 	ashader_bind(shader->shader);
-	uniform_upload_mat4f(&shader->view_projection, 1, view_projection);
 }
 
 void shader_set_model(Shader* shader, mat4* model) {
@@ -29,4 +27,8 @@ void shader_set_model(Shader* shader, mat4* model) {
 
 void shader_set_entity(Shader* shader, int entity) {
 	uniform_upload_vec1i(&shader->entity, 1, &entity);
+}
+
+void shader_bind_uniform_block(Shader* shader, const char* name, uint index) {
+	ashader_bind_uniform_block(shader->shader, name, index);
 }

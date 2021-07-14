@@ -29,6 +29,7 @@ struct Scene {
 	TextRenderer text_renderer;
 	LineRenderer line_renderer;
 	mat4 projection;
+	UniformBuffer* u_camera;
 };
 
 static void create_systems(Scene* scene) {
@@ -195,6 +196,9 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 
 	create_camera(scene, width, height);
 
+	scene->u_camera = assets_uniform_buffer_create(&scene->assets, "u_camera");
+	uniformbuffer_init_dynamic(scene->u_camera, sizeof(mat4));
+	uniformbuffer_bind_base(scene->u_camera, 0);
 	return scene;
 }
 
@@ -218,13 +222,17 @@ void scene_update(Scene* scene, float dt) {
 }
 
 void scene_render(Scene* scene, Renderer* renderer) {
-	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs, &scene->camera.view_projection);
-	line_renderer_render(&scene->line_renderer, &scene->camera.view_projection);
+	uniformbuffer_set_data(scene->u_camera, &scene->camera.view_projection, sizeof(mat4));
+
+	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
+	line_renderer_render(&scene->line_renderer);
 
 	renderer_clear_depth(renderer);
 
-	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs, &scene->projection);
-	text_renderer_render(&scene->text_renderer, &scene->ecs, &scene->projection);
+	uniformbuffer_set_data(scene->u_camera, &scene->projection, sizeof(mat4));
+
+	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs);
+	text_renderer_render(&scene->text_renderer, &scene->ecs);
 }
 
 void scene_key_pressed(Scene* scene, byte key) {
