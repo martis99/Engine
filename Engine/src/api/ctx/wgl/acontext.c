@@ -74,6 +74,7 @@ static int load_functions(HMODULE library) {
 		LOAD_OPENGL_FUNCTION(glEnableVertexAttribArray) &&
 		LOAD_OPENGL_FUNCTION(glVertexAttribPointer) &&
 		LOAD_OPENGL_FUNCTION(glVertexAttribIPointer) &&
+		LOAD_OPENGL_FUNCTION(glVertexAttribDivisor) &&
 
 		LOAD_OPENGL_FUNCTION(glGetUniformLocation) &&
 		LOAD_OPENGL_FUNCTION(glGetUniformBlockIndex) &&
@@ -109,7 +110,10 @@ static int load_functions(HMODULE library) {
 
 		LOAD_OPENGL_FUNCTION(glGenerateMipmap) &&
 		LOAD_OPENGL_FUNCTION(glActiveTexture) &&
-		LOAD_OPENGL_FUNCTION(glBlendEquation);
+		LOAD_OPENGL_FUNCTION(glBlendEquation) &&
+
+		LOAD_OPENGL_FUNCTION(glDrawArraysInstanced) &&
+		LOAD_OPENGL_FUNCTION(glDrawElementsInstanced);
 }
 
 static HMODULE load_opengl_functions(HMODULE module, LPCWSTR class_name) {

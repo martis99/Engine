@@ -3,7 +3,7 @@
 #include "assets/material.h"
 
 typedef struct MeshComponent {
-	Mesh mesh;
+	Mesh* mesh;
 	Material* material;
 } MeshComponent;
 

@@ -153,6 +153,7 @@ DECL_OPENGL_FUNC(void, glBufferSubData, GLenum target, GLintptr offset, GLsizeip
 DECL_OPENGL_FUNC(void, glEnableVertexAttribArray, GLuint index)
 DECL_OPENGL_FUNC(void, glVertexAttribPointer, GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer)
 DECL_OPENGL_FUNC(void, glVertexAttribIPointer, GLuint index, GLint size, GLenum type, GLsizei stride, const void* pointer)
+DECL_OPENGL_FUNC(void, glVertexAttribDivisor, GLuint index, GLuint divisor)
 
 DECL_OPENGL_FUNC(GLint, glGetUniformLocation, GLuint program, const GLchar* name)
 DECL_OPENGL_FUNC(GLint, glGetUniformBlockIndex, GLuint program, const GLchar* uniformBlockName)
@@ -189,6 +190,9 @@ DECL_OPENGL_FUNC(void, glRenderbufferStorage, GLenum target, GLenum internalform
 DECL_OPENGL_FUNC(void, glGenerateMipmap, GLenum target)
 DECL_OPENGL_FUNC(void, glActiveTexture, GLenum texture)
 DECL_OPENGL_FUNC(void, glBlendEquation, GLenum mode)
+
+DECL_OPENGL_FUNC(void, glDrawArraysInstanced, GLenum mode, GLint first, GLsizei count, GLsizei instancecount)
+DECL_OPENGL_FUNC(void, glDrawElementsInstanced, GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLsizei instancecount)
 
 void WINAPI glClear(GLbitfield mask);
 void WINAPI glClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);

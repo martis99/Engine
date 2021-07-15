@@ -56,7 +56,7 @@ void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs) {
 		shader_set_model(mesh_renderer->shader, &model);
 		shader_set_entity(mesh_renderer->shader, qr->list[i]);
 		material_bind(mesh_component->material);
-		mesh_draw(&mesh_component->mesh);
+		mesh_draw_elements(mesh_component->mesh);
 	}
 }
 

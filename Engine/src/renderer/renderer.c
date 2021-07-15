@@ -92,7 +92,7 @@ void renderer_end(Renderer* renderer) {
 	shader_bind(&renderer->shader);
 
 	framebuffer_attachment_bind(&renderer->framebuffer, 0);
-	mesh_draw(&renderer->mesh);
+	mesh_draw_elements(&renderer->mesh);
 
 	if (renderer->wireframe == 0) {
 		arenderer_polygon_mode_fill(renderer->renderer);

@@ -192,6 +192,7 @@
     <ClCompile Include="src\assets\uniform.c" />
     <ClCompile Include="src\assets\uniform_buffer.c" />
     <ClCompile Include="src\ecs\component\constraints.c" />
+    <ClCompile Include="src\ecs\component\instance_component.c" />
     <ClCompile Include="src\ecs\component\mesh_component.c" />
     <ClCompile Include="src\ecs\component\sprite.c" />
     <ClCompile Include="src\ecs\component\text.c" />
@@ -199,6 +200,7 @@
     <ClCompile Include="src\ecs\ecs.c" />
     <ClCompile Include="src\ecs\system\batch_renderer.c" />
     <ClCompile Include="src\ecs\system\constraints_resolver.c" />
+    <ClCompile Include="src\ecs\system\instance_renderer.c" />
     <ClCompile Include="src\ecs\system\line_renderer.c" />
     <ClCompile Include="src\ecs\system\mesh_renderer.c" />
     <ClCompile Include="src\ecs\system\sprite_renderer.c" />
@@ -267,6 +269,7 @@
     <ClInclude Include="src\assets\uniform.h" />
     <ClInclude Include="src\assets\uniform_buffer.h" />
     <ClInclude Include="src\ecs\component\constraints.h" />
+    <ClInclude Include="src\ecs\component\instance_component.h" />
     <ClInclude Include="src\ecs\component\mesh_component.h" />
     <ClInclude Include="src\ecs\component\sprite.h" />
     <ClInclude Include="src\ecs\component\text.h" />
@@ -274,6 +277,7 @@
     <ClInclude Include="src\ecs\ecs.h" />
     <ClInclude Include="src\ecs\system\batch_renderer.h" />
     <ClInclude Include="src\ecs\system\constraints_resolver.h" />
+    <ClInclude Include="src\ecs\system\instance_renderer.h" />
     <ClInclude Include="src\ecs\system\line_renderer.h" />
     <ClInclude Include="src\ecs\system\mesh_renderer.h" />
     <ClInclude Include="src\ecs\system\sprite_renderer.h" />

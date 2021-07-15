@@ -6,10 +6,12 @@
 #include "ecs/system/text_renderer.h"
 #include "ecs/system/constraints_resolver.h"
 #include "ecs/system/line_renderer.h"
+#include "ecs/system/instance_renderer.h"
 
 #include "ecs/component/transform.h"
 #include "ecs/component/mesh_component.h"
 #include "ecs/component/constraints.h"
+#include "ecs/component/instance_component.h"
 
 #include "camera.h"
 
@@ -28,6 +30,7 @@ struct Scene {
 	SpriteRenderer sprite_renderer;
 	TextRenderer text_renderer;
 	LineRenderer line_renderer;
+	InstanceRenderer instance_renderer;
 	mat4 projection;
 	UniformBuffer* u_camera;
 };
@@ -50,6 +53,10 @@ static void create_systems(Scene* scene) {
 	if (line_renderer_create(&scene->line_renderer, &scene->assets, line_transform) == NULL) {
 		log_error("Failed to create line renderer");
 	}
+
+	if (instance_renderer_create(&scene->instance_renderer, &scene->assets) == NULL) {
+		log_error("Failed to create instance renderer");
+	}
 }
 
 static void create_assets(Scene* scene) {
@@ -66,13 +73,6 @@ static void create_assets(Scene* scene) {
 	Texture* texture_container = assets_texture_create_from_image(&scene->assets, "container", image_container, A_CLAMP_TO_EDGE, A_LINEAR);
 	Texture* texture_gui = assets_texture_create_from_image(&scene->assets, "gui", image_gui, A_CLAMP_TO_EDGE, A_NEAREST);
 	Texture* texture_mountains = assets_texture_create_from_image(&scene->assets, "mountains", image_mountains, A_CLAMP_TO_EDGE, A_LINEAR);
-
-	vec4 color_white = { 1.0f, 1.0f, 1.0f, 1.0f };
-	vec4 color_orange = { 1.0f, 0.5f, 0.2f, 1.0f };
-
-	Material* material_white = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "white", texture_white, color_white);
-	Material* material_orange = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "orange", texture_white, color_orange);
-	Material* material_container = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "container", texture_container, color_white);
 
 	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
 	mesh_init_cube(mesh_cube);
@@ -134,6 +134,9 @@ static void create_entities3d(Scene* scene) {
 	Material* material_orange = assets_material_get(&scene->assets, "orange");
 	Material* material_container = assets_material_get(&scene->assets, "container");
 
+	Material* material_orange_inst = assets_material_get(&scene->assets, "orange_inst");
+	Material* material_container_inst = assets_material_get(&scene->assets, "container_inst");
+
 	Mesh* mesh_cube = assets_mesh_get(&scene->assets, "cube");
 
 	{
@@ -153,6 +156,20 @@ static void create_entities3d(Scene* scene) {
 		ecs_add(&scene->ecs, cube.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, cube.id, C_MESH, &mesh);
 	}
+	{
+		Entity cubes = ecs_entity(&scene->ecs);
+		Transform transform = transform_create((vec3) { 0.0f, 0.0f, 10.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.5f, 0.5f, 0.5f });
+		InstanceComponent instance = instance_component_create(mesh_cube, material_orange_inst, 10 * 10);
+		for (int x = 0; x < 10; x++) {
+			for (int y = 0; y < 10; y++) {
+				Transform transform = transform_create((vec3) { x * 3.0f, y * 3.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+				instance_component_add(&instance, &transform);
+			}
+		}
+
+		ecs_add(&scene->ecs, cubes.id, C_TRANSFORM, &transform);
+		ecs_add(&scene->ecs, cubes.id, C_INSTANCE, &instance);
+	}
 
 	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 0.0f, 0.0f }, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }, -1);
 	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 1.0f, 0.0f }, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f }, -1);
@@ -160,7 +177,7 @@ static void create_entities3d(Scene* scene) {
 }
 
 static void create_entities(Scene* scene) {
-	if (ecs_create(&scene->ecs, 5, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints)) == NULL) {
+	if (ecs_create(&scene->ecs, 6, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints), sizeof(InstanceComponent)) == NULL) {
 		log_error("Failed to create ecs");
 	}
 
@@ -190,8 +207,22 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	scene->renderer = renderer;
 
 	assets_create(&scene->assets);
-	create_systems(scene);
 	create_assets(scene);
+	create_systems(scene);
+
+	Texture* texture_white = assets_texture_get(&scene->assets, "white");
+	Texture* texture_container = assets_texture_get(&scene->assets, "container");
+
+	vec4 color_white = { 1.0f, 1.0f, 1.0f, 1.0f };
+	vec4 color_orange = { 1.0f, 0.5f, 0.2f, 1.0f };
+
+	Material* material_white = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "white", texture_white, color_white);
+	Material* material_orange = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "orange", texture_white, color_orange);
+	Material* material_container = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "container", texture_container, color_white);
+
+	Material* material_orange_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "orange_inst", texture_white, color_orange);
+	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);
+
 	create_entities(scene);
 
 	create_camera(scene, width, height);
@@ -207,6 +238,7 @@ void scene_delete(Scene* scene) {
 	sprite_renderer_delete(&scene->sprite_renderer);
 	text_renderer_delete(&scene->text_renderer);
 	line_renderer_delete(&scene->line_renderer);
+	instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
 	m_free(scene, sizeof(Scene));
@@ -225,6 +257,7 @@ void scene_render(Scene* scene, Renderer* renderer) {
 	uniformbuffer_set_data(scene->u_camera, &scene->camera.view_projection, sizeof(mat4));
 
 	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
+	instance_renderer_render(&scene->instance_renderer, &scene->ecs);
 	line_renderer_render(&scene->line_renderer);
 
 	renderer_clear_depth(renderer);

@@ -7,6 +7,7 @@
 #define C_SPRITE 2
 #define C_TEXT 3
 #define C_CONSTRAINTS 4
+#define C_INSTANCE 5
 
 typedef uint Id;
 

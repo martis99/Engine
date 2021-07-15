@@ -20,11 +20,23 @@ void mesh_init_dynamic(Mesh* mesh, uint vertices_size, uint* indices, uint indic
 	amesh_init_dynamic(mesh->mesh, vertices_size, indices, indices_size, layout, layout_size, primitive);
 }
 
-void mesh_set_vertices(Mesh* mesh, const void* data, uint vertices_size) {
-	amesh_set_vertices(mesh->mesh, data, vertices_size);
+void mesh_add_instance_buffer_static(Mesh* mesh, const void* vertices, uint vertices_size, ADataType* layout, uint layout_size) {
+	amesh_add_instance_buffer_static(mesh->mesh, vertices, vertices_size, layout, layout_size);
 }
 
-void mesh_set_indices(Mesh* mesh, uint* indices, uint indices_size) {
+void mesh_add_instance_buffer_dynamic(Mesh* mesh, uint vertices_size, ADataType* layout, uint layout_size) {
+	amesh_add_instance_buffer_dynamic(mesh->mesh, vertices_size, layout, layout_size);
+}
+
+void mesh_set_vertices(Mesh* mesh, const void* vertices, uint vertices_size) {
+	amesh_set_vertices(mesh->mesh, vertices, vertices_size);
+}
+
+void mesh_set_instance_data(Mesh* mesh, const void* vertices, uint vertices_size) {
+	amesh_set_instance_data(mesh->mesh, vertices, vertices_size);
+}
+
+void mesh_set_indices(Mesh* mesh, const void* indices, uint indices_size) {
 	amesh_set_indices(mesh->mesh, indices, indices_size);
 }
 
@@ -33,8 +45,18 @@ void mesh_draw_arrays(Mesh* mesh) {
 	app.stats.draw_calls++;
 }
 
-void mesh_draw(Mesh* mesh) {
-	amesh_draw(mesh->mesh);
+void mesh_draw_arrays_instanced(Mesh* mesh, int count) {
+	amesh_draw_arrays_instanced(mesh->mesh, count);
+	app.stats.draw_calls++;
+}
+
+void mesh_draw_elements(Mesh* mesh) {
+	amesh_draw_elements(mesh->mesh);
+	app.stats.draw_calls++;
+}
+
+void mesh_draw_elements_instanced(Mesh* mesh, int count) {
+	amesh_draw_elements_instanced(mesh->mesh, count);
 	app.stats.draw_calls++;
 }
 
