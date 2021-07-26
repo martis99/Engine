@@ -8,6 +8,7 @@
 #define C_TEXT 3
 #define C_CONSTRAINTS 4
 #define C_INSTANCE 5
+#define C_MODEL 6
 
 typedef uint Id;
 

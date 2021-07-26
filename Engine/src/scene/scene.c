@@ -7,11 +7,13 @@
 #include "ecs/system/constraints_resolver.h"
 #include "ecs/system/line_renderer.h"
 #include "ecs/system/instance_renderer.h"
+#include "ecs/system/model_renderer.h"
 
 #include "ecs/component/transform.h"
 #include "ecs/component/mesh_component.h"
 #include "ecs/component/constraints.h"
 #include "ecs/component/instance_component.h"
+#include "assets/model.h"
 
 #include "camera.h"
 
@@ -31,6 +33,7 @@ struct Scene {
 	TextRenderer text_renderer;
 	LineRenderer line_renderer;
 	InstanceRenderer instance_renderer;
+	ModelRenderer model_renderer;
 	mat4 projection;
 	UniformBuffer* u_camera;
 };
@@ -57,6 +60,10 @@ static void create_systems(Scene* scene) {
 	if (instance_renderer_create(&scene->instance_renderer, &scene->assets) == NULL) {
 		log_error("Failed to create instance renderer");
 	}
+
+	if (model_renderer_create(&scene->model_renderer, &scene->assets) == NULL) {
+		log_error("Failed to create model renderer");
+	}
 }
 
 static void create_assets(Scene* scene) {
@@ -73,9 +80,6 @@ static void create_assets(Scene* scene) {
 	Texture* texture_container = assets_texture_create_from_image(&scene->assets, "container", image_container, A_CLAMP_TO_EDGE, A_LINEAR);
 	Texture* texture_gui = assets_texture_create_from_image(&scene->assets, "gui", image_gui, A_CLAMP_TO_EDGE, A_NEAREST);
 	Texture* texture_mountains = assets_texture_create_from_image(&scene->assets, "mountains", image_mountains, A_CLAMP_TO_EDGE, A_LINEAR);
-
-	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
-	mesh_init_cube(mesh_cube);
 }
 
 static void create_entities2d(Scene* scene) {
@@ -137,11 +141,48 @@ static void create_entities3d(Scene* scene) {
 	Material* material_orange_inst = assets_material_get(&scene->assets, "orange_inst");
 	Material* material_container_inst = assets_material_get(&scene->assets, "container_inst");
 
-	Mesh* mesh_cube = assets_mesh_get(&scene->assets, "cube");
+	Texture* texture_white = assets_texture_get(&scene->assets, "white");
+
+	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
+	mesh_init_cube(mesh_cube);
+
+	Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", scene->model_renderer.shader, 0, 0);
+	Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", scene->model_renderer.shader, 1, 0);
+	Model* vampire = assets_model_load(&scene->assets, "vampire", "res/models/vampire/", "dancing_vampire.dae", scene->model_renderer.shader, 0, 0);
+	Model* nanosuit = assets_model_load(&scene->assets, "nonosuit", "res/models/nano_textured/", "nanosuit.obj", scene->model_renderer.shader, 0, 1);
+
+	{
+		Entity entity = ecs_entity(&scene->ecs);
+		Transform transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+
+		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
+		ecs_add(&scene->ecs, entity.id, C_MODEL, container);
+	}
+	{
+		Entity entity = ecs_entity(&scene->ecs);
+		Transform transform = transform_create((vec3) { -5.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+
+		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
+		ecs_add(&scene->ecs, entity.id, C_MODEL, backpack);
+	}
+	{
+		Entity entity = ecs_entity(&scene->ecs);
+		Transform transform = transform_create((vec3) { 10.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 3.0f, 3.0f, 3.0f });
+
+		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
+		ecs_add(&scene->ecs, entity.id, C_MODEL, vampire);
+	}
+	{
+		Entity entity = ecs_entity(&scene->ecs);
+		Transform transform = transform_create((vec3) { 15.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 0.4f, 0.4f, 0.4f });
+
+		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
+		ecs_add(&scene->ecs, entity.id, C_MODEL, nanosuit);
+	}
 
 	{
 		Entity cube = ecs_entity(&scene->ecs);
-		Transform transform = transform_create((vec3) { 2.0f, 2.0f, 2.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+		Transform transform = transform_create((vec3) { 12.0f, 2.0f, 2.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 		MeshComponent mesh = mesh_component_create(mesh_cube, material_orange);
 
 		ecs_add(&scene->ecs, cube.id, C_TRANSFORM, &transform);
@@ -150,7 +191,7 @@ static void create_entities3d(Scene* scene) {
 	{
 		Entity cube = ecs_entity(&scene->ecs);
 		scene->cube = cube;
-		Transform transform = transform_create((vec3) { 5.0f, 2.0f, 2.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+		Transform transform = transform_create((vec3) { 15.0f, 2.0f, 2.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 		MeshComponent mesh = mesh_component_create(mesh_cube, material_container);
 
 		ecs_add(&scene->ecs, cube.id, C_TRANSFORM, &transform);
@@ -158,7 +199,7 @@ static void create_entities3d(Scene* scene) {
 	}
 	{
 		Entity cubes = ecs_entity(&scene->ecs);
-		Transform transform = transform_create((vec3) { 0.0f, 0.0f, 10.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.5f, 0.5f, 0.5f });
+		Transform transform = transform_create((vec3) { 0.0f, 0.0f, 50.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.5f, 0.5f, 0.5f });
 		InstanceComponent instance = instance_component_create(mesh_cube, material_orange_inst, 10 * 10);
 		for (int x = 0; x < 10; x++) {
 			for (int y = 0; y < 10; y++) {
@@ -177,7 +218,7 @@ static void create_entities3d(Scene* scene) {
 }
 
 static void create_entities(Scene* scene) {
-	if (ecs_create(&scene->ecs, 6, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints), sizeof(InstanceComponent)) == NULL) {
+	if (ecs_create(&scene->ecs, 7, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints), sizeof(InstanceComponent), sizeof(Model)) == NULL) {
 		log_error("Failed to create ecs");
 	}
 
@@ -230,6 +271,7 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	scene->u_camera = assets_uniform_buffer_create(&scene->assets, "u_camera");
 	uniformbuffer_init_dynamic(scene->u_camera, sizeof(mat4));
 	uniformbuffer_bind_base(scene->u_camera, 0);
+
 	return scene;
 }
 
@@ -239,6 +281,7 @@ void scene_delete(Scene* scene) {
 	text_renderer_delete(&scene->text_renderer);
 	line_renderer_delete(&scene->line_renderer);
 	instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
+	model_renderer_delete(&scene->model_renderer);
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
 	m_free(scene, sizeof(Scene));
@@ -257,6 +300,7 @@ void scene_render(Scene* scene, Renderer* renderer) {
 	uniformbuffer_set_data(scene->u_camera, &scene->camera.view_projection, sizeof(mat4));
 
 	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
+	model_renderer_render(&scene->model_renderer, &scene->ecs);
 	instance_renderer_render(&scene->instance_renderer, &scene->ecs);
 	line_renderer_render(&scene->line_renderer);
 

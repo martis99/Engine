@@ -4,6 +4,7 @@
 #include "material.h"
 #include "font.h"
 #include "uniform_buffer.h"
+#include "model.h"
 
 typedef struct Assets {
 	Dictionary* shaders;
@@ -13,6 +14,7 @@ typedef struct Assets {
 	Dictionary* textures;
 	Dictionary* fonts;
 	Dictionary* uniform_buffers;
+	Dictionary* models;
 } Assets;
 
 Assets* assets_create(Assets* assets);
@@ -39,3 +41,6 @@ Font* assets_font_get(Assets* assets, const char* name);
 
 UniformBuffer* assets_uniform_buffer_create(Assets* assets, const char* name);
 UniformBuffer* assets_uniform_buffer_get(Assets* assets, const char* name);
+
+Model* assets_model_load(Assets* assets, const char* name, const char* path, const char* filename, Shader* shader, bool flipUVs, bool print);
+Model* assets_model_get(Assets* assets, const char* name);

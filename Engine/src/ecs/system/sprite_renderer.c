@@ -92,7 +92,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 		"		float scale = (texture_size.y - borders) / (v_size.y - borders);\n"
 		"		tex_coord.y = 1.0 - (offset + coords * scale);\n"
 		"	}\n"
-		"	FragColor = v_color * texture(u_textures[int(v_tex_index)], tex_coord);\n"
+		"	FragColor = v_color * texture(u_textures[v_tex_index], tex_coord);\n"
 		"	color2 = v_entity;\n"
 		"}\0";
 

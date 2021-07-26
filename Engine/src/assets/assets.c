@@ -9,6 +9,7 @@ Assets* assets_create(Assets* assets) {
 	assets->textures = dic_create(20, sizeof(Texture));
 	assets->fonts = dic_create(5, sizeof(Font));
 	assets->uniform_buffers = dic_create(10, sizeof(UniformBuffer));
+	assets->models = dic_create(10, sizeof(Model));
 	return assets;
 }
 
@@ -20,6 +21,7 @@ void assets_delete(Assets* assets) {
 	dic_delete(assets->textures, texture_delete);
 	dic_delete(assets->fonts, font_delete);
 	dic_delete(assets->uniform_buffers, uniformbuffer_delete);
+	dic_delete(assets->models, model_delete);
 }
 
 Shader* assets_shader_create(Assets* assets, const char* name, const char* vertex_source, const char* fragment_source) {
@@ -80,4 +82,12 @@ UniformBuffer* assets_uniform_buffer_create(Assets* assets, const char* name) {
 
 UniformBuffer* assets_uniform_buffer_get(Assets* assets, const char* name) {
 	return dic_get(assets->uniform_buffers, name);
+}
+
+Model* assets_model_load(Assets* assets, const char* name, const char* path, const char* filename, Shader* shader, bool flipUVs, bool print) {
+	return model_load(dic_add(assets->models, name), path, filename, shader, flipUVs, print);
+}
+
+Model* assets_model_get(Assets* assets, const char* name) {
+	return dic_get(assets->models, name);
 }
