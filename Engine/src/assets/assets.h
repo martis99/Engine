@@ -1,23 +1,7 @@
 #pragma once
+#include "structs.h"
 
-#include "mesh.h"
-#include "material.h"
-#include "font.h"
-#include "uniform_buffer.h"
-#include "model.h"
-
-typedef struct Assets {
-	Dictionary* shaders;
-	Dictionary* meshes;
-	Dictionary* materials;
-	Dictionary* images;
-	Dictionary* textures;
-	Dictionary* fonts;
-	Dictionary* uniform_buffers;
-	Dictionary* models;
-} Assets;
-
-Assets* assets_create(Assets* assets);
+Assets* assets_create(Assets* assets, Renderer* renderer);
 void assets_delete(Assets* assets);
 
 Shader* assets_shader_create(Assets* assets, const char* name, const char* vertex_source, const char* fragment_source);

@@ -1,14 +1,5 @@
 #pragma once
-
-#include "api/gfx/atexture.h"
-#include "image.h"
-
-typedef struct Texture {
-	ATexture* texture;
-	int width;
-	int height;
-	int channels;
-} Texture;
+#include "structs.h"
 
 Texture* texture_create(Texture* texture, AWrap wrap, AFilter filter);
 Texture* texture_create_from_image(Texture* texture, Image* image, AWrap wrap, AFilter filter);

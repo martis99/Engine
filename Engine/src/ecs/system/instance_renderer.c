@@ -1,8 +1,17 @@
 #include "pch.h"
 #include "instance_renderer.h"
+
+#include "ecs/component/transform.h"
 #include "ecs/component/instance_component.h"
 
-InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, Assets* assets) {
+#include "assets/assets.h"
+#include "assets/mesh.h"
+#include "assets/material.h"
+#include "assets/shader.h"
+
+InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, Renderer* renderer) {
+	instance_renderer->renderer = renderer;
+
 	const char* src_vert =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 a_pos;\n"
@@ -31,8 +40,7 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 		"	color2 = u_entity;\n"
 		"}\0";
 
-	instance_renderer->shader = assets_shader_create(assets, "instance_shader", src_vert, src_frag);
-	if (instance_renderer->shader == NULL) {
+	if (shader_create(&instance_renderer->shader, src_vert, src_frag, renderer) == NULL) {
 		log_error("Failed to create mesh shader");
 		return NULL;
 	}
@@ -44,10 +52,11 @@ void instance_renderer_delete(InstanceRenderer* instance_renderer, Ecs* ecs) {
 	for (uint i = 0; i < qr->count; ++i) {
 		instance_component_delete(ecs_get(ecs, qr->list[i], C_INSTANCE));
 	}
+	shader_delete(&instance_renderer->shader);
 }
 
 void instance_renderer_render(InstanceRenderer* instance_renderer, Ecs* ecs) {
-	shader_bind(instance_renderer->shader);
+	shader_bind(&instance_renderer->shader, instance_renderer->renderer);
 
 	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_INSTANCE);
 	for (uint i = 0; i < qr->count; ++i) {
@@ -55,16 +64,16 @@ void instance_renderer_render(InstanceRenderer* instance_renderer, Ecs* ecs) {
 		InstanceComponent* instance_component = (InstanceComponent*)ecs_get(ecs, qr->list[i], C_INSTANCE);
 
 		mat4 model = transform_to_mat4(transform);
-		shader_set_model(instance_renderer->shader, &model);
-		shader_set_entity(instance_renderer->shader, qr->list[i]);
+		shader_set_model(&instance_renderer->shader, &model);
+		shader_set_entity(&instance_renderer->shader, qr->list[i]);
 		material_bind(instance_component->material);
 		mesh_set_instance_data(instance_component->mesh, instance_component->transforms, instance_component->transforms_count * sizeof(mat4));
-		mesh_draw_elements_instanced(instance_component->mesh, instance_component->transforms_count * sizeof(mat4));
+		mesh_draw_elements_instanced(instance_component->mesh, instance_component->transforms_count * sizeof(mat4), instance_renderer->renderer);
 	}
 }
 
 Material* instance_renderer_create_material(InstanceRenderer* instance_renderer, Assets* assets, const char* name, Texture* texture, vec4 color) {
-	Material* material = assets_material_create(assets, name, instance_renderer->shader);
+	Material* material = assets_material_create(assets, name, &instance_renderer->shader);
 	material_add_texture(material, texture);
 	material_set_vec4f(material, "u_color", 1, &color);
 	return material;

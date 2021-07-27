@@ -1,7 +1,5 @@
 #pragma once
-#include "api/ctx/acontext.h"
-
-typedef struct ARenderer ARenderer;
+#include "api/astructs.h"
 
 ARenderer* arenderer_create(AContext* context);
 void arenderer_delete(ARenderer* renderer);

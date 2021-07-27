@@ -1,13 +1,5 @@
 #pragma once
-#include "shader.h"
-#include "texture.h"
-
-typedef struct Material {
-	Shader* shader;
-	Dictionary* uniforms;
-	Texture** textures;
-	uint textures_count;
-} Material;
+#include "structs.h"
 
 Material* material_create(Material* material, Shader* shader);
 void material_delete(Material* material);

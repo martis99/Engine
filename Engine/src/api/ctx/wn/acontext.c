@@ -6,18 +6,7 @@
 
 #include <Windows.h>
 
-struct AWindow {
-	LPCWSTR class_name;
-	HMODULE module;
-	HWND window;
-	AWindowCallbacks callbacks;
-	ACursor* cursor;
-};
-
-struct AContext {
-	HWND window;
-	HDC device;
-};
+#include "api/gfx/none/n_astructs.h"
 
 AContext* acontext_create(AWindow* window) {
 	AContext* context = m_malloc(sizeof(AContext));

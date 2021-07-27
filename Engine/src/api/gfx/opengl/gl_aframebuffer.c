@@ -1,15 +1,10 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "api/gfx/aframebuffer.h"
+#include "gl_astructs.h"
 
 #include "gl/gl_framebuffer.h"
 #include "gl/gl_texture.h"
-
-struct AFramebuffer {
-	GLuint fb;
-	GLuint* attachments;
-	GLsizei attachments_count;
-};
 
 AFramebuffer* aframebuffer_create(AAttachmentFormat* attachments, int attachments_size, int width, int height) {
 	int attachments_count = attachments_size / sizeof(AAttachmentFormat);

@@ -1,11 +1,5 @@
 #pragma once
-#include "api/wnd/acursor.h"
-
-typedef struct Window Window;
-
-typedef struct Cursor {
-	ACursor* cursor;
-} Cursor;
+#include "structs.h"
 
 Cursor* cursor_create(Cursor* cursor, Window* window, bool enabled);
 void cursor_delete(Cursor* cursor);

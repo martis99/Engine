@@ -172,7 +172,7 @@
     <ClCompile Include="lib\include\stb\stb_truetype.c" />
     <ClCompile Include="src\api\ctx\wdx11\wdx11_acontext.c" />
     <ClCompile Include="src\api\ctx\wgl\wgl_acontext.c" />
-    <ClCompile Include="src\api\ctx\wnone\acontext.c" />
+    <ClCompile Include="src\api\ctx\wn\acontext.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_aframebuffer.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_amesh.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_arenderer.c" />
@@ -267,14 +267,17 @@
     <ClInclude Include="lib\stb\stb_truetype.h" />
     <ClInclude Include="src\api\ctx\acontext.h" />
     <ClInclude Include="src\api\ctx\wgl\wgl.h" />
-    <ClInclude Include="src\api\gfx\aenums.h" />
+    <ClInclude Include="src\api\aenums.h" />
     <ClInclude Include="src\api\gfx\aframebuffer.h" />
     <ClInclude Include="src\api\gfx\amesh.h" />
     <ClInclude Include="src\api\gfx\arenderer.h" />
     <ClInclude Include="src\api\gfx\ashader.h" />
+    <ClInclude Include="src\api\astructs.h" />
     <ClInclude Include="src\api\gfx\atexture.h" />
     <ClInclude Include="src\api\gfx\auniform.h" />
     <ClInclude Include="src\api\gfx\auniform_buffer.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11_astructs.h" />
+    <ClInclude Include="src\api\gfx\none\n_astructs.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_buffer.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_defines.h" />
@@ -285,6 +288,7 @@
     <ClInclude Include="src\api\gfx\opengl\gl\gl_shader.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_texture.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_uniform_buffer.h" />
+    <ClInclude Include="src\api\gfx\opengl\gl_astructs.h" />
     <ClInclude Include="src\api\wnd\acursor.h" />
     <ClInclude Include="src\api\wnd\awindow.h" />
     <ClInclude Include="src\app.h" />
@@ -332,6 +336,7 @@
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\stats.h" />
+    <ClInclude Include="src\structs.h" />
     <ClInclude Include="src\utils\array.h" />
     <ClInclude Include="src\utils\dictionary.h" />
     <ClInclude Include="src\utils\stack.h" />

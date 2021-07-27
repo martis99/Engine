@@ -5,6 +5,12 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "image.h"
+#include "texture.h"
+#include "material.h"
+#include "mesh.h"
+#include "shader.h"
+
 Model* model_create(Model* model) {
 	return model;
 }
@@ -26,7 +32,7 @@ void model_delete(Model* model) {
 	arr_delete(&model->materials, material_delete);
 }
 
-static void node_draw(Model* model, Shader* shader, ModelNode* node, mat4 transformation) {
+static void node_draw(Model* model, Renderer* renderer, Shader* shader, ModelNode* node, mat4 transformation) {
 	mat4 trans = mat4_mul(node->transformation, transformation);
 	shader_set_model(shader, &trans);
 	for (uint i = 0; i < node->meshes.count; i++) {
@@ -34,16 +40,16 @@ static void node_draw(Model* model, Shader* shader, ModelNode* node, mat4 transf
 		if (mesh->material >= 0) {
 			material_bind(arr_get(&model->materials, mesh->material));
 		}
-		mesh_draw_elements(mesh->mesh);
+		mesh_draw_elements(mesh->mesh, renderer);
 	}
 
 	for (uint i = 0; i < node->nodes.count; i++) {
-		node_draw(model, shader, arr_get(&node->nodes, i), trans);
+		node_draw(model, renderer, shader, arr_get(&node->nodes, i), trans);
 	}
 }
 
-void model_draw(Model* model, Shader* shader, mat4 transformation) {
-	node_draw(model, shader, &model->node, transformation);
+void model_draw(Model* model, Renderer* renderer, Shader* shader, mat4 transformation) {
+	node_draw(model, renderer, shader, &model->node, transformation);
 }
 
 static void print_material_name(const struct aiMaterial* material, int depth, bool print) {
@@ -57,7 +63,7 @@ static void print_material_name(const struct aiMaterial* material, int depth, bo
 	}
 }
 
-static void process_mesh(ModelMesh* mesh, const struct aiMesh* ai_mesh, const struct aiScene* ai_scene, int depth, bool print) {
+static void process_mesh(ModelMesh* mesh, Renderer* renderer, Shader* shader, const struct aiMesh* ai_mesh, const struct aiScene* ai_scene, int depth, bool print) {
 	if (print) {
 		for (int i = 0; i < depth; i++) {
 			printf("   ");
@@ -101,13 +107,13 @@ static void process_mesh(ModelMesh* mesh, const struct aiMesh* ai_mesh, const st
 	ADataType layout[] = { VEC3F, VEC2F };
 	mesh->mesh = m_malloc(sizeof(Mesh));
 	mesh_create(mesh->mesh);
-	mesh_init_static(mesh->mesh, vertices, sizeof(Vertex) * ai_mesh->mNumVertices, indices, sizeof(uint) * index, layout, sizeof(layout), A_TRIANGLES);
+	mesh_init_static(mesh->mesh, renderer, shader, vertices, sizeof(Vertex) * ai_mesh->mNumVertices, indices, sizeof(uint) * index, layout, sizeof(layout), A_TRIANGLES);
 
 	m_free(vertices, sizeof(Vertex) * ai_mesh->mNumVertices);
 	m_free(indices, sizeof(uint) * ai_mesh->mNumFaces * 3);
 }
 
-static void process_node(ModelNode* node, const struct aiNode* ai_node, const struct aiScene* ai_scene, int depth, bool print) {
+static void process_node(ModelNode* node, Renderer* renderer, Shader* shader, const struct aiNode* ai_node, const struct aiScene* ai_scene, int depth, bool print) {
 	if (print == 1) {
 		for (int i = 0; i < depth; i++) {
 			printf("   ");
@@ -118,12 +124,12 @@ static void process_node(ModelNode* node, const struct aiNode* ai_node, const st
 	arr_create(&node->meshes, sizeof(ModelMesh), ai_node->mNumMeshes);
 	for (uint i = 0; i < ai_node->mNumMeshes; i++) {
 		struct aiMesh* ai_mesh = ai_scene->mMeshes[ai_node->mMeshes[i]];
-		process_mesh(arr_add(&node->meshes), ai_mesh, ai_scene, depth + 1, print);
+		process_mesh(arr_add(&node->meshes), renderer, shader, ai_mesh, ai_scene, depth + 1, print);
 	}
 
 	arr_create(&node->nodes, sizeof(ModelNode), ai_node->mNumChildren);
 	for (uint i = 0; i < ai_node->mNumChildren; i++) {
-		process_node(arr_add(&node->nodes), ai_node->mChildren[i], ai_scene, depth + 1, print);
+		process_node(arr_add(&node->nodes), renderer, shader, ai_node->mChildren[i], ai_scene, depth + 1, print);
 	}
 
 	memcpy(&node->transformation, &ai_node->mTransformation, sizeof(node->transformation));
@@ -222,7 +228,7 @@ static void process_material(Model* model, Shader* shader, Material* material, c
 	}
 }
 
-Model* model_load(Model* model, const char* path, const char* filename, Shader* shader, bool flipUVs, bool print) {
+Model* model_load(Model* model, Renderer* renderer, const char* path, const char* filename, Shader* shader, bool flipUVs, bool print) {
 	char* file = merge(path, filename);
 	if (print == 1) {
 		printf("%s\n", file);
@@ -236,7 +242,7 @@ Model* model_load(Model* model, const char* path, const char* filename, Shader* 
 		process_material(model, shader, arr_add(&model->materials), path, ai_scene->mMaterials[i], 1, print);
 	}
 
-	process_node(&model->node, ai_scene->mRootNode, ai_scene, 1, print);
+	process_node(&model->node, renderer, shader, ai_scene->mRootNode, ai_scene, 1, print);
 
 	m_free(file, strlen(file) + 1);
 

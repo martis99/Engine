@@ -1,7 +1,18 @@
 #include "pch.h"
 #include "assets.h"
 
-Assets* assets_create(Assets* assets) {
+#include "shader.h"
+#include "mesh.h"
+#include "material.h"
+#include "image.h"
+#include "image.h"
+#include "texture.h"
+#include "font.h"
+#include "uniform_buffer.h"
+#include "model.h"
+
+Assets* assets_create(Assets* assets, Renderer* renderer) {
+	assets->renderer = renderer;
 	assets->shaders = dic_create(20, sizeof(Shader));
 	assets->meshes = dic_create(20, sizeof(Mesh));
 	assets->materials = dic_create(20, sizeof(Material));
@@ -25,7 +36,7 @@ void assets_delete(Assets* assets) {
 }
 
 Shader* assets_shader_create(Assets* assets, const char* name, const char* vertex_source, const char* fragment_source) {
-	return shader_create(dic_add(assets->shaders, name), vertex_source, fragment_source);
+	return shader_create(dic_add(assets->shaders, name), vertex_source, fragment_source, assets->renderer);
 }
 
 Shader* assets_shader_get(Assets* assets, const char* name) {
@@ -85,7 +96,7 @@ UniformBuffer* assets_uniform_buffer_get(Assets* assets, const char* name) {
 }
 
 Model* assets_model_load(Assets* assets, const char* name, const char* path, const char* filename, Shader* shader, bool flipUVs, bool print) {
-	return model_load(dic_add(assets->models, name), path, filename, shader, flipUVs, print);
+	return model_load(dic_add(assets->models, name), assets->renderer, path, filename, shader, flipUVs, print);
 }
 
 Model* assets_model_get(Assets* assets, const char* name) {

@@ -1,18 +1,10 @@
 #pragma once
-#include "api/gfx/ashader.h"
+#include "structs.h"
 
-#include "uniform.h"
-
-typedef struct Shader {
-	AShader* shader;
-	Uniform model;
-	Uniform entity;
-} Shader;
-
-Shader* shader_create(Shader* shader, const char* src_vert, const char* src_frag);
+Shader* shader_create(Shader* shader, const char* src_vert, const char* src_frag, Renderer* renderer);
 void shader_delete(Shader* shader);
 
-void shader_bind(Shader* shader);
+void shader_bind(Shader* shader, Renderer* renderer);
 void shader_set_model(Shader* shader, mat4* model);
 void shader_set_entity(Shader* shader, int entity);
 

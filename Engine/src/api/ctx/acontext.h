@@ -1,7 +1,5 @@
 #pragma once
-
-typedef struct AContext AContext;
-typedef struct AWindow AWindow;
+#include "api/astructs.h"
 
 AContext* acontext_create(AWindow* window);
 void acontext_delete(AContext* context);

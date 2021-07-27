@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "assets.h"
+#include "image.h"
 
 static Font* load_data(Font* font, const char* path) {
 	FILE* file;

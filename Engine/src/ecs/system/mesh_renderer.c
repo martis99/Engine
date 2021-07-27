@@ -3,7 +3,14 @@
 #include "ecs/component/transform.h"
 #include "ecs/component/mesh_component.h"
 
-MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Assets* assets) {
+#include "assets/assets.h"
+#include "assets/mesh.h"
+#include "assets/material.h"
+#include "assets/shader.h"
+
+MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* renderer) {
+	mesh_renderer->renderer = renderer;
+
 	const char* src_vert =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 a_pos;\n"
@@ -31,8 +38,7 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Assets* assets) 
 		"	color2 = u_entity;\n"
 		"}\0";
 
-	mesh_renderer->shader = assets_shader_create(assets, "mesh_shader", src_vert, src_frag);
-	if (mesh_renderer->shader == NULL) {
+	if (shader_create(&mesh_renderer->shader, src_vert, src_frag, renderer) == NULL) {
 		log_error("Failed to create mesh shader");
 		return NULL;
 	}
@@ -41,11 +47,11 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Assets* assets) 
 }
 
 void mesh_renderer_delete(MeshRenderer* mesh_renderer) {
-
+	shader_delete(&mesh_renderer->shader);
 }
 
 void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs) {
-	shader_bind(mesh_renderer->shader);
+	shader_bind(&mesh_renderer->shader, mesh_renderer->renderer);
 
 	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_MESH);
 	for (uint i = 0; i < qr->count; ++i) {
@@ -53,15 +59,15 @@ void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs) {
 		MeshComponent* mesh_component = (MeshComponent*)ecs_get(ecs, qr->list[i], C_MESH);
 
 		mat4 model = transform_to_mat4(transform);
-		shader_set_model(mesh_renderer->shader, &model);
-		shader_set_entity(mesh_renderer->shader, qr->list[i]);
+		shader_set_model(&mesh_renderer->shader, &model);
+		shader_set_entity(&mesh_renderer->shader, qr->list[i]);
 		material_bind(mesh_component->material);
-		mesh_draw_elements(mesh_component->mesh);
+		mesh_draw_elements(mesh_component->mesh, mesh_renderer->renderer);
 	}
 }
 
 Material* mesh_renderer_create_material(MeshRenderer* mesh_renderer, Assets* assets, const char* name, Texture* texture, vec4 color) {
-	Material* material = assets_material_create(assets, name, mesh_renderer->shader);
+	Material* material = assets_material_create(assets, name, &mesh_renderer->shader);
 	material_add_texture(material, texture);
 	material_set_vec4f(material, "u_color", 1, &color);
 	return material;

@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "sprite_renderer.h"
 
+#include "assets/shader.h"
+#include "assets/material.h"
+#include "ecs/system/batch_renderer.h"
+
 typedef struct SpriteVertex {
 	vec3 position;
 	vec4 color;
@@ -18,7 +22,7 @@ typedef struct SpriteVertexData {
 	int entity;
 } SpriteVertexData;
 
-SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* assets, Transform transform) {
+SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer* renderer, Transform transform) {
 	sprite_renderer->transform = transform;
 
 	const char* src_vert =
@@ -96,15 +100,17 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 		"	color2 = v_entity;\n"
 		"}\0";
 
-	Shader* shader = assets_shader_create(assets, "sprite_shader", src_vert, src_frag);
-	if (shader == NULL) {
+	if (shader_create(&sprite_renderer->shader, src_vert, src_frag, renderer) == NULL) {
 		log_error("Failed to create sprite shader");
 		return NULL;
 	}
-	Material* material = assets_material_create(assets, "sprite_material", shader);
+	if (material_create(&sprite_renderer->material, &sprite_renderer->shader) == NULL) {
+		log_error("Failed to create sprite material");
+		return NULL;
+	}
 
 	ADataType layout[] = { VEC3F, VEC4F, VEC2F, VEC1I, VEC2F, VEC4F, VEC1I };
-	if (batch_renderer_create(&sprite_renderer->batch_renderer, material, layout, sizeof(layout), sizeof(SpriteVertex)) == NULL) {
+	if (batch_renderer_create(&sprite_renderer->batch_renderer, renderer, &sprite_renderer->material, layout, sizeof(layout), sizeof(SpriteVertex)) == NULL) {
 		log_error("Failed to create sprite batch renderer");
 		return NULL;
 	}
@@ -113,6 +119,8 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Assets* 
 }
 
 void sprite_renderer_delete(SpriteRenderer* sprite_renderer) {
+	material_delete(&sprite_renderer->material);
+	shader_delete(&sprite_renderer->shader);
 	batch_renderer_delete(&sprite_renderer->batch_renderer);
 }
 

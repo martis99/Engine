@@ -1,6 +1,5 @@
 #pragma once
-
-typedef struct AUniformBuffer AUniformBuffer;
+#include "api/astructs.h"
 
 AUniformBuffer* auniformbuffer_create();
 void auniformbuffer_delete(AUniformBuffer* uniform_buffer);

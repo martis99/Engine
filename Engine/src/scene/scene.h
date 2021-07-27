@@ -1,7 +1,5 @@
 #pragma once
-#include "renderer/renderer.h"
-
-typedef struct Scene Scene;
+#include "structs.h"
 
 Scene* scene_create(float width, float height, Renderer* renderer);
 void scene_delete(Scene* scene);

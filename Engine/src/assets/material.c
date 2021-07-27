@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "material.h"
+
 #include "uniform.h"
+#include "texture.h"
 
 #define MAX_TEXTURES 16
 

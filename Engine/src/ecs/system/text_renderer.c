@@ -1,6 +1,12 @@
 #include "pch.h"
 #include "text_renderer.h"
+
+#include "ecs/component/transform.h"
 #include "ecs/component/constraints.h"
+#include "ecs/system/batch_renderer.h"
+#include "assets/font.h"
+#include "assets/material.h"
+#include "assets/shader.h"
 
 typedef struct TextVertex {
 	vec3 position;
@@ -15,7 +21,7 @@ typedef struct TextVertexData {
 	int entity;
 } TextVertexData;
 
-TextRenderer* text_renderer_create(TextRenderer* text_renderer, Assets* assets, Transform transform) {
+TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* renderer, Transform transform) {
 	text_renderer->transform = transform;
 
 	const char* src_vert =
@@ -56,15 +62,17 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Assets* assets, 
 		"	color2 = v_entity;\n"
 		"}\0";
 
-	Shader* shader = assets_shader_create(assets, "text_shader", src_vert, src_frag);
-	if (shader == NULL) {
+	if (shader_create(&text_renderer->shader, src_vert, src_frag, renderer) == NULL) {
 		log_error("Failed to create text shader");
 		return NULL;
 	}
-	Material* material = assets_material_create(assets, "text_material", shader);
+	if (material_create(&text_renderer->material, &text_renderer->shader) == NULL) {
+		log_error("Failed to create text material");
+		return NULL;
+	};
 
 	ADataType layout[] = { VEC3F, VEC4F, VEC2F, VEC1I, VEC1I };
-	if (batch_renderer_create(&text_renderer->batch_renderer, material, layout, sizeof(layout), sizeof(TextVertex)) == NULL) {
+	if (batch_renderer_create(&text_renderer->batch_renderer, renderer, &text_renderer->material, layout, sizeof(layout), sizeof(TextVertex)) == NULL) {
 		log_error("Failed to create text batch renderer");
 		return NULL;
 	}
@@ -73,6 +81,8 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Assets* assets, 
 }
 
 void text_renderer_delete(TextRenderer* text_renderer) {
+	material_delete(&text_renderer->material);
+	shader_delete(&text_renderer->shader);
 	batch_renderer_delete(&text_renderer->batch_renderer);
 }
 

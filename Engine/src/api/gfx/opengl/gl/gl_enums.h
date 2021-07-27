@@ -1,7 +1,7 @@
 #pragma once
 #ifdef GAPI_OPENGL
 #include "gl.h"
-#include "api/gfx/aenums.h"
+#include "api/aenums.h"
 
 GLenum gl_aprimitive(APrimitive primitive);
 GLenum gl_ashadertype(AShaderType type);

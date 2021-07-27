@@ -8,6 +8,8 @@
 
 #include "input/mouse.h"
 
+#include "assets/framebuffer.h"
+
 Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height) {
 	renderer->renderer = arenderer_create(context->context);
 	renderer->width = width;
@@ -42,7 +44,7 @@ Renderer* renderer_create(Renderer* renderer, Context* context, int width, int h
 		"	FragColor = texture(u_texture, v_tex_coord);\n"
 		"}\0";
 
-	shader_create(&renderer->shader, src_vert, src_frag);
+	shader_create(&renderer->shader, src_vert, src_frag, renderer);
 	mesh_create(&renderer->mesh);
 	float vertices[] = {
 	-1.0f, 1.0f, 0.0f, 1.0f,
@@ -57,7 +59,7 @@ Renderer* renderer_create(Renderer* renderer, Context* context, int width, int h
 	};
 
 	ADataType layout[] = { VEC2F, VEC2F };
-	mesh_init_static(&renderer->mesh, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), A_TRIANGLES);
+	mesh_init_static(&renderer->mesh, renderer, &renderer->shader, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), A_TRIANGLES);
 	return renderer;
 }
 
@@ -89,10 +91,10 @@ void renderer_end(Renderer* renderer) {
 
 	arenderer_polygon_mode_fill(renderer->renderer);
 
-	shader_bind(&renderer->shader);
+	shader_bind(&renderer->shader, renderer);
 
 	framebuffer_attachment_bind(&renderer->framebuffer, 0);
-	mesh_draw_elements(&renderer->mesh);
+	mesh_draw_elements(&renderer->mesh, renderer);
 
 	if (renderer->wireframe == 0) {
 		arenderer_polygon_mode_fill(renderer->renderer);

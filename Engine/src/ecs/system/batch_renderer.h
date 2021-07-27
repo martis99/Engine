@@ -1,20 +1,7 @@
 #pragma once
-#include "assets/material.h"
-#include "assets/mesh.h"
-#include "ecs/component/transform.h"
+#include "structs.h"
 
-typedef struct BatchRenderer {
-	Shader* shader;
-	Material* material;
-	Mesh mesh;
-	void* vertices;
-	uint vertices_count;
-	size_t vertex_size;
-	Texture** textures;
-	uint textures_count;
-} BatchRenderer;
-
-BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* material, ADataType* layout, uint layout_size, size_t vertex_size);
+BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* renderer, Material* material, ADataType* layout, uint layout_size, size_t vertex_size);
 void batch_renderer_delete(BatchRenderer* batch_renderer);
 
 void batch_renderer_clear(BatchRenderer* batch_renderer);

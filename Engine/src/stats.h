@@ -1,9 +1,5 @@
 #pragma once
-
-typedef struct Stats {
-	size_t memory;
-	int draw_calls;
-} Stats;
+#include "structs.h"
 
 Stats* stats_create(Stats* stats);
 void stats_delete(Stats* stats);

@@ -6,26 +6,13 @@
 
 #include <Windows.h>
 
+#include "api/gfx/opengl/gl_astructs.h"
+
 #include "api/gfx/opengl/gl/gl.h"
 #include "wgl.h"
 
 #pragma comment (lib, "opengl32.lib")
 #pragma warning( disable : 6387 )
-
-struct AWindow {
-	LPCWSTR class_name;
-	HMODULE module;
-	HWND window;
-	AWindowCallbacks callbacks;
-	ACursor* cursor;
-};
-
-struct AContext {
-	HWND window;
-	HDC device;
-	HGLRC context;
-	HMODULE library;
-};
 
 static PROC load_function(HMODULE library, const char* name) {
 	PROC p = wglGetProcAddress(name);

@@ -1,8 +1,10 @@
 #include "pch.h"
 #include "shader.h"
 
-Shader* shader_create(Shader* shader, const char* src_vert, const char* src_frag) {
-	shader->shader = ashader_create(src_vert, src_frag);
+#include "uniform.h"
+
+Shader* shader_create(Shader* shader, const char* src_vert, const char* src_frag, Renderer* renderer) {
+	shader->shader = ashader_create(src_vert, src_frag, renderer->renderer);
 	ashader_bind_uniform_block(shader->shader, "Camera", 0);
 
 	uniform_create(&shader->model, shader, "u_model", MAT4F, 1);
@@ -17,8 +19,8 @@ void shader_delete(Shader* shader) {
 	ashader_delete(shader->shader);
 }
 
-void shader_bind(Shader* shader) {
-	ashader_bind(shader->shader);
+void shader_bind(Shader* shader, Renderer* renderer) {
+	ashader_bind(shader->shader, renderer->renderer);
 }
 
 void shader_set_model(Shader* shader, mat4* model) {

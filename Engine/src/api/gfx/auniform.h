@@ -1,8 +1,6 @@
 #pragma once
-#include "ashader.h"
-#include "aenums.h"
-
-typedef struct AUniform AUniform;
+#include "api/astructs.h"
+#include "api/aenums.h"
 
 AUniform* auniform_create(AShader* shader, const char* name, ADataType type, int count);
 void auniform_delete(AUniform* unfiform);

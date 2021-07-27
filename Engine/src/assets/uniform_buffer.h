@@ -1,9 +1,5 @@
 #pragma once
-#include "api/gfx/auniform_buffer.h"
-
-typedef struct UniformBuffer {
-	AUniformBuffer* uniform_buffer;
-} UniformBuffer;
+#include "structs.h"
 
 UniformBuffer* uniformbuffer_create(UniformBuffer* uniform_buffer);
 void uniformbuffer_delete(UniformBuffer* uniform_buffer);

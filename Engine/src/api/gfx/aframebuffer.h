@@ -1,7 +1,6 @@
 #pragma once
-#include "api/gfx/aenums.h"
-
-typedef struct AFramebuffer AFramebuffer;
+#include "api/astructs.h"
+#include "api/aenums.h"
 
 AFramebuffer* aframebuffer_create(AAttachmentFormat* attachments, int attachments_size, int width, int height);
 void aframebuffer_delete(AFramebuffer* framebuffer);

@@ -1,12 +1,19 @@
 #include "pch.h"
 #include "batch_renderer.h"
 
+#include "ecs/component/transform.h"
+#include "assets/shader.h"
+#include "assets/mesh.h"
+#include "assets/material.h"
+#include "assets/texture.h"
+
 #define MAX_TEXTURES 16
 #define MAX_QUADS 200
 #define MAX_VERTICES MAX_QUADS * 4
 #define MAX_INDICES MAX_QUADS * 6
 
-BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* material, ADataType* layout, uint layout_size, size_t vertex_size) {
+BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* renderer, Material* material, ADataType* layout, uint layout_size, size_t vertex_size) {
+	batch_renderer->renderer = renderer;
 	batch_renderer->shader = material->shader;
 	batch_renderer->material = material;
 
@@ -30,7 +37,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Material* ma
 	}
 
 	mesh_create(&batch_renderer->mesh);
-	mesh_init_dynamic(&batch_renderer->mesh, MAX_VERTICES * (uint)vertex_size, indices, MAX_INDICES * sizeof(uint), layout, layout_size, A_TRIANGLES);
+	mesh_init_dynamic(&batch_renderer->mesh, renderer, batch_renderer->shader, MAX_VERTICES * (uint)vertex_size, indices, MAX_INDICES * sizeof(uint), layout, layout_size, A_TRIANGLES);
 
 	mesh_set_count(&batch_renderer->mesh, 0);
 
@@ -118,7 +125,7 @@ void batch_renderer_submit(BatchRenderer* batch_renderer) {
 }
 
 void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer) {
-	shader_bind(batch_renderer->shader);
+	shader_bind(batch_renderer->shader, batch_renderer->renderer);
 	mat4 model = transform_to_mat4(transform);
 	shader_set_model(batch_renderer->shader, &model);
 	material_bind(batch_renderer->material);
@@ -126,5 +133,5 @@ void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer) {
 	for (uint i = 0; i < batch_renderer->textures_count; i++) {
 		texture_bind(batch_renderer->textures[i], i);
 	}
-	mesh_draw_elements(&batch_renderer->mesh);
+	mesh_draw_elements(&batch_renderer->mesh, batch_renderer->renderer);
 }

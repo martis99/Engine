@@ -1,10 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_NONE
 #include "api/gfx/atexture.h"
-
-struct ATexture {
-	uint id;
-};
+#include "n_astructs.h"
 
 ATexture* atexture_create(AWrap wrap, AFilter filter) {
 	ATexture* texture = m_malloc(sizeof(ATexture));

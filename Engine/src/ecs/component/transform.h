@@ -1,11 +1,5 @@
 #pragma once
-
-typedef struct Transform {
-	vec3 position;
-	vec3 rotation;
-	vec3 scale;
-	vec3 scale_pref;
-} Transform;
+#include "structs.h"
 
 Transform transform_create(vec3 position, vec3 rotation, vec3 scale);
 Transform transform_create_2d(vec2i position, float rotation, vec2i scale);

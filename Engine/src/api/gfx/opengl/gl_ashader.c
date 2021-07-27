@@ -1,14 +1,11 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "api/gfx/ashader.h"
+#include "gl_astructs.h"
 
 #include "gl/gl_program.h"
 #include "gl/gl_shader.h"
 #include "gl/gl_enums.h"
-
-struct AShader {
-	GLuint program;
-};
 
 static AShader* create_program(AShader* shader, GLuint vert, GLuint frag) {
 	shader->program = gl_program_create();
@@ -49,7 +46,7 @@ static GLuint compile_shader(GLenum type, const char* source) {
 	return shader;
 }
 
-AShader* ashader_create(const char* src_vert, const char* src_frag) {
+AShader* ashader_create(const char* src_vert, const char* src_frag, ARenderer* renderer) {
 	AShader* shader = m_malloc(sizeof(AShader));
 
 	GLuint vert = compile_shader(gl_ashadertype(A_VERTEX), src_vert);
@@ -80,7 +77,7 @@ void ashader_delete(AShader* shader) {
 	m_free(shader, sizeof(AShader));
 }
 
-void ashader_bind(AShader* shader) {
+void ashader_bind(AShader* shader, ARenderer* renderer) {
 	gl_program_use(shader->program);
 }
 

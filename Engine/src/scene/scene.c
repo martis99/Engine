@@ -13,6 +13,8 @@
 #include "ecs/component/mesh_component.h"
 #include "ecs/component/constraints.h"
 #include "ecs/component/instance_component.h"
+#include "ecs/component/text.h"
+#include "ecs/component/sprite.h"
 #include "assets/model.h"
 
 #include "camera.h"
@@ -20,6 +22,12 @@
 #include "input/keyboard.h"
 #include "input/mouse.h"
 #include "input/keys.h"
+
+#include "assets/assets.h"
+#include "assets/mesh.h"
+#include "assets/image.h"
+#include "assets/uniform_buffer.h"
+#include "renderer/renderer.h"
 
 struct Scene {
 	Renderer* renderer;
@@ -39,29 +47,29 @@ struct Scene {
 };
 
 static void create_systems(Scene* scene) {
-	if (mesh_renderer_create(&scene->mesh_renderer, &scene->assets) == NULL) {
+	if (mesh_renderer_create(&scene->mesh_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create mesh renderer");
 	}
 
 	Transform sprite_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
-	if (sprite_renderer_create(&scene->sprite_renderer, &scene->assets, sprite_transform) == NULL) {
+	if (sprite_renderer_create(&scene->sprite_renderer, scene->renderer, sprite_transform) == NULL) {
 		log_error("Failed to create sprite renderer");
 	}
 
 	Transform text_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
-	if (text_renderer_create(&scene->text_renderer, &scene->assets, text_transform) == NULL) {
+	if (text_renderer_create(&scene->text_renderer, scene->renderer, text_transform) == NULL) {
 		log_error("Failed to create text renderer");
 	}
 	Transform line_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
-	if (line_renderer_create(&scene->line_renderer, &scene->assets, line_transform) == NULL) {
+	if (line_renderer_create(&scene->line_renderer, scene->renderer, line_transform) == NULL) {
 		log_error("Failed to create line renderer");
 	}
 
-	if (instance_renderer_create(&scene->instance_renderer, &scene->assets) == NULL) {
+	if (instance_renderer_create(&scene->instance_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create instance renderer");
 	}
 
-	if (model_renderer_create(&scene->model_renderer, &scene->assets) == NULL) {
+	if (model_renderer_create(&scene->model_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create model renderer");
 	}
 }
@@ -144,40 +152,40 @@ static void create_entities3d(Scene* scene) {
 	Texture* texture_white = assets_texture_get(&scene->assets, "white");
 
 	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
-	mesh_init_cube(mesh_cube);
+	mesh_init_cube(mesh_cube, scene->renderer, &scene->mesh_renderer.shader);
 
-	//Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", scene->model_renderer.shader, 0, 0);
-	//Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", scene->model_renderer.shader, 1, 0);
-	//Model* vampire = assets_model_load(&scene->assets, "vampire", "res/models/vampire/", "dancing_vampire.dae", scene->model_renderer.shader, 0, 0);
-	//Model* nanosuit = assets_model_load(&scene->assets, "nonosuit", "res/models/nano_textured/", "nanosuit.obj", scene->model_renderer.shader, 0, 1);
+	Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", &scene->model_renderer.shader, 0, 0);
+	Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", &scene->model_renderer.shader, 1, 0);
+	Model* vampire = assets_model_load(&scene->assets, "vampire", "res/models/vampire/", "dancing_vampire.dae", &scene->model_renderer.shader, 0, 0);
+	Model* nanosuit = assets_model_load(&scene->assets, "nonosuit", "res/models/nano_textured/", "nanosuit.obj", &scene->model_renderer.shader, 0, 1);
 
 	{
 		Entity entity = ecs_entity(&scene->ecs);
 		Transform transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
-		//ecs_add(&scene->ecs, entity.id, C_MODEL, container);
+		ecs_add(&scene->ecs, entity.id, C_MODEL, container);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
 		Transform transform = transform_create((vec3) { -5.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
-		//ecs_add(&scene->ecs, entity.id, C_MODEL, backpack);
+		ecs_add(&scene->ecs, entity.id, C_MODEL, backpack);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
 		Transform transform = transform_create((vec3) { 10.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 3.0f, 3.0f, 3.0f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
-		//ecs_add(&scene->ecs, entity.id, C_MODEL, vampire);
+		ecs_add(&scene->ecs, entity.id, C_MODEL, vampire);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
 		Transform transform = transform_create((vec3) { 15.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 0.4f, 0.4f, 0.4f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
-		//ecs_add(&scene->ecs, entity.id, C_MODEL, nanosuit);
+		ecs_add(&scene->ecs, entity.id, C_MODEL, nanosuit);
 	}
 
 	{
@@ -217,13 +225,28 @@ static void create_entities3d(Scene* scene) {
 	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 1.0f }, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f }, -1);
 }
 
+static void test(Scene* scene) {
+	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
+	Texture* texture_white = assets_texture_get(&scene->assets, "white");
+
+	{
+		Entity entity = ecs_entity(&scene->ecs);
+		Transform transform = transform_create_2d((vec2i) { 10, 500 }, 0.0f, (vec2i) { 1, 1 });
+		Sprite sprite = sprite_create(texture_white, (vec4) { 1, 1, 1, 1 }, (vec4) { 0, 0, 0, 0 });
+
+		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
+		ecs_add(&scene->ecs, entity.id, C_SPRITE, &sprite);
+	}
+}
+
 static void create_entities(Scene* scene) {
 	if (ecs_create(&scene->ecs, 7, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints), sizeof(InstanceComponent), sizeof(Model)) == NULL) {
 		log_error("Failed to create ecs");
 	}
 
-	create_entities2d(scene);
-	create_entities3d(scene);
+	test(scene);
+	//create_entities2d(scene);
+	//create_entities3d(scene);
 }
 
 static void create_camera(Scene* scene, float width, float height) {
@@ -247,7 +270,7 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	Scene* scene = m_malloc(sizeof(Scene));
 	scene->renderer = renderer;
 
-	assets_create(&scene->assets);
+	assets_create(&scene->assets, renderer);
 	create_assets(scene);
 	create_systems(scene);
 

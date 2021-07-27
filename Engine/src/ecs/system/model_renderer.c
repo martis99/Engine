@@ -3,7 +3,12 @@
 #include "ecs/component/transform.h"
 #include "ecs/component/mesh_component.h"
 
-ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Assets* assets) {
+#include "assets/shader.h"
+#include "assets/model.h"
+
+ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* renderer) {
+	model_renderer->renderer = renderer;
+
 	const char* src_vert =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 a_pos;\n"
@@ -35,9 +40,8 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Assets* asse
 		"	color2 = u_entity;\n"
 		"}\0";
 
-	model_renderer->shader = assets_shader_create(assets, "model_shader", src_vert, src_frag);
-	if (model_renderer->shader == NULL) {
-		log_error("Failed to create mdoel shader");
+	if (shader_create(&model_renderer->shader, src_vert, src_frag, renderer) == NULL) {
+		log_error("Failed to create model shader");
 		return NULL;
 	}
 
@@ -45,19 +49,19 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Assets* asse
 }
 
 void model_renderer_delete(ModelRenderer* model_renderer) {
-
+	shader_delete(&model_renderer->shader);
 }
 
 void model_renderer_render(ModelRenderer* model_renderer, Ecs* ecs) {
-	shader_bind(model_renderer->shader);
+	shader_bind(&model_renderer->shader, model_renderer->renderer);
 
 	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_MODEL);
 	for (uint i = 0; i < qr->count; ++i) {
 		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
 		Model* model = (Model*)ecs_get(ecs, qr->list[i], C_MODEL);
 
-		shader_set_entity(model_renderer->shader, qr->list[i]);
+		shader_set_entity(&model_renderer->shader, qr->list[i]);
 		mat4 mat = transform_to_mat4(transform);
-		model_draw(model, model_renderer->shader, mat);
+		model_draw(model, model_renderer->renderer, &model_renderer->shader, mat);
 	}
 }

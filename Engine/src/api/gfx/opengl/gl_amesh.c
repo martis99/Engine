@@ -1,23 +1,12 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "api/gfx/amesh.h"
+#include "gl_astructs.h"
 
 #include "gl/gl_buffer.h"
 #include "gl/gl_enums.h"
 
-struct AMesh {
-	GLuint va;
-	GLuint vb;
-	GLuint ivb;
-	GLuint ib;
-	GLsizei count;
-
-	APrimitive primitive;
-
-	GLuint layout_index;
-};
-
-AMesh* amesh_create() {
+AMesh* amesh_create(ARenderer* renderer) {
 	AMesh* mesh = m_malloc(sizeof(AMesh));
 	return mesh;
 }
@@ -30,7 +19,7 @@ void amesh_delete(AMesh* mesh) {
 	m_free(mesh, sizeof(AMesh));
 }
 
-void amesh_init_static(AMesh* mesh, const void* vertices, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
+AMesh* amesh_init_static(AMesh* mesh, ARenderer* renderer, AShader* shader, const void* vertices, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
 	mesh->primitive = primitive;
 
 	mesh->va = gl_va_create();
@@ -42,9 +31,11 @@ void amesh_init_static(AMesh* mesh, const void* vertices, uint vertices_size, ui
 	gl_ib_init_static(mesh->ib, indices, indices_size);
 
 	mesh->count = indices_size / sizeof(GLuint);
+
+	return mesh;
 }
 
-void amesh_init_dynamic(AMesh* mesh, uint vertices_size, const void* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
+AMesh* amesh_init_dynamic(AMesh* mesh, ARenderer* renderer, AShader* shader, uint vertices_size, const void* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
 	mesh->primitive = primitive;
 
 	mesh->va = gl_va_create();
@@ -56,6 +47,8 @@ void amesh_init_dynamic(AMesh* mesh, uint vertices_size, const void* indices, ui
 	gl_ib_init_static(mesh->ib, indices, indices_size);
 
 	mesh->count = vertices_size / sizeof(GLfloat);
+
+	return mesh;
 }
 
 void amesh_add_instance_buffer_static(AMesh* mesh, const void* vertices, uint vertices_size, ADataType* layout, uint layout_size) {
@@ -80,19 +73,19 @@ void amesh_set_indices(AMesh* mesh, const void* indices, uint indices_size) {
 	gl_ib_set_data(mesh->ib, indices, indices_size);
 }
 
-void amesh_draw_arrays(AMesh* mesh) {
+void amesh_draw_arrays(AMesh* mesh, ARenderer* renderer) {
 	gl_va_draw_arrays(mesh->va, gl_aprimitive(mesh->primitive), mesh->count);
 }
 
-void amesh_draw_arrays_instanced(AMesh* mesh, int count) {
+void amesh_draw_arrays_instanced(AMesh* mesh, int count, ARenderer* renderer) {
 	gl_va_draw_arrays_instanced(mesh->va, gl_aprimitive(mesh->primitive), mesh->count, count);
 }
 
-void amesh_draw_elements(AMesh* mesh) {
+void amesh_draw_elements(AMesh* mesh, ARenderer* renderer) {
 	gl_va_draw_elements(mesh->va, mesh->ib, gl_aprimitive(mesh->primitive), mesh->count);
 }
 
-void amesh_draw_elements_instanced(AMesh* mesh, int count) {
+void amesh_draw_elements_instanced(AMesh* mesh, int count, ARenderer* renderer) {
 	gl_va_draw_elements_instanced(mesh->va, mesh->ib, gl_aprimitive(mesh->primitive), mesh->count, count);
 }
 

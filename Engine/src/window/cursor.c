@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "cursor.h"
-#include "window.h"
 
 Cursor* cursor_create(Cursor* cursor, Window* window, bool enabled) {
 	cursor->cursor = acursor_create(window->window, enabled);

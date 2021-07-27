@@ -7,6 +7,13 @@
 #include "input/mouse.h"
 #include "input/keys.h"
 
+#include "stats.h"
+#include "window/context.h"
+#include "window/window.h"
+#include "renderer/renderer.h"
+#include "scene/scene.h"
+#include "window/cursor.h"
+
 static void key_pressed(byte key) {
 	kb_key_pressed(key);
 	scene_key_pressed(app.scene, key);

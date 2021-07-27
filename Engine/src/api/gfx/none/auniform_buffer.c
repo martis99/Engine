@@ -1,10 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_NONE
 #include "api/gfx/auniform_buffer.h"
-
-struct AUniformBuffer {
-	uint id;
-};
+#include "n_astructs.h"
 
 AUniformBuffer* auniformbuffer_create() {
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));

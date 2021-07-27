@@ -1,10 +1,15 @@
 #include "pch.h"
 #include "line_renderer.h"
 
+#include "ecs/component/transform.h"
+#include "assets/mesh.h"
+#include "assets/shader.h"
+
 #define MAX_LINES 200
 #define MAX_VERTICES MAX_LINES * 2
 
-LineRenderer* line_renderer_create(LineRenderer* line_renderer, Assets* assets, Transform transform) {
+LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* renderer, Transform transform) {
+	line_renderer->renderer = renderer;
 	line_renderer->transform = transform;
 
 	const char* src_vert =
@@ -35,8 +40,7 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Assets* assets, 
 		"	color2 = v_entity;\n"
 		"}\0";
 
-	line_renderer->shader = assets_shader_create(assets, "line_shader", src_vert, src_frag);
-	if (line_renderer->shader == NULL) {
+	if (shader_create(&line_renderer->shader, src_vert, src_frag, renderer) == NULL) {
 		log_error("Failed to create line shader");
 		return NULL;
 	}
@@ -46,7 +50,7 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Assets* assets, 
 
 	ADataType layout[] = { VEC3F, VEC4F, VEC1I };
 	mesh_create(&line_renderer->mesh);
-	mesh_init_dynamic(&line_renderer->mesh, MAX_VERTICES * sizeof(LineVertex), NULL, 0, layout, sizeof(layout), A_LINES);
+	mesh_init_dynamic(&line_renderer->mesh, renderer, &line_renderer->shader, MAX_VERTICES * sizeof(LineVertex), NULL, 0, layout, sizeof(layout), A_LINES);
 
 	mesh_set_count(&line_renderer->mesh, 0);
 
@@ -56,6 +60,7 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Assets* assets, 
 void line_renderer_delete(LineRenderer* line_renderer) {
 	m_free(line_renderer->vertices, MAX_VERTICES * sizeof(LineVertex));
 	mesh_delete(&line_renderer->mesh);
+	shader_delete(&line_renderer->shader);
 }
 
 void line_renderer_clear(LineRenderer* line_renderer) {
@@ -80,10 +85,10 @@ void line_renderer_submit(LineRenderer* line_renderer) {
 }
 
 void line_renderer_render(LineRenderer* line_renderer) {
-	shader_bind(line_renderer->shader);
+	shader_bind(&line_renderer->shader, line_renderer->renderer);
 	mat4 model = transform_to_mat4(&line_renderer->transform);
-	shader_set_model(line_renderer->shader, &model);
+	shader_set_model(&line_renderer->shader, &model);
 
 	line_renderer_submit(line_renderer);
-	mesh_draw_arrays(&line_renderer->mesh);
+	mesh_draw_arrays(&line_renderer->mesh, line_renderer->renderer);
 }

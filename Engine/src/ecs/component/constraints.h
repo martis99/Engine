@@ -1,17 +1,5 @@
 #pragma once
-
-typedef struct Constraint {
-	bool enabled;
-	Entity entity;
-	float pos;
-	int distance;
-} Constraint;
-
-typedef struct Constraints {
-	bool r_h, r_v, r_d;
-	Constraint l, r, u, d, f, b;
-	int w, h;
-} Constraints;
+#include "structs.h"
 
 Constraint constraint_create(Entity entity, float pos, int distance);
 

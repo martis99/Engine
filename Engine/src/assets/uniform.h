@@ -1,12 +1,5 @@
 #pragma once
-#include "api/gfx/auniform.h"
-
-typedef struct Shader Shader;
-
-typedef struct Uniform {
-	AUniform* uniform;
-} Uniform;
-
+#include "structs.h"
 
 Uniform* uniform_create(Uniform* uniform, Shader* shader, const char* name, ADataType type, int count);
 void uniform_delete(Uniform* uniform);

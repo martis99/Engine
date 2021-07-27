@@ -1,16 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_NONE
 #include "api/gfx/auniform.h"
-
-struct AShader {
-	uint id;
-};
-
-struct AUniform {
-	char* name;
-	ADataType type;
-	void* data;
-};
+#include "n_astructs.h"
 
 AUniform* auniform_create(AShader* shader, const char* name, ADataType type, int count) {
 	AUniform* uniform = m_malloc(sizeof(AUniform));

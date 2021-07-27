@@ -1,10 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_NONE
 #include "api/gfx/ashader.h"
-
-struct AShader {
-	uint id;
-};
+#include "n_astructs.h"
 
 AShader* ashader_create(const char* src_vert, const char* src_frag) {
 	AShader* shader = m_malloc(sizeof(AShader));

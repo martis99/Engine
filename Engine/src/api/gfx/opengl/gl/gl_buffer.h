@@ -1,7 +1,7 @@
 #pragma once
 #ifdef GAPI_OPENGL
 #include "gl.h"
-#include "api/gfx/aenums.h"
+#include "api/aenums.h"
 
 GLuint gl_va_create();
 void gl_va_draw_arrays(GLuint va, GLenum mode, GLsizei count);

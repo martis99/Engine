@@ -6,25 +6,10 @@
 
 #include <Windows.h>
 
-#include <d3d11.h>
+#include "api/gfx/dx11/dx11_astructs.h"
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "dxguid.lib")
-
-struct AWindow {
-	LPCWSTR class_name;
-	HMODULE module;
-	HWND window;
-	AWindowCallbacks callbacks;
-	ACursor* cursor;
-};
-
-struct AContext {
-	HWND window;
-	ID3D11Device* device;
-	IDXGISwapChain* swap_chain;
-	ID3D11DeviceContext* context;
-};
 
 AContext* acontext_create(AWindow* window) {
 	AContext* context = m_malloc(sizeof(AContext));
@@ -46,11 +31,14 @@ AContext* acontext_create(AWindow* window) {
 	sd.Windowed = TRUE;
 	sd.Flags = 0;
 
-	D3D11CreateDeviceAndSwapChain(
+	UINT flags = 0;
+	flags |= D3D11_CREATE_DEVICE_DEBUG;
+
+	HRESULT hr = D3D11CreateDeviceAndSwapChain(
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
-		0,
+		flags,
 		NULL,
 		0,
 		D3D11_SDK_VERSION,
@@ -60,6 +48,11 @@ AContext* acontext_create(AWindow* window) {
 		NULL,
 		&context->context
 	);
+
+	if (FAILED(hr)) {
+		log_error("Failed to create device and swapchain");
+		return NULL;
+	}
 
 	return context;
 }
@@ -78,7 +71,10 @@ void acontext_delete(AContext* context) {
 }
 
 void acontext_swap_buffers(AContext* context) {
-	context->swap_chain->lpVtbl->Present(context->swap_chain, 1, 0);
+	HRESULT hr = context->swap_chain->lpVtbl->Present(context->swap_chain, 1, 0);
+	if (FAILED(hr)) {
+		log_error("Failed to present swap chain");
+	}
 }
 #endif
 #endif

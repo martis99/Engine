@@ -1,7 +1,6 @@
 #pragma once
-#include "aenums.h"
-
-typedef struct ATexture ATexture;
+#include "api/astructs.h"
+#include "api/aenums.h"
 
 ATexture* atexture_create(AWrap wrap, AFilter filter);
 ATexture* atexture_set_data(ATexture* texture, int width, int height, int channels, void* data);

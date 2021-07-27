@@ -1,12 +1,9 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "api/gfx/auniform_buffer.h"
+#include "gl_astructs.h"
 
 #include "gl/gl_uniform_buffer.h"
-
-struct AUniformBuffer {
-	GLuint ub;
-};
 
 AUniformBuffer* auniformbuffer_create() {
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));

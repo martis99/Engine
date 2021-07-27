@@ -1,9 +1,5 @@
 #pragma once
-#include "api/gfx/aframebuffer.h"
-
-typedef struct Framebuffer {
-	AFramebuffer* framebuffer;
-} Framebuffer;
+#include "structs.h"
 
 Framebuffer* framebuffer_create(Framebuffer* framebuffer, AAttachmentFormat* attachments, int attachments_size, int width, int height);
 void framebuffer_delete(Framebuffer* framebuffer);

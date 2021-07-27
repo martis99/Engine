@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "instance_component.h"
 
+#include "assets/mesh.h"
+#include "ecs/component/transform.h"
+
 InstanceComponent instance_component_create(Mesh* mesh, Material* material, uint transforms_count) {
 	InstanceComponent ic = { 0 };
 	ic.mesh = mesh;

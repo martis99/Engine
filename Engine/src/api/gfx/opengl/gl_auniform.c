@@ -1,20 +1,9 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "api/gfx/auniform.h"
+#include "gl_astructs.h"
 
 #include "gl/gl_program.h"
-
-struct AShader {
-	GLuint program;
-};
-
-struct AUniform {
-	char* name;
-	GLint location;
-	ADataType type;
-	GLsizei count;
-	void* data;
-};
 
 static size_t get_size(ADataType type, GLsizei count) {
 	size_t size;

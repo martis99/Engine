@@ -1,13 +1,10 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "api/gfx/atexture.h"
+#include "gl_astructs.h"
 
 #include "gl/gl_texture.h"
 #include "gl/gl_enums.h"
-
-struct ATexture {
-	GLuint id;
-};
 
 ATexture* atexture_create(AWrap wrap, AFilter filter) {
 	ATexture* texture = m_malloc(sizeof(ATexture));
