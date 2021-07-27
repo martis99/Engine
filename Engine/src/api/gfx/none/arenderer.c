@@ -6,7 +6,7 @@ struct ARenderer {
 	byte id;
 };
 
-ARenderer* arenderer_create() {
+ARenderer* arenderer_create(AContext* context) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));
 	return renderer;
 }

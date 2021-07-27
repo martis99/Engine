@@ -146,38 +146,38 @@ static void create_entities3d(Scene* scene) {
 	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
 	mesh_init_cube(mesh_cube);
 
-	Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", scene->model_renderer.shader, 0, 0);
-	Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", scene->model_renderer.shader, 1, 0);
-	Model* vampire = assets_model_load(&scene->assets, "vampire", "res/models/vampire/", "dancing_vampire.dae", scene->model_renderer.shader, 0, 0);
-	Model* nanosuit = assets_model_load(&scene->assets, "nonosuit", "res/models/nano_textured/", "nanosuit.obj", scene->model_renderer.shader, 0, 1);
+	//Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", scene->model_renderer.shader, 0, 0);
+	//Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", scene->model_renderer.shader, 1, 0);
+	//Model* vampire = assets_model_load(&scene->assets, "vampire", "res/models/vampire/", "dancing_vampire.dae", scene->model_renderer.shader, 0, 0);
+	//Model* nanosuit = assets_model_load(&scene->assets, "nonosuit", "res/models/nano_textured/", "nanosuit.obj", scene->model_renderer.shader, 0, 1);
 
 	{
 		Entity entity = ecs_entity(&scene->ecs);
 		Transform transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
-		ecs_add(&scene->ecs, entity.id, C_MODEL, container);
+		//ecs_add(&scene->ecs, entity.id, C_MODEL, container);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
 		Transform transform = transform_create((vec3) { -5.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
-		ecs_add(&scene->ecs, entity.id, C_MODEL, backpack);
+		//ecs_add(&scene->ecs, entity.id, C_MODEL, backpack);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
 		Transform transform = transform_create((vec3) { 10.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 3.0f, 3.0f, 3.0f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
-		ecs_add(&scene->ecs, entity.id, C_MODEL, vampire);
+		//ecs_add(&scene->ecs, entity.id, C_MODEL, vampire);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
 		Transform transform = transform_create((vec3) { 15.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 0.4f, 0.4f, 0.4f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
-		ecs_add(&scene->ecs, entity.id, C_MODEL, nanosuit);
+		//ecs_add(&scene->ecs, entity.id, C_MODEL, nanosuit);
 	}
 
 	{

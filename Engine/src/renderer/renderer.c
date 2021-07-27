@@ -8,8 +8,8 @@
 
 #include "input/mouse.h"
 
-Renderer* renderer_create(Renderer* renderer, int width, int height) {
-	renderer->renderer = arenderer_create();
+Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height) {
+	renderer->renderer = arenderer_create(context->context);
 	renderer->width = width;
 	renderer->height = height;
 	renderer->wireframe = 0;

@@ -1,8 +1,9 @@
 #pragma once
+#include "api/ctx/acontext.h"
 
 typedef struct ARenderer ARenderer;
 
-ARenderer* arenderer_create();
+ARenderer* arenderer_create(AContext* context);
 void arenderer_delete(ARenderer* renderer);
 
 void arenderer_clear_buffers(ARenderer* renderer);

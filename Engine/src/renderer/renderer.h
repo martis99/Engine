@@ -5,6 +5,8 @@
 #include "assets/shader.h"
 #include "assets/mesh.h"
 
+#include "window/context.h"
+
 typedef struct Renderer {
 	int width;
 	int height;
@@ -16,7 +18,7 @@ typedef struct Renderer {
 	bool wireframe;
 } Renderer;
 
-Renderer* renderer_create(Renderer* renderer, int width, int height);
+Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height);
 void renderer_delete(Renderer* renderer);
 
 void renderer_begin(Renderer* renderer);
