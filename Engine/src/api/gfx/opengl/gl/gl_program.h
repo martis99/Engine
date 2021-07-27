@@ -1,5 +1,5 @@
 #pragma once
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include "gl.h"
 
 GLuint gl_program_create();

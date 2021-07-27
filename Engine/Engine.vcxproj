@@ -98,7 +98,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>E_WINDOWS;E_OPENGL;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>E_WINDOWS;GAPI_NONE;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -116,7 +116,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>E_WINDOWS;E_OPENGL;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>E_WINDOWS;GAPI_NONE;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -134,7 +134,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>E_WINDOWS;E_OPENGL;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>E_WINDOWS;GAPI_NONE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -152,7 +152,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>E_WINDOWS;E_OPENGL;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>E_WINDOWS;GAPI_NONE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -170,14 +170,22 @@
     <ClCompile Include="lib\include\stb\stb_image.c" />
     <ClCompile Include="lib\include\stb\stb_image_write.c" />
     <ClCompile Include="lib\include\stb\stb_truetype.c" />
-    <ClCompile Include="src\api\ctx\wgl\acontext.c" />
-    <ClCompile Include="src\api\gfx\opengl\aframebuffer.c" />
-    <ClCompile Include="src\api\gfx\opengl\amesh.c" />
-    <ClCompile Include="src\api\gfx\opengl\arenderer.c" />
-    <ClCompile Include="src\api\gfx\opengl\ashader.c" />
-    <ClCompile Include="src\api\gfx\opengl\atexture.c" />
-    <ClCompile Include="src\api\gfx\opengl\auniform.c" />
-    <ClCompile Include="src\api\gfx\opengl\auniform_buffer.c" />
+    <ClCompile Include="src\api\ctx\wgl\wgl_acontext.c" />
+    <ClCompile Include="src\api\ctx\wnone\acontext.c" />
+    <ClCompile Include="src\api\gfx\none\aframebuffer.c" />
+    <ClCompile Include="src\api\gfx\none\amesh.c" />
+    <ClCompile Include="src\api\gfx\none\arenderer.c" />
+    <ClCompile Include="src\api\gfx\none\ashader.c" />
+    <ClCompile Include="src\api\gfx\none\atexture.c" />
+    <ClCompile Include="src\api\gfx\none\auniform.c" />
+    <ClCompile Include="src\api\gfx\none\auniform_buffer.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl_aframebuffer.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl_amesh.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl_arenderer.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl_ashader.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl_atexture.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl_auniform.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl_auniform_buffer.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_buffer.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_enums.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_framebuffer.c" />

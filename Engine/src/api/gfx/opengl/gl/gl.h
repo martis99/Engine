@@ -1,5 +1,5 @@
 #pragma once
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #ifdef E_WINDOWS
 #include "gl_defines.h"
 

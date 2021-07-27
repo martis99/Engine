@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include "api/gfx/aframebuffer.h"
 
 #include "gl/gl_framebuffer.h"

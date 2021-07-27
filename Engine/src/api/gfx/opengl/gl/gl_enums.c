@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include "gl_enums.h"
 
 GLenum gl_aprimitive(APrimitive primitive) {

@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include "gl_shader.h"
 
 GLuint gl_shader_create(GLenum type, const GLchar* source, GLint* status) {

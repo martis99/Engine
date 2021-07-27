@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include "api/gfx/ashader.h"
 
 #include "gl/gl_program.h"

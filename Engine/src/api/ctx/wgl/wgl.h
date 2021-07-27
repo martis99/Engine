@@ -1,6 +1,6 @@
 #pragma once
 #ifdef E_WINDOWS
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include <minwindef.h>
 
 #define WGL_DRAW_TO_WINDOW_ARB        0x2001

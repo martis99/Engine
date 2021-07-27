@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include "gl_uniform_buffer.h"
 
 static void gl_ub_bind(GLuint ub) {

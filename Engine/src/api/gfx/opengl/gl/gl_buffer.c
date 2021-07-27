@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include "gl_buffer.h"
 
 static void va_bind(GLuint va) {

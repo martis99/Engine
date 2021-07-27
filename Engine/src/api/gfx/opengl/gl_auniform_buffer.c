@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include "api/gfx/auniform_buffer.h"
 
 #include "gl/gl_uniform_buffer.h"

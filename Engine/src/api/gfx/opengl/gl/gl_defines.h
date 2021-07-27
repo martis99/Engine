@@ -1,5 +1,5 @@
 #pragma once
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 /* Version */
 #define GL_VERSION_1_1                    1
 

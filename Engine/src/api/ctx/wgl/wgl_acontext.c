@@ -1,6 +1,6 @@
 #include "pch.h"
 #ifdef E_WINDOWS
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include "api/ctx/acontext.h"
 #include "api/wnd/awindow.h"
 

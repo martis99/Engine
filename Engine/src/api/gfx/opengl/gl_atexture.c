@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_OPENGL
+#ifdef GAPI_OPENGL
 #include "api/gfx/atexture.h"
 
 #include "gl/gl_texture.h"
