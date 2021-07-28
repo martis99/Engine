@@ -109,7 +109,15 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		return NULL;
 	}
 
-	ADataType layout[] = { VEC3F, VEC4F, VEC2F, VEC1I, VEC2F, VEC4F, VEC1I };
+	ALayoutElement layout[] = {
+		{"Position", VEC3F},
+		{"Color", VEC4F},
+		{"TexCoord", VEC2F},
+		{"TexIndex", VEC1I},
+		{"Size", VEC2F},
+		{"Borders", VEC4F},
+		{"Entity", VEC1I}
+	};
 	if (batch_renderer_create(&sprite_renderer->batch_renderer, renderer, &sprite_renderer->material, layout, sizeof(layout), sizeof(SpriteVertex)) == NULL) {
 		log_error("Failed to create sprite batch renderer");
 		return NULL;

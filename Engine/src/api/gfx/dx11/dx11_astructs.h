@@ -23,7 +23,13 @@ struct ARenderer {
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
 	ID3D11RenderTargetView* target;
+	ID3D11DepthStencilState* dsState;
+	ID3D11Texture2D* depthStencil;
 	ID3D11DepthStencilView* dsv;
+	ID3D11RasterizerState* raster_s;
+	ID3D11RasterizerState* raster_sc;
+	ID3D11RasterizerState* raster_w;
+	ID3D11RasterizerState* raster_wc;
 };
 
 struct AShader {
@@ -36,12 +42,20 @@ struct AShader {
 struct AMesh {
 	ID3D11Buffer* vb;
 	ID3D11Buffer* ib;
+	ID3D11InputLayout* il;
+
+	UINT count;
+	UINT vertex_size;
 	APrimitive primitive;
 };
 
 struct ATexture {
 	ID3D11Texture2D* texture;
-	ID3D11ShaderResourceView* texture_view;
-	ID3D11SamplerState* sampler;
+	ID3D11ShaderResourceView* srv;
+	ID3D11SamplerState* ss;
+};
+
+struct AUniformBuffer {
+	ID3D11Buffer* cb;
 };
 #endif

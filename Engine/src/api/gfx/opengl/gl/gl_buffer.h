@@ -1,7 +1,7 @@
 #pragma once
 #ifdef GAPI_OPENGL
 #include "gl.h"
-#include "api/aenums.h"
+#include "api/astructs.h"
 
 GLuint gl_va_create();
 void gl_va_draw_arrays(GLuint va, GLenum mode, GLsizei count);
@@ -11,8 +11,8 @@ void gl_va_draw_elements_instanced(GLuint va, GLuint ib, GLenum mode, GLsizei co
 void gl_va_delete(GLuint va);
 
 GLuint gl_vb_create();
-void gl_vb_init_static(GLuint vb, GLuint va, const void* vertices, GLsizeiptr vertices_size, ADataType* layout, GLuint layout_size, GLuint* index);
-void gl_vb_init_dynamic(GLuint vb, GLuint va, GLsizeiptr vertices_size, ADataType* layout, GLuint layout_size, GLuint* index);
+void gl_vb_init_static(GLuint vb, GLuint va, const void* vertices, GLsizeiptr vertices_size, ALayoutElement* layout, GLuint layout_size, GLuint* index);
+void gl_vb_init_dynamic(GLuint vb, GLuint va, GLsizeiptr vertices_size, ALayoutElement* layout, GLuint layout_size, GLuint* index);
 void gl_vb_set_data(GLuint vb, const void* vertices, GLsizeiptr vertices_size);
 void gl_vb_delete(GLuint vb);
 

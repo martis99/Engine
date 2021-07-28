@@ -5,8 +5,17 @@
 
 #include "gl/gl_uniform_buffer.h"
 
-AUniformBuffer* auniformbuffer_create() {
+AUniformBuffer* auniformbuffer_create_static(ARenderer* renderer, const void* uniforms, uint uniforms_size) {
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));
+	uniform_buffer->ub = gl_ub_create();
+	gl_ub_create_static(uniform_buffer->ub, uniforms, uniforms_size);
+	return uniform_buffer;
+}
+
+AUniformBuffer* auniformbuffer_create_dynamic(ARenderer* renderer, uint uniforms_size) {
+	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));
+	uniform_buffer->ub = gl_ub_create();
+	gl_ub_create_dynamic(uniform_buffer->ub, uniforms_size);
 	return uniform_buffer;
 }
 
@@ -15,21 +24,11 @@ void auniformbuffer_delete(AUniformBuffer* uniform_buffer) {
 	m_free(uniform_buffer, sizeof(AUniformBuffer));
 }
 
-void auniformbuffer_init_static(AUniformBuffer* uniform_buffer, const void* uniforms, uint uniforms_size) {
-	uniform_buffer->ub = gl_ub_create();
-	gl_ub_create_static(uniform_buffer->ub, uniforms, uniforms_size);
-}
-
-void auniformbuffer_init_dynamic(AUniformBuffer* uniform_buffer, uint uniforms_size) {
-	uniform_buffer->ub = gl_ub_create();
-	gl_ub_create_dynamic(uniform_buffer->ub, uniforms_size);
-}
-
-void auniformbuffer_bind_base(AUniformBuffer* uniform_buffer, uint index) {
+void auniformbuffer_bind_base(AUniformBuffer* uniform_buffer, ARenderer* renderer, uint index) {
 	gl_ub_bind_base(uniform_buffer->ub, index);
 }
 
-void auniformbuffer_set_data(AUniformBuffer* uniform_buffer, const void* uniforms, uint uniforms_size) {
+void auniformbuffer_set_data(AUniformBuffer* uniform_buffer, ARenderer* renderer, const void* uniforms, uint uniforms_size) {
 	gl_ub_set_data(uniform_buffer->ub, uniforms, uniforms_size);
 }
 

@@ -19,7 +19,6 @@ Assets* assets_create(Assets* assets, Renderer* renderer) {
 	assets->images = dic_create(20, sizeof(Image));
 	assets->textures = dic_create(20, sizeof(Texture));
 	assets->fonts = dic_create(5, sizeof(Font));
-	assets->uniform_buffers = dic_create(10, sizeof(UniformBuffer));
 	assets->models = dic_create(10, sizeof(Model));
 	return assets;
 }
@@ -31,7 +30,6 @@ void assets_delete(Assets* assets) {
 	dic_delete(assets->images, image_delete);
 	dic_delete(assets->textures, texture_delete);
 	dic_delete(assets->fonts, font_delete);
-	dic_delete(assets->uniform_buffers, uniformbuffer_delete);
 	dic_delete(assets->models, model_delete);
 }
 
@@ -85,14 +83,6 @@ Font* assets_font_load(Assets* assets, const char* name, const char* path, int s
 
 Font* assets_font_get(Assets* assets, const char* name) {
 	return dic_get(assets->fonts, name);
-}
-
-UniformBuffer* assets_uniform_buffer_create(Assets* assets, const char* name) {
-	return uniformbuffer_create(dic_add(assets->uniform_buffers, name));
-}
-
-UniformBuffer* assets_uniform_buffer_get(Assets* assets, const char* name) {
-	return dic_get(assets->uniform_buffers, name);
 }
 
 Model* assets_model_load(Assets* assets, const char* name, const char* path, const char* filename, Shader* shader, bool flipUVs, bool print) {

@@ -31,6 +31,10 @@
 #include "assets/uniform_buffer.h"
 #include "renderer/renderer.h"
 
+typedef struct CameraBuffer {
+	mat4 view_projection;
+} CameraBuffer;
+
 struct Scene {
 	Renderer* renderer;
 	Assets assets;
@@ -45,7 +49,8 @@ struct Scene {
 	InstanceRenderer instance_renderer;
 	ModelRenderer model_renderer;
 	mat4 projection;
-	UniformBuffer* u_camera;
+	UniformBuffer u_camera;
+	CameraBuffer camera_buffer;
 };
 
 static void create_systems(Scene* scene) {
@@ -294,26 +299,57 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	Material* material_orange_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "orange_inst", texture_white, color_orange);
 	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);
 
-	create_entities(scene);
-
+	create_entities(scene);*/
+	
 	create_camera(scene, width, height);
 
-	scene->u_camera = assets_uniform_buffer_create(&scene->assets, "u_camera");
-	uniformbuffer_init_dynamic(scene->u_camera, sizeof(mat4));
-	uniformbuffer_bind_base(scene->u_camera, 0);*/
+	uniformbuffer_create_dynamic(&scene->u_camera, renderer, sizeof(CameraBuffer));
 
 	image_load(&image, "res/images/container.jpg");
 	texture_create_from_image(&texture, scene->renderer, &image, A_REPEAT, A_LINEAR);
 
-	shader_create(&shader, "", "", scene->renderer);
+	const char* vert =
+		"cbuffer CBuf {\n"
+		"	row_major matrix transform;\n"
+		"};\n"
+		"struct VSOut {\n"
+		"	float2 tex : TexCoord;\n"
+		"	float4 pos : SV_Position;\n"
+		"};\n"
+		"VSOut main( float3 pos : Position, float2 tex : TexCoord ) {\n"
+		"	VSOut vso;\n"
+		"	vso.pos = mul(float4(pos, 1.0f), transform);\n"
+		"	vso.tex = tex;\n"
+		"	return vso;\n"
+		"}\0";
+
+	const char* frag =
+		"Texture2D tex;\n"
+		"SamplerState splr;\n"
+		"float4 main(float2 tc : TexCoord) : SV_TARGET {\n"
+		"	return tex.Sample(splr, tc);\n"
+		"}\0";
+
+	shader_create(&shader, vert, frag, scene->renderer);
 
 	mesh_create(&mesh);
-	mesh_init_static(&mesh, scene->renderer, &shader, NULL, 0, NULL, 0, NULL, 0, 0);
+	ALayoutElement layout[] = {
+		{"Position", VEC3F},
+		{"TexCoord", VEC2F}
+	};
+	mesh_init_quad(&mesh, renderer, &shader);
 
 	return scene;
 }
 
 void scene_delete(Scene* scene) {
+	uniformbuffer_delete(&scene->u_camera);
+
+	shader_delete(&shader);
+	mesh_delete(&mesh);
+	texture_delete(&texture);
+	image_delete(&image);
+
 	/*mesh_renderer_delete(&scene->mesh_renderer);
 	sprite_renderer_delete(&scene->sprite_renderer);
 	text_renderer_delete(&scene->text_renderer);
@@ -335,9 +371,11 @@ void scene_update(Scene* scene, float dt) {
 }
 
 void scene_render(Scene* scene, Renderer* renderer) {
-	/*uniformbuffer_set_data(scene->u_camera, &scene->camera.view_projection, sizeof(mat4));
+	scene->camera_buffer.view_projection = scene->projection;
+	uniformbuffer_set_data(&scene->u_camera, renderer, &scene->camera_buffer, sizeof(CameraBuffer));
+	uniformbuffer_bind_base(&scene->u_camera, renderer, 0);
 
-	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
+	/*mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
 	model_renderer_render(&scene->model_renderer, &scene->ecs);
 	instance_renderer_render(&scene->instance_renderer, &scene->ecs);
 	line_renderer_render(&scene->line_renderer);

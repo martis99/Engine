@@ -71,7 +71,13 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 		return NULL;
 	};
 
-	ADataType layout[] = { VEC3F, VEC4F, VEC2F, VEC1I, VEC1I };
+	ALayoutElement layout[] = {
+		{"Position", VEC3F},
+		{"Color", VEC4F},
+		{"TexCoord", VEC2F},
+		{"TexIndex", VEC1I},
+		{"Entity", VEC1I}
+	};
 	if (batch_renderer_create(&text_renderer->batch_renderer, renderer, &text_renderer->material, layout, sizeof(layout), sizeof(TextVertex)) == NULL) {
 		log_error("Failed to create text batch renderer");
 		return NULL;

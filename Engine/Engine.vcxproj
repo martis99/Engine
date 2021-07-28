@@ -173,6 +173,9 @@
     <ClCompile Include="src\api\ctx\wdx11\wdx11_acontext.c" />
     <ClCompile Include="src\api\ctx\wgl\wgl_acontext.c" />
     <ClCompile Include="src\api\ctx\wn\acontext.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_buffer.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_shader.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_texture.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_aframebuffer.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_amesh.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_arenderer.c" />
@@ -276,6 +279,9 @@
     <ClInclude Include="src\api\gfx\atexture.h" />
     <ClInclude Include="src\api\gfx\auniform.h" />
     <ClInclude Include="src\api\gfx\auniform_buffer.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_buffer.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_shader.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_texture.h" />
     <ClInclude Include="src\api\gfx\dx11\dx11_astructs.h" />
     <ClInclude Include="src\api\gfx\none\n_astructs.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl.h" />

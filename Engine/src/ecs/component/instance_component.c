@@ -12,7 +12,9 @@ InstanceComponent instance_component_create(Mesh* mesh, Material* material, uint
 	ic.transforms_size = transforms_count;
 	ic.transforms_count = 0;
 
-	ADataType layout[] = { MAT4F };
+	ALayoutElement layout[] = { 
+		{"Model", MAT4F}
+	};
 	mesh_add_instance_buffer_dynamic(ic.mesh, ic.transforms_size * sizeof(mat4), layout, sizeof(layout));
 	return ic;
 }

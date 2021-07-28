@@ -1,4 +1,5 @@
 #pragma once
+#include "aenums.h"
 
 typedef struct AWindow AWindow;
 typedef struct ACursor ACursor;
@@ -22,3 +23,8 @@ typedef struct AShader AShader;
 typedef struct ARenderer ARenderer;
 typedef struct AMesh AMesh;
 typedef struct AFramebuffer AFramebuffer;
+
+typedef struct ALayoutElement {
+	const char* name;
+	ADataType type;
+} ALayoutElement;

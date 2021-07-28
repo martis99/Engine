@@ -104,10 +104,13 @@ static void process_mesh(ModelMesh* mesh, Renderer* renderer, Shader* shader, co
 	print_material_name(ai_scene->mMaterials[ai_mesh->mMaterialIndex], depth + 1, print);
 	mesh->material = ai_mesh->mMaterialIndex;
 
-	ADataType layout[] = { VEC3F, VEC2F };
+	ALayoutElement layout[] = {
+		{"Position", VEC3F},
+		{"TexCoord", VEC2F}
+	};
 	mesh->mesh = m_malloc(sizeof(Mesh));
 	mesh_create(mesh->mesh);
-	mesh_init_static(mesh->mesh, renderer, shader, vertices, sizeof(Vertex) * ai_mesh->mNumVertices, indices, sizeof(uint) * index, layout, sizeof(layout), A_TRIANGLES);
+	mesh_init_static(mesh->mesh, renderer, shader, vertices, sizeof(Vertex) * ai_mesh->mNumVertices, 5 * sizeof(float), indices, sizeof(uint) * index, sizeof(uint), layout, sizeof(layout), A_TRIANGLES);
 
 	m_free(vertices, sizeof(Vertex) * ai_mesh->mNumVertices);
 	m_free(indices, sizeof(uint) * ai_mesh->mNumFaces * 3);

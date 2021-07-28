@@ -114,7 +114,6 @@ typedef struct Assets {
 	Dictionary* images;
 	Dictionary* textures;
 	Dictionary* fonts;
-	Dictionary* uniform_buffers;
 	Dictionary* models;
 } Assets;
 

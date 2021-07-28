@@ -12,7 +12,7 @@
 #define MAX_VERTICES MAX_QUADS * 4
 #define MAX_INDICES MAX_QUADS * 6
 
-BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* renderer, Material* material, ADataType* layout, uint layout_size, size_t vertex_size) {
+BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* renderer, Material* material, ALayoutElement* layout, uint layout_size, size_t vertex_size) {
 	batch_renderer->renderer = renderer;
 	batch_renderer->shader = material->shader;
 	batch_renderer->material = material;

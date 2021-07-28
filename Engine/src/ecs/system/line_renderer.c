@@ -48,7 +48,11 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 	line_renderer->vertices = m_malloc(MAX_VERTICES * sizeof(LineVertex));
 	line_renderer->vertices_count = 0;
 
-	ADataType layout[] = { VEC3F, VEC4F, VEC1I };
+	ALayoutElement layout[] = {
+		{"Position", VEC3F},
+		{"Color", VEC4F},
+		{"Entity", VEC1I}
+	};
 	mesh_create(&line_renderer->mesh);
 	mesh_init_dynamic(&line_renderer->mesh, renderer, &line_renderer->shader, MAX_VERTICES * sizeof(LineVertex), NULL, 0, layout, sizeof(layout), A_LINES);
 

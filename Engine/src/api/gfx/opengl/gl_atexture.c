@@ -12,12 +12,12 @@ ATexture* atexture_create(AWrap wrap, AFilter filter) {
 	return texture;
 }
 
-ATexture* atexture_set_data(ATexture* texture, int width, int height, int channels, void* data) {
+ATexture* atexture_set_data(ATexture* texture, ARenderer* renderer, int width, int height, int channels, void* data) {
 	gl_texture_image2d(texture->id, width, height, channels, data);
 	return texture;
 }
 
-void atexture_bind(ATexture* texture, uint slot) {
+void atexture_bind(ATexture* texture, ARenderer* renderer, uint slot) {
 	gl_texture_bind(texture->id, slot);
 }
 

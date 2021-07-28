@@ -12,19 +12,19 @@ void mesh_delete(Mesh* mesh) {
 	amesh_delete(mesh->mesh);
 }
 
-void mesh_init_static(Mesh* mesh, Renderer* renderer, Shader* shader, const void* vertices, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
-	amesh_init_static(mesh->mesh, renderer->renderer, shader->shader, vertices, vertices_size, indices, indices_size, layout, layout_size, primitive);
+void mesh_init_static(Mesh* mesh, Renderer* renderer, Shader* shader, const void* vertices, uint vertices_size, uint vertex_size, uint* indices, uint indices_size, uint index_size, ALayoutElement* layout, uint layout_size, APrimitive primitive) {
+	amesh_init_static(mesh->mesh, renderer->renderer, shader->shader, vertices, vertices_size, vertex_size, indices, indices_size, index_size, layout, layout_size, primitive);
 }
 
-void mesh_init_dynamic(Mesh* mesh, Renderer* renderer, Shader* shader, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
+void mesh_init_dynamic(Mesh* mesh, Renderer* renderer, Shader* shader, uint vertices_size, uint* indices, uint indices_size, ALayoutElement* layout, uint layout_size, APrimitive primitive) {
 	amesh_init_dynamic(mesh->mesh, renderer->renderer, shader->shader, vertices_size, indices, indices_size, layout, layout_size, primitive);
 }
 
-void mesh_add_instance_buffer_static(Mesh* mesh, const void* vertices, uint vertices_size, ADataType* layout, uint layout_size) {
+void mesh_add_instance_buffer_static(Mesh* mesh, const void* vertices, uint vertices_size, ALayoutElement* layout, uint layout_size) {
 	amesh_add_instance_buffer_static(mesh->mesh, vertices, vertices_size, layout, layout_size);
 }
 
-void mesh_add_instance_buffer_dynamic(Mesh* mesh, uint vertices_size, ADataType* layout, uint layout_size) {
+void mesh_add_instance_buffer_dynamic(Mesh* mesh, uint vertices_size, ALayoutElement* layout, uint layout_size) {
 	amesh_add_instance_buffer_dynamic(mesh->mesh, vertices_size, layout, layout_size);
 }
 
@@ -70,9 +70,9 @@ void mesh_add_count(Mesh* mesh, int count) {
 
 void mesh_init_quad(Mesh* mesh, Renderer* renderer, Shader* shader) {
 	float vertices[] = {
-		0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 100.0f, 0.0f, 0.0f, 1.0f,
+		100.0f, 100.0f, 0.0f, 1.0f, 1.0f,
+		100.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 	};
 
@@ -81,8 +81,11 @@ void mesh_init_quad(Mesh* mesh, Renderer* renderer, Shader* shader) {
 		3, 2, 1
 	};
 
-	ADataType layout[] = { VEC3F, VEC2F };
-	mesh_init_static(mesh, renderer, shader, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), A_TRIANGLES);
+	ALayoutElement layout[] = {
+		{"Position", VEC3F},
+		{"TexCoord", VEC2F}
+	};
+	mesh_init_static(mesh, renderer, shader, vertices, sizeof(vertices), 5 * sizeof(float), indices, sizeof(indices), sizeof(uint), layout, sizeof(layout), A_TRIANGLES);
 }
 
 void mesh_init_cube(Mesh* mesh, Renderer* renderer, Shader* shader) {
@@ -133,6 +136,9 @@ void mesh_init_cube(Mesh* mesh, Renderer* renderer, Shader* shader) {
 		23, 21, 22
 	};
 
-	ADataType layout[] = { VEC3F, VEC2F };
-	mesh_init_static(mesh, renderer, shader, vertices, sizeof(vertices), indices, sizeof(indices), layout, sizeof(layout), A_TRIANGLES);
+	ALayoutElement layout[] = {
+		{"Position", VEC3F},
+		{"TexCoord", VEC2F}
+	};
+	mesh_init_static(mesh, renderer, shader, vertices, sizeof(vertices), 5 * sizeof(float), indices, sizeof(indices), sizeof(uint), layout, sizeof(layout), A_TRIANGLES);
 }

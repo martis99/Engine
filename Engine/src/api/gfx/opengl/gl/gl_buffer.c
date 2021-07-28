@@ -76,17 +76,17 @@ static void va_layout_add_element(GLuint index, ADataType element, GLsizei strid
 	}
 }
 
-static void va_add_layout(ADataType* layout, GLuint layout_size, GLuint* index) {
+static void va_add_layout(ALayoutElement* layout, GLuint layout_size, GLuint* index) {
 	GLuint layout_count = layout_size / sizeof(GLuint);
 	GLsizei stride = 0;
 	for (GLuint i = 0; i < layout_count; i++) {
-		stride += element_get_size(layout[i]);
+		stride += element_get_size(layout[i].type);
 	}
 
 	GLuint offset = 0;
 	for (GLuint i = 0; i < layout_count; i++) {
-		va_layout_add_element(*index + i, layout[i], stride, offset);
-		offset += element_get_size(layout[i]);
+		va_layout_add_element(*index + i, layout[i].type, stride, offset);
+		offset += element_get_size(layout[i].type);
 	}
 
 	*index += layout_count;
@@ -124,7 +124,7 @@ GLuint gl_vb_create() {
 	return vertex_buffer;
 }
 
-void gl_vb_init_static(GLuint vb, GLuint va, const void* vertices, GLsizeiptr vertices_size, ADataType* layout, GLuint layout_size, GLuint* index) {
+void gl_vb_init_static(GLuint vb, GLuint va, const void* vertices, GLsizeiptr vertices_size, ALayoutElement* layout, GLuint layout_size, GLuint* index) {
 	vb_bind(vb);
 	glBufferData(GL_ARRAY_BUFFER, vertices_size, vertices, GL_STATIC_DRAW);
 	va_bind(va);
@@ -133,7 +133,7 @@ void gl_vb_init_static(GLuint vb, GLuint va, const void* vertices, GLsizeiptr ve
 	vb_unbind(vb);
 }
 
-void gl_vb_init_dynamic(GLuint vb, GLuint va, GLsizeiptr vertices_size, ADataType* layout, GLuint layout_size, GLuint* index) {
+void gl_vb_init_dynamic(GLuint vb, GLuint va, GLsizeiptr vertices_size, ALayoutElement* layout, GLuint layout_size, GLuint* index) {
 	vb_bind(vb);
 	glBufferData(GL_ARRAY_BUFFER, vertices_size, NULL, GL_DYNAMIC_DRAW);
 	va_bind(va);
