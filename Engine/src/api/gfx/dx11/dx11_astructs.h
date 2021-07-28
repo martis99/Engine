@@ -23,6 +23,7 @@ struct ARenderer {
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
 	ID3D11RenderTargetView* target;
+	ID3D11DepthStencilView* dsv;
 };
 
 struct AShader {
@@ -36,5 +37,11 @@ struct AMesh {
 	ID3D11Buffer* vb;
 	ID3D11Buffer* ib;
 	APrimitive primitive;
+};
+
+struct ATexture {
+	ID3D11Texture2D* texture;
+	ID3D11ShaderResourceView* texture_view;
+	ID3D11SamplerState* sampler;
 };
 #endif

@@ -12,8 +12,8 @@ void mesh_delete(Mesh* mesh) {
 	amesh_delete(mesh->mesh);
 }
 
-void mesh_init_static(Mesh* mesh, Renderer* renderer, Shader* shader, const void* data, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
-	amesh_init_static(mesh->mesh, renderer->renderer, shader->shader, data, vertices_size, indices, indices_size, layout, layout_size, primitive);
+void mesh_init_static(Mesh* mesh, Renderer* renderer, Shader* shader, const void* vertices, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {
+	amesh_init_static(mesh->mesh, renderer->renderer, shader->shader, vertices, vertices_size, indices, indices_size, layout, layout_size, primitive);
 }
 
 void mesh_init_dynamic(Mesh* mesh, Renderer* renderer, Shader* shader, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive) {

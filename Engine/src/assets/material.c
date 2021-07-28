@@ -20,11 +20,11 @@ void material_delete(Material* material) {
 	m_free(material->textures, MAX_TEXTURES * sizeof(Texture*));
 }
 
-void material_bind(Material* material) {
+void material_bind(Material* material, Renderer* renderer) {
 	dic_exec(material->uniforms, uniform_upload);
 
 	for (uint i = 0; i < material->textures_count; i++) {
-		texture_bind(material->textures[i], i);
+		texture_bind(material->textures[i], renderer, i);
 	}
 }
 

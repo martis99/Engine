@@ -38,7 +38,7 @@ static void node_draw(Model* model, Renderer* renderer, Shader* shader, ModelNod
 	for (uint i = 0; i < node->meshes.count; i++) {
 		ModelMesh* mesh = arr_get(&node->meshes, i);
 		if (mesh->material >= 0) {
-			material_bind(arr_get(&model->materials, mesh->material));
+			material_bind(arr_get(&model->materials, mesh->material), renderer);
 		}
 		mesh_draw_elements(mesh->mesh, renderer);
 	}
@@ -160,7 +160,7 @@ static void print_texture_type(enum aiTextureType type, char* file, int depth, b
 	}
 }
 
-static void process_textures(Model* model, Material* material, const char* path, const struct aiMaterial* ai_material, enum aiTextureType type, int depth, bool print) {
+static void process_textures(Model* model, Renderer* renderer, Material* material, const char* path, const struct aiMaterial* ai_material, enum aiTextureType type, int depth, bool print) {
 	bool found = 0;
 	for (uint i = 0; i < aiGetMaterialTextureCount(ai_material, type); i++) {
 		struct aiString str;
@@ -168,7 +168,7 @@ static void process_textures(Model* model, Material* material, const char* path,
 		char* file = merge(path, str.data);
 		print_texture_type(type, file, depth, print);
 		Image* image = image_load(arr_add(&model->images), file);
-		Texture* texture = texture_create_from_image(arr_add(&model->textures), image, A_REPEAT, A_LINEAR);
+		Texture* texture = texture_create_from_image(arr_add(&model->textures), renderer, image, A_REPEAT, A_LINEAR);
 		material_add_texture(material, texture);
 
 		m_free(file, strlen(file) + 1);
@@ -186,12 +186,12 @@ static void process_textures(Model* model, Material* material, const char* path,
 			data = (uint)0xffffffff;
 		}
 		image_set_data(image, (unsigned char*)&data);
-		Texture* texture = texture_create_from_image(arr_add(&model->textures), image, A_CLAMP_TO_EDGE, A_NEAREST);
+		Texture* texture = texture_create_from_image(arr_add(&model->textures), renderer, image, A_CLAMP_TO_EDGE, A_NEAREST);
 		material_add_texture(material, texture);
 	}
 }
 
-static void process_material(Model* model, Shader* shader, Material* material, const char* path, const struct aiMaterial* ai_material, int depth, bool print) {
+static void process_material(Model* model, Renderer* renderer, Shader* shader, Material* material, const char* path, const struct aiMaterial* ai_material, int depth, bool print) {
 	print_material_name(ai_material, depth, print);
 
 	material_create(material, shader);
@@ -202,8 +202,8 @@ static void process_material(Model* model, Shader* shader, Material* material, c
 	material_set_vec1i(material, "u_textures", 2, samplers);
 
 
-	process_textures(model, material, path, ai_material, aiTextureType_DIFFUSE, depth + 1, print);
-	process_textures(model, material, path, ai_material, aiTextureType_SPECULAR, depth + 1, print);
+	process_textures(model, renderer, material, path, ai_material, aiTextureType_DIFFUSE, depth + 1, print);
+	process_textures(model, renderer, material, path, ai_material, aiTextureType_SPECULAR, depth + 1, print);
 
 	struct aiColor4D diffuseColor;
 	aiGetMaterialColor(ai_material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColor);
@@ -239,7 +239,7 @@ Model* model_load(Model* model, Renderer* renderer, const char* path, const char
 	arr_create(&model->textures, sizeof(Texture), ai_scene->mNumMaterials * 2);
 
 	for (uint i = 0; i < ai_scene->mNumMaterials; i++) {
-		process_material(model, shader, arr_add(&model->materials), path, ai_scene->mMaterials[i], 1, print);
+		process_material(model, renderer, shader, arr_add(&model->materials), path, ai_scene->mMaterials[i], 1, print);
 	}
 
 	process_node(&model->node, renderer, shader, ai_scene->mRootNode, ai_scene, 1, print);

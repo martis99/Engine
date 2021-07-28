@@ -22,6 +22,49 @@ ARenderer* arenderer_create(AContext* context) {
 	}
 	back_buffer->lpVtbl->Release(back_buffer);
 
+	D3D11_DEPTH_STENCIL_DESC dsd = { 0 };
+	dsd.DepthEnable = TRUE;
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsd.DepthFunc = D3D11_COMPARISON_LESS;
+
+	ID3D11DepthStencilState* dsState;
+	hr = renderer->device->lpVtbl->CreateDepthStencilState(renderer->device, &dsd, &dsState);
+	if (FAILED(hr)) {
+		log_error("Failed to create depth stencil state");
+		return NULL;
+	}
+
+	renderer->context->lpVtbl->OMSetDepthStencilState(renderer->context, dsState, 1);
+
+	ID3D11Texture2D* depthStencil;
+	D3D11_TEXTURE2D_DESC dtd = { 0 };
+	dtd.Width = 1600;
+	dtd.Height = 900;
+	dtd.MipLevels = 1;
+	dtd.ArraySize = 1;
+	dtd.Format = DXGI_FORMAT_D32_FLOAT;
+	dtd.SampleDesc.Count = 1;
+	dtd.SampleDesc.Quality = 0;
+	dtd.Usage = D3D11_USAGE_DEFAULT;
+	dtd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+	hr = renderer->device->lpVtbl->CreateTexture2D(renderer->device, &dtd, NULL, &depthStencil);
+	if (FAILED(hr)) {
+		log_error("Failed to create texture");
+		return NULL;
+	}
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd = { 0 };
+	dsvd.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvd.Texture2D.MipSlice = 0;
+	hr = renderer->device->lpVtbl->CreateDepthStencilView(renderer->device, (ID3D11Resource*)depthStencil, &dsvd, &renderer->dsv);
+	if (FAILED(hr)) {
+		log_error("Failed to create depth stencil view");
+		return NULL;
+	}
+
+	renderer->context->lpVtbl->OMSetRenderTargets(renderer->context, 1, &renderer->target, renderer->dsv);
 	return renderer;
 }
 
@@ -37,13 +80,12 @@ void arenderer_clear_buffers(ARenderer* renderer) {
 }
 
 void arenderer_clear_buffer_color(ARenderer* renderer) {
-	FLOAT color[4] = {0.1, 0.1, 0.1, 1.0 };
+	FLOAT color[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	renderer->context->lpVtbl->ClearRenderTargetView(renderer->context, renderer->target, color);
+	renderer->context->lpVtbl->ClearDepthStencilView(renderer->context, renderer->dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void arenderer_clear_buffer_depth(ARenderer* renderer) {
-	renderer->context->lpVtbl->OMSetRenderTargets(renderer->context, 1, &renderer->target, NULL);
-
 	renderer->context->lpVtbl->IASetPrimitiveTopology(renderer->context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	D3D11_VIEWPORT vp;

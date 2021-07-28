@@ -128,10 +128,10 @@ void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer) {
 	shader_bind(batch_renderer->shader, batch_renderer->renderer);
 	mat4 model = transform_to_mat4(transform);
 	shader_set_model(batch_renderer->shader, &model);
-	material_bind(batch_renderer->material);
+	material_bind(batch_renderer->material, batch_renderer->renderer);
 
 	for (uint i = 0; i < batch_renderer->textures_count; i++) {
-		texture_bind(batch_renderer->textures[i], i);
+		texture_bind(batch_renderer->textures[i], batch_renderer->renderer, i);
 	}
 	mesh_draw_elements(&batch_renderer->mesh, batch_renderer->renderer);
 }

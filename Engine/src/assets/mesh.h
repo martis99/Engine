@@ -4,7 +4,7 @@
 Mesh* mesh_create(Mesh* mesh);
 void mesh_delete(Mesh* mesh);
 
-void mesh_init_static(Mesh* mesh, Renderer* renderer, Shader* shader, const void* data, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive);
+void mesh_init_static(Mesh* mesh, Renderer* renderer, Shader* shader, const void* vertices, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive);
 void mesh_init_dynamic(Mesh* mesh, Renderer* renderer, Shader* shader, uint vertices_size, uint* indices, uint indices_size, ADataType* layout, uint layout_size, APrimitive primitive);
 void mesh_add_instance_buffer_static(Mesh* mesh, const void* vertices, uint vertices_size, ADataType* layout, uint layout_size);
 void mesh_add_instance_buffer_dynamic(Mesh* mesh, uint vertices_size, ADataType* layout, uint layout_size);

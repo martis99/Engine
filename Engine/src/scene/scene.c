@@ -25,6 +25,8 @@
 
 #include "assets/assets.h"
 #include "assets/mesh.h"
+#include "assets/shader.h"
+#include "assets/texture.h"
 #include "assets/image.h"
 #include "assets/uniform_buffer.h"
 #include "renderer/renderer.h"
@@ -266,11 +268,16 @@ static void create_camera(Scene* scene, float width, float height) {
 	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f);
 }
 
+Shader shader;
+Mesh mesh;
+Image image;
+Texture texture;
+
 Scene* scene_create(float width, float height, Renderer* renderer) {
 	Scene* scene = m_malloc(sizeof(Scene));
 	scene->renderer = renderer;
 
-	assets_create(&scene->assets, renderer);
+	/*assets_create(&scene->assets, renderer);
 	create_assets(scene);
 	create_systems(scene);
 
@@ -293,34 +300,42 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 
 	scene->u_camera = assets_uniform_buffer_create(&scene->assets, "u_camera");
 	uniformbuffer_init_dynamic(scene->u_camera, sizeof(mat4));
-	uniformbuffer_bind_base(scene->u_camera, 0);
+	uniformbuffer_bind_base(scene->u_camera, 0);*/
+
+	image_load(&image, "res/images/container.jpg");
+	texture_create_from_image(&texture, scene->renderer, &image, A_REPEAT, A_LINEAR);
+
+	shader_create(&shader, "", "", scene->renderer);
+
+	mesh_create(&mesh);
+	mesh_init_static(&mesh, scene->renderer, &shader, NULL, 0, NULL, 0, NULL, 0, 0);
 
 	return scene;
 }
 
 void scene_delete(Scene* scene) {
-	mesh_renderer_delete(&scene->mesh_renderer);
+	/*mesh_renderer_delete(&scene->mesh_renderer);
 	sprite_renderer_delete(&scene->sprite_renderer);
 	text_renderer_delete(&scene->text_renderer);
 	line_renderer_delete(&scene->line_renderer);
 	instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
 	model_renderer_delete(&scene->model_renderer);
 	ecs_delete(&scene->ecs);
-	assets_delete(&scene->assets);
+	assets_delete(&scene->assets);*/
 	m_free(scene, sizeof(Scene));
 }
 
 void scene_update(Scene* scene, float dt) {
-	text_renderer_calculate_preffered(&scene->ecs);
+	/*text_renderer_calculate_preffered(&scene->ecs);
 	constraints_resolver_resolve(&scene->ecs);
 
 	if (is_key_pressed('R')) {
 		((Transform*)ecs_get(&scene->ecs, scene->cube.id, C_TRANSFORM))->rotation.y -= 1.0f * dt;
-	}
+	}*/
 }
 
 void scene_render(Scene* scene, Renderer* renderer) {
-	uniformbuffer_set_data(scene->u_camera, &scene->camera.view_projection, sizeof(mat4));
+	/*uniformbuffer_set_data(scene->u_camera, &scene->camera.view_projection, sizeof(mat4));
 
 	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
 	model_renderer_render(&scene->model_renderer, &scene->ecs);
@@ -332,7 +347,11 @@ void scene_render(Scene* scene, Renderer* renderer) {
 	uniformbuffer_set_data(scene->u_camera, &scene->projection, sizeof(mat4));
 
 	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs);
-	text_renderer_render(&scene->text_renderer, &scene->ecs);
+	text_renderer_render(&scene->text_renderer, &scene->ecs);*/
+
+	shader_bind(&shader, renderer);
+	texture_bind(&texture, renderer, 0);
+	mesh_draw_elements(&mesh, renderer);
 }
 
 void scene_key_pressed(Scene* scene, byte key) {

@@ -66,7 +66,7 @@ void instance_renderer_render(InstanceRenderer* instance_renderer, Ecs* ecs) {
 		mat4 model = transform_to_mat4(transform);
 		shader_set_model(&instance_renderer->shader, &model);
 		shader_set_entity(&instance_renderer->shader, qr->list[i]);
-		material_bind(instance_component->material);
+		material_bind(instance_component->material, instance_renderer->renderer);
 		mesh_set_instance_data(instance_component->mesh, instance_component->transforms, instance_component->transforms_count * sizeof(mat4));
 		mesh_draw_elements_instanced(instance_component->mesh, instance_component->transforms_count * sizeof(mat4), instance_renderer->renderer);
 	}
