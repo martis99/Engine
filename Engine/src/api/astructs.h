@@ -16,15 +16,16 @@ typedef struct AWindowCallbacks {
 } AWindowCallbacks;
 
 typedef struct AUniformBuffer AUniformBuffer;
-typedef struct AUniform AUniform;
 typedef struct ATexture ATexture;
 typedef struct ARenderer ARenderer;
 typedef struct AShader AShader;
 typedef struct ARenderer ARenderer;
 typedef struct AMesh AMesh;
 typedef struct AFramebuffer AFramebuffer;
+typedef struct ABuffer ABuffer;
+typedef struct AMaterial AMaterial;
 
-typedef struct ALayoutElement {
+typedef struct AValue {
 	const char* name;
-	ADataType type;
-} ALayoutElement;
+	AType type;
+} AValue;

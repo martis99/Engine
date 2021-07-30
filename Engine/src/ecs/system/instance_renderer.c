@@ -40,7 +40,18 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 		"	color2 = u_entity;\n"
 		"}\0";
 
-	if (shader_create(&instance_renderer->shader, src_vert, src_frag, renderer) == NULL) {
+	AValue layout[] = {
+		{"Position", VEC3F},
+		{"TexCoord", VEC2F}
+	};
+
+	AValue props[] = {
+		{"u_model", MAT4F},
+		{"u_entity", VEC1I},
+		{"u_color", VEC4F},
+	};
+
+	if (shader_create(&instance_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "u_texture", 1) == NULL) {
 		log_error("Failed to create mesh shader");
 		return NULL;
 	}
@@ -64,9 +75,10 @@ void instance_renderer_render(InstanceRenderer* instance_renderer, Ecs* ecs) {
 		InstanceComponent* instance_component = (InstanceComponent*)ecs_get(ecs, qr->list[i], C_INSTANCE);
 
 		mat4 model = transform_to_mat4(transform);
-		shader_set_model(&instance_renderer->shader, &model);
-		shader_set_entity(&instance_renderer->shader, qr->list[i]);
-		material_bind(instance_component->material, instance_renderer->renderer);
+		material_set_value(instance_component->material, 0, &model);
+		Id entity = qr->list[i];
+		material_set_value(instance_component->material, 1, &entity);
+		material_bind(instance_component->material, instance_renderer->renderer, 1);
 		mesh_set_instance_data(instance_component->mesh, instance_component->transforms, instance_component->transforms_count * sizeof(mat4));
 		mesh_draw_elements_instanced(instance_component->mesh, instance_component->transforms_count * sizeof(mat4), instance_renderer->renderer);
 	}
@@ -75,6 +87,6 @@ void instance_renderer_render(InstanceRenderer* instance_renderer, Ecs* ecs) {
 Material* instance_renderer_create_material(InstanceRenderer* instance_renderer, Assets* assets, const char* name, Texture* texture, vec4 color) {
 	Material* material = assets_material_create(assets, name, &instance_renderer->shader);
 	material_add_texture(material, texture);
-	material_set_vec4f(material, "u_color", 1, &color);
+	material_set_value(material, 2, &color);
 	return material;
 }

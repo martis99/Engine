@@ -17,7 +17,7 @@ ATexture* atexture_set_data(ATexture* texture, ARenderer* renderer, int width, i
 }
 
 void atexture_bind(ATexture* texture, ARenderer* renderer, uint slot) {
-	dx11_srv_bind(texture->srv, renderer->context);
+	dx11_srv_bind(texture->srv, renderer->context, slot);
 	dx11_ss_bind(texture->ss, renderer->context);
 }
 

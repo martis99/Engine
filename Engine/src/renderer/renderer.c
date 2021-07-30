@@ -25,6 +25,7 @@ void renderer_delete(Renderer* renderer) {
 
 void renderer_begin(Renderer* renderer) {
 	arenderer_clear_color(renderer->renderer, 0.1f, 0.1f, 0.1f, 1.0f);
+	arenderer_clear_buffers(renderer->renderer);
 	app.stats.draw_calls = 0;
 }
 

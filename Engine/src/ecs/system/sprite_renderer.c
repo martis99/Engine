@@ -100,16 +100,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		"	color2 = v_entity;\n"
 		"}\0";
 
-	if (shader_create(&sprite_renderer->shader, src_vert, src_frag, renderer) == NULL) {
-		log_error("Failed to create sprite shader");
-		return NULL;
-	}
-	if (material_create(&sprite_renderer->material, &sprite_renderer->shader) == NULL) {
-		log_error("Failed to create sprite material");
-		return NULL;
-	}
-
-	ALayoutElement layout[] = {
+	AValue layout[] = {
 		{"Position", VEC3F},
 		{"Color", VEC4F},
 		{"TexCoord", VEC2F},
@@ -118,7 +109,22 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		{"Borders", VEC4F},
 		{"Entity", VEC1I}
 	};
-	if (batch_renderer_create(&sprite_renderer->batch_renderer, renderer, &sprite_renderer->material, layout, sizeof(layout), sizeof(SpriteVertex)) == NULL) {
+
+	AValue props[] = {
+		{"u_model", MAT4F},
+		{"u_color", VEC4F},
+	};
+
+	if (shader_create(&sprite_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "u_textures", 16) == NULL) {
+		log_error("Failed to create sprite shader");
+		return NULL;
+	}
+	if (material_create(&sprite_renderer->material, renderer, &sprite_renderer->shader) == NULL) {
+		log_error("Failed to create sprite material");
+		return NULL;
+	}
+
+	if (batch_renderer_create(&sprite_renderer->batch_renderer, renderer, &sprite_renderer->material, sizeof(SpriteVertex)) == NULL) {
 		log_error("Failed to create sprite batch renderer");
 		return NULL;
 	}

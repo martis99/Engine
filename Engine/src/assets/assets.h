@@ -4,7 +4,7 @@
 Assets* assets_create(Assets* assets, Renderer* renderer);
 void assets_delete(Assets* assets);
 
-Shader* assets_shader_create(Assets* assets, const char* name, const char* vertex_source, const char* fragment_source);
+Shader* assets_shader_create(Assets* assets, const char* name, const char* vertex_source, const char* fragment_source, AValue* layout, uint layout_size, AValue* props, uint props_size, const char* textures, uint num_textures);
 Shader* assets_shader_get(Assets* assets, const char* name);
 
 Mesh* assets_mesh_create(Assets* assets, const char* name);

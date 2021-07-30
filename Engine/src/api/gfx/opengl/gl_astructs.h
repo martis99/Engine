@@ -43,21 +43,31 @@ struct ARenderer {
 
 struct AShader {
 	GLuint program;
+	GLint textures_location;
+	GLuint num_textures;
+	GLint* textures;
 };
 
 struct ATexture {
 	GLuint id;
 };
 
-struct AUniform {
-	char* name;
-	GLint location;
-	ADataType type;
-	GLsizei count;
+struct ABuffer {
+	uint* offsets;
+	uint* sizes;
+	GLint* locations;
+	AType* types;
+	uint size;
+	uint count;
 	void* data;
 };
 
 struct AUniformBuffer {
 	GLuint ub;
+	ABuffer* buffer;
+};
+
+struct AMaterial {
+	ABuffer* buffer;
 };
 #endif

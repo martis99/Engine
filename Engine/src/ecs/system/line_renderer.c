@@ -4,6 +4,7 @@
 #include "ecs/component/transform.h"
 #include "assets/mesh.h"
 #include "assets/shader.h"
+#include "assets/material.h"
 
 #define MAX_LINES 200
 #define MAX_VERTICES MAX_LINES * 2
@@ -40,21 +41,31 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 		"	color2 = v_entity;\n"
 		"}\0";
 
-	if (shader_create(&line_renderer->shader, src_vert, src_frag, renderer) == NULL) {
+	AValue layout[] = {
+		{"Position", VEC3F},
+		{"Color", VEC4F},
+		{"Entity", VEC1I}
+	};
+
+	AValue props[] = {
+		{"u_model", MAT4F},
+	};
+
+	if (shader_create(&line_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "", 0) == NULL) {
 		log_error("Failed to create line shader");
+		return NULL;
+	}
+
+	if (material_create(line_renderer->material, renderer, &line_renderer->shader) == NULL) {
+		log_error("Failed to create line material");
 		return NULL;
 	}
 
 	line_renderer->vertices = m_malloc(MAX_VERTICES * sizeof(LineVertex));
 	line_renderer->vertices_count = 0;
 
-	ALayoutElement layout[] = {
-		{"Position", VEC3F},
-		{"Color", VEC4F},
-		{"Entity", VEC1I}
-	};
 	mesh_create(&line_renderer->mesh);
-	mesh_init_dynamic(&line_renderer->mesh, renderer, &line_renderer->shader, MAX_VERTICES * sizeof(LineVertex), NULL, 0, layout, sizeof(layout), A_LINES);
+	mesh_init_dynamic(&line_renderer->mesh, renderer, &line_renderer->shader, MAX_VERTICES * sizeof(LineVertex), NULL, 0, A_LINES);
 
 	mesh_set_count(&line_renderer->mesh, 0);
 
@@ -91,7 +102,7 @@ void line_renderer_submit(LineRenderer* line_renderer) {
 void line_renderer_render(LineRenderer* line_renderer) {
 	shader_bind(&line_renderer->shader, line_renderer->renderer);
 	mat4 model = transform_to_mat4(&line_renderer->transform);
-	shader_set_model(&line_renderer->shader, &model);
+	material_set_value(line_renderer->material, 0, &model);
 
 	line_renderer_submit(line_renderer);
 	mesh_draw_arrays(&line_renderer->mesh, line_renderer->renderer);

@@ -45,7 +45,7 @@ static ID3D11Buffer* buffer_create_dynamic(ID3D11Device* device, UINT data_size,
 	return buffer;
 }
 
-static void buffer_set_data(ID3D11Buffer* buffer, ID3D11DeviceContext* context, const void* data, UINT data_size, const char* error_message) {
+static void buffer_set_data(ID3D11Buffer* buffer, ID3D11DeviceContext* context, const void* data, SIZE_T data_size, const char* error_message) {
 	D3D11_MAPPED_SUBRESOURCE ms;
 	ZeroMemory(&ms, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
@@ -77,7 +77,7 @@ void dx11_vb_bind(ID3D11Buffer* vb, ID3D11DeviceContext* context, UINT stride, U
 	context->lpVtbl->IASetVertexBuffers(context, 0, 1, &vb, &stride, &offset);
 }
 
-void dx11_vb_set_data(ID3D11Buffer* vb, ID3D11DeviceContext* context, const void* data, UINT data_size) {
+void dx11_vb_set_data(ID3D11Buffer* vb, ID3D11DeviceContext* context, const void* data, SIZE_T data_size) {
 	buffer_set_data(vb, context, data, data_size, "Failed to set vertex buffer data");
 }
 
@@ -97,7 +97,7 @@ void dx11_ib_bind(ID3D11Buffer* ib, ID3D11DeviceContext* context, DXGI_FORMAT fo
 	context->lpVtbl->IASetIndexBuffer(context, ib, format, offset);
 }
 
-void dx11_ib_set_data(ID3D11Buffer* ib, ID3D11DeviceContext* context, const void* data, UINT data_size) {
+void dx11_ib_set_data(ID3D11Buffer* ib, ID3D11DeviceContext* context, const void* data, SIZE_T data_size) {
 	buffer_set_data(ib, context, data, data_size, "Failed to set index buffer data");
 }
 
@@ -113,15 +113,15 @@ ID3D11Buffer* dx11_cb_create_dynamic(ID3D11Device* device, UINT data_size) {
 	return buffer_create_dynamic(device, data_size, 0, D3D11_BIND_CONSTANT_BUFFER, "Failed to create dynamic constant buffer");
 }
 
-void dx11_cb_bind_vs(ID3D11Buffer* cb, ID3D11DeviceContext* context, UINT index) {
-	context->lpVtbl->VSSetConstantBuffers(context, index, 1, &cb);
+void dx11_cb_bind_vs(ID3D11Buffer* cb, ID3D11DeviceContext* context, UINT slot) {
+	context->lpVtbl->VSSetConstantBuffers(context, slot, 1, &cb);
 }
 
-void dx11_cb_bind_ps(ID3D11Buffer* cb, ID3D11DeviceContext* context, UINT index) {
-	context->lpVtbl->PSSetConstantBuffers(context, index, 1, &cb);
+void dx11_cb_bind_ps(ID3D11Buffer* cb, ID3D11DeviceContext* context, UINT slot) {
+	context->lpVtbl->PSSetConstantBuffers(context, slot, 1, &cb);
 }
 
-void dx11_cb_set_data(ID3D11Buffer* cb, ID3D11DeviceContext* context, const void* data, UINT data_size) {
+void dx11_cb_set_data(ID3D11Buffer* cb, ID3D11DeviceContext* context, const void* data, SIZE_T data_size) {
 	buffer_set_data(cb, context, data, data_size, "Failed to set constant buffer data");
 }
 
@@ -129,7 +129,7 @@ void dx11_cb_delete(ID3D11Buffer* cb) {
 	buffer_delete(cb);
 }
 
-static DXGI_FORMAT get_element_format(ADataType type) {
+static DXGI_FORMAT get_element_format(AType type) {
 	switch (type) {
 	case VEC1I: return DXGI_FORMAT_R32_SINT;
 	case VEC2I: return DXGI_FORMAT_R32G32_SINT;
@@ -143,10 +143,10 @@ static DXGI_FORMAT get_element_format(ADataType type) {
 	return 0;
 }
 
-ID3D11InputLayout* dx11_il_create(ID3D11Device* device, ALayoutElement* layout, UINT layout_size, const void* shader, SIZE_T shader_size) {
+ID3D11InputLayout* dx11_il_create(ID3D11Device* device, AValue* layout, UINT layout_size, const void* shader, SIZE_T shader_size) {
 	ID3D11InputLayout* il;
 
-	UINT num_elements = layout_size / sizeof(ALayoutElement);
+	UINT num_elements = layout_size / sizeof(AValue);
 	D3D11_INPUT_ELEMENT_DESC* ied = m_malloc(num_elements * sizeof(D3D11_INPUT_ELEMENT_DESC));
 
 	for (UINT i = 0; i < num_elements; i++) {

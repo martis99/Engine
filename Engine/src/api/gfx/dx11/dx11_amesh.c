@@ -16,7 +16,7 @@ void amesh_delete(AMesh* mesh) {
 	m_free(mesh, sizeof(AMesh));
 }
 
-static DXGI_FORMAT get_element_format(ADataType type) {
+static DXGI_FORMAT get_element_format(AType type) {
 	switch (type) {
 	case VEC1I: return DXGI_FORMAT_R32_SINT;
 	case VEC2I: return DXGI_FORMAT_R32G32_SINT;
@@ -30,7 +30,7 @@ static DXGI_FORMAT get_element_format(ADataType type) {
 	return 0;
 }
 
-AMesh* amesh_init_static(AMesh* mesh, ARenderer* renderer, AShader* shader, const void* vertices, uint vertices_size, uint vertex_size, uint* indices, uint indices_size, uint index_size, ALayoutElement* layout, uint layout_size, APrimitive primitive) {
+AMesh* amesh_init_static(AMesh* mesh, ARenderer* renderer, AShader* shader, const void* vertices, uint vertices_size, uint vertex_size, uint* indices, uint indices_size, uint index_size, AValue* layout, uint layout_size, APrimitive primitive) {
 	mesh->primitive = primitive;
 	mesh->vertex_size = vertex_size;
 
@@ -42,16 +42,16 @@ AMesh* amesh_init_static(AMesh* mesh, ARenderer* renderer, AShader* shader, cons
 	return mesh;
 }
 
-AMesh* amesh_init_dynamic(AMesh* mesh, ARenderer* renderer, AShader* shader, uint vertices_size, const void* indices, uint indices_size, ALayoutElement* layout, uint layout_size, APrimitive primitive) {
+AMesh* amesh_init_dynamic(AMesh* mesh, ARenderer* renderer, AShader* shader, uint vertices_size, const void* indices, uint indices_size, AValue* layout, uint layout_size, APrimitive primitive) {
 	mesh->primitive = primitive;
 	return mesh;
 }
 
-void amesh_add_instance_buffer_static(AMesh* mesh, const void* vertices, uint vertices_size, ALayoutElement* layout, uint layout_size) {
+void amesh_add_instance_buffer_static(AMesh* mesh, const void* vertices, uint vertices_size, AValue* layout, uint layout_size) {
 
 }
 
-void amesh_add_instance_buffer_dynamic(AMesh* mesh, uint vertices_size, ALayoutElement* layout, uint layout_size) {
+void amesh_add_instance_buffer_dynamic(AMesh* mesh, uint vertices_size, AValue* layout, uint layout_size) {
 
 }
 

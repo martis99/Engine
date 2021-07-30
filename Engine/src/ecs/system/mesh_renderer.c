@@ -38,7 +38,18 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 		"	color2 = u_entity;\n"
 		"}\0";
 
-	if (shader_create(&mesh_renderer->shader, src_vert, src_frag, renderer) == NULL) {
+	AValue layout[] = {
+		{"Position", VEC3F},
+		{"TexCoord", VEC2F}
+	};
+
+	AValue props[] = {
+		{"u_model", MAT4F},
+		{"u_entity", VEC1I},
+		{"u_color", VEC4F},
+	};
+
+	if (shader_create(&mesh_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "u_texture", 1) == NULL) {
 		log_error("Failed to create mesh shader");
 		return NULL;
 	}
@@ -59,9 +70,10 @@ void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs) {
 		MeshComponent* mesh_component = (MeshComponent*)ecs_get(ecs, qr->list[i], C_MESH);
 
 		mat4 model = transform_to_mat4(transform);
-		shader_set_model(&mesh_renderer->shader, &model);
-		shader_set_entity(&mesh_renderer->shader, qr->list[i]);
-		material_bind(mesh_component->material, mesh_renderer->renderer);
+		material_set_value(mesh_component->material, 0, &model);
+		Id entity = qr->list[i];
+		material_set_value(mesh_component->material, 1, &entity);
+		material_bind(mesh_component->material, mesh_renderer->renderer, 1);
 		mesh_draw_elements(mesh_component->mesh, mesh_renderer->renderer);
 	}
 }
@@ -69,6 +81,6 @@ void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs) {
 Material* mesh_renderer_create_material(MeshRenderer* mesh_renderer, Assets* assets, const char* name, Texture* texture, vec4 color) {
 	Material* material = assets_material_create(assets, name, &mesh_renderer->shader);
 	material_add_texture(material, texture);
-	material_set_vec4f(material, "u_color", 1, &color);
+	material_set_value(material, 2, &color);
 	return material;
 }

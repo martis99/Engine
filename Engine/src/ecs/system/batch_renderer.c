@@ -12,7 +12,7 @@
 #define MAX_VERTICES MAX_QUADS * 4
 #define MAX_INDICES MAX_QUADS * 6
 
-BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* renderer, Material* material, ALayoutElement* layout, uint layout_size, size_t vertex_size) {
+BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* renderer, Material* material, size_t vertex_size) {
 	batch_renderer->renderer = renderer;
 	batch_renderer->shader = material->shader;
 	batch_renderer->material = material;
@@ -37,18 +37,12 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* re
 	}
 
 	mesh_create(&batch_renderer->mesh);
-	mesh_init_dynamic(&batch_renderer->mesh, renderer, batch_renderer->shader, MAX_VERTICES * (uint)vertex_size, indices, MAX_INDICES * sizeof(uint), layout, layout_size, A_TRIANGLES);
+	mesh_init_dynamic(&batch_renderer->mesh, renderer, batch_renderer->shader, MAX_VERTICES * (uint)vertex_size, indices, MAX_INDICES * sizeof(uint), A_TRIANGLES);
 
 	mesh_set_count(&batch_renderer->mesh, 0);
 
 	batch_renderer->textures = m_malloc(MAX_TEXTURES * sizeof(Texture*));
 	batch_renderer->textures_count = 0;
-
-	int samplers[MAX_TEXTURES];
-	for (int i = 0; i < MAX_TEXTURES; i++) {
-		samplers[i] = i;
-	}
-	material_set_vec1i(material, "u_textures", MAX_TEXTURES, samplers);
 
 	return batch_renderer;
 }
@@ -127,8 +121,8 @@ void batch_renderer_submit(BatchRenderer* batch_renderer) {
 void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer) {
 	shader_bind(batch_renderer->shader, batch_renderer->renderer);
 	mat4 model = transform_to_mat4(transform);
-	shader_set_model(batch_renderer->shader, &model);
-	material_bind(batch_renderer->material, batch_renderer->renderer);
+	material_set_value(batch_renderer->material, 0, &model);
+	material_bind(batch_renderer->material, batch_renderer->renderer, 1);
 
 	for (uint i = 0; i < batch_renderer->textures_count; i++) {
 		texture_bind(batch_renderer->textures[i], batch_renderer->renderer, i);

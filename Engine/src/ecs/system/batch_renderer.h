@@ -1,7 +1,7 @@
 #pragma once
 #include "structs.h"
 
-BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* renderer, Material* material, ALayoutElement* layout, uint layout_size, size_t vertex_size);
+BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* renderer, Material* material, size_t vertex_size);
 void batch_renderer_delete(BatchRenderer* batch_renderer);
 
 void batch_renderer_clear(BatchRenderer* batch_renderer);

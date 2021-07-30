@@ -32,25 +32,9 @@ GLuint gl_va_create() {
 	return vertex_array;
 }
 
-static GLint element_get_size(ADataType element) {
-	switch (element) {
-	case VEC1I: return 1;
-	case VEC2I: return 2;
-	case VEC3I: return 3;
-	case VEC4I: return 4;
-	case VEC1F: return 1;
-	case VEC2F: return 2;
-	case VEC3F: return 3;
-	case VEC4F: return 4;
-	case MAT4F: return 16;
-	default: return 0;
-	}
-	return 0;
-}
-
-static void va_layout_add_element(GLuint index, ADataType element, GLsizei stride, GLuint offset) {
-	int size = element_get_size(element);
-	switch (element) {
+static void va_layout_add_element(GLuint index, AType type, GLsizei stride, GLuint offset) {
+	int size = type_count(type);
+	switch (type) {
 	case VEC1I:
 	case VEC2I:
 	case VEC3I:
@@ -76,20 +60,20 @@ static void va_layout_add_element(GLuint index, ADataType element, GLsizei strid
 	}
 }
 
-static void va_add_layout(ALayoutElement* layout, GLuint layout_size, GLuint* index) {
-	GLuint layout_count = layout_size / sizeof(GLuint);
+static void va_add_layout(AValue* layout, uint layout_size, GLuint* index) {
+	GLuint num_values = layout_size / sizeof(AValue);
 	GLsizei stride = 0;
-	for (GLuint i = 0; i < layout_count; i++) {
-		stride += element_get_size(layout[i].type);
+	for (GLuint i = 0; i < num_values; i++) {
+		stride += type_count(layout[i].type);
 	}
 
 	GLuint offset = 0;
-	for (GLuint i = 0; i < layout_count; i++) {
+	for (GLuint i = 0; i < num_values; i++) {
 		va_layout_add_element(*index + i, layout[i].type, stride, offset);
-		offset += element_get_size(layout[i].type);
+		offset += type_count(layout[i].type);
 	}
 
-	*index += layout_count;
+	*index += num_values;
 }
 
 void gl_va_draw_arrays(GLuint va, GLenum mode, GLsizei count) {
@@ -124,7 +108,7 @@ GLuint gl_vb_create() {
 	return vertex_buffer;
 }
 
-void gl_vb_init_static(GLuint vb, GLuint va, const void* vertices, GLsizeiptr vertices_size, ALayoutElement* layout, GLuint layout_size, GLuint* index) {
+void gl_vb_init_static(GLuint vb, GLuint va, const void* vertices, GLsizeiptr vertices_size, AValue* layout, uint layout_size, GLuint* index) {
 	vb_bind(vb);
 	glBufferData(GL_ARRAY_BUFFER, vertices_size, vertices, GL_STATIC_DRAW);
 	va_bind(va);
@@ -133,7 +117,7 @@ void gl_vb_init_static(GLuint vb, GLuint va, const void* vertices, GLsizeiptr ve
 	vb_unbind(vb);
 }
 
-void gl_vb_init_dynamic(GLuint vb, GLuint va, GLsizeiptr vertices_size, ALayoutElement* layout, GLuint layout_size, GLuint* index) {
+void gl_vb_init_dynamic(GLuint vb, GLuint va, GLsizeiptr vertices_size, AValue* layout, uint layout_size, GLuint* index) {
 	vb_bind(vb);
 	glBufferData(GL_ARRAY_BUFFER, vertices_size, NULL, GL_DYNAMIC_DRAW);
 	va_bind(va);

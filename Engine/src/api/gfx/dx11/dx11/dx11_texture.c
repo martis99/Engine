@@ -20,7 +20,7 @@ ID3D11Texture2D* dx11_texture_create(ID3D11Device* device, UINT width, UINT heig
 
 	D3D11_SUBRESOURCE_DATA sd = { 0 };
 	sd.pSysMem = data;
-	sd.SysMemPitch = width * 4 * sizeof(unsigned char);
+	sd.SysMemPitch = width * channels * sizeof(unsigned char);
 
 	HRESULT hr = device->lpVtbl->CreateTexture2D(device, &td, &sd, &texture);
 	if (FAILED(hr)) {
@@ -55,8 +55,8 @@ ID3D11ShaderResourceView* dx11_srv_create(ID3D11Device* device, ID3D11Texture2D*
 	return srv;
 }
 
-void dx11_srv_bind(ID3D11ShaderResourceView* srv, ID3D11DeviceContext* context) {
-	context->lpVtbl->PSSetShaderResources(context, 0, 1, &srv);
+void dx11_srv_bind(ID3D11ShaderResourceView* srv, ID3D11DeviceContext* context, UINT slot) {
+	context->lpVtbl->PSSetShaderResources(context, slot, 1, &srv);
 }
 
 void dx11_srv_delete(ID3D11ShaderResourceView* srv) {

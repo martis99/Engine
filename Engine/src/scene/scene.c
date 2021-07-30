@@ -28,12 +28,9 @@
 #include "assets/shader.h"
 #include "assets/texture.h"
 #include "assets/image.h"
+#include "assets/material.h"
 #include "assets/uniform_buffer.h"
 #include "renderer/renderer.h"
-
-typedef struct CameraBuffer {
-	mat4 view_projection;
-} CameraBuffer;
 
 struct Scene {
 	Renderer* renderer;
@@ -50,7 +47,6 @@ struct Scene {
 	ModelRenderer model_renderer;
 	mat4 projection;
 	UniformBuffer u_camera;
-	CameraBuffer camera_buffer;
 };
 
 static void create_systems(Scene* scene) {
@@ -276,7 +272,10 @@ static void create_camera(Scene* scene, float width, float height) {
 Shader shader;
 Mesh mesh;
 Image image;
+Image image2;
 Texture texture;
+Texture texture2;
+Material material;
 
 Scene* scene_create(float width, float height, Renderer* renderer) {
 	Scene* scene = m_malloc(sizeof(Scene));
@@ -300,17 +299,27 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);
 
 	create_entities(scene);*/
-	
+
 	create_camera(scene, width, height);
 
-	uniformbuffer_create_dynamic(&scene->u_camera, renderer, sizeof(CameraBuffer));
+	AValue uniforms[] = {
+		{"ViewProjection", MAT4F}
+	};
+
+	uniformbuffer_create_dynamic(&scene->u_camera, renderer, uniforms, sizeof(uniforms));
 
 	image_load(&image, "res/images/container.jpg");
+	image_load(&image2, "res/images/mountains.jpg");
 	texture_create_from_image(&texture, scene->renderer, &image, A_REPEAT, A_LINEAR);
+	texture_create_from_image(&texture2, scene->renderer, &image2, A_REPEAT, A_LINEAR);
 
+#ifdef GAPI_DX11
 	const char* vert =
-		"cbuffer CBuf {\n"
-		"	row_major matrix transform;\n"
+		"cbuffer Camera {\n"
+		"	row_major matrix view_projection;\n"
+		"};\n"
+		"cbuffer Object {\n"
+		"	row_major matrix model;\n"
 		"};\n"
 		"struct VSOut {\n"
 		"	float2 tex : TexCoord;\n"
@@ -318,27 +327,61 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 		"};\n"
 		"VSOut main( float3 pos : Position, float2 tex : TexCoord ) {\n"
 		"	VSOut vso;\n"
-		"	vso.pos = mul(float4(pos, 1.0f), transform);\n"
+		"	vso.pos = mul(float4(pos, 1.0f), mul(model, view_projection));\n"
 		"	vso.tex = tex;\n"
 		"	return vso;\n"
 		"}\0";
 
 	const char* frag =
-		"Texture2D tex;\n"
+		"Texture2D tex[2];\n"
 		"SamplerState splr;\n"
 		"float4 main(float2 tc : TexCoord) : SV_TARGET {\n"
-		"	return tex.Sample(splr, tc);\n"
+		"	return tex[1].Sample(splr, tc);\n"
+		"}\0";
+#else
+	const char* vert =
+		"#version 330 core\n"
+		"layout (location = 0) in vec3 a_pos;\n"
+		"layout (location = 1) in vec2 a_tex_coord;\n"
+		"layout (std140) uniform Camera {\n"
+		"	mat4 u_view_projection;\n"
+		"};\n"
+		"out vec2 v_tex_coord;\n"
+		"uniform mat4 u_model;\n"
+		"void main() {\n"
+		"	gl_Position = u_view_projection * u_model * vec4(a_pos.x, a_pos.y, -a_pos.z, 1.0);\n"
+		"	v_tex_coord = a_tex_coord;\n"
 		"}\0";
 
-	shader_create(&shader, vert, frag, scene->renderer);
+	const char* frag =
+		"#version 330 core\n"
+		"layout (location = 0) out vec4 FragColor;\n"
+		"in vec2 v_tex_coord;\n"
+		"uniform sampler2D u_textures[16];"
+		"void main() {\n"
+		"	FragColor = texture(u_textures[1], v_tex_coord);\n"
+		"}\0";
 
-	mesh_create(&mesh);
-	ALayoutElement layout[] = {
+#endif
+	AValue layout[] = {
 		{"Position", VEC3F},
 		{"TexCoord", VEC2F}
 	};
-	mesh_init_quad(&mesh, renderer, &shader);
 
+	AValue props[] = {
+		{"u_model", MAT4F}
+	};
+	
+	shader_create(&shader, scene->renderer, vert, frag, layout, sizeof(layout), props, sizeof(props), "u_textures", 16);
+
+	material_create(&material, scene->renderer, &shader);
+
+	material_add_texture(&material, &texture);
+	material_add_texture(&material, &texture2);
+
+	mesh_create(&mesh);
+	mesh_init_quad(&mesh, renderer, &shader);
+	
 	return scene;
 }
 
@@ -348,7 +391,10 @@ void scene_delete(Scene* scene) {
 	shader_delete(&shader);
 	mesh_delete(&mesh);
 	texture_delete(&texture);
+	texture_delete(&texture2);
 	image_delete(&image);
+	image_delete(&image2);
+	material_delete(&material);
 
 	/*mesh_renderer_delete(&scene->mesh_renderer);
 	sprite_renderer_delete(&scene->sprite_renderer);
@@ -371,9 +417,15 @@ void scene_update(Scene* scene, float dt) {
 }
 
 void scene_render(Scene* scene, Renderer* renderer) {
-	scene->camera_buffer.view_projection = scene->projection;
-	uniformbuffer_set_data(&scene->u_camera, renderer, &scene->camera_buffer, sizeof(CameraBuffer));
-	uniformbuffer_bind_base(&scene->u_camera, renderer, 0);
+	shader_bind(&shader, renderer);
+	uniformbuffer_bind(&scene->u_camera, renderer, 0);
+	uniformbuffer_set_value(&scene->u_camera, 0, &scene->projection);
+
+	mat4 model = mat4_translation((vec3) {50, 0, 0});
+	material_set_value(&material, 0, &model);
+	material_upload(&material, renderer);
+	material_bind(&material, renderer, 1);
+	uniformbuffer_upload(&scene->u_camera, renderer);
 
 	/*mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
 	model_renderer_render(&scene->model_renderer, &scene->ecs);
@@ -387,8 +439,6 @@ void scene_render(Scene* scene, Renderer* renderer) {
 	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs);
 	text_renderer_render(&scene->text_renderer, &scene->ecs);*/
 
-	shader_bind(&shader, renderer);
-	texture_bind(&texture, renderer, 0);
 	mesh_draw_elements(&mesh, renderer);
 }
 
@@ -402,8 +452,8 @@ void scene_key_released(Scene* scene, byte key) {
 
 void scene_mouse_pressed(Scene* scene, byte button) {
 	if (button == 0) {
-		int entity = renderer_get_mouse_entity(scene->renderer);
-		printf("Pressed entity: %i\n", entity);
+		//int entity = renderer_get_mouse_entity(scene->renderer);
+		//printf("Pressed entity: %i\n", entity);
 	}
 }
 

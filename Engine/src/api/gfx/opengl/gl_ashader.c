@@ -46,7 +46,7 @@ static GLuint compile_shader(GLenum type, const char* source) {
 	return shader;
 }
 
-AShader* ashader_create(const char* src_vert, const char* src_frag, ARenderer* renderer) {
+AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* src_frag, const char* textures, uint num_textures) {
 	AShader* shader = m_malloc(sizeof(AShader));
 
 	GLuint vert = compile_shader(gl_ashadertype(A_VERTEX), src_vert);
@@ -69,16 +69,30 @@ AShader* ashader_create(const char* src_vert, const char* src_frag, ARenderer* r
 	gl_shader_delete(vert);
 	gl_shader_delete(frag);
 
+	if (num_textures > 0) {
+		shader->textures = m_malloc(num_textures * sizeof(GLint));
+		for (GLuint i = 0; i < num_textures; i++) {
+			shader->textures[i] = i;
+		}
+		shader->textures_location = gl_program_get_uniform_location(shader->program, textures);
+		shader->num_textures = num_textures;
+	}
 	return shader;
 }
 
 void ashader_delete(AShader* shader) {
+	if (shader->num_textures > 0) {
+		m_free(shader->textures, shader->num_textures * sizeof(GLint));
+	}
 	gl_program_delete(shader->program);
 	m_free(shader, sizeof(AShader));
 }
 
 void ashader_bind(AShader* shader, ARenderer* renderer) {
 	gl_program_use(shader->program);
+	if (shader->num_textures > 0) {
+		gl_uniform_vec1i(shader->textures_location, shader->num_textures, shader->textures);
+	}
 }
 
 void ashader_bind_uniform_block(AShader* shader, const char* name, uint index) {

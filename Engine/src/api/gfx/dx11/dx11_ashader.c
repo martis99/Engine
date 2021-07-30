@@ -4,7 +4,7 @@
 #include "dx11_astructs.h"
 #include "dx11/dx11_shader.h"
 
-AShader* ashader_create(const char* src_vert, const char* src_frag, ARenderer* renderer) {
+AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* src_frag, const char* textures, uint num_textures) {
 	AShader* shader = m_malloc(sizeof(AShader));
 	shader->vs = dx11_vs_create(renderer->device, src_vert, &shader->vs_blob);
 	shader->ps = dx11_ps_create(renderer->device, src_frag, &shader->ps_blob);

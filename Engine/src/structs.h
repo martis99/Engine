@@ -5,7 +5,6 @@
 
 #include "api/gfx/arenderer.h"
 #include "api/gfx/ashader.h"
-#include "api/gfx/auniform.h"
 #include "api/gfx/aframebuffer.h"
 #include "api/gfx/amesh.h"
 #include "api/gfx/atexture.h"
@@ -39,15 +38,12 @@ typedef struct Framebuffer {
 	AFramebuffer* framebuffer;
 } Framebuffer;
 
-typedef struct Uniform {
-	AUniform* uniform;
-} Uniform;
-
-
 typedef struct Shader {
 	AShader* shader;
-	Uniform model;
-	Uniform entity;
+	AValue* layout;
+	uint layout_size;
+	AValue* props;
+	uint props_size;
 } Shader;
 
 typedef struct Renderer {
@@ -70,7 +66,7 @@ typedef struct Texture {
 
 typedef struct Material {
 	Shader* shader;
-	Dictionary* uniforms;
+	AMaterial* material;
 	Texture** textures;
 	uint textures_count;
 } Material;
@@ -230,6 +226,7 @@ typedef struct LineRenderer {
 	Renderer* renderer;
 	Transform transform;
 	Shader shader;
+	Material* material;
 	Mesh mesh;
 	LineVertex* vertices;
 	uint vertices_count;

@@ -43,7 +43,7 @@ typedef enum AAttachmentFormat {
 	A_DEPTH24STENCIL8
 } AAttachmentFormat;
 
-typedef enum {
+typedef enum AType {
 	EMPTY,
 	VEC1I,
 	VEC2I,
@@ -54,4 +54,7 @@ typedef enum {
 	VEC3F,
 	VEC4F,
 	MAT4F
-} ADataType;
+} AType;
+
+uint type_size(AType type);
+int type_count(AType size);

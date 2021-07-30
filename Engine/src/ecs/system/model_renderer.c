@@ -40,7 +40,19 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* re
 		"	color2 = u_entity;\n"
 		"}\0";
 
-	if (shader_create(&model_renderer->shader, src_vert, src_frag, renderer) == NULL) {
+	AValue layout[] = {
+		{"Position", VEC3F},
+		{"TexCoord", VEC2F}
+	};
+
+	AValue props[] = {
+		{"Model", MAT4F},
+		{"Entity", VEC1I},
+		{"Diffuse", VEC4F},
+		{"Specular", VEC4F}
+	};
+
+	if (shader_create(&model_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "u_textures", 16) == NULL) {
 		log_error("Failed to create model shader");
 		return NULL;
 	}
@@ -60,7 +72,6 @@ void model_renderer_render(ModelRenderer* model_renderer, Ecs* ecs) {
 		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
 		Model* model = (Model*)ecs_get(ecs, qr->list[i], C_MODEL);
 
-		shader_set_entity(&model_renderer->shader, qr->list[i]);
 		mat4 mat = transform_to_mat4(transform);
 		model_draw(model, model_renderer->renderer, &model_renderer->shader, mat);
 	}

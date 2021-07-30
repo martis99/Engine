@@ -19,7 +19,7 @@ void amesh_delete(AMesh* mesh) {
 	m_free(mesh, sizeof(AMesh));
 }
 
-AMesh* amesh_init_static(AMesh* mesh, ARenderer* renderer, AShader* shader, const void* vertices, uint vertices_size, uint vertex_size, uint* indices, uint indices_size, uint index_size, ALayoutElement* layout, uint layout_size, APrimitive primitive) {
+AMesh* amesh_init_static(AMesh* mesh, ARenderer* renderer, AShader* shader, const void* vertices, uint vertices_size, uint vertex_size, uint* indices, uint indices_size, uint index_size, AValue* layout, uint layout_size, APrimitive primitive) {
 	mesh->primitive = primitive;
 
 	mesh->va = gl_va_create();
@@ -35,7 +35,7 @@ AMesh* amesh_init_static(AMesh* mesh, ARenderer* renderer, AShader* shader, cons
 	return mesh;
 }
 
-AMesh* amesh_init_dynamic(AMesh* mesh, ARenderer* renderer, AShader* shader, uint vertices_size, const void* indices, uint indices_size, ALayoutElement* layout, uint layout_size, APrimitive primitive) {
+AMesh* amesh_init_dynamic(AMesh* mesh, ARenderer* renderer, AShader* shader, uint vertices_size, const void* indices, uint indices_size, AValue* layout, uint layout_size, APrimitive primitive) {
 	mesh->primitive = primitive;
 
 	mesh->va = gl_va_create();
@@ -51,12 +51,12 @@ AMesh* amesh_init_dynamic(AMesh* mesh, ARenderer* renderer, AShader* shader, uin
 	return mesh;
 }
 
-void amesh_add_instance_buffer_static(AMesh* mesh, const void* vertices, uint vertices_size, ALayoutElement* layout, uint layout_size) {
+void amesh_add_instance_buffer_static(AMesh* mesh, const void* vertices, uint vertices_size, AValue* layout, uint layout_size) {
 	mesh->ivb = gl_vb_create();
 	gl_vb_init_static(mesh->ivb, mesh->va, vertices, vertices_size, layout, layout_size, &mesh->layout_index);
 }
 
-void amesh_add_instance_buffer_dynamic(AMesh* mesh, uint vertices_size, ALayoutElement* layout, uint layout_size) {
+void amesh_add_instance_buffer_dynamic(AMesh* mesh, uint vertices_size, AValue* layout, uint layout_size) {
 	mesh->ivb = gl_vb_create();
 	gl_vb_init_dynamic(mesh->ivb, mesh->va, vertices_size, layout, layout_size, &mesh->layout_index);
 }

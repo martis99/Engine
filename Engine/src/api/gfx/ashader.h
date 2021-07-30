@@ -1,7 +1,7 @@
 #pragma once
 #include "api/astructs.h"
 
-AShader* ashader_create(const char* src_vert, const char* src_frag, ARenderer* renderer);
+AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* src_frag, const char* textures, uint num_textures);
 void ashader_delete(AShader* shader);
 
 void ashader_bind(AShader* shader, ARenderer* renderer);

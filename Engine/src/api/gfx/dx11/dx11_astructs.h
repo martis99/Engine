@@ -55,7 +55,21 @@ struct ATexture {
 	ID3D11SamplerState* ss;
 };
 
+struct ABuffer {
+	UINT* offsets;
+	UINT* sizes;
+	UINT size;
+	UINT count;
+	void* data;
+};
+
 struct AUniformBuffer {
 	ID3D11Buffer* cb;
+	ABuffer* buffer;
+};
+
+struct AMaterial {
+	ID3D11Buffer* cb;
+	ABuffer* buffer;
 };
 #endif
