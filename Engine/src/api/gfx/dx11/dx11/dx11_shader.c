@@ -10,9 +10,14 @@ ID3D11VertexShader* dx11_vs_create(ID3D11Device* device, const char* src, ID3DBl
 	ID3D11VertexShader* vs;
 
 	HRESULT hr;
-	hr = D3DCompile(src, strlen(src), NULL, NULL, NULL, "main", "vs_5_0", 0, 0, blob, NULL);
+	ID3DBlob* error;
+
+	hr = D3DCompile(src, strlen(src), NULL, NULL, NULL, "main", "vs_5_0", 0, 0, blob, &error);
 	if (FAILED(hr)) {
 		log_error("Failed to compile vertex shader");
+		if (error) {
+			printf("%s\n", (char*)error->lpVtbl->GetBufferPointer(error));
+		}
 		return NULL;
 	}
 
@@ -40,17 +45,21 @@ void dx11_vs_delete(ID3D11VertexShader* vs, ID3DBlob* blob) {
 
 ID3D11PixelShader* dx11_ps_create(ID3D11Device* device, const char* src, ID3DBlob** blob) {
 	ID3D11PixelShader* ps;
-
 	HRESULT hr;
-	hr = D3DCompile(src, strlen(src), NULL, NULL, NULL, "main", "ps_5_0", 0, 0, blob, NULL);
+	ID3DBlob* error;
+
+	hr = D3DCompile(src, strlen(src), NULL, NULL, NULL, "main", "ps_5_0", 0, 0, blob, &error);
 	if (FAILED(hr)) {
-		log_error("Failed to compile vertex shader");
+		log_error("Failed to compile pixel shader");
+		if (error) {
+			printf("%s\n", (char*)error->lpVtbl->GetBufferPointer(error));
+		}
 		return NULL;
 	}
 
 	hr = device->lpVtbl->CreatePixelShader(device, (*blob)->lpVtbl->GetBufferPointer(*blob), (*blob)->lpVtbl->GetBufferSize(*blob), NULL, &ps);
 	if (FAILED(hr)) {
-		log_error("Failed to create vertex shader");
+		log_error("Failed to create pixel shader");
 		return NULL;
 	}
 

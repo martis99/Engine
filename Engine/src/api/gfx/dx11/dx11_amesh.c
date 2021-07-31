@@ -42,8 +42,15 @@ AMesh* amesh_init_static(AMesh* mesh, ARenderer* renderer, AShader* shader, cons
 	return mesh;
 }
 
-AMesh* amesh_init_dynamic(AMesh* mesh, ARenderer* renderer, AShader* shader, uint vertices_size, const void* indices, uint indices_size, AValue* layout, uint layout_size, APrimitive primitive) {
+AMesh* amesh_init_dynamic(AMesh* mesh, ARenderer* renderer, AShader* shader, uint vertices_size, uint vertex_size, uint* indices, uint indices_size, uint index_size, AValue* layout, uint layout_size, APrimitive primitive) {
 	mesh->primitive = primitive;
+	mesh->vertex_size = vertex_size;
+
+	mesh->vb = dx11_vb_create_dynamic(renderer->device, vertices_size, vertex_size);
+	mesh->ib = dx11_ib_create_static(renderer->device, indices, indices_size, index_size);
+	mesh->il = dx11_il_create(renderer->device, layout, layout_size, shader->vs_blob->lpVtbl->GetBufferPointer(shader->vs_blob), shader->vs_blob->lpVtbl->GetBufferSize(shader->vs_blob));
+
+	mesh->count = 0;
 	return mesh;
 }
 
@@ -55,8 +62,8 @@ void amesh_add_instance_buffer_dynamic(AMesh* mesh, uint vertices_size, AValue* 
 
 }
 
-void amesh_set_vertices(AMesh* mesh, const void* vertices, uint vertices_size) {
-
+void amesh_set_vertices(AMesh* mesh, ARenderer* renderer, const void* vertices, uint vertices_size) {
+	dx11_vb_set_data(mesh->vb, renderer->context, vertices, vertices_size);
 }
 
 void amesh_set_instance_data(AMesh* mesh, const void* vertices, uint vertices_size) {
@@ -90,10 +97,10 @@ void amesh_draw_elements_instanced(AMesh* mesh, int count, ARenderer* renderer) 
 }
 
 void amesh_set_count(AMesh* mesh, int count) {
-
+	mesh->count = count;
 }
 
 void amesh_add_count(AMesh* mesh, int count) {
-
+	mesh->count += count;
 }
 #endif

@@ -6,13 +6,9 @@
 #include "gl/gl_texture.h"
 #include "gl/gl_enums.h"
 
-ATexture* atexture_create(AWrap wrap, AFilter filter) {
+ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void* data) {
 	ATexture* texture = m_malloc(sizeof(ATexture));
 	texture->id = gl_texture_create(gl_awrap(wrap), gl_afilter(filter));
-	return texture;
-}
-
-ATexture* atexture_set_data(ATexture* texture, ARenderer* renderer, int width, int height, int channels, void* data) {
 	gl_texture_image2d(texture->id, width, height, channels, data);
 	return texture;
 }

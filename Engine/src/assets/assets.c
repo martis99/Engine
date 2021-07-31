@@ -70,7 +70,7 @@ Image* assets_image_get(Assets* assets, const char* name) {
 }
 
 Texture* assets_texture_create_from_image(Assets* assets, const char* name, Image* image, AWrap wrap, AFilter filter) {
-	return texture_create_from_image(dic_add(assets->textures, name), assets->renderer, image, wrap, filter);
+	return texture_create(dic_add(assets->textures, name), assets->renderer, image, wrap, filter);
 }
 
 Texture* assets_texture_get(Assets* assets, const char* name) {
@@ -78,7 +78,7 @@ Texture* assets_texture_get(Assets* assets, const char* name) {
 }
 
 Font* assets_font_load(Assets* assets, const char* name, const char* path, int size) {
-	return font_load(dic_add(assets->fonts, name), assets, path, size);
+	return font_load(dic_add(assets->fonts, name), assets->renderer, path, size);
 }
 
 Font* assets_font_get(Assets* assets, const char* name) {

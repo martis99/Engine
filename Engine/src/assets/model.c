@@ -167,7 +167,7 @@ static void process_textures(Model* model, Renderer* renderer, Material* materia
 		char* file = merge(path, str.data);
 		print_texture_type(type, file, depth, print);
 		Image* image = image_load(arr_add(&model->images), file);
-		Texture* texture = texture_create_from_image(arr_add(&model->textures), renderer, image, A_REPEAT, A_LINEAR);
+		Texture* texture = texture_create(arr_add(&model->textures), renderer, image, A_REPEAT, A_LINEAR);
 		material_add_texture(material, texture);
 
 		m_free(file, strlen(file) + 1);
@@ -185,7 +185,7 @@ static void process_textures(Model* model, Renderer* renderer, Material* materia
 			data = (uint)0xffffffff;
 		}
 		image_set_data(image, (unsigned char*)&data);
-		Texture* texture = texture_create_from_image(arr_add(&model->textures), renderer, image, A_CLAMP_TO_EDGE, A_NEAREST);
+		Texture* texture = texture_create(arr_add(&model->textures), renderer, image, A_CLAMP_TO_EDGE, A_NEAREST);
 		material_add_texture(material, texture);
 	}
 }

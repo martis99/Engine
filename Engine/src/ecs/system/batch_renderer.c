@@ -37,7 +37,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* re
 	}
 
 	mesh_create(&batch_renderer->mesh);
-	mesh_init_dynamic(&batch_renderer->mesh, renderer, batch_renderer->shader, MAX_VERTICES * (uint)vertex_size, indices, MAX_INDICES * sizeof(uint), A_TRIANGLES);
+	mesh_init_dynamic(&batch_renderer->mesh, renderer, batch_renderer->shader, MAX_VERTICES * (uint)vertex_size, (uint)vertex_size, indices, MAX_INDICES * sizeof(uint), sizeof(uint), A_TRIANGLES);
 
 	mesh_set_count(&batch_renderer->mesh, 0);
 
@@ -115,13 +115,14 @@ void batch_renderer_add_sub(BatchRenderer* batch_renderer, Transform* transform,
 }
 
 void batch_renderer_submit(BatchRenderer* batch_renderer) {
-	mesh_set_vertices(&batch_renderer->mesh, batch_renderer->vertices, batch_renderer->vertices_count * (uint)batch_renderer->vertex_size);
+	mesh_set_vertices(&batch_renderer->mesh, batch_renderer->renderer, batch_renderer->vertices, batch_renderer->vertices_count * (uint)batch_renderer->vertex_size);
 }
 
 void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer) {
 	shader_bind(batch_renderer->shader, batch_renderer->renderer);
 	mat4 model = transform_to_mat4(transform);
 	material_set_value(batch_renderer->material, 0, &model);
+	material_upload(batch_renderer->material, batch_renderer->renderer);
 	material_bind(batch_renderer->material, batch_renderer->renderer, 1);
 
 	for (uint i = 0; i < batch_renderer->textures_count; i++) {

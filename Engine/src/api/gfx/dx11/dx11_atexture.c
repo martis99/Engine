@@ -3,22 +3,19 @@
 #include "api/gfx/atexture.h"
 #include "dx11_astructs.h"
 #include "dx11/dx11_texture.h"
+#include "dx11_aenums.h"
 
-ATexture* atexture_create(AWrap wrap, AFilter filter) {
+ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void* data) {
 	ATexture* texture = m_malloc(sizeof(ATexture));
-	return texture;
-}
-
-ATexture* atexture_set_data(ATexture* texture, ARenderer* renderer, int width, int height, int channels, void* data) {
 	texture->texture = dx11_texture_create(renderer->device, width, height, channels, data);
 	texture->srv = dx11_srv_create(renderer->device, texture->texture);
-	texture->ss = dx11_ss_create(renderer->device);
+	texture->ss = dx11_ss_create(renderer->device, dx11_afilter(filter), dx11_awrap(wrap));
 	return texture;
 }
 
 void atexture_bind(ATexture* texture, ARenderer* renderer, uint slot) {
 	dx11_srv_bind(texture->srv, renderer->context, slot);
-	dx11_ss_bind(texture->ss, renderer->context);
+	dx11_ss_bind(texture->ss, renderer->context, slot);
 }
 
 void atexture_delete(ATexture* texture) {

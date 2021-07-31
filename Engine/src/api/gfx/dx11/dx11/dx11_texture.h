@@ -9,7 +9,7 @@ ID3D11ShaderResourceView* dx11_srv_create(ID3D11Device* device, ID3D11Texture2D*
 void dx11_srv_bind(ID3D11ShaderResourceView* srv, ID3D11DeviceContext* context, UINT slot);
 void dx11_srv_delete(ID3D11ShaderResourceView* srv);
 
-ID3D11SamplerState* dx11_ss_create(ID3D11Device* device);
-void dx11_ss_bind(ID3D11SamplerState* ss, ID3D11DeviceContext* context);
+ID3D11SamplerState* dx11_ss_create(ID3D11Device* device, D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE address);
+void dx11_ss_bind(ID3D11SamplerState* ss, ID3D11DeviceContext* context, UINT slot);
 void dx11_ss_delete(ID3D11SamplerState* ss);
 #endif

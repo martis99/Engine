@@ -65,14 +65,14 @@ void dx11_srv_delete(ID3D11ShaderResourceView* srv) {
 	}
 }
 
-ID3D11SamplerState* dx11_ss_create(ID3D11Device* device) {
+ID3D11SamplerState* dx11_ss_create(ID3D11Device* device, D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE address) {
 	ID3D11SamplerState* ss;
 
 	D3D11_SAMPLER_DESC sd = { 0 };
-	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.Filter = filter;
+	sd.AddressU = address;
+	sd.AddressV = address;
+	sd.AddressW = address;
 
 	HRESULT hr = device->lpVtbl->CreateSamplerState(device, &sd, &ss);
 	if (FAILED(hr)) {
@@ -83,8 +83,8 @@ ID3D11SamplerState* dx11_ss_create(ID3D11Device* device) {
 	return ss;
 }
 
-void dx11_ss_bind(ID3D11SamplerState* ss, ID3D11DeviceContext* context) {
-	context->lpVtbl->PSSetSamplers(context, 0, 1, &ss);
+void dx11_ss_bind(ID3D11SamplerState* ss, ID3D11DeviceContext* context, UINT slot) {
+	context->lpVtbl->PSSetSamplers(context, slot, 1, &ss);
 }
 
 void dx11_ss_delete(ID3D11SamplerState* ss) {

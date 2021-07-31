@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "assets.h"
 #include "image.h"
+#include "texture.h"
 
 static Font* load_data(Font* font, const char* path) {
 	FILE* file;
@@ -82,7 +82,7 @@ static void sort_characters(Font* font, int* map) {
 	}
 }
 
-static Texture* create_texture(Font* font, Assets* assets, float scale, int area) {
+static Texture* create_texture(Font* font, Renderer* renderer, float scale, int area) {
 	int map[CHARACTERS_COUNT];
 	sort_characters(font, map);
 
@@ -110,12 +110,13 @@ static Texture* create_texture(Font* font, Assets* assets, float scale, int area
 		x += fc->size.x;
 	}
 
-	Texture* texture = assets_texture_create_from_image(assets, "font", &img, A_CLAMP_TO_EDGE, A_NEAREST);
+	font->texture = m_malloc(sizeof(Texture));
+	Texture* texture = texture_create(font->texture, renderer, &img, A_CLAMP_TO_EDGE, A_NEAREST);
 	image_delete(&img);
 	return texture;
 }
 
-Font* font_load(Font* font, Assets* assets, const char* path, int size) {
+Font* font_load(Font* font, Renderer* renderer, const char* path, int size) {
 	if (load_data(font, path) == NULL) {
 		log_error("Failed to load font");
 		return NULL;
@@ -132,7 +133,7 @@ Font* font_load(Font* font, Assets* assets, const char* path, int size) {
 
 	int area;
 	load_characters(font, scale, &area);
-	font->texture = create_texture(font, (Assets*)assets, scale, area);
+	font->texture = create_texture(font, renderer, scale, area);
 	return font;
 }
 
@@ -141,5 +142,7 @@ FontCharacter font_get_char(Font* font, char c) {
 }
 
 void font_delete(Font* font) {
+	texture_delete(font->texture);
+	m_free(font->texture, sizeof(Texture));
 	m_free(font->data, font->data_size);
 }

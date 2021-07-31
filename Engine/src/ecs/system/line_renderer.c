@@ -65,7 +65,7 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 	line_renderer->vertices_count = 0;
 
 	mesh_create(&line_renderer->mesh);
-	mesh_init_dynamic(&line_renderer->mesh, renderer, &line_renderer->shader, MAX_VERTICES * sizeof(LineVertex), NULL, 0, A_LINES);
+	mesh_init_dynamic(&line_renderer->mesh, renderer, &line_renderer->shader, MAX_VERTICES * sizeof(LineVertex), sizeof(LineVertex), NULL, 0, 0, A_LINES);
 
 	mesh_set_count(&line_renderer->mesh, 0);
 
@@ -96,7 +96,7 @@ void line_renderer_add(LineRenderer* line_renderer, vec3 start, vec3 end, vec4 c
 }
 
 void line_renderer_submit(LineRenderer* line_renderer) {
-	mesh_set_vertices(&line_renderer->mesh, line_renderer->vertices, line_renderer->vertices_count * sizeof(LineVertex));
+	mesh_set_vertices(&line_renderer->mesh, line_renderer->renderer, line_renderer->vertices, line_renderer->vertices_count * sizeof(LineVertex));
 }
 
 void line_renderer_render(LineRenderer* line_renderer) {

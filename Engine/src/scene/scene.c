@@ -50,16 +50,16 @@ struct Scene {
 };
 
 static void create_systems(Scene* scene) {
-	if (mesh_renderer_create(&scene->mesh_renderer, scene->renderer) == NULL) {
+	/*if (mesh_renderer_create(&scene->mesh_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create mesh renderer");
-	}
+	}*/
 
 	Transform sprite_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (sprite_renderer_create(&scene->sprite_renderer, scene->renderer, sprite_transform) == NULL) {
 		log_error("Failed to create sprite renderer");
 	}
 
-	Transform text_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+	/*Transform text_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (text_renderer_create(&scene->text_renderer, scene->renderer, text_transform) == NULL) {
 		log_error("Failed to create text renderer");
 	}
@@ -74,7 +74,7 @@ static void create_systems(Scene* scene) {
 
 	if (model_renderer_create(&scene->model_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create model renderer");
-	}
+	}*/
 }
 
 static void create_assets(Scene* scene) {
@@ -111,7 +111,7 @@ static void create_entities2d(Scene* scene) {
 		ecs_add(&scene->ecs, panel.id, C_CONSTRAINTS, &constraints);
 		ecs_add(&scene->ecs, panel.id, C_SPRITE, &sprite);
 	}
-	{
+	/* {
 		Entity entity = ecs_entity(&scene->ecs);
 		Transform transform = transform_create_2d((vec2i) { 0, 10 }, 0.0f, (vec2i) { 500, 50 });
 		Constraints constraints = constraints_create(-1, -1);
@@ -124,7 +124,7 @@ static void create_entities2d(Scene* scene) {
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, entity.id, C_CONSTRAINTS, &constraints);
 		ecs_add(&scene->ecs, entity.id, C_TEXT, &text);
-	}
+	}*/
 	{
 		Entity entity = ecs_entity(&scene->ecs);
 		Transform transform = transform_create_2d((vec2i) { 10, 500 }, 0.0f, (vec2i) { texture_mountains->width / 8, texture_mountains->height / 8 });
@@ -247,8 +247,8 @@ static void create_entities(Scene* scene) {
 		log_error("Failed to create ecs");
 	}
 
-	test(scene);
-	//create_entities2d(scene);
+	//test(scene);
+	create_entities2d(scene);
 	//create_entities3d(scene);
 }
 
@@ -269,23 +269,15 @@ static void create_camera(Scene* scene, float width, float height) {
 	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f);
 }
 
-Shader shader;
-Mesh mesh;
-Image image;
-Image image2;
-Texture texture;
-Texture texture2;
-Material material;
-
 Scene* scene_create(float width, float height, Renderer* renderer) {
 	Scene* scene = m_malloc(sizeof(Scene));
 	scene->renderer = renderer;
 
-	/*assets_create(&scene->assets, renderer);
+	assets_create(&scene->assets, renderer);
 	create_assets(scene);
 	create_systems(scene);
 
-	Texture* texture_white = assets_texture_get(&scene->assets, "white");
+	/*Texture* texture_white = assets_texture_get(&scene->assets, "white");
 	Texture* texture_container = assets_texture_get(&scene->assets, "container");
 
 	vec4 color_white = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -296,135 +288,47 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	Material* material_container = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "container", texture_container, color_white);
 
 	Material* material_orange_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "orange_inst", texture_white, color_orange);
-	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);
+	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);*/
 
-	create_entities(scene);*/
+	create_entities(scene);
 
 	create_camera(scene, width, height);
 
 	AValue uniforms[] = {
-		{"ViewProjection", MAT4F}
+	{"ViewProjection", MAT4F}
 	};
 
 	uniformbuffer_create_dynamic(&scene->u_camera, renderer, uniforms, sizeof(uniforms));
 
-	image_load(&image, "res/images/container.jpg");
-	image_load(&image2, "res/images/mountains.jpg");
-	texture_create_from_image(&texture, scene->renderer, &image, A_REPEAT, A_LINEAR);
-	texture_create_from_image(&texture2, scene->renderer, &image2, A_REPEAT, A_LINEAR);
-
-#ifdef GAPI_DX11
-	const char* vert =
-		"cbuffer Camera {\n"
-		"	row_major matrix view_projection;\n"
-		"};\n"
-		"cbuffer Object {\n"
-		"	row_major matrix model;\n"
-		"};\n"
-		"struct VSOut {\n"
-		"	float2 tex : TexCoord;\n"
-		"	float4 pos : SV_Position;\n"
-		"};\n"
-		"VSOut main( float3 pos : Position, float2 tex : TexCoord ) {\n"
-		"	VSOut vso;\n"
-		"	vso.pos = mul(float4(pos, 1.0f), mul(model, view_projection));\n"
-		"	vso.tex = tex;\n"
-		"	return vso;\n"
-		"}\0";
-
-	const char* frag =
-		"Texture2D tex[2];\n"
-		"SamplerState splr;\n"
-		"float4 main(float2 tc : TexCoord) : SV_TARGET {\n"
-		"	return tex[1].Sample(splr, tc);\n"
-		"}\0";
-#else
-	const char* vert =
-		"#version 330 core\n"
-		"layout (location = 0) in vec3 a_pos;\n"
-		"layout (location = 1) in vec2 a_tex_coord;\n"
-		"layout (std140) uniform Camera {\n"
-		"	mat4 u_view_projection;\n"
-		"};\n"
-		"out vec2 v_tex_coord;\n"
-		"uniform mat4 u_model;\n"
-		"void main() {\n"
-		"	gl_Position = u_view_projection * u_model * vec4(a_pos.x, a_pos.y, -a_pos.z, 1.0);\n"
-		"	v_tex_coord = a_tex_coord;\n"
-		"}\0";
-
-	const char* frag =
-		"#version 330 core\n"
-		"layout (location = 0) out vec4 FragColor;\n"
-		"in vec2 v_tex_coord;\n"
-		"uniform sampler2D u_textures[16];"
-		"void main() {\n"
-		"	FragColor = texture(u_textures[1], v_tex_coord);\n"
-		"}\0";
-
-#endif
-	AValue layout[] = {
-		{"Position", VEC3F},
-		{"TexCoord", VEC2F}
-	};
-
-	AValue props[] = {
-		{"u_model", MAT4F}
-	};
-	
-	shader_create(&shader, scene->renderer, vert, frag, layout, sizeof(layout), props, sizeof(props), "u_textures", 16);
-
-	material_create(&material, scene->renderer, &shader);
-
-	material_add_texture(&material, &texture);
-	material_add_texture(&material, &texture2);
-
-	mesh_create(&mesh);
-	mesh_init_quad(&mesh, renderer, &shader);
-	
 	return scene;
 }
 
 void scene_delete(Scene* scene) {
 	uniformbuffer_delete(&scene->u_camera);
 
-	shader_delete(&shader);
-	mesh_delete(&mesh);
-	texture_delete(&texture);
-	texture_delete(&texture2);
-	image_delete(&image);
-	image_delete(&image2);
-	material_delete(&material);
-
-	/*mesh_renderer_delete(&scene->mesh_renderer);
+	//mesh_renderer_delete(&scene->mesh_renderer);
 	sprite_renderer_delete(&scene->sprite_renderer);
-	text_renderer_delete(&scene->text_renderer);
+	/*text_renderer_delete(&scene->text_renderer);
 	line_renderer_delete(&scene->line_renderer);
 	instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
-	model_renderer_delete(&scene->model_renderer);
+	model_renderer_delete(&scene->model_renderer);*/
 	ecs_delete(&scene->ecs);
-	assets_delete(&scene->assets);*/
+	assets_delete(&scene->assets);
 	m_free(scene, sizeof(Scene));
 }
 
 void scene_update(Scene* scene, float dt) {
-	/*text_renderer_calculate_preffered(&scene->ecs);
+	//text_renderer_calculate_preffered(&scene->ecs);
 	constraints_resolver_resolve(&scene->ecs);
 
-	if (is_key_pressed('R')) {
+	/*if (is_key_pressed('R')) {
 		((Transform*)ecs_get(&scene->ecs, scene->cube.id, C_TRANSFORM))->rotation.y -= 1.0f * dt;
 	}*/
 }
 
 void scene_render(Scene* scene, Renderer* renderer) {
-	shader_bind(&shader, renderer);
 	uniformbuffer_bind(&scene->u_camera, renderer, 0);
 	uniformbuffer_set_value(&scene->u_camera, 0, &scene->projection);
-
-	mat4 model = mat4_translation((vec3) {50, 0, 0});
-	material_set_value(&material, 0, &model);
-	material_upload(&material, renderer);
-	material_bind(&material, renderer, 1);
 	uniformbuffer_upload(&scene->u_camera, renderer);
 
 	/*mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
@@ -434,12 +338,10 @@ void scene_render(Scene* scene, Renderer* renderer) {
 
 	renderer_clear_depth(renderer);
 
-	uniformbuffer_set_data(scene->u_camera, &scene->projection, sizeof(mat4));
+	uniformbuffer_set_data(scene->u_camera, &scene->projection, sizeof(mat4));*/
 
 	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs);
-	text_renderer_render(&scene->text_renderer, &scene->ecs);*/
-
-	mesh_draw_elements(&mesh, renderer);
+	//text_renderer_render(&scene->text_renderer, &scene->ecs);*/
 }
 
 void scene_key_pressed(Scene* scene, byte key) {
