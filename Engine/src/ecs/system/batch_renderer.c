@@ -7,7 +7,6 @@
 #include "assets/material.h"
 #include "assets/texture.h"
 
-#define MAX_TEXTURES 16
 #define MAX_QUADS 200
 #define MAX_VERTICES MAX_QUADS * 4
 #define MAX_INDICES MAX_QUADS * 6
@@ -41,34 +40,17 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* re
 
 	mesh_set_count(&batch_renderer->mesh, 0);
 
-	batch_renderer->textures = m_malloc(MAX_TEXTURES * sizeof(Texture*));
-	batch_renderer->textures_count = 0;
-
 	return batch_renderer;
 }
 
 void batch_renderer_delete(BatchRenderer* batch_renderer) {
 	m_free(batch_renderer->vertices, MAX_VERTICES * batch_renderer->vertex_size);
-	m_free(batch_renderer->textures, MAX_TEXTURES * sizeof(Texture*));
 	mesh_delete(&batch_renderer->mesh);
 }
 
 void batch_renderer_clear(BatchRenderer* batch_renderer) {
 	batch_renderer->vertices_count = 0;
-	batch_renderer->textures_count = 0;
 	mesh_set_count(&batch_renderer->mesh, 0);
-}
-
-static uint add_texture(BatchRenderer* batch_renderer, Texture* texture) {
-	for (uint i = 0; i < batch_renderer->textures_count; i++) {
-		if (batch_renderer->textures[i] == texture) {
-			return i;
-		}
-	}
-
-	batch_renderer->textures[batch_renderer->textures_count] = texture;
-	batch_renderer->textures_count++;
-	return batch_renderer->textures_count - 1;
 }
 
 static void add_quad(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec2* tex_coords, void* data, void(*add_vertex)(void*, vec3, vec2, int, void*)) {
@@ -79,7 +61,7 @@ static void add_quad(BatchRenderer* batch_renderer, Transform* transform, Textur
 		{ 0.0f, 0.0f, 0.0f }
 	};
 
-	uint tex_index = add_texture(batch_renderer, texture);
+	uint tex_index = material_add_texture(batch_renderer->material, texture);
 	for (int i = 0; i < 4; i++) {
 		int index = batch_renderer->vertices_count + i;
 		void* vertex = (byte*)batch_renderer->vertices + index * batch_renderer->vertex_size;
@@ -124,9 +106,5 @@ void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer) {
 	material_set_value(batch_renderer->material, 0, &model);
 	material_upload(batch_renderer->material, batch_renderer->renderer);
 	material_bind(batch_renderer->material, batch_renderer->renderer, 1);
-
-	for (uint i = 0; i < batch_renderer->textures_count; i++) {
-		texture_bind(batch_renderer->textures[i], batch_renderer->renderer, i);
-	}
 	mesh_draw_elements(&batch_renderer->mesh, batch_renderer->renderer);
 }

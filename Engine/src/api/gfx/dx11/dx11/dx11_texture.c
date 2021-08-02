@@ -5,12 +5,19 @@
 ID3D11Texture2D* dx11_texture_create(ID3D11Device* device, UINT width, UINT height, UINT channels, const void* data) {
 	ID3D11Texture2D* texture;
 
+	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	switch (channels) {
+	case 1: format = DXGI_FORMAT_R8_UNORM; break;
+	case 2: format = DXGI_FORMAT_R8G8_UNORM; break;
+	case 4: format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
+	}
+
 	D3D11_TEXTURE2D_DESC td = { 0 };
 	td.Width = width;
 	td.Height = height;
 	td.MipLevels = 1;
 	td.ArraySize = 1;
-	td.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	td.Format = format;
 	td.SampleDesc.Count = 1;
 	td.SampleDesc.Quality = 0;
 	td.Usage = D3D11_USAGE_DEFAULT;
@@ -37,11 +44,18 @@ void dx11_texture_delete(ID3D11Texture2D* texture) {
 	}
 }
 
-ID3D11ShaderResourceView* dx11_srv_create(ID3D11Device* device, ID3D11Texture2D* texture) {
+ID3D11ShaderResourceView* dx11_srv_create(ID3D11Device* device, ID3D11Texture2D* texture, UINT channels) {
 	ID3D11ShaderResourceView* srv;
 
+	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	switch (channels) {
+	case 1: format = DXGI_FORMAT_R8_UNORM; break;
+	case 2: format = DXGI_FORMAT_R8G8_UNORM; break;
+	case 4: format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
+	}
+
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvd = { 0 };
-	srvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvd.Format = format;
 	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvd.Texture2D.MostDetailedMip = 0;
 	srvd.Texture2D.MipLevels = 1;

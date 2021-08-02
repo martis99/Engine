@@ -3,174 +3,131 @@
 #include "ecs/component/transform.h"
 #include "ecs/component/constraints.h"
 
-static void resolve_constraints_h(Ecs* ecs, Transform* transform, Constraints* constraints);
-static void resolve_constraints_v(Ecs* ecs, Transform* transform, Constraints* constraints);
-static void resolve_constraints_d(Ecs* ecs, Transform* transform, Constraints* constraints);
+static void resolve_constraints_x(Ecs* ecs, Transform* transform, Constraints* constraints);
+static void resolve_constraints_y(Ecs* ecs, Transform* transform, Constraints* constraints);
+static void resolve_constraints_z(Ecs* ecs, Transform* transform, Constraints* constraints);
 
-static Constraint* prepare_constraint_h(Ecs* ecs, Constraint* constraint, Transform** parent) {
+static Constraint* prepare_constraint_x(Ecs* ecs, Constraint* constraint, Transform** parent) {
 	if (constraint->enabled == 0) {
 		return constraint;
 	}
 
 	*parent = (Transform*)ecs_get(ecs, constraint->entity.id, C_TRANSFORM);
 	Constraints* parent_constraints = ((Constraints*)ecs_get(ecs, constraint->entity.id, C_CONSTRAINTS));
-	if (parent_constraints->r_h == 0) {
-		resolve_constraints_h(ecs, *parent, parent_constraints);
+	if (parent_constraints->resolved.x == 0) {
+		resolve_constraints_x(ecs, *parent, parent_constraints);
 	}
 
 	return constraint;
 }
 
-static Constraint* prepare_constraint_v(Ecs* ecs, Constraint* constraint, Transform** parent) {
+static Constraint* prepare_constraint_y(Ecs* ecs, Constraint* constraint, Transform** parent) {
 	if (constraint->enabled == 0) {
 		return constraint;
 	}
 
 	*parent = (Transform*)ecs_get(ecs, constraint->entity.id, C_TRANSFORM);
 	Constraints* parent_constraints = ((Constraints*)ecs_get(ecs, constraint->entity.id, C_CONSTRAINTS));
-	if (parent_constraints->r_v == 0) {
-		resolve_constraints_v(ecs, *parent, parent_constraints);
+	if (parent_constraints->resolved.y == 0) {
+		resolve_constraints_y(ecs, *parent, parent_constraints);
 	}
 
 	return constraint;
 }
 
-static Constraint* prepare_constraint_d(Ecs* ecs, Constraint* constraint, Transform** parent) {
+static Constraint* prepare_constraint_z(Ecs* ecs, Constraint* constraint, Transform** parent) {
 	if (constraint->enabled == 0) {
 		return constraint;
 	}
 
 	*parent = (Transform*)ecs_get(ecs, constraint->entity.id, C_TRANSFORM);
 	Constraints* parent_constraints = ((Constraints*)ecs_get(ecs, constraint->entity.id, C_CONSTRAINTS));
-	if (parent_constraints->r_d == 0) {
-		resolve_constraints_d(ecs, *parent, parent_constraints);
+	if (parent_constraints->resolved.z == 0) {
+		resolve_constraints_z(ecs, *parent, parent_constraints);
 	}
 
 	return constraint;
 }
 
-static void resolve_constraints_h(Ecs* ecs, Transform* transform, Constraints* constraints) {
-	Transform* lp, * rp;
-	Constraint* l = prepare_constraint_h(ecs, &constraints->l, &lp);
-	Constraint* r = prepare_constraint_h(ecs, &constraints->r, &rp);
-
-	int w = constraints->w;
-	if (l->enabled && r->enabled) {
-		float min = lp->position.x + (l->pos * lp->scale.x) + l->distance;
-		float max = rp->position.x + (r->pos * rp->scale.x) - r->distance;
-		if (w == -1) {
-			transform->position.x = min + (max - min - transform->scale_pref.x) / 2;
-			transform->scale.x = transform->scale_pref.x;
-		} else if (w == 0) {
-			transform->position.x = min;
-			transform->scale.x = max - min;
+static void calculate(float min, float max, Constraint* minc, Constraint* maxc, float size, float pref_scale, float* pos, float* scale) {
+	if (minc->enabled && maxc->enabled) {
+		if (size == -1) {
+			*pos = min + (max - min - pref_scale) / 2;
+			*scale = pref_scale;
+		} else if (size == 0) {
+			*pos = min;
+			*scale = max - min;
 		} else {
-			transform->position.x = min + (max - min - w) / 2;
-			transform->scale.x = (float)w;
+			*pos = min + (max - min - size) / 2;
+			*scale = size;
 		}
-	} else if (l->enabled) {
-		if (w == -1) {
-			float min = lp->position.x + (l->pos * lp->scale.x) + l->distance;
-			transform->position.x = min;
-			transform->scale.x = transform->scale_pref.x;
+	} else if (minc->enabled) {
+		if (size == -1) {
+			*pos = min;
+			*scale = pref_scale;
 		} else {
-			float min = lp->position.x + (l->pos * lp->scale.x) + l->distance;
-			transform->position.x = min;
-			transform->scale.x = (float)w;
+			*pos = min;
+			*scale = size;
 		}
-	} else if (r->enabled) {
-		if (w == -1) {
-			float max = rp->position.x + (r->pos * rp->scale.x) - r->distance;
-			transform->position.x = max - transform->scale_pref.x;;
-			transform->scale.x = transform->scale_pref.x;
+	} else if (maxc->enabled) {
+		if (size == -1) {
+			*pos = max - pref_scale;
+			*scale = pref_scale;
 		} else {
-			float max = rp->position.x + (r->pos * rp->scale.x) - r->distance;
-			transform->position.x = max - w;
-			transform->scale.x = (float)w;
+			*pos = max - size;
+			*scale = size;
 		}
 	} else {
-		if (w == -1) {
-			transform->scale.x = transform->scale_pref.x;
+		if (size == -1) {
+			*scale = pref_scale;
 		}
 	}
-	constraints->r_h = 1;
 }
 
-static void resolve_constraints_v(Ecs* ecs, Transform* transform, Constraints* constraints) {
-	Transform* up, * dp;
-	Constraint* u = prepare_constraint_v(ecs, &constraints->u, &up);
-	Constraint* d = prepare_constraint_v(ecs, &constraints->d, &dp);
-	int h = constraints->h;
+static void resolve_constraints_x(Ecs* ecs, Transform* transform, Constraints* constraints) {
+	Transform* mint, * maxt;
+	Constraint* minc = prepare_constraint_x(ecs, &constraints->l, &mint);
+	Constraint* maxc = prepare_constraint_x(ecs, &constraints->r, &maxt);
 
-	if (u->enabled && d->enabled) {
-		float min = up->position.y + (u->pos * up->scale.y) + u->distance;
-		float max = dp->position.y + (d->pos * dp->scale.y) - d->distance;
-		if (h == -1) {
-			transform->position.y = min + (max - min - transform->scale_pref.y) / 2;
-			transform->scale.y = transform->scale_pref.y;
-		} else if (h == 0) {
-			transform->position.y = min;
-			transform->scale.y = max - min;
-		} else {
-			transform->position.y = min + (max - min - h) / 2;
-			transform->scale.y = (float)h;
-		}
-	} else if (u->enabled) {
-		if (h == -1) {
-			float min = up->position.y + (u->pos * up->scale.y) + u->distance;
-			transform->position.y = min;
-			transform->scale.y = transform->scale_pref.y;
-		} else {
-			float min = up->position.y + (u->pos * up->scale.y) + u->distance;
-			transform->position.y = min;
-			transform->scale.y = (float)h;
-		}
-	} else if (d->enabled) {
-		if (h == -1) {
-			float max = dp->position.y + (d->pos * dp->scale.y) - d->distance;
-			transform->position.y = max - h;
-			transform->scale.y = transform->scale_pref.y;
-		} else {
-			float max = dp->position.y + (d->pos * dp->scale.y) - d->distance;
-			transform->position.y = max - transform->scale_pref.y;
-			transform->scale.y = transform->scale_pref.y;
-		}
-	} else {
-		if (h == -1) {
-			transform->scale.y = transform->scale_pref.y;
-		}
-	}
-
-	constraints->r_v = 1;
+	float min = minc->enabled ? mint->position.x + (minc->pos * mint->scale.x) + minc->distance : 0.0f;
+	float max = maxc->enabled ? maxt->position.x + (maxc->pos * maxt->scale.x) - maxc->distance : 0.0f;
+	calculate(min, max, minc, maxc, constraints->size.x, transform->scale_pref.x, &transform->position.x, &transform->scale.x);
+	constraints->resolved.x = 1;
 }
 
-static void resolve_constraints_d(Ecs* ecs, Transform* transform, Constraints* constraints) {
-	Transform* fp, * bp;
-	Constraint* f = prepare_constraint_d(ecs, &constraints->f, &fp);
-	Constraint* b = prepare_constraint_d(ecs, &constraints->b, &bp);
+static void resolve_constraints_y(Ecs* ecs, Transform* transform, Constraints* constraints) {
+	Transform* mint, * maxt;
+	Constraint* minc = prepare_constraint_y(ecs, &constraints->u, &mint);
+	Constraint* maxc = prepare_constraint_y(ecs, &constraints->d, &maxt);
 
-	if (b->enabled == 1) {
-		transform->position.z = bp->position.z + 0.1f;
-	}
-	if (f->enabled == 1) {
-		transform->position.z = bp->position.z - 0.1f;
-	}
-	constraints->r_d = 1;
+	float min = minc->enabled ? mint->position.y + (minc->pos * mint->scale.y) + minc->distance : 0.0f;
+	float max = maxc->enabled ? maxt->position.y + (maxc->pos * maxt->scale.y) - maxc->distance : 0.0f;
+	calculate(min, max, minc, maxc, constraints->size.y, transform->scale_pref.y, &transform->position.y, &transform->scale.y);
+	constraints->resolved.y = 1;
+}
+
+static void resolve_constraints_z(Ecs* ecs, Transform* transform, Constraints* constraints) {
+	Transform* mint, * maxt;
+	Constraint* minc = prepare_constraint_z(ecs, &constraints->b, &mint);
+	Constraint* maxc = prepare_constraint_z(ecs, &constraints->f, &maxt);
+
+	float min = minc->enabled ? mint->position.z + (minc->pos * mint->scale.z) + minc->distance : 0.0f;
+	float max = maxc->enabled ? maxt->position.z + (maxc->pos * maxt->scale.z) - maxc->distance : 0.0f;
+	calculate(min, max, minc, maxc, constraints->size.z, transform->scale_pref.z, &transform->position.z, &transform->scale.z);
+	constraints->resolved.z = 1;
 }
 
 static void resolve_constraints(Ecs* ecs, Transform* transform, Constraints* constraints) {
-	resolve_constraints_h(ecs, transform, constraints);
-	resolve_constraints_v(ecs, transform, constraints);
-	resolve_constraints_d(ecs, transform, constraints);
+	resolve_constraints_x(ecs, transform, constraints);
+	resolve_constraints_y(ecs, transform, constraints);
+	resolve_constraints_z(ecs, transform, constraints);
 }
 
 void constraints_resolver_resolve(Ecs* ecs) {
 	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_CONSTRAINTS);
 	for (uint i = 0; i < qr->count; ++i) {
 		Constraints* constraints = (Constraints*)ecs_get(ecs, qr->list[i], C_CONSTRAINTS);
-		constraints->r_h = 0;
-		constraints->r_v = 0;
-		constraints->r_d = 0;
+		constraints->resolved = (vec3){ 0, 0, 0 };
 	}
 
 	for (uint i = 0; i < qr->count; ++i) {

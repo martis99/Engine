@@ -5,7 +5,7 @@
 ID3D11Texture2D* dx11_texture_create(ID3D11Device* device, UINT width, UINT height, UINT channels, const void* data);
 void dx11_texture_delete(ID3D11Texture2D* texture);
 
-ID3D11ShaderResourceView* dx11_srv_create(ID3D11Device* device, ID3D11Texture2D* texture);
+ID3D11ShaderResourceView* dx11_srv_create(ID3D11Device* device, ID3D11Texture2D* texture, UINT channels);
 void dx11_srv_bind(ID3D11ShaderResourceView* srv, ID3D11DeviceContext* context, UINT slot);
 void dx11_srv_delete(ID3D11ShaderResourceView* srv);
 

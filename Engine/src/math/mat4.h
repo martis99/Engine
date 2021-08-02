@@ -25,7 +25,7 @@ vec3 mat4_mul_vec3(mat4 m, vec3 v);
 vec4 mat4_mul_vec4(mat4 m, vec4 v);
 
 mat4 mat4_perspective(float fovy, float aspect, float zNear, float zFar);
-mat4 mat4_ortho(float left, float right, float bottom, float top);
+mat4 mat4_ortho(float left, float right, float bottom, float top, float near, float far);
 
 mat4 mat4_look_at_lh(vec3 eye, vec3 center, vec3 up);
 mat4 mat4_look_at_rh(vec3 eye, vec3 center, vec3 up);

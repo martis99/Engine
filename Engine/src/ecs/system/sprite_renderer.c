@@ -50,7 +50,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		"out vec4     VSprBorders;\n"
 		"out flat int VEntity;\n"
 		"void main() {\n"
-		"	gl_Position = ViewProjection * Model * vec4(Position.x, Position.y, -Position.z, 1.0);\n"
+		"	gl_Position = ViewProjection * Model * vec4(Position, 1.0);\n"
 		"	VColor = Color;\n"
 		"	VTexCoord = TexCoord;\n"
 		"	VTexSize = TexSize;\n"
@@ -233,6 +233,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		log_error("Failed to create sprite shader");
 		return NULL;
 	}
+
 	if (material_create(&sprite_renderer->material, renderer, &sprite_renderer->shader) == NULL) {
 		log_error("Failed to create sprite material");
 		return NULL;

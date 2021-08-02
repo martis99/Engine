@@ -24,61 +24,127 @@ typedef struct TextVertexData {
 TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* renderer, Transform transform) {
 	text_renderer->transform = transform;
 
+#ifdef GAPI_OPENGL
 	const char* src_vert =
 		"#version 330 core\n"
-		"layout (location = 0) in vec3 a_pos;\n"
-		"layout (location = 1) in vec4 a_color;\n"
-		"layout (location = 2) in vec2 a_tex_coord;\n"
-		"layout (location = 3) in int a_tex_index;\n"
-		"layout (location = 4) in int a_entity;\n"
+		"layout (location = 0) in vec3 Position;\n"
+		"layout (location = 1) in vec4 Color;\n"
+		"layout (location = 2) in vec2 TexCoord;\n"
+		"layout (location = 3) in int  TexId;\n"
+		"layout (location = 4) in int  Entity;\n"
 		"layout (std140) uniform Camera {\n"
-		"	mat4 u_view_projection;\n"
+		"	mat4 ViewProjection;\n"
 		"};\n"
-		"out vec4 v_color;\n"
-		"out vec2 v_tex_coord;\n"
-		"out flat int v_tex_index;\n"
-		"out flat int v_entity;\n"
-		"uniform mat4 u_model;\n"
+		"uniform mat4 Model;\n"
+		"out vec4     VColor;\n"
+		"out vec2     VTexCoord;\n"
+		"out flat int VTexId;\n"
+		"out flat int VEntity;\n"
 		"void main() {\n"
-		"	gl_Position = u_view_projection * u_model * vec4(a_pos.x, a_pos.y, -a_pos.z, 1.0);\n"
-		"	v_color = a_color;\n"
-		"	v_tex_coord = a_tex_coord;\n"
-		"	v_tex_index = a_tex_index;\n"
-		"	v_entity = a_entity;\n"
+		"	gl_Position = ViewProjection * Model * vec4(Position, 1.0);\n"
+		"	VColor = Color;\n"
+		"	VTexCoord = TexCoord;\n"
+		"	VTexId = TexId;\n"
+		"	VEntity = Entity;\n"
 		"}\0";
 
 	const char* src_frag =
 		"#version 330 core\n"
+		"uniform sampler2D Textures[16];"
 		"layout (location = 0) out vec4 FragColor;\n"
-		"layout (location = 1) out int color2;\n"
-		"in vec4 v_color;\n"
-		"in vec2 v_tex_coord;\n"
-		"in flat int v_tex_index;\n"
-		"in flat int v_entity;\n"
-		"uniform vec4 u_color;\n"
-		"uniform sampler2D u_textures[16];"
+		"layout (location = 1) out int EntityId;\n"
+		"in vec4     VColor;\n"
+		"in vec2     VTexCoord;\n"
+		"in flat int VTexId;\n"
+		"in flat int VEntity;\n"
+		"vec4 tex_color(int tex_id, vec2 tex_coord) {\n"
+		"	switch (tex_id) {\n"
+		"		case 0: return texture(Textures[0], tex_coord);\n"
+		"		case 1: return texture(Textures[1], tex_coord);\n"
+		"		case 2: return texture(Textures[2], tex_coord);\n"
+		"		case 3: return texture(Textures[3], tex_coord);\n"
+		"	}\n"
+		"	return vec4(1, 1, 1, 1);\n"
+		"}\n"
 		"void main() {\n"
-		"	FragColor = v_color * vec4(1.0f, 1.0f, 1.0f, texture(u_textures[v_tex_index], v_tex_coord).r);\n"
-		"	color2 = v_entity;\n"
+		"	FragColor = VColor * vec4(1.0f, 1.0f, 1.0f, tex_color(VTexId, VTexCoord).r);\n"
+		"	EntityId = VEntity;\n"
 		"}\0";
+#elif GAPI_DX11
+	const char* src_vert =
+		"cbuffer Camera {\n"
+		"	row_major matrix ViewProjection;\n"
+		"};\n"
+		"cbuffer Object {\n"
+		"	row_major matrix Model;\n"
+		"};\n"
+		"struct Input {\n"
+		"	float3 pos         : Position;\n"
+		"	float4 color       : Color;\n"
+		"	float2 tex_coord   : TexCoord;\n"
+		"	int    tex_id      : TexId;\n"
+		"	int    entity      : Entity;\n"
+		"};\n"
+		"struct Output {\n"
+		"	float4 pos         : SV_Position;\n"
+		"	float4 color       : Color;\n"
+		"	float2 tex_coord   : TexCoord;\n"
+		"	int    tex_id      : TexId;\n"
+		"	int    entity      : Entity;\n"
+		"};\n"
+		"Output main(Input input) {\n"
+		"	Output output;\n"
+		"	output.pos         = mul(float4(input.pos, 1.0f), mul(Model, ViewProjection));\n"
+		"	output.color       = input.color;\n"
+		"	output.tex_coord   = input.tex_coord;\n"
+		"	output.tex_id      = input.tex_id;\n"
+		"	output.entity      = input.entity;\n"
+		"	return output;\n"
+		"}\0";
+
+	const char* src_frag =
+		"Texture2D<float> Textures[4];\n"
+		"SamplerState Samplers[4];\n"
+		"struct Input {\n"
+		"	float4 pos         : SV_Position;\n"
+		"	float4 color       : Color;\n"
+		"	float2 tex_coord   : TexCoord;\n"
+		"	int    tex_id      : TexId;\n"
+		"	int    entity      : Entity;\n"
+		"};\n"
+		"float tex_color(int tex_id, float2 tex_coord) {\n"
+		"	switch (tex_id) {\n"
+		"		case 0: return Textures[0].Sample(Samplers[0], tex_coord);\n"
+		"		case 1: return Textures[1].Sample(Samplers[1], tex_coord);\n"
+		"		case 2: return Textures[2].Sample(Samplers[2], tex_coord);\n"
+		"		case 3: return Textures[3].Sample(Samplers[3], tex_coord);\n"
+		"	}\n"
+		"	return float4(1, 1, 1, 1);\n"
+		"}\n"
+		"float4 main(Input input) : SV_TARGET {\n"
+		"	float alpha = tex_color(input.tex_id, input.tex_coord);\n"
+		"	clip(alpha == 0 ? -1 : 1);\n"
+		"	return input.color * float4(1.0, 1.0, 1.0, tex_color(input.tex_id, input.tex_coord));\n"
+		"}\0";
+#endif
 
 	AValue layout[] = {
 		{"Position", VEC3F},
 		{"Color", VEC4F},
 		{"TexCoord", VEC2F},
-		{"TexIndex", VEC1I},
+		{"TexId", VEC1I},
 		{"Entity", VEC1I}
 	};
 
 	AValue props[] = {
-		{"u_model", MAT4F},
-		{"u_color", VEC4F},
+		{"Model", MAT4F}
 	};
 
 	if (shader_create(&text_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "u_textures", 16) == NULL) {
 		log_error("Failed to create text shader");
 		return NULL;
 	}
+
 	if (material_create(&text_renderer->material, renderer, &text_renderer->shader) == NULL) {
 		log_error("Failed to create text material");
 		return NULL;
@@ -112,7 +178,7 @@ static void calculate_preffered(Transform* transform, Text* text, Constraints* c
 		x += fc.advance;
 		if (i + 1 < strlen(text->text)) {
 			FontCharacter next = font_get_char(text->font, text->text[i + 1]);
-			if (constraints->w != -1 && x + next.offset.x + next.size.x > constraints->w) {
+			if (constraints->size.x != -1 && x + next.offset.x + next.size.x > constraints->size.x) {
 				x = 0;
 				y += text->font->line_height;
 				if (text->text[i + 1] == ' ') {

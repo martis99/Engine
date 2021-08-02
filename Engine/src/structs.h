@@ -38,12 +38,30 @@ typedef struct Framebuffer {
 	AFramebuffer* framebuffer;
 } Framebuffer;
 
+typedef struct Image {
+	int width;
+	int height;
+	int channels;
+	bool from_file;
+	unsigned char* data;
+} Image;
+
+typedef struct Texture {
+	ATexture* texture;
+	int width;
+	int height;
+	int channels;
+} Texture;
+
 typedef struct Shader {
 	AShader* shader;
 	AValue* layout;
 	uint layout_size;
 	AValue* props;
 	uint props_size;
+	Image default_image;
+	Texture default_texture;
+	uint num_textures;
 } Shader;
 
 typedef struct Renderer {
@@ -57,27 +75,13 @@ typedef struct Renderer {
 	bool wireframe;
 } Renderer;
 
-typedef struct Texture {
-	ATexture* texture;
-	int width;
-	int height;
-	int channels;
-} Texture;
-
 typedef struct Material {
 	Shader* shader;
 	AMaterial* material;
 	Texture** textures;
 	uint textures_count;
+	uint textures_cap;
 } Material;
-
-typedef struct Image {
-	int width;
-	int height;
-	int channels;
-	bool from_file;
-	unsigned char* data;
-} Image;
 
 typedef struct FontCharacter {
 	unsigned char c;
@@ -159,9 +163,9 @@ typedef struct Constraint {
 } Constraint;
 
 typedef struct Constraints {
-	bool r_h, r_v, r_d;
+	vec3 resolved;
+	vec3 size;
 	Constraint l, r, u, d, f, b;
-	int w, h;
 } Constraints;
 
 typedef struct InstanceComponent {
@@ -207,8 +211,6 @@ typedef struct BatchRenderer {
 	void* vertices;
 	uint vertices_count;
 	size_t vertex_size;
-	Texture** textures;
-	uint textures_count;
 } BatchRenderer;
 
 typedef struct InstanceRenderer {

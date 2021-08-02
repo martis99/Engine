@@ -27,6 +27,20 @@ ARenderer* arenderer_create(AContext* context) {
 	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsd.DepthFunc = D3D11_COMPARISON_LESS;
 
+	dsd.StencilEnable = TRUE;
+	dsd.StencilReadMask = 0xFF;
+	dsd.StencilWriteMask = 0xFF;
+
+	dsd.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsd.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	dsd.FrontFace.StencilPassOp = D3D10_STENCIL_OP_KEEP;
+	dsd.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	dsd.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	dsd.BackFace.StencilPassOp = D3D10_STENCIL_OP_KEEP;
+	dsd.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
 	hr = renderer->device->lpVtbl->CreateDepthStencilState(renderer->device, &dsd, &renderer->dsState);
 	if (FAILED(hr)) {
 		log_error("Failed to create depth stencil state");
@@ -117,6 +131,21 @@ ARenderer* arenderer_create(AContext* context) {
 	}
 
 	renderer->context->lpVtbl->RSSetState(renderer->context, renderer->raster_sc);
+
+	D3D11_BLEND_DESC bd = { 0 };
+	D3D11_RENDER_TARGET_BLEND_DESC* brt = &bd.RenderTarget[0];
+	brt->BlendEnable = TRUE;
+	brt->SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	brt->DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	brt->BlendOp = D3D11_BLEND_OP_ADD;
+	brt->SrcBlendAlpha = D3D11_BLEND_ZERO;
+	brt->DestBlendAlpha = D3D11_BLEND_ZERO;
+	brt->BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	brt->RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	renderer->device->lpVtbl->CreateBlendState(renderer->device, &bd, &renderer->blendState);
+
+	renderer->context->lpVtbl->OMSetBlendState(renderer->context, renderer->blendState, NULL, 0xFFFFFFFF);
 	return renderer;
 }
 
@@ -144,6 +173,9 @@ void arenderer_delete(ARenderer* renderer) {
 	}
 	if (renderer->raster_wc != NULL) {
 		renderer->raster_wc->lpVtbl->Release(renderer->raster_wc);
+	}
+	if (renderer->blendState != NULL) {
+		renderer->blendState->lpVtbl->Release(renderer->blendState);
 	}
 	m_free(renderer, sizeof(ARenderer));
 }

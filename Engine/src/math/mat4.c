@@ -170,13 +170,14 @@ mat4 mat4_perspective(float fovy, float aspect, float zNear, float zFar) {
 	return mat;
 }
 
-mat4 mat4_ortho(float left, float right, float bottom, float top) {
+mat4 mat4_ortho(float left, float right, float bottom, float top, float near, float far) {
 	mat4 mat = mat4_identity();
 	mat.a11 = 2.0f / (right - left);
 	mat.a22 = 2.0f / (top - bottom);
-	mat.a33 = -1.0f;
+	mat.a33 = -2.0f / (far - near);
 	mat.a41 = -(right + left) / (right - left);
 	mat.a42 = -(top + bottom) / (top - bottom);
+	mat.a43 = -(far + near) / (far - near);
 	return mat;
 }
 

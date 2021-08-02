@@ -59,11 +59,11 @@ static void create_systems(Scene* scene) {
 		log_error("Failed to create sprite renderer");
 	}
 
-	/*Transform text_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+	Transform text_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (text_renderer_create(&scene->text_renderer, scene->renderer, text_transform) == NULL) {
 		log_error("Failed to create text renderer");
 	}
-	Transform line_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+	/*Transform line_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (line_renderer_create(&scene->line_renderer, scene->renderer, line_transform) == NULL) {
 		log_error("Failed to create line renderer");
 	}
@@ -103,31 +103,32 @@ static void create_entities2d(Scene* scene) {
 	Entity panel = ecs_entity(&scene->ecs);
 	scene->panel = panel;
 	{
-		Transform transform = transform_create_2d((vec2i) { 10, 10 }, 0.0f, (vec2i) { 350, 400 });
+		Transform transform = transform_create((vec3) { 10, 10, 0 }, (vec3) { 0, 0, 0 }, (vec3) { 350, 400, 1 });
 		Sprite sprite = sprite_create(texture_gui, (vec4) { 1.0f, 1.0f, 1.0f, 1.0f }, (vec4) { 1, 10, 18, 10 });
-		Constraints constraints = constraints_create(0, 0);
+		Constraints constraints = constraints_create((vec3) { 0, 0, 0 });
 
 		ecs_add(&scene->ecs, panel.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, panel.id, C_CONSTRAINTS, &constraints);
 		ecs_add(&scene->ecs, panel.id, C_SPRITE, &sprite);
 	}
-	/* {
+	{
 		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create_2d((vec2i) { 0, 10 }, 0.0f, (vec2i) { 500, 50 });
-		Constraints constraints = constraints_create(-1, -1);
-		constraints_add_b(&constraints, constraint_create(panel, 0, 0));
-		constraints_add_l(&constraints, constraint_create(panel, 0, 5));
-		constraints_add_r(&constraints, constraint_create(panel, 1, 5));
-		constraints_add_u(&constraints, constraint_create(panel, 0, 3));
+		Transform transform = transform_create((vec3) { 0, 10, 0 }, (vec3) { 0, 0, 0 }, (vec3) { 0, 50, 1 });
+		Constraints constraints = constraints_create((vec3) { -1, -1, -1 });
+		constraints.b = constraint_create(panel, 0, 1);
+		constraints.l = constraint_create(panel, 0, 5);
+		constraints.r = constraint_create(panel, 1, 5);
+		constraints.u = constraint_create(panel, 0, 3);
+
 		Text text = text_create("The quick brown fox jumps over the lazy dog", font, (vec4) { 1, 1, 1, 1 });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, entity.id, C_CONSTRAINTS, &constraints);
 		ecs_add(&scene->ecs, entity.id, C_TEXT, &text);
-	}*/
+	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create_2d((vec2i) { 10, 500 }, 0.0f, (vec2i) { texture_mountains->width / 8, texture_mountains->height / 8 });
+		Transform transform = transform_create((vec3) { 10, 500, 0 }, (vec3) { 0, 0, 0 }, (vec3) { (float)texture_mountains->width / 8, (float)texture_mountains->height / 8, 1 });
 		Sprite sprite = sprite_create(texture_mountains, (vec4) { 1, 1, 1, 1 }, (vec4) { 0, 0, 0, 0 });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
@@ -135,7 +136,7 @@ static void create_entities2d(Scene* scene) {
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create_2d((vec2i) { 200, 500 }, 0.0f, (vec2i) { texture_mountains->width / 8, texture_mountains->height / 8 });
+		Transform transform = transform_create((vec3) { 200, 500, 0 }, (vec3) { 0, 0, 0 }, (vec3) { (float)texture_mountains->width / 8, (float)texture_mountains->height / 8, 1 });
 		Sprite sprite = sprite_create_sub(texture_mountains, (vec4) { 1, 1, 1, 1 }, (vec2i) { 320, 213 }, (vec2i) { 640, 426 });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
@@ -228,26 +229,11 @@ static void create_entities3d(Scene* scene) {
 	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 1.0f }, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f }, -1);
 }
 
-static void test(Scene* scene) {
-	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
-	Texture* texture_white = assets_texture_get(&scene->assets, "white");
-
-	{
-		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create_2d((vec2i) { 10, 500 }, 0.0f, (vec2i) { 1, 1 });
-		Sprite sprite = sprite_create(texture_white, (vec4) { 1, 1, 1, 1 }, (vec4) { 0, 0, 0, 0 });
-
-		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
-		ecs_add(&scene->ecs, entity.id, C_SPRITE, &sprite);
-	}
-}
-
 static void create_entities(Scene* scene) {
 	if (ecs_create(&scene->ecs, 7, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints), sizeof(InstanceComponent), sizeof(Model)) == NULL) {
 		log_error("Failed to create ecs");
 	}
 
-	//test(scene);
 	create_entities2d(scene);
 	//create_entities3d(scene);
 }
@@ -266,7 +252,7 @@ static void create_camera(Scene* scene, float width, float height) {
 	const vec3 camera_rotation = { 0.0f, 0.0f, 0.0f };
 	camera_create(&scene->camera, camera_position, camera_rotation, camera_settings);
 
-	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f);
+	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f, 1000.0, -1);
 }
 
 Scene* scene_create(float width, float height, Renderer* renderer) {
@@ -295,7 +281,7 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	create_camera(scene, width, height);
 
 	AValue uniforms[] = {
-	{"ViewProjection", MAT4F}
+		{"ViewProjection", MAT4F}
 	};
 
 	uniformbuffer_create_dynamic(&scene->u_camera, renderer, uniforms, sizeof(uniforms));
@@ -308,8 +294,8 @@ void scene_delete(Scene* scene) {
 
 	//mesh_renderer_delete(&scene->mesh_renderer);
 	sprite_renderer_delete(&scene->sprite_renderer);
-	/*text_renderer_delete(&scene->text_renderer);
-	line_renderer_delete(&scene->line_renderer);
+	text_renderer_delete(&scene->text_renderer);
+	/*line_renderer_delete(&scene->line_renderer);
 	instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
 	model_renderer_delete(&scene->model_renderer);*/
 	ecs_delete(&scene->ecs);
@@ -318,7 +304,7 @@ void scene_delete(Scene* scene) {
 }
 
 void scene_update(Scene* scene, float dt) {
-	//text_renderer_calculate_preffered(&scene->ecs);
+	text_renderer_calculate_preffered(&scene->ecs);
 	constraints_resolver_resolve(&scene->ecs);
 
 	/*if (is_key_pressed('R')) {
@@ -341,7 +327,7 @@ void scene_render(Scene* scene, Renderer* renderer) {
 	uniformbuffer_set_data(scene->u_camera, &scene->projection, sizeof(mat4));*/
 
 	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs);
-	//text_renderer_render(&scene->text_renderer, &scene->ecs);*/
+	text_renderer_render(&scene->text_renderer, &scene->ecs);
 }
 
 void scene_key_pressed(Scene* scene, byte key) {

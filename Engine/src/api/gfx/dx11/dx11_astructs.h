@@ -30,6 +30,7 @@ struct ARenderer {
 	ID3D11RasterizerState* raster_sc;
 	ID3D11RasterizerState* raster_w;
 	ID3D11RasterizerState* raster_wc;
+	ID3D11BlendState* blendState;
 };
 
 struct AShader {
