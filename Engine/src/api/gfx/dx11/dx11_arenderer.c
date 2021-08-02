@@ -78,8 +78,6 @@ ARenderer* arenderer_create(AContext* context) {
 
 	renderer->context->lpVtbl->OMSetRenderTargets(renderer->context, 1, &renderer->target, renderer->dsv);
 
-	renderer->context->lpVtbl->IASetPrimitiveTopology(renderer->context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	D3D11_VIEWPORT vp;
 	vp.Width = 1600;
 	vp.Height = 900;
@@ -188,7 +186,7 @@ void arenderer_clear_buffer_color(ARenderer* renderer) {
 }
 
 void arenderer_clear_buffer_depth(ARenderer* renderer) {
-
+	renderer->context->lpVtbl->ClearDepthStencilView(renderer->context, renderer->dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void arenderer_clear_color(ARenderer* renderer, float red, float green, float blue, float alpha) {

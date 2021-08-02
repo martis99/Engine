@@ -10,7 +10,7 @@ void mesh_add_instance_buffer_static(Mesh* mesh, const void* vertices, uint vert
 void mesh_add_instance_buffer_dynamic(Mesh* mesh, uint vertices_size, AValue* values, uint values_size);
 void mesh_set_vertices(Mesh* mesh, Renderer* renderer, const void* vertices, uint vertices_size);
 void mesh_set_instance_data(Mesh* mesh, const void* vertices, uint vertices_size);
-void mesh_set_indices(Mesh* mesh, const void* indices, uint indices_size);
+void mesh_set_indices(Mesh* mesh, Renderer* renderer, const void* indices, uint indices_size);
 void mesh_draw_arrays(Mesh* mesh, Renderer* renderer);
 void mesh_draw_elements(Mesh* mesh, Renderer* renderer);
 void mesh_draw_arrays_instanced(Mesh* mesh, int count, Renderer* renderer);

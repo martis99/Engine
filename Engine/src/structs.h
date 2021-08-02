@@ -228,7 +228,7 @@ typedef struct LineRenderer {
 	Renderer* renderer;
 	Transform transform;
 	Shader shader;
-	Material* material;
+	Material material;
 	Mesh mesh;
 	LineVertex* vertices;
 	uint vertices_count;

@@ -48,6 +48,7 @@ struct AMesh {
 	UINT count;
 	UINT vertex_size;
 	APrimitive primitive;
+	bool indexed;
 };
 
 struct ATexture {

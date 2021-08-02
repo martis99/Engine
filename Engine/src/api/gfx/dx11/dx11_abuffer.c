@@ -15,6 +15,7 @@ ABuffer* abuffer_create(AValue* values, uint values_size, AShader* shader) {
 		buffer->sizes[i] = type_size(values[i].type);
 		buffer->size += buffer->sizes[i];
 	}
+	buffer->size = (uint)(ceilf(buffer->size / 16.0f) * 16);
 	buffer->data = m_malloc(buffer->size);
 
 	return buffer;

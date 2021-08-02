@@ -69,7 +69,7 @@ void amesh_set_instance_data(AMesh* mesh, const void* vertices, uint vertices_si
 	gl_vb_set_data(mesh->ivb, vertices, vertices_size);
 }
 
-void amesh_set_indices(AMesh* mesh, const void* indices, uint indices_size) {
+void amesh_set_indices(AMesh* mesh, ARenderer* renderer, const void* indices, uint indices_size) {
 	gl_ib_set_data(mesh->ib, indices, indices_size);
 }
 

@@ -50,9 +50,9 @@ struct Scene {
 };
 
 static void create_systems(Scene* scene) {
-	/*if (mesh_renderer_create(&scene->mesh_renderer, scene->renderer) == NULL) {
+	if (mesh_renderer_create(&scene->mesh_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create mesh renderer");
-	}*/
+	}
 
 	Transform sprite_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (sprite_renderer_create(&scene->sprite_renderer, scene->renderer, sprite_transform) == NULL) {
@@ -63,18 +63,18 @@ static void create_systems(Scene* scene) {
 	if (text_renderer_create(&scene->text_renderer, scene->renderer, text_transform) == NULL) {
 		log_error("Failed to create text renderer");
 	}
-	/*Transform line_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+	Transform line_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (line_renderer_create(&scene->line_renderer, scene->renderer, line_transform) == NULL) {
 		log_error("Failed to create line renderer");
 	}
 
-	if (instance_renderer_create(&scene->instance_renderer, scene->renderer) == NULL) {
+	/*if (instance_renderer_create(&scene->instance_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create instance renderer");
-	}
+	}*/
 
 	if (model_renderer_create(&scene->model_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create model renderer");
-	}*/
+	}
 }
 
 static void create_assets(Scene* scene) {
@@ -194,7 +194,7 @@ static void create_entities3d(Scene* scene) {
 
 	{
 		Entity cube = ecs_entity(&scene->ecs);
-		Transform transform = transform_create((vec3) { 12.0f, 2.0f, 2.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+		Transform transform = transform_create((vec3) { 1.0f, 1.0f, 1.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 		MeshComponent mesh = mesh_component_create(mesh_cube, material_orange);
 
 		ecs_add(&scene->ecs, cube.id, C_TRANSFORM, &transform);
@@ -203,13 +203,13 @@ static void create_entities3d(Scene* scene) {
 	{
 		Entity cube = ecs_entity(&scene->ecs);
 		scene->cube = cube;
-		Transform transform = transform_create((vec3) { 15.0f, 2.0f, 2.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+		Transform transform = transform_create((vec3) { 2.0f, 2.0f, 2.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 		MeshComponent mesh = mesh_component_create(mesh_cube, material_container);
 
 		ecs_add(&scene->ecs, cube.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, cube.id, C_MESH, &mesh);
 	}
-	{
+	/* {
 		Entity cubes = ecs_entity(&scene->ecs);
 		Transform transform = transform_create((vec3) { 0.0f, 0.0f, 50.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.5f, 0.5f, 0.5f });
 		InstanceComponent instance = instance_component_create(mesh_cube, material_orange_inst, 10 * 10);
@@ -222,7 +222,7 @@ static void create_entities3d(Scene* scene) {
 
 		ecs_add(&scene->ecs, cubes.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, cubes.id, C_INSTANCE, &instance);
-	}
+	}*/
 
 	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 0.0f, 0.0f }, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }, -1);
 	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 1.0f, 0.0f }, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f }, -1);
@@ -235,7 +235,7 @@ static void create_entities(Scene* scene) {
 	}
 
 	create_entities2d(scene);
-	//create_entities3d(scene);
+	create_entities3d(scene);
 }
 
 static void create_camera(Scene* scene, float width, float height) {
@@ -263,7 +263,7 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	create_assets(scene);
 	create_systems(scene);
 
-	/*Texture* texture_white = assets_texture_get(&scene->assets, "white");
+	Texture* texture_white = assets_texture_get(&scene->assets, "white");
 	Texture* texture_container = assets_texture_get(&scene->assets, "container");
 
 	vec4 color_white = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -273,7 +273,7 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	Material* material_orange = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "orange", texture_white, color_orange);
 	Material* material_container = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "container", texture_container, color_white);
 
-	Material* material_orange_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "orange_inst", texture_white, color_orange);
+	/*Material* material_orange_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "orange_inst", texture_white, color_orange);
 	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);*/
 
 	create_entities(scene);
@@ -292,12 +292,12 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 void scene_delete(Scene* scene) {
 	uniformbuffer_delete(&scene->u_camera);
 
-	//mesh_renderer_delete(&scene->mesh_renderer);
+	mesh_renderer_delete(&scene->mesh_renderer);
 	sprite_renderer_delete(&scene->sprite_renderer);
 	text_renderer_delete(&scene->text_renderer);
-	/*line_renderer_delete(&scene->line_renderer);
-	instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
-	model_renderer_delete(&scene->model_renderer);*/
+	line_renderer_delete(&scene->line_renderer);
+	//instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
+	model_renderer_delete(&scene->model_renderer);
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
 	m_free(scene, sizeof(Scene));
@@ -314,17 +314,19 @@ void scene_update(Scene* scene, float dt) {
 
 void scene_render(Scene* scene, Renderer* renderer) {
 	uniformbuffer_bind(&scene->u_camera, renderer, 0);
-	uniformbuffer_set_value(&scene->u_camera, 0, &scene->projection);
+
+	uniformbuffer_set_value(&scene->u_camera, 0, &scene->camera.view_projection);
 	uniformbuffer_upload(&scene->u_camera, renderer);
 
-	/*mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
+	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
 	model_renderer_render(&scene->model_renderer, &scene->ecs);
-	instance_renderer_render(&scene->instance_renderer, &scene->ecs);
+	//instance_renderer_render(&scene->instance_renderer, &scene->ecs);
 	line_renderer_render(&scene->line_renderer);
 
 	renderer_clear_depth(renderer);
 
-	uniformbuffer_set_data(scene->u_camera, &scene->projection, sizeof(mat4));*/
+	uniformbuffer_set_value(&scene->u_camera, 0, &scene->projection);
+	uniformbuffer_upload(&scene->u_camera, renderer);
 
 	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs);
 	text_renderer_render(&scene->text_renderer, &scene->ecs);

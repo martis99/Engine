@@ -36,8 +36,8 @@ void mesh_set_instance_data(Mesh* mesh, const void* vertices, uint vertices_size
 	amesh_set_instance_data(mesh->mesh, vertices, vertices_size);
 }
 
-void mesh_set_indices(Mesh* mesh, const void* indices, uint indices_size) {
-	amesh_set_indices(mesh->mesh, indices, indices_size);
+void mesh_set_indices(Mesh* mesh, Renderer* renderer, const void* indices, uint indices_size) {
+	amesh_set_indices(mesh->mesh, renderer->renderer, indices, indices_size);
 }
 
 void mesh_draw_arrays(Mesh* mesh, Renderer* renderer) {

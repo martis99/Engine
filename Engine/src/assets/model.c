@@ -37,8 +37,10 @@ static void node_draw(Model* model, Renderer* renderer, Shader* shader, ModelNod
 	for (uint i = 0; i < node->meshes.count; i++) {
 		ModelMesh* mesh = arr_get(&node->meshes, i);
 		if (mesh->material >= 0) {
-			material_set_value(arr_get(&model->materials, mesh->material), 0, &trans);
-			material_bind(arr_get(&model->materials, mesh->material), renderer, 1);
+			Material* material = arr_get(&model->materials, mesh->material);
+			material_set_value(material, 0, &trans);
+			material_upload(material, renderer);
+			material_bind(material, renderer, 1);
 		}
 		mesh_draw_elements(mesh->mesh, renderer);
 	}
@@ -201,7 +203,7 @@ static void process_material(Model* model, Renderer* renderer, Shader* shader, M
 	struct aiColor4D diffuseColor;
 	aiGetMaterialColor(ai_material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColor);
 	vec4 diff = (vec4){ diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a };
-	material_set_value(material, 2, &diff);
+	material_set_value(material, 1, &diff);
 	if (print == 1) {
 		for (int i = 0; i < depth + 1; i++) {
 			printf("   ");
@@ -212,7 +214,7 @@ static void process_material(Model* model, Renderer* renderer, Shader* shader, M
 	struct aiColor4D specularColor;
 	aiGetMaterialColor(ai_material, AI_MATKEY_COLOR_SPECULAR, &specularColor);
 	vec4 spec = (vec4){ specularColor.r, specularColor.g, specularColor.b, specularColor.a };
-	material_set_value(material, 3, &spec);
+	material_set_value(material, 2, &spec);
 	if (print == 1) {
 		for (int i = 0; i < depth + 1; i++) {
 			printf("   ");
