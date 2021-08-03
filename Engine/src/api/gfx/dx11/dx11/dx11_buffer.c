@@ -139,27 +139,45 @@ static DXGI_FORMAT get_element_format(AType type) {
 	case VEC2F: return DXGI_FORMAT_R32G32_FLOAT;
 	case VEC3F: return DXGI_FORMAT_R32G32B32_FLOAT;
 	case VEC4F: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+	case MAT4F: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 	}
 	return 0;
 }
 
-ID3D11InputLayout* dx11_il_create(ID3D11Device* device, AValue* layout, UINT layout_size, const void* shader, SIZE_T shader_size) {
+ID3D11InputLayout* dx11_il_create(ID3D11Device* device, AValue* layout, UINT layout_size, AValue* instance, UINT instance_size, const void* shader, SIZE_T shader_size) {
 	ID3D11InputLayout* il;
 
-	UINT num_elements = layout_size / sizeof(AValue);
-	D3D11_INPUT_ELEMENT_DESC* ied = m_malloc(num_elements * sizeof(D3D11_INPUT_ELEMENT_DESC));
+	UINT num_layout = layout_size / sizeof(AValue);
 
-	for (UINT i = 0; i < num_elements; i++) {
-		ied[i] = (D3D11_INPUT_ELEMENT_DESC){ layout[i].name, 0, get_element_format(layout[i].type), 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 };
-	};
+	UINT num_instance = 0;
+	UINT num_instance_el = 0;
+	if (instance != NULL) {
+		num_instance = instance_size / sizeof(AValue);
+		num_instance_el = 4;
+	}
+	D3D11_INPUT_ELEMENT_DESC* ied = m_malloc((num_layout + num_instance_el) * sizeof(D3D11_INPUT_ELEMENT_DESC));
+	UINT index = 0;
+	for (UINT i = 0; i < num_layout; i++) {
+		ied[index++] = (D3D11_INPUT_ELEMENT_DESC){ layout[i].name, 0, get_element_format(layout[i].type), 0, i == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+	}
 
-	HRESULT hr = device->lpVtbl->CreateInputLayout(device, ied, num_elements, shader, shader_size, &il);
+	for (UINT i = 0; i < num_instance; i++) {
+		if (instance[i].type == MAT4F) {
+			for (int j = 0; j < 4; j++) {
+				ied[index++] = (D3D11_INPUT_ELEMENT_DESC){ instance[i].name, j, get_element_format(instance[i].type), 1, (i == 0 && j == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1 };
+			}
+		} else {
+			ied[index++] = (D3D11_INPUT_ELEMENT_DESC){ instance[i].name, i, get_element_format(instance[i].type), 1, i == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1 };
+		}
+	}
+
+	HRESULT hr = device->lpVtbl->CreateInputLayout(device, ied, num_layout + num_instance_el, shader, shader_size, &il);
 	if (FAILED(hr)) {
 		log_error("Failed to create input layout");
 		return NULL;
 	}
 
-	m_free(ied, num_elements * sizeof(D3D11_INPUT_ELEMENT_DESC));
+	m_free(ied, (num_layout + num_instance_el) * sizeof(D3D11_INPUT_ELEMENT_DESC));
 	return il;
 }
 

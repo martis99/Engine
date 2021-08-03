@@ -68,9 +68,9 @@ static void create_systems(Scene* scene) {
 		log_error("Failed to create line renderer");
 	}
 
-	/*if (instance_renderer_create(&scene->instance_renderer, scene->renderer) == NULL) {
+	if (instance_renderer_create(&scene->instance_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create instance renderer");
-	}*/
+	}
 
 	if (model_renderer_create(&scene->model_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create model renderer");
@@ -158,6 +158,9 @@ static void create_entities3d(Scene* scene) {
 	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
 	mesh_init_cube(mesh_cube, scene->renderer, &scene->mesh_renderer.shader);
 
+	Mesh* mesh_cube_inst = assets_mesh_create(&scene->assets, "cube2");
+	mesh_init_cube(mesh_cube_inst, scene->renderer, &scene->instance_renderer.shader);
+
 	Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", &scene->model_renderer.shader, 0, 0);
 	Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", &scene->model_renderer.shader, 1, 0);
 	Model* vampire = assets_model_load(&scene->assets, "vampire", "res/models/vampire/", "dancing_vampire.dae", &scene->model_renderer.shader, 0, 0);
@@ -209,10 +212,10 @@ static void create_entities3d(Scene* scene) {
 		ecs_add(&scene->ecs, cube.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, cube.id, C_MESH, &mesh);
 	}
-	/* {
+	{
 		Entity cubes = ecs_entity(&scene->ecs);
 		Transform transform = transform_create((vec3) { 0.0f, 0.0f, 50.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.5f, 0.5f, 0.5f });
-		InstanceComponent instance = instance_component_create(mesh_cube, material_orange_inst, 10 * 10);
+		InstanceComponent instance = instance_component_create(mesh_cube_inst, material_orange_inst, 10 * 10);
 		for (int x = 0; x < 10; x++) {
 			for (int y = 0; y < 10; y++) {
 				Transform transform = transform_create((vec3) { x * 3.0f, y * 3.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
@@ -222,7 +225,7 @@ static void create_entities3d(Scene* scene) {
 
 		ecs_add(&scene->ecs, cubes.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, cubes.id, C_INSTANCE, &instance);
-	}*/
+	}
 
 	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 0.0f, 0.0f }, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }, -1);
 	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 1.0f, 0.0f }, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f }, -1);
@@ -273,8 +276,8 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	Material* material_orange = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "orange", texture_white, color_orange);
 	Material* material_container = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "container", texture_container, color_white);
 
-	/*Material* material_orange_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "orange_inst", texture_white, color_orange);
-	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);*/
+	Material* material_orange_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "orange_inst", texture_white, color_orange);
+	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);
 
 	create_entities(scene);
 
@@ -296,7 +299,7 @@ void scene_delete(Scene* scene) {
 	sprite_renderer_delete(&scene->sprite_renderer);
 	text_renderer_delete(&scene->text_renderer);
 	line_renderer_delete(&scene->line_renderer);
-	//instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
+	instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
 	model_renderer_delete(&scene->model_renderer);
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
@@ -320,7 +323,7 @@ void scene_render(Scene* scene, Renderer* renderer) {
 
 	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
 	model_renderer_render(&scene->model_renderer, &scene->ecs);
-	//instance_renderer_render(&scene->instance_renderer, &scene->ecs);
+	instance_renderer_render(&scene->instance_renderer, &scene->ecs);
 	line_renderer_render(&scene->line_renderer);
 
 	renderer_clear_depth(renderer);

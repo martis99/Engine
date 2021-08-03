@@ -229,7 +229,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		{"Model", MAT4F}
 	};
 
-	if (shader_create(&sprite_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "Textures", 16) == NULL) {
+	if (shader_create(&sprite_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), NULL, 0, props, sizeof(props), "Textures", 16) == NULL) {
 		log_error("Failed to create sprite shader");
 		return NULL;
 	}

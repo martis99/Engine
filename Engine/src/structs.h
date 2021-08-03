@@ -57,6 +57,8 @@ typedef struct Shader {
 	AShader* shader;
 	AValue* layout;
 	uint layout_size;
+	AValue* instance;
+	uint instance_size;
 	AValue* props;
 	uint props_size;
 	Image default_image;

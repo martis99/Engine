@@ -87,7 +87,7 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 		{"Model", MAT4F},
 	};
 
-	if (shader_create(&line_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "", 1) == NULL) {
+	if (shader_create(&line_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), NULL, 0, props, sizeof(props), "", 1) == NULL) {
 		log_error("Failed to create line shader");
 		return NULL;
 	}

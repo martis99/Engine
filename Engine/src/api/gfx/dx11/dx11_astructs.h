@@ -43,6 +43,7 @@ struct AShader {
 struct AMesh {
 	ID3D11Buffer* vb;
 	ID3D11Buffer* ib;
+	ID3D11Buffer* ivb;
 	ID3D11InputLayout* il;
 
 	UINT count;

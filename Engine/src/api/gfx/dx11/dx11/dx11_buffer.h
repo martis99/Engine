@@ -22,7 +22,7 @@ void dx11_cb_bind_ps(ID3D11Buffer* cb, ID3D11DeviceContext* context, UINT slot);
 void dx11_cb_set_data(ID3D11Buffer* cb, ID3D11DeviceContext* context, const void* data, SIZE_T data_size);
 void dx11_cb_delete(ID3D11Buffer* cb);
 
-ID3D11InputLayout* dx11_il_create(ID3D11Device* device, AValue* layout, UINT layout_size, const void* shader, SIZE_T shader_size);
+ID3D11InputLayout* dx11_il_create(ID3D11Device* device, AValue* layout, UINT layout_size, AValue* instance, UINT instance_size, const void* shader, SIZE_T shader_size);
 void dx11_il_bind(ID3D11InputLayout* il, ID3D11DeviceContext* context);
 void dx11_il_delete(ID3D11InputLayout* il);
 

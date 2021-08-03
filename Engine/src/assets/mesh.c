@@ -13,27 +13,19 @@ void mesh_delete(Mesh* mesh) {
 }
 
 void mesh_init_static(Mesh* mesh, Renderer* renderer, Shader* shader, const void* vertices, uint vertices_size, uint vertex_size, uint* indices, uint indices_size, uint index_size, APrimitive primitive) {
-	amesh_init_static(mesh->mesh, renderer->renderer, shader->shader, vertices, vertices_size, vertex_size, indices, indices_size, index_size, shader->layout, shader->layout_size, primitive);
+	amesh_init_static(mesh->mesh, renderer->renderer, shader->shader, vertices, vertices_size, vertex_size, indices, indices_size, index_size, shader->layout, shader->layout_size, shader->instance, shader->instance_size, primitive);
 }
 
 void mesh_init_dynamic(Mesh* mesh, Renderer* renderer, Shader* shader, uint vertices_size, uint vertex_size, uint* indices, uint indices_size, uint index_size, APrimitive primitive) {
-	amesh_init_dynamic(mesh->mesh, renderer->renderer, shader->shader, vertices_size, vertex_size, indices, indices_size, index_size, shader->layout, shader->layout_size, primitive);
-}
-
-void mesh_add_instance_buffer_static(Mesh* mesh, const void* vertices, uint vertices_size, AValue* values, uint values_size) {
-	amesh_add_instance_buffer_static(mesh->mesh, vertices, vertices_size, values, values_size);
-}
-
-void mesh_add_instance_buffer_dynamic(Mesh* mesh, uint vertices_size, AValue* values, uint values_size) {
-	amesh_add_instance_buffer_dynamic(mesh->mesh, vertices_size, values, values_size);
+	amesh_init_dynamic(mesh->mesh, renderer->renderer, shader->shader, vertices_size, vertex_size, indices, indices_size, index_size, shader->layout, shader->layout_size, shader->instance, shader->instance_size, primitive);
 }
 
 void mesh_set_vertices(Mesh* mesh, Renderer* renderer, const void* vertices, uint vertices_size) {
 	amesh_set_vertices(mesh->mesh, renderer->renderer, vertices, vertices_size);
 }
 
-void mesh_set_instance_data(Mesh* mesh, const void* vertices, uint vertices_size) {
-	amesh_set_instance_data(mesh->mesh, vertices, vertices_size);
+void mesh_set_instances(Mesh* mesh, Renderer* renderer, const void* instances, uint instances_size) {
+	amesh_set_instances(mesh->mesh, renderer->renderer, instances, instances_size);
 }
 
 void mesh_set_indices(Mesh* mesh, Renderer* renderer, const void* indices, uint indices_size) {

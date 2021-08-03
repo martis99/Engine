@@ -99,7 +99,7 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 		{"Color", VEC4F}
 	};
 
-	if (shader_create(&mesh_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "Textures", 4) == NULL) {
+	if (shader_create(&mesh_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), NULL, 0, props, sizeof(props), "Textures", 4) == NULL) {
 		log_error("Failed to create mesh shader");
 		return NULL;
 	}

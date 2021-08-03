@@ -117,7 +117,7 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* re
 		{"Entity", VEC1I}
 	};
 
-	if (shader_create(&model_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "Textures", 4) == NULL) {
+	if (shader_create(&model_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), NULL, 0, props, sizeof(props), "Textures", 4) == NULL) {
 		log_error("Failed to create model shader");
 		return NULL;
 	}

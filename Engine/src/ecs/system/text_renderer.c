@@ -140,7 +140,7 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 		{"Model", MAT4F}
 	};
 
-	if (shader_create(&text_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), props, sizeof(props), "u_textures", 16) == NULL) {
+	if (shader_create(&text_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), NULL, 0, props, sizeof(props), "u_textures", 16) == NULL) {
 		log_error("Failed to create text shader");
 		return NULL;
 	}
