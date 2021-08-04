@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 UniformBuffer* uniformbuffer_create_static(UniformBuffer* uniform_buffer, Renderer* renderer, AValue* uniforms, uint uniforms_size, const void* data);
 UniformBuffer* uniformbuffer_create_dynamic(UniformBuffer* uniform_buffer, Renderer* renderer, AValue* uniforms, uint uniforms_size);

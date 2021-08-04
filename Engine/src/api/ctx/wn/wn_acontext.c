@@ -3,10 +3,9 @@
 #ifdef GAPI_NONE
 #include "api/ctx/acontext.h"
 #include "api/wnd/awindow.h"
+#include "api/gfx/none/n_atypes.h"
 
 #include <Windows.h>
-
-#include "api/gfx/none/n_astructs.h"
 
 AContext* acontext_create(AWindow* window) {
 	AContext* context = m_malloc(sizeof(AContext));

@@ -1,19 +1,11 @@
 #pragma once
-#include "api/astructs.h"
-#include "api/aenums.h"
+#include "api/atypes.h"
 
-AMesh* amesh_create();
+AMesh* amesh_create(ARenderer* renderer, AShader* shader, AMeshDesc desc, APrimitive primitive);
 void amesh_delete(AMesh* mesh);
 
-AMesh* amesh_init_static(AMesh* mesh, ARenderer* renderer, AShader* shader, const void* vertices, uint vertices_size, uint vertex_size, uint* indices, uint indices_size, uint index_size, AValue* layout, uint layout_size, AValue* instance, uint instance_size, APrimitive primitive);
-AMesh* amesh_init_dynamic(AMesh* mesh, ARenderer* renderer, AShader* shader, uint vertices_size, uint vertex_size, uint* indices, uint indices_size, uint index_size, AValue* layout, uint layout_size, AValue* instance, uint instance_size, APrimitive primitive);
 void amesh_set_vertices(AMesh* mesh, ARenderer* renderer, const void* vertices, uint vertices_size);
 void amesh_set_instances(AMesh* mesh, ARenderer* renderer, const void* instances, uint instances_size);
 void amesh_set_indices(AMesh* mesh, ARenderer* renderer, const void* indices, uint indices_size);
-void amesh_draw_arrays(AMesh* mesh, ARenderer* renderer);
-void amesh_draw_arrays_instanced(AMesh* mesh, int count, ARenderer* renderer);
-void amesh_draw_elements(AMesh* mesh, ARenderer* renderer);
-void amesh_draw_elements_instanced(AMesh* mesh, int count, ARenderer* renderer);
 
-void amesh_set_count(AMesh* mesh, int count);
-void amesh_add_count(AMesh* mesh, int count);
+void amesh_draw(AMesh* mesh, ARenderer* renderer, uint indices);

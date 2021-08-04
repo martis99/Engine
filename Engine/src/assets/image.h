@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 Image* image_create(Image* image, int width, int height, int channels);
 void image_delete(Image* image);

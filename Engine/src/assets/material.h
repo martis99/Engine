@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 Material* material_create(Material* material, Renderer* renderer, Shader* shader);
 void material_delete(Material* material);

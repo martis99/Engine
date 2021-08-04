@@ -1,10 +1,8 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "api/gfx/arenderer.h"
-#include "gl_astructs.h"
-
+#include "gl_atypes.h"
 #include "gl/gl_renderer.h"
-#include "gl/gl_enums.h"
 
 ARenderer* arenderer_create(AContext* context) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));

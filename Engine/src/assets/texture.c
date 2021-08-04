@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "texture.h"
+#include "api/gfx/atexture.h"
 
 Texture* texture_create(Texture* texture, Renderer* renderer, Image* image, AWrap wrap, AFilter filter) {
 	texture->width = image->width;

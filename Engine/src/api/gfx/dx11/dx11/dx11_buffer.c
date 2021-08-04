@@ -60,9 +60,7 @@ static void buffer_set_data(ID3D11Buffer* buffer, ID3D11DeviceContext* context, 
 }
 
 static void buffer_delete(ID3D11Buffer* buffer) {
-	if (buffer != NULL) {
-		buffer->lpVtbl->Release(buffer);
-	}
+	buffer->lpVtbl->Release(buffer);
 }
 
 ID3D11Buffer* dx11_vb_create_static(ID3D11Device* device, const void* data, UINT data_size, UINT element_size) {
@@ -129,56 +127,14 @@ void dx11_cb_delete(ID3D11Buffer* cb) {
 	buffer_delete(cb);
 }
 
-static DXGI_FORMAT get_element_format(AType type) {
-	switch (type) {
-	case VEC1I: return DXGI_FORMAT_R32_SINT;
-	case VEC2I: return DXGI_FORMAT_R32G32_SINT;
-	case VEC3I: return DXGI_FORMAT_R32G32B32_SINT;
-	case VEC4I: return DXGI_FORMAT_R32G32B32A32_SINT;
-	case VEC1F: return DXGI_FORMAT_R32_FLOAT;
-	case VEC2F: return DXGI_FORMAT_R32G32_FLOAT;
-	case VEC3F: return DXGI_FORMAT_R32G32B32_FLOAT;
-	case VEC4F: return DXGI_FORMAT_R32G32B32A32_FLOAT;
-	case MAT4F: return DXGI_FORMAT_R32G32B32A32_FLOAT;
-	}
-	return 0;
-}
-
-ID3D11InputLayout* dx11_il_create(ID3D11Device* device, AValue* layout, UINT layout_size, AValue* instance, UINT instance_size, const void* shader, SIZE_T shader_size) {
-	ID3D11InputLayout* il;
-
-	UINT num_layout = layout_size / sizeof(AValue);
-
-	UINT num_instance = 0;
-	UINT num_instance_el = 0;
-	if (instance != NULL) {
-		num_instance = instance_size / sizeof(AValue);
-		num_instance_el = 4;
-	}
-	D3D11_INPUT_ELEMENT_DESC* ied = m_malloc((num_layout + num_instance_el) * sizeof(D3D11_INPUT_ELEMENT_DESC));
-	UINT index = 0;
-	for (UINT i = 0; i < num_layout; i++) {
-		ied[index++] = (D3D11_INPUT_ELEMENT_DESC){ layout[i].name, 0, get_element_format(layout[i].type), 0, i == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 };
-	}
-
-	for (UINT i = 0; i < num_instance; i++) {
-		if (instance[i].type == MAT4F) {
-			for (int j = 0; j < 4; j++) {
-				ied[index++] = (D3D11_INPUT_ELEMENT_DESC){ instance[i].name, j, get_element_format(instance[i].type), 1, (i == 0 && j == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1 };
-			}
-		} else {
-			ied[index++] = (D3D11_INPUT_ELEMENT_DESC){ instance[i].name, i, get_element_format(instance[i].type), 1, i == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1 };
-		}
-	}
-
-	HRESULT hr = device->lpVtbl->CreateInputLayout(device, ied, num_layout + num_instance_el, shader, shader_size, &il);
+ID3D11InputLayout* dx11_il_create(ID3D11Device* device, D3D11_INPUT_ELEMENT_DESC* ied, UINT num_elements, ID3DBlob* blob) {
+	ID3D11InputLayout* layout;
+	HRESULT hr = device->lpVtbl->CreateInputLayout(device, ied, num_elements, blob->lpVtbl->GetBufferPointer(blob), blob->lpVtbl->GetBufferSize(blob), &layout);
 	if (FAILED(hr)) {
 		log_error("Failed to create input layout");
 		return NULL;
 	}
-
-	m_free(ied, (num_layout + num_instance_el) * sizeof(D3D11_INPUT_ELEMENT_DESC));
-	return il;
+	return layout;
 }
 
 void dx11_il_bind(ID3D11InputLayout* il, ID3D11DeviceContext* context) {
@@ -186,16 +142,6 @@ void dx11_il_bind(ID3D11InputLayout* il, ID3D11DeviceContext* context) {
 }
 
 void dx11_il_delete(ID3D11InputLayout* il) {
-	if (il != NULL) {
-		il->lpVtbl->Release(il);
-	}
-}
-
-void dx11_draw(ID3D11DeviceContext* context, UINT vertex_count) {
-	context->lpVtbl->Draw(context, vertex_count, 0);
-}
-
-void dx11_draw_indexed(ID3D11DeviceContext* context, UINT index_count) {
-	context->lpVtbl->DrawIndexed(context, index_count, 0, 0);
+	il->lpVtbl->Release(il);
 }
 #endif

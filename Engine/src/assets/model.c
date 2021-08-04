@@ -1,23 +1,22 @@
 #include "pch.h"
 #include "model.h"
 
-#include <assimp/cimport.h>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
 #include "image.h"
 #include "texture.h"
 #include "material.h"
 #include "mesh.h"
 #include "shader.h"
 
+#include "assimp/cimport.h"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
+
 Model* model_create(Model* model) {
 	return model;
 }
 
 static void delete_mesh(ModelMesh* mesh) {
-	mesh_delete(mesh->mesh);
-	m_free(mesh->mesh, sizeof(Mesh));
+	mesh_delete(&mesh->mesh);
 }
 
 static void delete_node(ModelNode* node) {
@@ -42,7 +41,7 @@ static void node_draw(Model* model, Renderer* renderer, Shader* shader, ModelNod
 			material_upload(material, renderer);
 			material_bind(material, renderer, 1);
 		}
-		mesh_draw_elements(mesh->mesh, renderer);
+		mesh_draw(&mesh->mesh, renderer, 0xFFFFFFFF);
 	}
 
 	for (uint i = 0; i < node->nodes.count; i++) {
@@ -106,9 +105,13 @@ static void process_mesh(ModelMesh* mesh, Renderer* renderer, Shader* shader, co
 	print_material_name(ai_scene->mMaterials[ai_mesh->mMaterialIndex], depth + 1, print);
 	mesh->material = ai_mesh->mMaterialIndex;
 
-	mesh->mesh = m_malloc(sizeof(Mesh));
-	mesh_create(mesh->mesh);
-	mesh_init_static(mesh->mesh, renderer, shader, vertices, sizeof(Vertex) * ai_mesh->mNumVertices, 5 * sizeof(float), indices, sizeof(uint) * index, sizeof(uint), A_TRIANGLES);
+	AMeshDesc md = shader->mesh_desc;
+	md.vertices.data = vertices;
+	md.vertices.data_size = sizeof(Vertex) * ai_mesh->mNumVertices;
+	md.indices.data = indices;
+	md.indices.data_size = sizeof(uint) * index;
+
+	mesh_create(&mesh->mesh, renderer, shader, md, A_TRIANGLES);
 
 	m_free(vertices, sizeof(Vertex) * ai_mesh->mNumVertices);
 	m_free(indices, sizeof(uint) * ai_mesh->mNumFaces * 3);

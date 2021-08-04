@@ -1,16 +1,35 @@
 #pragma once
-#include "api/wnd/acursor.h"
-#include "api/wnd/awindow.h"
-#include "api/ctx/acontext.h"
-
-#include "api/gfx/arenderer.h"
-#include "api/gfx/ashader.h"
-#include "api/gfx/aframebuffer.h"
-#include "api/gfx/amesh.h"
-#include "api/gfx/atexture.h"
-#include "api/gfx/auniform_buffer.h"
-
+#include "api/atypes.h"
 #include "stb/stb_truetype.h"
+
+typedef struct CameraSettings {
+	float width;
+	float height;
+	float fov;
+	float z_near;
+	float z_far;
+
+	float move_speed;
+	float rotate_speed;
+} CameraSettings;
+
+typedef struct Camera {
+	CameraSettings settings;
+
+	vec3 position;
+	vec3 rotation;
+
+	vec3 right;
+	vec3 up;
+	vec3 front;
+
+	mat4 translation_matrix;
+	mat4 rotation_matrix;
+
+	mat4 view;
+	mat4 projection;
+	mat4 view_projection;
+} Camera;
 
 typedef struct WindowSettings {
 	int width;
@@ -55,10 +74,7 @@ typedef struct Texture {
 
 typedef struct Shader {
 	AShader* shader;
-	AValue* layout;
-	uint layout_size;
-	AValue* instance;
-	uint instance_size;
+	AMeshDesc mesh_desc;
 	AValue* props;
 	uint props_size;
 	Image default_image;
@@ -124,7 +140,7 @@ typedef struct UniformBuffer {
 } UniformBuffer;
 
 typedef struct ModelMesh {
-	Mesh* mesh;
+	Mesh mesh;
 	uint material;
 } ModelMesh;
 
@@ -210,9 +226,10 @@ typedef struct BatchRenderer {
 	Shader* shader;
 	Material* material;
 	Mesh mesh;
+	uint vertex_size;
 	void* vertices;
 	uint vertices_count;
-	size_t vertex_size;
+	uint indices_count;
 } BatchRenderer;
 
 typedef struct InstanceRenderer {

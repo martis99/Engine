@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, Renderer* renderer);
 void instance_renderer_delete(InstanceRenderer* instance_renderer, Ecs* ecs);

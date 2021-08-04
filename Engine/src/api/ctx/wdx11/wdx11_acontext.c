@@ -3,10 +3,9 @@
 #ifdef GAPI_DX11
 #include "api/ctx/acontext.h"
 #include "api/wnd/awindow.h"
+#include "api/gfx/dx11/dx11_atypes.h"
 
 #include <Windows.h>
-
-#include "api/gfx/dx11/dx11_astructs.h"
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "dxguid.lib")

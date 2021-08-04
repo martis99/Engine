@@ -1,6 +1,6 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
-#include "gl_enums.h"
+#include "gl_atypes.h"
 
 GLenum gl_aprimitive(APrimitive primitive) {
 	switch (primitive) {
@@ -50,6 +50,28 @@ GLenum gl_afactor(AFactor factor) {
 	case A_ONE_MINUS_DST_ALPHA: return GL_ONE_MINUS_DST_ALPHA;
 	case A_DST_COLOR: return GL_DST_COLOR;
 	case A_ONE_MINUS_DST_COLOR: return GL_ONE_MINUS_DST_COLOR;
+	}
+	return 0;
+}
+
+GLenum gl_atype_type(AType type) {
+	switch (type) {
+	case VEC1U:
+	case VEC2U:
+	case VEC3U:
+	case VEC4U:
+		return GL_UNSIGNED_INT;;
+	case VEC1I:
+	case VEC2I:
+	case VEC3I:
+	case VEC4I:
+		return GL_INT;
+	case VEC1F:
+	case VEC2F:
+	case VEC3F:
+	case VEC4F:
+	case MAT4F:
+		return GL_FLOAT;
 	}
 	return 0;
 }

@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "material.h"
+#include "api/gfx/amaterial.h"
 
 #include "texture.h"
-#include "api/gfx/amaterial.h"
 
 Material* material_create(Material* material, Renderer* renderer, Shader* shader) {
 	material->shader = shader;

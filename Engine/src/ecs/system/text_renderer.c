@@ -24,7 +24,10 @@ typedef struct TextVertexData {
 TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* renderer, Transform transform) {
 	text_renderer->transform = transform;
 
-#ifdef GAPI_OPENGL
+#ifdef GAPI_NONE
+	const char* src_vert = "";
+	const char* src_frag = "";
+#elif GAPI_OPENGL
 	const char* src_vert =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 Position;\n"
@@ -128,7 +131,7 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 		"}\0";
 #endif
 
-	AValue layout[] = {
+	AValue vertex[] = {
 		{"Position", VEC3F},
 		{"Color", VEC4F},
 		{"TexCoord", VEC2F},
@@ -136,11 +139,24 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 		{"Entity", VEC1I}
 	};
 
+	AValue index[] = { {"", VEC1U} };
+
+	AMeshDesc md = { 0 };
+	md.vertices.enabled = 1;
+	md.vertices.layout = vertex;
+	md.vertices.layout_size = sizeof(vertex);
+	md.instances.enabled = 0;
+	md.instances.layout = NULL;
+	md.instances.layout_size = 0;
+	md.indices.enabled = 1;
+	md.indices.layout = index;
+	md.indices.layout_size = sizeof(index);
+
 	AValue props[] = {
 		{"Model", MAT4F}
 	};
 
-	if (shader_create(&text_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), NULL, 0, props, sizeof(props), "u_textures", 16) == NULL) {
+	if (shader_create(&text_renderer->shader, renderer, src_vert, src_frag, md, props, sizeof(props), "u_textures", 16) == NULL) {
 		log_error("Failed to create text shader");
 		return NULL;
 	}
@@ -150,7 +166,7 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 		return NULL;
 	};
 
-	if (batch_renderer_create(&text_renderer->batch_renderer, renderer, &text_renderer->material, sizeof(TextVertex)) == NULL) {
+	if (batch_renderer_create(&text_renderer->batch_renderer, renderer, &text_renderer->material) == NULL) {
 		log_error("Failed to create text batch renderer");
 		return NULL;
 	}
@@ -162,10 +178,6 @@ void text_renderer_delete(TextRenderer* text_renderer) {
 	material_delete(&text_renderer->material);
 	shader_delete(&text_renderer->shader);
 	batch_renderer_delete(&text_renderer->batch_renderer);
-}
-
-void text_renderer_submit(TextRenderer* text_renderer) {
-	batch_renderer_submit(&text_renderer->batch_renderer);
 }
 
 static void calculate_preffered(Transform* transform, Text* text, Constraints* constraints) {
@@ -239,15 +251,14 @@ static void add_text(TextRenderer* text_renderer, Transform* transform, Text* te
 }
 
 void text_renderer_render(TextRenderer* text_renderer, Ecs* ecs) {
-	batch_renderer_clear(&text_renderer->batch_renderer);
+	batch_renderer_begin(&text_renderer->batch_renderer);
 	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_TEXT);
 	for (uint i = 0; i < qr->count; ++i) {
 		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
 		Text* text = (Text*)ecs_get(ecs, qr->list[i], C_TEXT);
 		add_text(text_renderer, transform, text, qr->list[i]);
 	}
-	text_renderer_submit(text_renderer);
-	batch_renderer_draw(&text_renderer->transform, &text_renderer->batch_renderer);
+	batch_renderer_end(&text_renderer->transform, &text_renderer->batch_renderer);
 }
 
 void text_renderer_calculate_preffered(Ecs* ecs) {

@@ -1,4 +1,4 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 MeshComponent mesh_component_create(Mesh* mesh, Material* material);

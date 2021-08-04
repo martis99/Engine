@@ -1,6 +1,6 @@
 #pragma once
 #ifdef GAPI_OPENGL
-#include "api/aenums.h"
+#include "api/atypes.h"
 
 #include "gl/gl.h"
 
@@ -27,14 +27,21 @@ struct AFramebuffer {
 
 struct AMesh {
 	GLuint va;
-	GLuint vb;
-	GLuint ivb;
-	GLuint ib;
-	GLsizei count;
 
-	APrimitive primitive;
+	uint vertex_size;
+	GLuint vertices;
+	GLsizei vertices_count;
 
-	GLuint layout_index;
+	uint instance_size;
+	GLuint instances;
+	GLsizei instances_count;
+
+	uint index_size;
+	GLuint indices;
+	GLsizei indices_count;
+	GLenum index_type;
+
+	GLenum primitive;
 };
 
 struct ARenderer {
@@ -70,4 +77,11 @@ struct AUniformBuffer {
 struct AMaterial {
 	ABuffer* buffer;
 };
+
+GLenum gl_aprimitive(APrimitive primitive);
+GLenum gl_ashadertype(AShaderType type);
+GLint gl_awrap(AWrap wrap);
+GLint gl_afilter(AFilter filter);
+GLenum gl_afactor(AFactor factor);
+GLenum gl_atype_type(AType type);
 #endif

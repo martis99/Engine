@@ -1,9 +1,8 @@
 #include "pch.h"
 #ifdef GAPI_DX11
 #include "api/gfx/atexture.h"
-#include "dx11_astructs.h"
+#include "dx11_atypes.h"
 #include "dx11/dx11_texture.h"
-#include "dx11_aenums.h"
 
 ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void* data) {
 	ATexture* texture = m_malloc(sizeof(ATexture));

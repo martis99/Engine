@@ -1,14 +1,10 @@
 #include "pch.h"
 #include "renderer.h"
+#include "api/gfx/arenderer.h"
 
 #include "app.h"
-
-#include "assets/shader.h"
-#include "assets/mesh.h"
-
-#include "input/mouse.h"
-
 #include "assets/framebuffer.h"
+#include "input/mouse.h"
 
 Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height) {
 	renderer->renderer = arenderer_create(context->context);

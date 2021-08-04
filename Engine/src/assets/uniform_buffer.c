@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "uniform_buffer.h"
+#include "api/gfx/auniform_buffer.h"
 
 UniformBuffer* uniformbuffer_create_static(UniformBuffer* uniform_buffer, Renderer* renderer, AValue* uniforms, uint uniforms_size, const void* data) {
 	uniform_buffer->uniform_buffer = auniformbuffer_create_static(renderer->renderer, uniforms, uniforms_size, data);

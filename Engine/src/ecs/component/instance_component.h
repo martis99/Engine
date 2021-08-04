@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 InstanceComponent instance_component_create(Mesh* mesh, Material* material, uint transforms_count);
 void instance_component_delete(InstanceComponent* instance_component);

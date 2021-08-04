@@ -1,24 +1,16 @@
 #include "pch.h"
 #include "shader.h"
+#include "api/gfx/ashader.h"
 
 #include "image.h"
 #include "texture.h"
 
-Shader* shader_create(Shader* shader, Renderer* renderer, const char* src_vert, const char* src_frag, AValue* layout, uint layout_size, AValue* instance, uint instance_size, AValue* props, uint props_size, const char* textures, uint num_textures) {
+Shader* shader_create(Shader* shader, Renderer* renderer, const char* src_vert, const char* src_frag, AMeshDesc mesh_desc, AValue* props, uint props_size, const char* textures, uint num_textures) {
 	shader->shader = ashader_create(renderer->renderer, src_vert, src_frag, textures, num_textures);
 	ashader_bind_uniform_block(shader->shader, "Camera", 0);
 
-	shader->layout = m_malloc(layout_size);
-	memcpy(shader->layout, layout, layout_size);
-	shader->layout_size = layout_size;
-
-	if (instance != NULL) {
-		shader->instance = m_malloc(instance_size);
-		memcpy(shader->instance, instance, instance_size);
-	} else {
-		shader->instance = NULL;
-	}
-	shader->instance_size = instance_size;
+	shader->mesh_desc = mesh_desc;
+	ameshdesc_copy(&shader->mesh_desc, &mesh_desc);
 
 	shader->props = m_malloc(props_size);
 	memcpy(shader->props, props, props_size);
@@ -37,10 +29,7 @@ Shader* shader_create(Shader* shader, Renderer* renderer, const char* src_vert, 
 void shader_delete(Shader* shader) {
 	image_delete(&shader->default_image);
 	texture_delete(&shader->default_texture);
-	if (shader->instance != NULL) {
-		m_free(shader->instance, shader->instance_size);
-	}
-	m_free(shader->layout, shader->layout_size);
+	ameshdesc_delete(&shader->mesh_desc);
 	m_free(shader->props, shader->props_size);
 	ashader_delete(shader->shader);
 }

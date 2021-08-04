@@ -1,15 +1,11 @@
 #pragma once
 #ifdef GAPI_NONE
-#include "api/aenums.h"
+#include "api/atypes.h"
 
 #include <Windows.h>
 
 struct AWindow {
-	LPCWSTR class_name;
-	HMODULE module;
-	HWND window;
-	AWindowCallbacks callbacks;
-	ACursor* cursor;
+	byte id;
 };
 
 struct AContext {
@@ -17,12 +13,20 @@ struct AContext {
 	HDC device;
 };
 
+struct ABuffer {
+	byte id;
+};
+
+struct AMaterial {
+	byte id;
+};
+
 struct AFramebuffer {
 	byte id;
 };
 
 struct AMesh {
-	APrimitive primitive;
+	byte id;
 };
 
 struct ARenderer {
@@ -38,9 +42,7 @@ struct ATexture {
 };
 
 struct AUniform {
-	char* name;
-	ADataType type;
-	void* data;
+	byte id;
 };
 
 struct AUniformBuffer {

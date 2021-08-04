@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 Cursor* cursor_create(Cursor* cursor, Window* window, bool enabled);
 void cursor_delete(Cursor* cursor);

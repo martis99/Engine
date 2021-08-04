@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 Context* context_create(Context* context, Window* window);
 void context_delete(Context* context);

@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 Constraint constraint_create(Entity entity, float pos, int distance);
 

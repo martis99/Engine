@@ -1,7 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_DX11
 #include "api/gfx/abuffer.h"
-#include "dx11_astructs.h"
+#include "dx11_atypes.h"
 
 ABuffer* abuffer_create(AValue* values, uint values_size, AShader* shader) {
 	ABuffer* buffer = m_malloc(sizeof(ABuffer));
@@ -12,7 +12,7 @@ ABuffer* abuffer_create(AValue* values, uint values_size, AShader* shader) {
 	buffer->size = 0;
 	for (UINT i = 0; i < buffer->count; i++) {
 		buffer->offsets[i] = buffer->size;
-		buffer->sizes[i] = type_size(values[i].type);
+		buffer->sizes[i] = atype_size(values[i].type);
 		buffer->size += buffer->sizes[i];
 	}
 	buffer->size = (uint)(ceilf(buffer->size / 16.0f) * 16);

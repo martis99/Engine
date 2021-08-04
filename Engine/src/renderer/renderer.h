@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height);
 void renderer_delete(Renderer* renderer);

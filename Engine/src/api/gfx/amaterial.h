@@ -1,5 +1,5 @@
 #pragma once
-#include "api/astructs.h"
+#include "api/atypes.h"
 
 AMaterial* amaterial_create(ARenderer* renderer, AShader* shader, AValue* values, uint values_size);
 void amaterial_delete(AMaterial* material);

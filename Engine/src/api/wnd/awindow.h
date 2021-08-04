@@ -1,5 +1,5 @@
 #pragma once
-#include "api/astructs.h"
+#include "api/atypes.h"
 
 AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width, int height);
 void awindow_delete(AWindow* window);

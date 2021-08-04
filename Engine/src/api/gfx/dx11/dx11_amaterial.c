@@ -1,9 +1,9 @@
 #include "pch.h"
 #ifdef GAPI_DX11
 #include "api/gfx/amaterial.h"
-#include "dx11_astructs.h"
-#include "dx11/dx11_buffer.h"
 #include "api/gfx/abuffer.h"
+#include "dx11_atypes.h"
+#include "dx11/dx11_buffer.h"
 
 AMaterial* amaterial_create(ARenderer* renderer, AShader* shader, AValue* values, uint values_size) {
 	AMaterial* material = m_malloc(sizeof(AMaterial));

@@ -11,14 +11,16 @@
 #define MAX_VERTICES MAX_QUADS * 4
 #define MAX_INDICES MAX_QUADS * 6
 
-BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* renderer, Material* material, size_t vertex_size) {
+BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* renderer, Material* material) {
 	batch_renderer->renderer = renderer;
 	batch_renderer->shader = material->shader;
 	batch_renderer->material = material;
 
-	batch_renderer->vertices = m_malloc(MAX_VERTICES * vertex_size);
+	batch_renderer->vertex_size = abufferdesc_size(material->shader->mesh_desc.vertices);
+	batch_renderer->vertices = m_malloc(MAX_VERTICES * (size_t)batch_renderer->vertex_size);
 	batch_renderer->vertices_count = 0;
-	batch_renderer->vertex_size = vertex_size;
+
+	batch_renderer->indices_count = 0;
 
 	uint indices[MAX_INDICES];
 
@@ -35,22 +37,24 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* re
 		offset += 4;
 	}
 
-	mesh_create(&batch_renderer->mesh);
-	mesh_init_dynamic(&batch_renderer->mesh, renderer, batch_renderer->shader, MAX_VERTICES * (uint)vertex_size, (uint)vertex_size, indices, MAX_INDICES * sizeof(uint), sizeof(uint), A_TRIANGLES);
-
-	mesh_set_count(&batch_renderer->mesh, 0);
+	AMeshDesc md = material->shader->mesh_desc;
+	md.vertices.data = NULL;
+	md.vertices.data_size = MAX_VERTICES * batch_renderer->vertex_size;
+	md.indices.data = indices;
+	md.indices.data_size = sizeof(indices);
+	mesh_create(&batch_renderer->mesh, renderer, material->shader, md, A_TRIANGLES);
 
 	return batch_renderer;
 }
 
 void batch_renderer_delete(BatchRenderer* batch_renderer) {
-	m_free(batch_renderer->vertices, MAX_VERTICES * batch_renderer->vertex_size);
+	m_free(batch_renderer->vertices, MAX_VERTICES * (size_t)batch_renderer->vertex_size);
 	mesh_delete(&batch_renderer->mesh);
 }
 
-void batch_renderer_clear(BatchRenderer* batch_renderer) {
+void batch_renderer_begin(BatchRenderer* batch_renderer) {
 	batch_renderer->vertices_count = 0;
-	mesh_set_count(&batch_renderer->mesh, 0);
+	batch_renderer->indices_count = 0;
 }
 
 static void add_quad(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, vec2* tex_coords, void* data, void(*add_vertex)(void*, vec3, vec2, int, void*)) {
@@ -64,12 +68,12 @@ static void add_quad(BatchRenderer* batch_renderer, Transform* transform, Textur
 	uint tex_index = material_add_texture(batch_renderer->material, texture);
 	for (int i = 0; i < 4; i++) {
 		int index = batch_renderer->vertices_count + i;
-		void* vertex = (byte*)batch_renderer->vertices + index * batch_renderer->vertex_size;
+		void* vertex = (byte*)batch_renderer->vertices + index * (size_t)batch_renderer->vertex_size;
 		add_vertex(vertex, transform_vec3(transform, vertices[i]), tex_coords[i], tex_index, data);
 	}
 
-	mesh_add_count(&batch_renderer->mesh, 6);
 	batch_renderer->vertices_count += 4;
+	batch_renderer->indices_count += 6;
 }
 
 void batch_renderer_add(BatchRenderer* batch_renderer, Transform* transform, Texture* texture, void* data, void(*add_vertex)(void*, vec3, vec2, int, void*)) {
@@ -96,15 +100,13 @@ void batch_renderer_add_sub(BatchRenderer* batch_renderer, Transform* transform,
 	add_quad(batch_renderer, transform, texture, tex_coords, data, add_vertex);
 }
 
-void batch_renderer_submit(BatchRenderer* batch_renderer) {
+void batch_renderer_end(Transform* transform, BatchRenderer* batch_renderer) {
 	mesh_set_vertices(&batch_renderer->mesh, batch_renderer->renderer, batch_renderer->vertices, batch_renderer->vertices_count * (uint)batch_renderer->vertex_size);
-}
 
-void batch_renderer_draw(Transform* transform, BatchRenderer* batch_renderer) {
 	shader_bind(batch_renderer->shader, batch_renderer->renderer);
 	mat4 model = transform_to_mat4(transform);
 	material_set_value(batch_renderer->material, 0, &model);
 	material_upload(batch_renderer->material, batch_renderer->renderer);
 	material_bind(batch_renderer->material, batch_renderer->renderer, 1);
-	mesh_draw_elements(&batch_renderer->mesh, batch_renderer->renderer);
+	mesh_draw(&batch_renderer->mesh, batch_renderer->renderer, batch_renderer->indices_count);
 }

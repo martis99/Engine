@@ -9,10 +9,15 @@
 #include "assets/material.h"
 #include "assets/shader.h"
 
+#define MAX_INSTANCES 200
+
 InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, Renderer* renderer) {
 	instance_renderer->renderer = renderer;
 
-#ifdef GAPI_OPENGL
+#ifdef GAPI_NONE
+	const char* src_vert = "";
+	const char* src_frag = "";
+#elif GAPI_OPENGL
 	const char* src_vert =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 Position;\n"
@@ -93,14 +98,29 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 		"}\0";
 #endif
 
-	AValue layout[] = {
+	AValue vertex[] = {
 		{"Position", VEC3F},
-		{"TexCoord", VEC2F},
+		{"TexCoord", VEC2F}
 	};
 
 	AValue instance[] = {
 		{"Transform", MAT4F }
 	};
+
+	AValue index[] = { {"", VEC1U} };
+
+	AMeshDesc md = { 0 };
+	md.vertices.enabled = 1;
+	md.vertices.layout = vertex;
+	md.vertices.layout_size = sizeof(vertex);
+	md.instances.enabled = 1;
+	md.instances.layout = instance;
+	md.instances.layout_size = sizeof(instance);
+	md.indices.enabled = 1;
+	md.indices.layout = index;
+	md.indices.layout_size = sizeof(index);
+
+	md.instances.data_size = MAX_INSTANCES * abufferdesc_size(md.instances);
 
 	AValue props[] = {
 		{"Model", MAT4F},
@@ -108,7 +128,7 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 		{"Entity", VEC1I},
 	};
 
-	if (shader_create(&instance_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), instance, sizeof(instance), props, sizeof(props), "Textures", 4) == NULL) {
+	if (shader_create(&instance_renderer->shader, renderer, src_vert, src_frag, md, props, sizeof(props), "Textures", 4) == NULL) {
 		log_error("Failed to create mesh shader");
 		return NULL;
 	}
@@ -138,7 +158,7 @@ void instance_renderer_render(InstanceRenderer* instance_renderer, Ecs* ecs) {
 		material_upload(instance_component->material, instance_renderer->renderer);
 		material_bind(instance_component->material, instance_renderer->renderer, 1);
 		mesh_set_instances(instance_component->mesh, instance_renderer->renderer, instance_component->transforms, instance_component->transforms_count * sizeof(mat4));
-		mesh_draw_elements_instanced(instance_component->mesh, instance_component->transforms_count * sizeof(mat4), instance_renderer->renderer);
+		mesh_draw(instance_component->mesh, instance_renderer->renderer, 0xFFFFFFFF);
 	}
 }
 

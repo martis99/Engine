@@ -1,6 +1,6 @@
 #pragma once
 #ifdef GAPI_DX11
-#include "api/aenums.h"
+#include "api/atypes.h"
 
 #include <d3d11.h>
 
@@ -41,21 +41,31 @@ struct AShader {
 };
 
 struct AMesh {
-	ID3D11Buffer* vb;
-	ID3D11Buffer* ib;
-	ID3D11Buffer* ivb;
-	ID3D11InputLayout* il;
-
-	UINT count;
 	UINT vertex_size;
-	APrimitive primitive;
-	bool indexed;
+	ID3D11Buffer* vertices;
+	UINT vertices_count;
+
+	UINT instance_size;
+	ID3D11Buffer* instances;
+	UINT instances_count;
+
+	UINT index_size;
+	ID3D11Buffer* indices;
+	UINT indices_count;
+	DXGI_FORMAT index_format;
+
+	ID3D11InputLayout* layout;
+	D3D11_PRIMITIVE_TOPOLOGY primitive;
 };
 
 struct ATexture {
 	ID3D11Texture2D* texture;
 	ID3D11ShaderResourceView* srv;
 	ID3D11SamplerState* ss;
+};
+
+struct AFramebuffer {
+	uint id;
 };
 
 struct ABuffer {
@@ -75,4 +85,10 @@ struct AMaterial {
 	ID3D11Buffer* cb;
 	ABuffer* buffer;
 };
+
+D3D11_PRIMITIVE_TOPOLOGY dx11_aprimitive(APrimitive primitive);
+D3D11_TEXTURE_ADDRESS_MODE dx11_awrap(AWrap wrap);
+D3D11_FILTER dx11_afilter(AFilter filter);
+DXGI_FORMAT dx11_atype_format(AType type);
+
 #endif

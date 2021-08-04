@@ -1,5 +1,5 @@
 #pragma once
-#include "api/astructs.h"
+#include "api/atypes.h"
 
 AContext* acontext_create(AWindow* window);
 void acontext_delete(AContext* context);

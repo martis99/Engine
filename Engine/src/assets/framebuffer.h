@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 Framebuffer* framebuffer_create(Framebuffer* framebuffer, AAttachmentFormat* attachments, int attachments_size, int width, int height);
 void framebuffer_delete(Framebuffer* framebuffer);

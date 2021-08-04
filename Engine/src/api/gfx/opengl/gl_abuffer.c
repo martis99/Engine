@@ -1,8 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "api/gfx/abuffer.h"
-#include "gl_astructs.h"
-
+#include "gl_atypes.h"
 #include "gl/gl_program.h"
 
 ABuffer* abuffer_create(AValue* values, uint values_size, AShader* shader) {
@@ -16,7 +15,7 @@ ABuffer* abuffer_create(AValue* values, uint values_size, AShader* shader) {
 	buffer->size = 0;
 	for (uint i = 0; i < buffer->count; i++) {
 		buffer->offsets[i] = buffer->size;
-		buffer->sizes[i] = type_size(values[i].type);
+		buffer->sizes[i] = atype_size(values[i].type);
 		buffer->types[i] = values[i].type;
 		if (shader != NULL) {
 			buffer->locations[i] = gl_program_get_uniform_location(shader->program, values[i].name);

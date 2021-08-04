@@ -1,9 +1,9 @@
 #include "pch.h"
 #ifdef GAPI_NONE
 #include "api/gfx/ashader.h"
-#include "n_astructs.h"
+#include "n_atypes.h"
 
-AShader* ashader_create(const char* src_vert, const char* src_frag) {
+AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* src_frag, const char* textures, uint num_textures) {
 	AShader* shader = m_malloc(sizeof(AShader));
 	return shader;
 }
@@ -12,7 +12,7 @@ void ashader_delete(AShader* shader) {
 	m_free(shader, sizeof(AShader));
 }
 
-void ashader_bind(AShader* shader) {
+void ashader_bind(AShader* shader, ARenderer* renderer) {
 
 }
 

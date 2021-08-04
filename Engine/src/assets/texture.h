@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 Texture* texture_create(Texture* texture, Renderer* renderer, Image* image, AWrap wrap, AFilter filter);
 void texture_bind(Texture* texture, Renderer* renderer, int slot);

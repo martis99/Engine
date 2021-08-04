@@ -1,9 +1,8 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "api/gfx/amaterial.h"
-#include "gl_astructs.h"
 #include "api/gfx/abuffer.h"
-#include "gl/gl_uniform_buffer.h"
+#include "gl_atypes.h"
 #include "gl/gl_program.h"
 
 AMaterial* amaterial_create(ARenderer* renderer, AShader* shader, AValue* values, uint values_size) {
@@ -27,7 +26,6 @@ void amaterial_upload(AMaterial* material, ARenderer* renderer) {
 
 void upload_value(AType type, GLint location, const void* data) {
 	switch (type) {
-	case EMPTY: break;
 	case VEC1I: gl_uniform_vec1i(location, 1, data); break;
 	case VEC2I: gl_uniform_vec2i(location, 1, data); break;
 	case VEC3I: gl_uniform_vec3i(location, 1, data); break;

@@ -13,7 +13,10 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 	line_renderer->renderer = renderer;
 	line_renderer->transform = transform;
 
-#ifdef GAPI_OPENGL
+#ifdef GAPI_NONE
+	const char* src_vert = "";
+	const char* src_frag = "";
+#elif GAPI_OPENGL
 	const char* src_vert =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 Position;\n"
@@ -77,17 +80,28 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 		"	return input.color;\n"
 		"}\0";
 #endif
-	AValue layout[] = {
+	AValue vertex[] = {
 		{"Position", VEC3F},
 		{"Color", VEC4F},
 		{"Entity", VEC1I}
 	};
 
+	AMeshDesc md = { 0 };
+	md.vertices.enabled = 1;
+	md.vertices.layout = vertex;
+	md.vertices.layout_size = sizeof(vertex);
+	md.instances.enabled = 0;
+	md.instances.layout = NULL;
+	md.instances.layout_size = 0;
+	md.indices.enabled = 0;
+	md.indices.layout = NULL;
+	md.indices.layout_size = 0;
+
 	AValue props[] = {
 		{"Model", MAT4F},
 	};
 
-	if (shader_create(&line_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), NULL, 0, props, sizeof(props), "", 1) == NULL) {
+	if (shader_create(&line_renderer->shader, renderer, src_vert, src_frag, md, props, sizeof(props), "", 1) == NULL) {
 		log_error("Failed to create line shader");
 		return NULL;
 	}
@@ -100,10 +114,9 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 	line_renderer->vertices = m_malloc(MAX_VERTICES * sizeof(LineVertex));
 	line_renderer->vertices_count = 0;
 
-	mesh_create(&line_renderer->mesh);
-	mesh_init_dynamic(&line_renderer->mesh, renderer, &line_renderer->shader, MAX_VERTICES * sizeof(LineVertex), sizeof(LineVertex), NULL, 0, 0, A_LINES);
-
-	mesh_set_count(&line_renderer->mesh, 0);
+	md.vertices.data = NULL;
+	md.vertices.data_size = MAX_VERTICES * sizeof(LineVertex);
+	mesh_create(&line_renderer->mesh, renderer, &line_renderer->shader, md, A_LINES);
 
 	return line_renderer;
 }
@@ -115,11 +128,6 @@ void line_renderer_delete(LineRenderer* line_renderer) {
 	shader_delete(&line_renderer->shader);
 }
 
-void line_renderer_clear(LineRenderer* line_renderer) {
-	line_renderer->vertices_count = 0;
-	mesh_set_count(&line_renderer->mesh, 0);
-}
-
 void line_renderer_add(LineRenderer* line_renderer, vec3 start, vec3 end, vec4 color, int entity) {
 	line_renderer->vertices[line_renderer->vertices_count + 0].position = start;
 	line_renderer->vertices[line_renderer->vertices_count + 0].color = color;
@@ -128,21 +136,17 @@ void line_renderer_add(LineRenderer* line_renderer, vec3 start, vec3 end, vec4 c
 	line_renderer->vertices[line_renderer->vertices_count + 1].color = color;
 	line_renderer->vertices[line_renderer->vertices_count + 1].entity = entity;
 
-	mesh_add_count(&line_renderer->mesh, 2);
 	line_renderer->vertices_count += 2;
 }
 
-void line_renderer_submit(LineRenderer* line_renderer) {
-	mesh_set_vertices(&line_renderer->mesh, line_renderer->renderer, line_renderer->vertices, line_renderer->vertices_count * sizeof(LineVertex));
-}
-
 void line_renderer_render(LineRenderer* line_renderer) {
+	mesh_set_vertices(&line_renderer->mesh, line_renderer->renderer, line_renderer->vertices, line_renderer->vertices_count * sizeof(LineVertex));
+
 	shader_bind(&line_renderer->shader, line_renderer->renderer);
 	mat4 model = transform_to_mat4(&line_renderer->transform);
 	material_set_value(&line_renderer->material, 0, &model);
 	material_upload(&line_renderer->material, line_renderer->renderer);
 	material_bind(&line_renderer->material, line_renderer->renderer, 1);
 
-	line_renderer_submit(line_renderer);
-	mesh_draw_arrays(&line_renderer->mesh, line_renderer->renderer);
+	mesh_draw(&line_renderer->mesh, line_renderer->renderer, 0xFFFFFFFF);
 }

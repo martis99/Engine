@@ -1,7 +1,5 @@
 #pragma once
-
-typedef struct AWindow AWindow;
-typedef struct ACursor ACursor;
+#include "api/atypes.h"
 
 ACursor* acursor_create(AWindow* window, byte enabled);
 void acursor_delete(ACursor* cursor);

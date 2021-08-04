@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "framebuffer.h"
+#include "api/gfx/aframebuffer.h"
 
 Framebuffer* framebuffer_create(Framebuffer* framebuffer, AAttachmentFormat* attachments, int attachments_size, int width, int height) {
 	framebuffer->framebuffer = aframebuffer_create(attachments, attachments_size, width, height);

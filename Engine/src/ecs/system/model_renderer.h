@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* renderer);
 void model_renderer_delete(ModelRenderer* model_renderer);

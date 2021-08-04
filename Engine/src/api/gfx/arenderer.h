@@ -1,5 +1,5 @@
 #pragma once
-#include "api/astructs.h"
+#include "api/atypes.h"
 
 ARenderer* arenderer_create(AContext* context);
 void arenderer_delete(ARenderer* renderer);

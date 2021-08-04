@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.h"
+#include "types.h"
 
 Model* model_create(Model* model);
 void model_delete(Model* model);

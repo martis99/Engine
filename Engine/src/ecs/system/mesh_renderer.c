@@ -11,7 +11,10 @@
 MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* renderer) {
 	mesh_renderer->renderer = renderer;
 
-#ifdef GAPI_OPENGL
+#ifdef GAPI_NONE
+	const char* src_vert = "";
+	const char* src_frag = "";
+#elif GAPI_OPENGL
 	const char* src_vert =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 Position;\n"
@@ -89,17 +92,30 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 		"}\0";
 #endif
 
-	AValue layout[] = {
+	AValue vertex[] = {
 		{"Position", VEC3F},
 		{"TexCoord", VEC2F}
 	};
+
+	AValue index[] = { {"", VEC1U} };
+
+	AMeshDesc md = { 0 };
+	md.vertices.enabled = 1;
+	md.vertices.layout = vertex;
+	md.vertices.layout_size = sizeof(vertex);
+	md.instances.enabled = 0;
+	md.instances.layout = NULL;
+	md.instances.layout_size = 0;
+	md.indices.enabled = 1;
+	md.indices.layout = index;
+	md.indices.layout_size = sizeof(index);
 
 	AValue props[] = {
 		{"Model", MAT4F},
 		{"Color", VEC4F}
 	};
 
-	if (shader_create(&mesh_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), NULL, 0, props, sizeof(props), "Textures", 4) == NULL) {
+	if (shader_create(&mesh_renderer->shader, renderer, src_vert, src_frag, md, props, sizeof(props), "Textures", 4) == NULL) {
 		log_error("Failed to create mesh shader");
 		return NULL;
 	}
@@ -125,7 +141,7 @@ void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs) {
 		Id entity = qr->list[i];
 		//material_set_value(mesh_component->material, 1, &entity);
 		material_bind(mesh_component->material, mesh_renderer->renderer, 1);
-		mesh_draw_elements(mesh_component->mesh, mesh_renderer->renderer);
+		mesh_draw(mesh_component->mesh, mesh_renderer->renderer, 0xFFFFFFFF);
 	}
 }
 

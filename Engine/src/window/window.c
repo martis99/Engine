@@ -1,4 +1,7 @@
 #include "pch.h"
+#include "window.h"
+#include "api/wnd/awindow.h"
+
 #include "app.h"
 
 Window* window_create(Window* window, WindowSettings settings, AWindowCallbacks* callbacks, Cursor* cursor) {

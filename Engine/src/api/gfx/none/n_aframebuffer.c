@@ -1,7 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_NONE
 #include "api/gfx/aframebuffer.h"
-#include "n_astructs.h"
+#include "n_atypes.h"
 
 AFramebuffer* aframebuffer_create(AAttachmentFormat* attachments, int attachments_size, int width, int height) {
 	AFramebuffer* framebuffer = m_malloc(sizeof(AFramebuffer));

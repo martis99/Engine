@@ -1,7 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_DX11
 #include "api/gfx/ashader.h"
-#include "dx11_astructs.h"
+#include "dx11_atypes.h"
 #include "dx11/dx11_shader.h"
 
 AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* src_frag, const char* textures, uint num_textures) {

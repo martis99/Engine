@@ -1,11 +1,9 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "api/gfx/ashader.h"
-#include "gl_astructs.h"
-
+#include "gl_atypes.h"
 #include "gl/gl_program.h"
 #include "gl/gl_shader.h"
-#include "gl/gl_enums.h"
 
 static AShader* create_program(AShader* shader, GLuint vert, GLuint frag) {
 	shader->program = gl_program_create();

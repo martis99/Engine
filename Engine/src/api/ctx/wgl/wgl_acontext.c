@@ -3,13 +3,12 @@
 #ifdef GAPI_OPENGL
 #include "api/ctx/acontext.h"
 #include "api/wnd/awindow.h"
-
-#include <Windows.h>
-
-#include "api/gfx/opengl/gl_astructs.h"
+#include "api/gfx/opengl/gl_atypes.h"
 
 #include "api/gfx/opengl/gl/gl.h"
 #include "wgl.h"
+
+#include <Windows.h>
 
 #pragma comment (lib, "opengl32.lib")
 #pragma warning( disable : 6387 )

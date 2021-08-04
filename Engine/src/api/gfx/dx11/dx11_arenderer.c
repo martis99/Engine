@@ -1,7 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_DX11
 #include "api/gfx/arenderer.h"
-#include "dx11_astructs.h"
+#include "dx11_atypes.h"
 
 ARenderer* arenderer_create(AContext* context) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));

@@ -27,7 +27,10 @@ typedef struct SpriteVertexData {
 SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer* renderer, Transform transform) {
 	sprite_renderer->transform = transform;
 
-#ifdef GAPI_OPENGL
+#ifdef GAPI_NONE
+	const char* src_vert = "";
+	const char* src_frag = "";
+#elif GAPI_OPENGL
 	const char* src_vert =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 Position;\n"
@@ -214,7 +217,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		"	return input.color * tex_color(input.tex_id, tex_coord);\n"
 		"}\0";
 #endif
-	AValue layout[] = {
+	AValue vertex[] = {
 		{"Position", VEC3F},
 		{"Color", VEC4F},
 		{"TexCoord", VEC2F},
@@ -225,11 +228,24 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		{"Entity", VEC1I},
 	};
 
+	AValue index[] = { {"", VEC1U} };
+
+	AMeshDesc md = { 0 };
+	md.vertices.enabled = 1;
+	md.vertices.layout = vertex;
+	md.vertices.layout_size = sizeof(vertex);
+	md.instances.enabled = 0;
+	md.instances.layout = NULL;
+	md.instances.layout_size = 0;
+	md.indices.enabled = 1;
+	md.indices.layout = index;
+	md.indices.layout_size = sizeof(index);
+
 	AValue props[] = {
 		{"Model", MAT4F}
 	};
 
-	if (shader_create(&sprite_renderer->shader, renderer, src_vert, src_frag, layout, sizeof(layout), NULL, 0, props, sizeof(props), "Textures", 16) == NULL) {
+	if (shader_create(&sprite_renderer->shader, renderer, src_vert, src_frag, md, props, sizeof(props), "Textures", 16) == NULL) {
 		log_error("Failed to create sprite shader");
 		return NULL;
 	}
@@ -239,7 +255,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		return NULL;
 	}
 
-	if (batch_renderer_create(&sprite_renderer->batch_renderer, renderer, &sprite_renderer->material, sizeof(SpriteVertex)) == NULL) {
+	if (batch_renderer_create(&sprite_renderer->batch_renderer, renderer, &sprite_renderer->material) == NULL) {
 		log_error("Failed to create sprite batch renderer");
 		return NULL;
 	}
@@ -251,11 +267,6 @@ void sprite_renderer_delete(SpriteRenderer* sprite_renderer) {
 	material_delete(&sprite_renderer->material);
 	shader_delete(&sprite_renderer->shader);
 	batch_renderer_delete(&sprite_renderer->batch_renderer);
-}
-
-
-void sprite_renderer_submit(SpriteRenderer* text_renderer) {
-	batch_renderer_submit(&text_renderer->batch_renderer);
 }
 
 static void add_vertex(void* vvertex, vec3 position, vec2 tex_coord, int tex_index, void* vdata) {
@@ -287,13 +298,12 @@ static void add_sprite(SpriteRenderer* sprite_renderer, Transform* transform, Sp
 }
 
 void sprite_renderer_render(SpriteRenderer* sprite_renderer, Ecs* ecs) {
-	batch_renderer_clear(&sprite_renderer->batch_renderer);
+	batch_renderer_begin(&sprite_renderer->batch_renderer);
 	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_SPRITE);
 	for (uint i = 0; i < qr->count; ++i) {
 		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
 		Sprite* sprite = (Sprite*)ecs_get(ecs, qr->list[i], C_SPRITE);
 		add_sprite(sprite_renderer, transform, sprite, qr->list[i]);
 	}
-	sprite_renderer_submit(sprite_renderer);
-	batch_renderer_draw(&sprite_renderer->transform, &sprite_renderer->batch_renderer);
+	batch_renderer_end(&sprite_renderer->transform, &sprite_renderer->batch_renderer);
 }

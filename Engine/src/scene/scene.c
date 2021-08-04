@@ -155,11 +155,8 @@ static void create_entities3d(Scene* scene) {
 
 	Texture* texture_white = assets_texture_get(&scene->assets, "white");
 
-	Mesh* mesh_cube = assets_mesh_create(&scene->assets, "cube");
-	mesh_init_cube(mesh_cube, scene->renderer, &scene->mesh_renderer.shader);
-
-	Mesh* mesh_cube_inst = assets_mesh_create(&scene->assets, "cube2");
-	mesh_init_cube(mesh_cube_inst, scene->renderer, &scene->instance_renderer.shader);
+	Mesh* mesh_cube = assets_mesh_create_cube(&scene->assets, "cube", &scene->mesh_renderer.shader);
+	Mesh* mesh_cube_inst = assets_mesh_create_cube(&scene->assets, "cube2", &scene->instance_renderer.shader);
 
 	Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", &scene->model_renderer.shader, 0, 0);
 	Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", &scene->model_renderer.shader, 1, 0);
