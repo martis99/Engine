@@ -1,6 +1,6 @@
 #pragma once
 #ifdef GAPI_DX11
-#include <d3d11.h>
+#include "dx11.h"
 
 ID3D11VertexShader* dx11_vs_create(ID3D11Device* device, const char* src, ID3DBlob** blob);
 void dx11_vs_bind(ID3D11VertexShader* vs, ID3D11DeviceContext* context);

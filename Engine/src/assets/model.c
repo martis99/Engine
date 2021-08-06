@@ -31,13 +31,14 @@ void model_delete(Model* model) {
 	arr_delete(&model->materials, material_delete);
 }
 
-static void node_draw(Model* model, Renderer* renderer, Shader* shader, ModelNode* node, mat4 transformation) {
+static void node_draw(Model* model, Renderer* renderer, Shader* shader, ModelNode* node, mat4 transformation, int entity) {
 	mat4 trans = mat4_mul(node->transformation, transformation);
 	for (uint i = 0; i < node->meshes.count; i++) {
 		ModelMesh* mesh = arr_get(&node->meshes, i);
 		if (mesh->material >= 0) {
 			Material* material = arr_get(&model->materials, mesh->material);
 			material_set_value(material, 0, &trans);
+			material_set_value(material, 3, &entity);
 			material_upload(material, renderer);
 			material_bind(material, renderer, 1);
 		}
@@ -45,12 +46,12 @@ static void node_draw(Model* model, Renderer* renderer, Shader* shader, ModelNod
 	}
 
 	for (uint i = 0; i < node->nodes.count; i++) {
-		node_draw(model, renderer, shader, arr_get(&node->nodes, i), trans);
+		node_draw(model, renderer, shader, arr_get(&node->nodes, i), trans, entity);
 	}
 }
 
-void model_draw(Model* model, Renderer* renderer, Shader* shader, mat4 transformation) {
-	node_draw(model, renderer, shader, &model->node, transformation);
+void model_draw(Model* model, Renderer* renderer, Shader* shader, mat4 transformation, int entity) {
+	node_draw(model, renderer, shader, &model->node, transformation, entity);
 }
 
 static void print_material_name(const struct aiMaterial* material, int depth, bool print) {

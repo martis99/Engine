@@ -2,7 +2,7 @@
 #ifdef GAPI_DX11
 #include "api/atypes.h"
 
-#include <d3d11.h>
+#include "dx11/dx11.h"
 
 struct AWindow {
 	LPCWSTR class_name;
@@ -22,15 +22,17 @@ struct AContext {
 struct ARenderer {
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
-	ID3D11RenderTargetView* target;
-	ID3D11DepthStencilState* dsState;
-	ID3D11Texture2D* depthStencil;
-	ID3D11DepthStencilView* dsv;
-	ID3D11RasterizerState* raster_s;
-	ID3D11RasterizerState* raster_sc;
-	ID3D11RasterizerState* raster_w;
-	ID3D11RasterizerState* raster_wc;
-	ID3D11BlendState* blendState;
+	AContext* acontext;
+	ID3D11DepthStencilState* depth_stencil;
+	ID3D11DepthStencilState* depth_stencil_depth;
+	ID3D11DepthStencilState* depth_stencil_stencil;
+	ID3D11DepthStencilState* depth_stencil_depth_stencil;
+	ID3D11RasterizerState* rasterizer_solid_none;
+	ID3D11RasterizerState* rasterizer_solid_back;
+	ID3D11RasterizerState* rasterizer_wireframe_none;
+	ID3D11RasterizerState* rasterizer_wireframe_back;
+	ID3D11BlendState* blend_enabled;
+	ID3D11BlendState* blend_disabled;
 };
 
 struct AShader {
@@ -64,8 +66,27 @@ struct ATexture {
 	ID3D11SamplerState* ss;
 };
 
+typedef struct DX11Attachment {
+	AType type;
+	ID3D11Texture2D* texture;
+	ID3D11RenderTargetView* rtv;
+	ID3D11ShaderResourceView* srv;
+	ID3D11SamplerState* ss;
+	ID3D11Texture2D* st;
+	uint pixel_size;
+} DX11Attachment;
+
 struct AFramebuffer {
-	uint id;
+	ID3D11RenderTargetView* rtv;
+
+	uint attachments_count;
+	DX11Attachment** attachments;
+
+	ID3D11Texture2D* dst;
+	ID3D11DepthStencilView* dsv;
+
+	AShader* shader;
+	AMesh* mesh;
 };
 
 struct ABuffer {

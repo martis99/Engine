@@ -89,8 +89,6 @@ typedef struct Renderer {
 	Framebuffer framebuffer;
 	Shader shader;
 	Mesh mesh;
-	bool backface_culling;
-	bool wireframe;
 } Renderer;
 
 typedef struct Material {

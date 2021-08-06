@@ -84,6 +84,10 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 		"	float4 color     : Color;\n"
 		"	int entity       : Entity;\n"
 		"};\n"
+		"struct Output {\n"
+		"	float4 color : SV_Target0;\n"
+		"	int entity : SV_Target1;\n"
+		"};\n"
 		"float4 tex_color(int tex_id, float2 tex_coord) {\n"
 		"	switch (tex_id) {\n"
 		"		case 0: return Textures[0].Sample(Samplers[0], tex_coord);\n"
@@ -93,8 +97,11 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 		"	}\n"
 		"	return float4(1, 1, 1, 1);\n"
 		"}\n"
-		"float4 main(Input input) : SV_TARGET {\n"
-		"	return input.color * tex_color(0, input.tex_coord);\n"
+		"Output main(Input input) {\n"
+		"	Output output;\n"
+		"	output.color = input.color * tex_color(0, input.tex_coord);\n"
+		"	output.entity = input.entity;\n"
+		"	return output;\n"
 		"}\0";
 #endif
 
@@ -107,7 +114,7 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 		{"Transform", MAT4F }
 	};
 
-	AValue index[] = { {"", VEC1U} };
+	AValue index[] = { {"", VEC1UI} };
 
 	AMeshDesc md = { 0 };
 	md.vertices.enabled = 1;
@@ -153,8 +160,7 @@ void instance_renderer_render(InstanceRenderer* instance_renderer, Ecs* ecs) {
 
 		mat4 model = transform_to_mat4(transform);
 		material_set_value(instance_component->material, 0, &model);
-		Id entity = qr->list[i];
-		material_set_value(instance_component->material, 2, &entity);
+		material_set_value(instance_component->material, 2, &qr->list[i]);
 		material_upload(instance_component->material, instance_renderer->renderer);
 		material_bind(instance_component->material, instance_renderer->renderer, 1);
 		mesh_set_instances(instance_component->mesh, instance_renderer->renderer, instance_component->transforms, instance_component->transforms_count * sizeof(mat4));

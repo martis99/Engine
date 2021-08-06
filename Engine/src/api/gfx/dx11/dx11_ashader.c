@@ -7,7 +7,16 @@
 AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* src_frag, const char* textures, uint num_textures) {
 	AShader* shader = m_malloc(sizeof(AShader));
 	shader->vs = dx11_vs_create(renderer->device, src_vert, &shader->vs_blob);
+	if (shader->vs == NULL) {
+		log_error("Failed to create shader");
+		return NULL;
+	}
+
 	shader->ps = dx11_ps_create(renderer->device, src_frag, &shader->ps_blob);
+	if (shader->ps == NULL) {
+		log_error("Failed to create shader");
+		return NULL;
+	}
 	return shader;
 }
 

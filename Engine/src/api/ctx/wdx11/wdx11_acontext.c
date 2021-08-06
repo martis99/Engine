@@ -25,13 +25,16 @@ AContext* acontext_create(AWindow* window) {
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = 1;
+	sd.BufferCount = 2;
 	sd.OutputWindow = context->window;
 	sd.Windowed = TRUE;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	sd.Flags = 0;
 
 	UINT flags = 0;
+#ifdef _DEBUG
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(
 		NULL,

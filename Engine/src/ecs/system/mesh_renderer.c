@@ -39,7 +39,7 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 		"uniform sampler2D Textures[4];\n"
 		"void main() {\n"
 		"	FragColor = texture(Textures[0], VTexCoord) * Color;\n"
-		"	EntityId = 0;\n"
+		"	EntityId = Entity;\n"
 		"}\0";
 #elif GAPI_DX11
 	const char* src_vert =
@@ -49,6 +49,7 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 		"cbuffer Object {\n"
 		"	row_major matrix Model;\n"
 		"	float4 Color;\n"
+		"	int Entity;\n"
 		"};\n"
 		"struct Input {\n"
 		"	float3 pos       : Position;\n"
@@ -65,7 +66,7 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 		"	output.pos       = mul(float4(input.pos.x, input.pos.y, -input.pos.z, 1.0f), mul(Model, ViewProjection));\n"
 		"	output.tex_coord = input.tex_coord;\n"
 		"	output.color     = Color;\n"
-		"	output.entity    = 0;\n"
+		"	output.entity    = Entity;\n"
 		"	return output;\n"
 		"}\0";
 
@@ -78,6 +79,10 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 		"	float4 color     : Color;\n"
 		"	int entity       : Entity;\n"
 		"};\n"
+		"struct Output {\n"
+		"	float4 color : SV_Target0;\n"
+		"	int entity : SV_Target1;\n"
+		"};\n"
 		"float4 tex_color(int tex_id, float2 tex_coord) {\n"
 		"	switch (tex_id) {\n"
 		"		case 0: return Textures[0].Sample(Samplers[0], tex_coord);\n"
@@ -87,8 +92,11 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 		"	}\n"
 		"	return float4(1, 1, 1, 1);\n"
 		"}\n"
-		"float4 main(Input input) : SV_TARGET {\n"
-		"	return input.color * tex_color(0, input.tex_coord);\n"
+		"Output main(Input input) {\n"
+		"	Output output;\n"
+		"	output.color = input.color * tex_color(0, input.tex_coord);\n"
+		"	output.entity = input.entity;\n"
+		"	return output;\n"
 		"}\0";
 #endif
 
@@ -97,7 +105,7 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 		{"TexCoord", VEC2F}
 	};
 
-	AValue index[] = { {"", VEC1U} };
+	AValue index[] = { {"", VEC1UI} };
 
 	AMeshDesc md = { 0 };
 	md.vertices.enabled = 1;
@@ -112,7 +120,8 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 
 	AValue props[] = {
 		{"Model", MAT4F},
-		{"Color", VEC4F}
+		{"Color", VEC4F},
+		{"Entity", VEC1I}
 	};
 
 	if (shader_create(&mesh_renderer->shader, renderer, src_vert, src_frag, md, props, sizeof(props), "Textures", 4) == NULL) {
@@ -137,9 +146,8 @@ void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs) {
 
 		mat4 model = transform_to_mat4(transform);
 		material_set_value(mesh_component->material, 0, &model);
+		material_set_value(mesh_component->material, 2, &qr->list[i]);
 		material_upload(mesh_component->material, mesh_renderer->renderer);
-		Id entity = qr->list[i];
-		//material_set_value(mesh_component->material, 1, &entity);
 		material_bind(mesh_component->material, mesh_renderer->renderer, 1);
 		mesh_draw(mesh_component->mesh, mesh_renderer->renderer, 0xFFFFFFFF);
 	}

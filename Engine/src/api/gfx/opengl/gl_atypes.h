@@ -19,10 +19,26 @@ struct AContext {
 	HMODULE library;
 };
 
+typedef struct GLAttachment {
+	GLenum format;
+	GLenum type;
+	GLuint texture;
+	GLenum target;
+} GLAttachment;
+
 struct AFramebuffer {
+	int height;
+
 	GLuint fb;
-	GLuint* attachments;
-	GLsizei attachments_count;
+	GLAttachment** attachments;
+	uint attachments_count;
+
+	GLuint depth_stencil;
+
+	GLint slots[8];
+
+	AShader* shader;
+	AMesh* mesh;
 };
 
 struct AMesh {
@@ -84,4 +100,7 @@ GLint gl_awrap(AWrap wrap);
 GLint gl_afilter(AFilter filter);
 GLenum gl_afactor(AFactor factor);
 GLenum gl_atype_type(AType type);
+GLint gl_atype_internal_format(AType type);
+GLenum gl_atype_format(AType type);
+
 #endif

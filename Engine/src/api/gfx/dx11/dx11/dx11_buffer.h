@@ -1,6 +1,6 @@
 #pragma once
 #ifdef GAPI_DX11
-#include <d3d11.h>
+#include "dx11.h"
 
 ID3D11Buffer* dx11_vb_create_static(ID3D11Device* device, const void* data, UINT data_size, UINT element_size);
 ID3D11Buffer* dx11_vb_create_dynamic(ID3D11Device* device, UINT data_size, UINT element_size);

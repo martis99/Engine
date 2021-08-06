@@ -148,4 +148,42 @@ void gl_ub_set_data(GLuint ub, const void* data, GLsizeiptr data_size) {
 void gl_ub_delete(GLuint ub) {
 	glDeleteBuffers(1, &ub);
 }
+
+GLuint gl_fb_create() {
+	GLuint framebuffer;
+	glGenFramebuffers(1, &framebuffer);
+	gl_fb_bind(framebuffer);
+	return framebuffer;
+}
+
+void gl_fb_bind(GLuint framebuffer) {
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+}
+
+bool gl_fb_check_status(GLuint framebuffer) {
+	return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+}
+
+void gl_fb_delete(GLuint framebuffer) {
+	glDeleteFramebuffers(1, &framebuffer);
+}
+
+GLuint gl_rb_create() {
+	GLuint renderbuffer;
+	glGenRenderbuffers(1, &renderbuffer);
+	gl_rb_bind(renderbuffer);
+	return renderbuffer;
+}
+
+void gl_rb_bind(GLuint renderbuffer) {
+	glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+}
+
+void gl_rb_storage(GLsizei width, GLsizei height) {
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+}
+
+void gl_rb_delete(GLuint renderbuffer) {
+	glDeleteRenderbuffers(1, &renderbuffer);
+}
 #endif

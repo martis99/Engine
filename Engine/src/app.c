@@ -17,18 +17,6 @@
 static void key_pressed(byte key) {
 	kb_key_pressed(key);
 	scene_key_pressed(app.scene, key);
-
-	switch (key) {
-	case K_ESCAPE:
-		window_close(&app.window);
-		break;
-	case K_TAB:
-		renderer_toggle_fireframe(&app.renderer);
-		break;
-	case 'C':
-		renderer_toggle_backface_culling(&app.renderer);
-		break;
-	}
 }
 
 static void key_released(byte key) {
@@ -122,9 +110,8 @@ static void delete_app(App* app) {
 static void loop(App* app, float dt) {
 	scene_update(app->scene, dt);
 
-	renderer_begin(&app->renderer);
+	app->stats.draw_calls = 0;
 	scene_render(app->scene, &app->renderer);
-	renderer_end(&app->renderer);
 
 	context_swap_buffers(&app->context);
 }
@@ -166,4 +153,8 @@ int app_run() {
 
 	delete_app(&app);
 	return EXIT_SUCCESS;
+}
+
+void app_exit() {
+	window_close(&app.window);
 }

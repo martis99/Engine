@@ -2,7 +2,6 @@
 #ifdef GAPI_OPENGL
 #include "api/gfx/ashader.h"
 #include "gl_atypes.h"
-#include "gl/gl_program.h"
 #include "gl/gl_shader.h"
 
 static AShader* create_program(AShader* shader, GLuint vert, GLuint frag) {
@@ -89,7 +88,7 @@ void ashader_delete(AShader* shader) {
 void ashader_bind(AShader* shader, ARenderer* renderer) {
 	gl_program_use(shader->program);
 	if (shader->num_textures > 0) {
-		gl_uniform_vec1i(shader->textures_location, shader->num_textures, shader->textures);
+		glUniform1iv(shader->textures_location, shader->num_textures, shader->textures);
 	}
 }
 

@@ -17,14 +17,30 @@ static void add_layout(ABufferDesc desc, uint* index, GLuint divisor) {
 		for (uint j = 0; j < atype_count(desc.layout[i].type, 0); j++) {
 			glEnableVertexAttribArray(*index);
 			switch (desc.layout[i].type) {
-			case VEC1U:
-			case VEC2U:
-			case VEC3U:
-			case VEC4U:
+			case VEC1B:
+			case VEC2B:
+			case VEC3B:
+			case VEC4B:
+			case VEC1UB:
+			case VEC2UB:
+			case VEC3UB:
+			case VEC4UB:
+			case VEC1S:
+			case VEC2S:
+			case VEC3S:
+			case VEC4S:
+			case VEC1US:
+			case VEC2US:
+			case VEC3US:
+			case VEC4US:
 			case VEC1I:
 			case VEC2I:
 			case VEC3I:
 			case VEC4I:
+			case VEC1UI:
+			case VEC2UI:
+			case VEC3UI:
+			case VEC4UI:
 				glVertexAttribIPointer(*index, atype_components(desc.layout[i].type, 0), gl_atype_type(desc.layout[i].type), stride, (void*)(offset));
 				offset += atype_size(desc.layout[i].type);
 				break;
@@ -33,6 +49,13 @@ static void add_layout(ABufferDesc desc, uint* index, GLuint divisor) {
 			case VEC3F:
 			case VEC4F:
 				glVertexAttribPointer(*index, atype_components(desc.layout[i].type, 0), gl_atype_type(desc.layout[i].type), GL_FALSE, stride, (void*)(offset));
+				offset += atype_size(desc.layout[i].type);
+				break;
+			case VEC1D:
+			case VEC2D:
+			case VEC3D:
+			case VEC4D:
+				glVertexAttribLPointer(*index, atype_components(desc.layout[i].type, 0), gl_atype_type(desc.layout[i].type), stride, (void*)(offset));
 				offset += atype_size(desc.layout[i].type);
 				break;
 			case MAT4F:

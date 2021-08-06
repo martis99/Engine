@@ -25,4 +25,14 @@ void gl_ub_bind_base(GLuint ub, GLuint index);
 void gl_ub_set_data(GLuint ub, const void* data, GLsizeiptr data_size);
 void gl_ub_delete(GLuint ub);
 
+GLuint gl_fb_create();
+void gl_fb_bind(GLuint framebuffer);
+bool gl_fb_check_status(GLuint framebuffer);
+void gl_fb_delete(GLuint framebuffer);
+
+GLuint gl_rb_create();
+void gl_rb_bind(GLuint renderbuffer);
+void gl_rb_storage(GLsizei width, GLsizei height);
+void gl_rb_delete(GLuint renderbuffer);
+
 #endif

@@ -70,7 +70,11 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 		"	return vec4(1, 1, 1, 1);\n"
 		"}\n"
 		"void main() {\n"
-		"	FragColor = VColor * vec4(1.0f, 1.0f, 1.0f, tex_color(VTexId, VTexCoord).r);\n"
+		"	float alpha = tex_color(VTexId, VTexCoord).r;"
+		"	if(alpha == 0) {\n"
+		"		discard;\n"
+		"	}\n"
+		"	FragColor = VColor * vec4(1.0f, 1.0f, 1.0f, alpha);\n"
 		"	EntityId = VEntity;\n"
 		"}\0";
 #elif GAPI_DX11
@@ -115,6 +119,10 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 		"	int    tex_id      : TexId;\n"
 		"	int    entity      : Entity;\n"
 		"};\n"
+		"struct Output {\n"
+		"	float4 color : SV_Target0;\n"
+		"	int entity : SV_Target1;\n"
+		"};\n"
 		"float tex_color(int tex_id, float2 tex_coord) {\n"
 		"	switch (tex_id) {\n"
 		"		case 0: return Textures[0].Sample(Samplers[0], tex_coord);\n"
@@ -124,10 +132,13 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 		"	}\n"
 		"	return float4(1, 1, 1, 1);\n"
 		"}\n"
-		"float4 main(Input input) : SV_TARGET {\n"
+		"Output main(Input input) {\n"
+		"	Output output;\n"
 		"	float alpha = tex_color(input.tex_id, input.tex_coord);\n"
 		"	clip(alpha == 0 ? -1 : 1);\n"
-		"	return input.color * float4(1.0, 1.0, 1.0, tex_color(input.tex_id, input.tex_coord));\n"
+		"	output.color = input.color * float4(1.0, 1.0, 1.0, alpha);\n"
+		"	output.entity = input.entity;\n"
+		"	return output;\n"
 		"}\0";
 #endif
 
@@ -139,7 +150,7 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 		{"Entity", VEC1I}
 	};
 
-	AValue index[] = { {"", VEC1U} };
+	AValue index[] = { {"", VEC1UI} };
 
 	AMeshDesc md = { 0 };
 	md.vertices.enabled = 1;
@@ -156,7 +167,7 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 		{"Model", MAT4F}
 	};
 
-	if (shader_create(&text_renderer->shader, renderer, src_vert, src_frag, md, props, sizeof(props), "u_textures", 16) == NULL) {
+	if (shader_create(&text_renderer->shader, renderer, src_vert, src_frag, md, props, sizeof(props), "Textures", 16) == NULL) {
 		log_error("Failed to create text shader");
 		return NULL;
 	}

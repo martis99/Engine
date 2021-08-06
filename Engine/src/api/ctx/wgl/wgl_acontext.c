@@ -60,6 +60,7 @@ static int load_functions(HMODULE library) {
 		LOAD_OPENGL_FUNCTION(glEnableVertexAttribArray) &&
 		LOAD_OPENGL_FUNCTION(glVertexAttribPointer) &&
 		LOAD_OPENGL_FUNCTION(glVertexAttribIPointer) &&
+		LOAD_OPENGL_FUNCTION(glVertexAttribLPointer) &&
 		LOAD_OPENGL_FUNCTION(glVertexAttribDivisor) &&
 
 		LOAD_OPENGL_FUNCTION(glGetUniformLocation) &&
@@ -68,6 +69,10 @@ static int load_functions(HMODULE library) {
 		LOAD_OPENGL_FUNCTION(glUniform2iv) &&
 		LOAD_OPENGL_FUNCTION(glUniform3iv) &&
 		LOAD_OPENGL_FUNCTION(glUniform4iv) &&
+		LOAD_OPENGL_FUNCTION(glUniform1uiv) &&
+		LOAD_OPENGL_FUNCTION(glUniform2uiv) &&
+		LOAD_OPENGL_FUNCTION(glUniform3uiv) &&
+		LOAD_OPENGL_FUNCTION(glUniform4uiv) &&
 		LOAD_OPENGL_FUNCTION(glUniform1fv) &&
 		LOAD_OPENGL_FUNCTION(glUniform2fv) &&
 		LOAD_OPENGL_FUNCTION(glUniform3fv) &&
@@ -87,7 +92,9 @@ static int load_functions(HMODULE library) {
 
 		LOAD_OPENGL_FUNCTION(glDrawBuffers) &&
 		LOAD_OPENGL_FUNCTION(glClearBufferiv) &&
+		LOAD_OPENGL_FUNCTION(glClearBufferuiv) &&
 		LOAD_OPENGL_FUNCTION(glClearBufferfv) &&
+		LOAD_OPENGL_FUNCTION(glClearBufferfi) &&
 
 		LOAD_OPENGL_FUNCTION(glGenRenderbuffers) &&
 		LOAD_OPENGL_FUNCTION(glDeleteRenderbuffers) &&

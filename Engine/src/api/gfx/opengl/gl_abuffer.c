@@ -2,7 +2,7 @@
 #ifdef GAPI_OPENGL
 #include "api/gfx/abuffer.h"
 #include "gl_atypes.h"
-#include "gl/gl_program.h"
+#include "gl/gl_shader.h"
 
 ABuffer* abuffer_create(AValue* values, uint values_size, AShader* shader) {
 	ABuffer* buffer = m_malloc(sizeof(ABuffer));

@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "scene.h"
 
+#include "app.h"
+
 #include "ecs/system/mesh_renderer.h"
 #include "ecs/system/sprite_renderer.h"
 #include "ecs/system/text_renderer.h"
@@ -27,6 +29,7 @@
 #include "assets/mesh.h"
 #include "assets/shader.h"
 #include "assets/texture.h"
+#include "assets/framebuffer.h"
 #include "assets/image.h"
 #include "assets/material.h"
 #include "assets/uniform_buffer.h"
@@ -34,6 +37,9 @@
 
 struct Scene {
 	Renderer* renderer;
+	bool wireframe;
+	bool cull_back;
+	Framebuffer framebuffer;
 	Assets assets;
 	Ecs ecs;
 	Camera camera;
@@ -103,7 +109,7 @@ static void create_entities2d(Scene* scene) {
 	Entity panel = ecs_entity(&scene->ecs);
 	scene->panel = panel;
 	{
-		Transform transform = transform_create((vec3) { 10, 10, 0 }, (vec3) { 0, 0, 0 }, (vec3) { 350, 400, 1 });
+		Transform transform = transform_create((vec3) { 0, 0, 0 }, (vec3) { 0, 0, 0 }, (vec3) { 350, 400, 1 });
 		Sprite sprite = sprite_create(texture_gui, (vec4) { 1.0f, 1.0f, 1.0f, 1.0f }, (vec4) { 1, 10, 18, 10 });
 		Constraints constraints = constraints_create((vec3) { 0, 0, 0 });
 
@@ -224,9 +230,9 @@ static void create_entities3d(Scene* scene) {
 		ecs_add(&scene->ecs, cubes.id, C_INSTANCE, &instance);
 	}
 
-	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 0.0f, 0.0f }, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }, -1);
-	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 1.0f, 0.0f }, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f }, -1);
-	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 1.0f }, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f }, -1);
+	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 0.0f, 0.0f }, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }, -2);
+	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 1.0f, 0.0f }, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f }, -2);
+	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 1.0f }, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f }, -2);
 }
 
 static void create_entities(Scene* scene) {
@@ -258,6 +264,18 @@ static void create_camera(Scene* scene, float width, float height) {
 Scene* scene_create(float width, float height, Renderer* renderer) {
 	Scene* scene = m_malloc(sizeof(Scene));
 	scene->renderer = renderer;
+
+	renderer_depth_stencil_set(renderer, 1, 1);
+
+	scene->wireframe = 0;
+	scene->cull_back = 1;
+
+	AAttachmentDesc attachments[] = {
+		{VEC4F, 0, A_LINEAR, A_REPEAT},
+		{VEC1I, 1, A_LINEAR, A_REPEAT}
+	};
+
+	framebuffer_create(&scene->framebuffer, renderer, attachments, sizeof(attachments), (int)width, (int)height);
 
 	assets_create(&scene->assets, renderer);
 	create_assets(scene);
@@ -300,6 +318,7 @@ void scene_delete(Scene* scene) {
 	model_renderer_delete(&scene->model_renderer);
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
+	framebuffer_delete(&scene->framebuffer);
 	m_free(scene, sizeof(Scene));
 }
 
@@ -307,12 +326,23 @@ void scene_update(Scene* scene, float dt) {
 	text_renderer_calculate_preffered(&scene->ecs);
 	constraints_resolver_resolve(&scene->ecs);
 
-	/*if (is_key_pressed('R')) {
+	if (is_key_pressed('R')) {
 		((Transform*)ecs_get(&scene->ecs, scene->cube.id, C_TRANSFORM))->rotation.y -= 1.0f * dt;
-	}*/
+	}
 }
 
 void scene_render(Scene* scene, Renderer* renderer) {
+	renderer_rasterizer_set(renderer, scene->wireframe, scene->cull_back);
+
+	uint targets[] = { 0, 1 };
+	framebuffer_set_render_targets(&scene->framebuffer, renderer, targets, sizeof(targets));
+	float color[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	framebuffer_clear_attachment(&scene->framebuffer, renderer, 0, color);
+	int entity = -1;
+	framebuffer_clear_attachment(&scene->framebuffer, renderer, 1, &entity);
+	float depth = 1.0f;
+	framebuffer_clear_depth_attachment(&scene->framebuffer, renderer, &depth);
+
 	uniformbuffer_bind(&scene->u_camera, renderer, 0);
 
 	uniformbuffer_set_value(&scene->u_camera, 0, &scene->camera.view_projection);
@@ -323,17 +353,30 @@ void scene_render(Scene* scene, Renderer* renderer) {
 	instance_renderer_render(&scene->instance_renderer, &scene->ecs);
 	line_renderer_render(&scene->line_renderer);
 
-	renderer_clear_depth(renderer);
+	framebuffer_clear_depth_attachment(&scene->framebuffer, renderer, &depth);
 
 	uniformbuffer_set_value(&scene->u_camera, 0, &scene->projection);
 	uniformbuffer_upload(&scene->u_camera, renderer);
 
-	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs);
 	text_renderer_render(&scene->text_renderer, &scene->ecs);
+	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs);
+
+	renderer_rasterizer_set(renderer, 0, 1);
+	framebuffer_draw(&scene->framebuffer, renderer, 0);
 }
 
 void scene_key_pressed(Scene* scene, byte key) {
-
+	switch (key) {
+	case K_ESCAPE:
+		app_exit();
+		break;
+	case K_TAB:
+		scene->wireframe = 1 - scene->wireframe;
+		break;
+	case 'C':
+		scene->cull_back = 1 - scene->cull_back;
+		break;
+	}
 }
 
 void scene_key_released(Scene* scene, byte key) {
@@ -342,8 +385,11 @@ void scene_key_released(Scene* scene, byte key) {
 
 void scene_mouse_pressed(Scene* scene, byte button) {
 	if (button == 0) {
-		//int entity = renderer_get_mouse_entity(scene->renderer);
-		//printf("Pressed entity: %i\n", entity);
+		int x = (int)get_mouse_x();
+		int y = (int)get_mouse_y();
+		int entity = 0;
+		framebuffer_read_pixel(&scene->framebuffer, scene->renderer, 1, x, y, &entity);
+		printf("%i\n", entity);
 	}
 }
 

@@ -2,8 +2,8 @@
 #include "framebuffer.h"
 #include "api/gfx/aframebuffer.h"
 
-Framebuffer* framebuffer_create(Framebuffer* framebuffer, AAttachmentFormat* attachments, int attachments_size, int width, int height) {
-	framebuffer->framebuffer = aframebuffer_create(attachments, attachments_size, width, height);
+Framebuffer* framebuffer_create(Framebuffer* framebuffer, Renderer* renderer, AAttachmentDesc* attachments, uint attachments_size, int width, int height) {
+	framebuffer->framebuffer = aframebuffer_create(renderer->renderer, attachments, attachments_size, width, height);
 	return framebuffer;
 }
 
@@ -11,34 +11,22 @@ void framebuffer_delete(Framebuffer* framebuffer) {
 	aframebuffer_delete(framebuffer->framebuffer);
 }
 
-void framebuffer_bind(Framebuffer* framebuffer) {
-	aframebuffer_bind(framebuffer->framebuffer);
+void framebuffer_set_render_targets(Framebuffer* framebuffer, Renderer* renderer, uint* targets, uint targets_size) {
+	aframebuffer_set_render_targets(framebuffer->framebuffer, renderer->renderer, targets, targets_size);
 }
 
-void framebuffer_unbind(Framebuffer* framebuffer) {
-	aframebuffer_unbind(framebuffer->framebuffer);
+void framebuffer_clear_attachment(Framebuffer* framebuffer, Renderer* renderer, uint id, const void* value) {
+	aframebuffer_clear_attachment(framebuffer->framebuffer, renderer->renderer, id, value);
 }
 
-bool framebuffer_check_status(Framebuffer* framebuffer) {
-	return aframebuffer_check_status(framebuffer->framebuffer);
+void framebuffer_clear_depth_attachment(Framebuffer* framebuffer, Renderer* renderer, const void* value) {
+	aframebuffer_clear_depth_attachment(framebuffer->framebuffer, renderer->renderer, value);
 }
 
-void framebuffer_attachment_bind(Framebuffer* framebuffer, int index) {
-	aframebuffer_attachment_bind(framebuffer->framebuffer, index);
+void framebuffer_read_pixel(Framebuffer* framebuffer, Renderer* renderer, uint id, int x, int y, void* pixel) {
+	aframebuffer_read_pixel(framebuffer->framebuffer, renderer->renderer, id, x, y, pixel);
 }
 
-void framebuffer_color_attachments_draw(Framebuffer* framebuffer) {
-	aframebuffer_color_attachments_draw(framebuffer->framebuffer);
-}
-
-void framebuffer_color_attachment_clear_i(Framebuffer* framebuffer, int index, const int* value) {
-	aframebuffer_color_attachment_clear_i(framebuffer->framebuffer, index, value);
-}
-
-void framebuffer_color_attachment_clear_f(Framebuffer* framebuffer, int index, const float* value) {
-	aframebuffer_color_attachment_clear_f(framebuffer->framebuffer, index, value);
-}
-
-int framebuffer_color_attachment_read_pixel(Framebuffer* framebuffer, int index, int x, int y) {
-	return aframebuffer_color_attachment_read_pixel(framebuffer->framebuffer, index, x, y);
+void framebuffer_draw(Framebuffer* framebuffer, Renderer* renderer, uint id) {
+	aframebuffer_draw(framebuffer->framebuffer, renderer->renderer, id);
 }

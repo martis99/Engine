@@ -3,7 +3,7 @@
 #include "api/gfx/amaterial.h"
 #include "api/gfx/abuffer.h"
 #include "gl_atypes.h"
-#include "gl/gl_program.h"
+#include "gl/gl_shader.h"
 
 AMaterial* amaterial_create(ARenderer* renderer, AShader* shader, AValue* values, uint values_size) {
 	AMaterial* material = m_malloc(sizeof(AMaterial));
@@ -26,15 +26,19 @@ void amaterial_upload(AMaterial* material, ARenderer* renderer) {
 
 void upload_value(AType type, GLint location, const void* data) {
 	switch (type) {
-	case VEC1I: gl_uniform_vec1i(location, 1, data); break;
-	case VEC2I: gl_uniform_vec2i(location, 1, data); break;
-	case VEC3I: gl_uniform_vec3i(location, 1, data); break;
-	case VEC4I: gl_uniform_vec4i(location, 1, data); break;
-	case VEC1F: gl_uniform_vec1f(location, 1, data); break;
-	case VEC2F: gl_uniform_vec2f(location, 1, data); break;
-	case VEC3F: gl_uniform_vec3f(location, 1, data); break;
-	case VEC4F: gl_uniform_vec4f(location, 1, data); break;
-	case MAT4F: gl_uniform_mat4f(location, 1, data); break;
+	case VEC1I: glUniform1iv(location, 1, data); break;
+	case VEC2I: glUniform2iv(location, 1, data); break;
+	case VEC3I: glUniform3iv(location, 1, data); break;
+	case VEC4I: glUniform4iv(location, 1, data); break;
+	case VEC1UI: glUniform1uiv(location, 1, data); break;
+	case VEC2UI: glUniform2uiv(location, 1, data); break;
+	case VEC3UI: glUniform3uiv(location, 1, data); break;
+	case VEC4UI: glUniform4uiv(location, 1, data); break;
+	case VEC1F: glUniform1fv(location, 1, data); break;
+	case VEC2F: glUniform2fv(location, 1, data); break;
+	case VEC3F: glUniform3fv(location, 1, data); break;
+	case VEC4F: glUniform4fv(location, 1, data); break;
+	case MAT4F: glUniformMatrix4fv(location, 1, GL_FALSE, data); break;
 	default: break;
 	}
 }

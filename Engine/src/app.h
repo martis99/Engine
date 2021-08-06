@@ -4,3 +4,4 @@
 App app;
 
 int app_run();
+void app_exit();

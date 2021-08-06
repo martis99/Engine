@@ -76,8 +76,15 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 		"	float4 color     : Color;\n"
 		"	int entity       : Entity;\n"
 		"};\n"
-		"float4 main(Input input) : SV_TARGET {\n"
-		"	return input.color;\n"
+		"struct Output {\n"
+		"	float4 color : SV_Target0;\n"
+		"	int entity : SV_Target1;\n"
+		"};\n"
+		"Output main(Input input) {\n"
+		"	Output output;\n"
+		"	output.color = input.color;\n"
+		"	output.entity = input.entity;\n"
+		"	return output;\n"
 		"}\0";
 #endif
 	AValue vertex[] = {

@@ -4,12 +4,6 @@
 Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height);
 void renderer_delete(Renderer* renderer);
 
-void renderer_begin(Renderer* renderer);
-void renderer_end(Renderer* renderer);
-
-void renderer_clear_depth(Renderer* renderer);
-
-void renderer_toggle_backface_culling(Renderer* renderer);
-void renderer_toggle_fireframe(Renderer* renderer);
-
-int renderer_get_mouse_entity(Renderer* renderer);
+void renderer_depth_stencil_set(Renderer* renderer, bool depth_enabled, bool stencil_enabled);
+void renderer_rasterizer_set(Renderer* renderer, bool wireframe, bool cull_back);
+void renderer_blend_set(Renderer* renderer, bool enabled);

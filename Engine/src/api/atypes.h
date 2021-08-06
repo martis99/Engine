@@ -1,6 +1,7 @@
 #pragma once
 
 typedef enum APrimitive {
+	A_PRIMITIVE_UNKNOWN,
 	A_POINTS,
 	A_LINES,
 	A_TRIANGLES,
@@ -8,6 +9,7 @@ typedef enum APrimitive {
 } APrimitive;
 
 typedef enum AShaderType {
+	A_SHADER_TYOE_UNKNOWN,
 	A_FRAGMENT,
 	A_VERTEX,
 	A_GEOMETRY,
@@ -15,16 +17,19 @@ typedef enum AShaderType {
 } AShaderType;
 
 typedef enum AWrap {
+	A_WRAP_UNKNOWN,
 	A_REPEAT,
 	A_CLAMP_TO_EDGE
 } AWrap;
 
 typedef enum AFilter {
+	A_FILTER_UNKNOWN,
 	A_NEAREST,
 	A_LINEAR
 } AFilter;
 
 typedef enum AFactor {
+	A_FACTOR_UNKNOWN,
 	A_ZERO,
 	A_ONE,
 	A_SRC_COLOR,
@@ -37,27 +42,54 @@ typedef enum AFactor {
 	A_ONE_MINUS_DST_ALPHA
 } AFactor;
 
-typedef enum AAttachmentFormat {
-	A_RGBA8,
-	A_RED_INTEGER,
-	A_DEPTH24STENCIL8
-} AAttachmentFormat;
-
 typedef enum AType {
-	VEC1U,
-	VEC2U,
-	VEC3U,
-	VEC4U,
+	A_TYPE_UNKOWN,
+	VEC1B,
+	VEC2B,
+	VEC3B,
+	VEC4B,
+	VEC1UB,
+	VEC2UB,
+	VEC3UB,
+	VEC4UB,
+	VEC1S,
+	VEC2S,
+	VEC3S,
+	VEC4S,
+	VEC1US,
+	VEC2US,
+	VEC3US,
+	VEC4US,
 	VEC1I,
 	VEC2I,
 	VEC3I,
 	VEC4I,
+	VEC1UI,
+	VEC2UI,
+	VEC3UI,
+	VEC4UI,
 	VEC1F,
 	VEC2F,
 	VEC3F,
 	VEC4F,
+	VEC1D,
+	VEC2D,
+	VEC3D,
+	VEC4D,
 	MAT4F
 } AType;
+
+typedef enum ATypeType {
+	A_TYPE_TYPE_UNKNOWN,
+	A_B,
+	A_UB,
+	A_S,
+	A_US,
+	A_I,
+	A_UI,
+	A_F,
+	A_D
+} ATypeType;
 
 typedef struct AWindow AWindow;
 typedef struct ACursor ACursor;
@@ -102,10 +134,19 @@ typedef struct AMeshDesc {
 	ABufferDesc indices;
 } AMeshDesc;
 
-int atype_components(AType type, bool mat_support);
+typedef struct AAttachmentDesc {
+	AType type;
+	bool readable;
+	AFilter filter;
+	AWrap wrap;
+} AAttachmentDesc;
+
+ATypeType atype_type(AType type);
+uint atype_components(AType type, bool mat_support);
 uint atype_component_size(AType type);
 uint atype_size(AType type);
 uint atype_count(AType type, bool mat_support);
+void atype_convert(float* dst, const void* src, AType type);
 
 uint abufferdesc_size(ABufferDesc desc);
 uint abufferdesc_count(ABufferDesc desc, bool mat_support);

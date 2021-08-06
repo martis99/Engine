@@ -7,14 +7,10 @@
 ARenderer* arenderer_create(AContext* context) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));
 
-	gl_blend_set_enabled(1);
-	gl_cull_face_set_enabled(1);
-	gl_depth_test_set_enabled(1);
-	gl_debug_output_set_enabled(1);
+	gl_debug_output_enable();
 
 	gl_cull_face_back();
 	gl_front_face_cw();
-	gl_polygon_mode_fill();
 
 	gl_blend_func(gl_afactor(A_SRC_ALPHA), gl_afactor(A_ONE_MINUS_SRC_ALPHA));
 
@@ -26,35 +22,33 @@ void arenderer_delete(ARenderer* renderer) {
 	m_free(renderer, sizeof(ARenderer));
 }
 
-void arenderer_clear_buffers(ARenderer* renderer) {
-	gl_clear_buffers();
+void arenderer_depth_stencil_set(ARenderer* renderer, bool depth_enabled, bool stencil_enabled) {
+	if (depth_enabled == 0) {
+		gl_depth_test_disable();
+	} else {
+		gl_depth_test_enable();
+	}
 }
 
-void arenderer_clear_buffer_color(ARenderer* renderer) {
-	gl_clear_buffer_color();
+void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_back) {
+	if (wireframe == 0) {
+		gl_polygon_mode_fill();
+	} else {
+		gl_polygon_mode_line();
+	}
+
+	if (cull_back == 0) {
+		gl_cull_face_disable();
+	} else {
+		gl_cull_face_enable();
+	}
 }
 
-void arenderer_clear_buffer_depth(ARenderer* renderer) {
-	gl_clear_buffer_depth();
-}
-
-void arenderer_clear_color(ARenderer* renderer, float red, float green, float blue, float alpha) {
-	gl_clear_color(red, green, blue, alpha);
-}
-
-void arenderer_depth_test_set_enabled(ARenderer* renderer, bool enabled) {
-	gl_depth_test_set_enabled(enabled);
-}
-
-void arenderer_cull_face_set_enabled(ARenderer* renderer, bool enabled) {
-	gl_cull_face_set_enabled(enabled);
-}
-
-void arenderer_polygon_mode_fill(ARenderer* renderer) {
-	gl_polygon_mode_fill();
-}
-
-void arenderer_polygon_mode_line(ARenderer* renderer) {
-	gl_polygon_mode_line();
+void arenderer_blend_set(ARenderer* renderer, bool enabled) {
+	if (enabled == 0) {
+		gl_blend_disable();
+	} else {
+		gl_blend_enable();
+	}
 }
 #endif

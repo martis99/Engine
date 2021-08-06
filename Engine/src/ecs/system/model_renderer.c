@@ -78,7 +78,7 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* re
 		"	output.tex_coord = input.tex_coord;\n"
 		"	output.diffuse   = Diffuse;\n"
 		"	output.specular  = Specular;\n"
-		"	output.entity    = 0;\n"
+		"	output.entity    = Entity;\n"
 		"	return output;\n"
 		"}\0";
 
@@ -92,6 +92,10 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* re
 		"	float4 specular  : Specular;\n"
 		"	int entity       : Entity;\n"
 		"};\n"
+		"struct Output {\n"
+		"	float4 color : SV_Target0;\n"
+		"	int entity : SV_Target1;\n"
+		"};\n"
 		"float4 tex_color(int tex_id, float2 tex_coord) {\n"
 		"	switch (tex_id) {\n"
 		"		case 0: return Textures[0].Sample(Samplers[0], tex_coord);\n"
@@ -101,11 +105,14 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* re
 		"	}\n"
 		"	return float4(1, 1, 1, 1);\n"
 		"}\n"
-		"float4 main(Input input) : SV_TARGET {\n"
+		"Output main(Input input) {\n"
+		"	Output output;\n"
 		"	float4 diffuse = input.diffuse * tex_color(0, input.tex_coord);\n"
 		"	float4 specular = input.specular * tex_color(1, input.tex_coord);\n"
 		"	float4 col = diffuse + specular;\n"
-		"	return float4(col.x, col.y, col.z, 1.0);\n"
+		"	output.color = float4(col.x, col.y, col.z, 1.0);\n"
+		"	output.entity = input.entity;\n"
+		"	return output;\n"
 		"}\0";
 #endif
 	AValue vertex[] = {
@@ -113,7 +120,7 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* re
 		{"TexCoord", VEC2F}
 	};
 
-	AValue index[] = { {"", VEC1U} };
+	AValue index[] = { {"", VEC1UI} };
 
 	AMeshDesc md = { 0 };
 	md.vertices.enabled = 1;
@@ -154,6 +161,6 @@ void model_renderer_render(ModelRenderer* model_renderer, Ecs* ecs) {
 		Model* model = (Model*)ecs_get(ecs, qr->list[i], C_MODEL);
 
 		mat4 mat = transform_to_mat4(transform);
-		model_draw(model, model_renderer->renderer, &model_renderer->shader, mat);
+		model_draw(model, model_renderer->renderer, &model_renderer->shader, mat, qr->list[i]);
 	}
 }

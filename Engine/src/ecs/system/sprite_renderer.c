@@ -173,6 +173,10 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		"	float4 spr_borders : SprBorders;\n"
 		"	int    entity      : Entity;\n"
 		"};\n"
+		"struct Output {\n"
+		"	float4 color : SV_Target0;\n"
+		"	int entity : SV_Target1;\n"
+		"};\n"
 		"float2 tex_borders(float2 tex_coord, float2 tex_size, float2 spr_size, float4 spr_borders) {\n"
 		"	float2 pixel = tex_coord * spr_size;\n"
 		"	float l = spr_borders.x;\n"
@@ -212,9 +216,12 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		"	}\n"
 		"	return float4(1, 1, 1, 1);\n"
 		"}\n"
-		"float4 main(Input input) : SV_TARGET {\n"
+		"Output main(Input input) {\n"
+		"	Output output;\n"
 		"	float2 tex_coord = tex_borders(input.tex_coord, input.tex_size, input.spr_size, input.spr_borders);\n"
-		"	return input.color * tex_color(input.tex_id, tex_coord);\n"
+		"	output.color = input.color * tex_color(input.tex_id, tex_coord);\n"
+		"	output.entity = input.entity;\n"
+		"	return output;\n"
 		"}\0";
 #endif
 	AValue vertex[] = {
@@ -228,7 +235,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		{"Entity", VEC1I},
 	};
 
-	AValue index[] = { {"", VEC1U} };
+	AValue index[] = { {"", VEC1UI} };
 
 	AMeshDesc md = { 0 };
 	md.vertices.enabled = 1;

@@ -2,22 +2,6 @@
 #ifdef GAPI_OPENGL
 #include "gl_renderer.h"
 
-void gl_clear_buffers() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void gl_clear_buffer_color() {
-	glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void gl_clear_buffer_depth() {
-	glClear(GL_DEPTH_BUFFER_BIT);
-}
-
-void gl_clear_color(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) {
-	glClearColor(red, green, blue, alpha);
-}
-
 void gl_cull_face_enable() {
 	glEnable(GL_CULL_FACE);
 }
@@ -26,28 +10,12 @@ void gl_cull_face_disable() {
 	glDisable(GL_CULL_FACE);
 }
 
-void gl_cull_face_set_enabled(bool enabled) {
-	if (enabled == 0) {
-		gl_cull_face_disable();
-	} else {
-		gl_cull_face_enable();
-	}
-}
-
 void gl_depth_test_enable() {
 	glEnable(GL_DEPTH_TEST);
 }
 
 void gl_depth_test_disable() {
 	glDisable(GL_DEPTH_TEST);
-}
-
-void gl_depth_test_set_enabled(bool enabled) {
-	if (enabled == 0) {
-		gl_depth_test_disable();
-	} else {
-		gl_depth_test_enable();
-	}
 }
 
 void gl_polygon_mode_fill() {
@@ -76,14 +44,6 @@ void gl_blend_enable() {
 
 void gl_blend_disable() {
 	glDisable(GL_BLEND);
-}
-
-void gl_blend_set_enabled(bool enabled) {
-	if (enabled == 0) {
-		gl_blend_disable();
-	} else {
-		gl_blend_enable();
-	}
 }
 
 void gl_blend_func(GLenum sfactor, GLenum dfactor) {
@@ -143,13 +103,5 @@ void gl_debug_output_enable() {
 void gl_debug_output_disable() {
 	glDisable(GL_DEBUG_OUTPUT);
 	glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-}
-
-void gl_debug_output_set_enabled(bool enabled) {
-	if (enabled == 0) {
-		gl_debug_output_disable();
-	} else {
-		gl_debug_output_enable();
-	}
 }
 #endif
