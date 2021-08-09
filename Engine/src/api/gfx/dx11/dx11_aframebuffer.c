@@ -108,6 +108,22 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 
 	AValue index[] = { {"", VEC1UI} };
 
+	AValue output[] = {
+		{"Color", VEC4F}
+	};
+
+	ABufferDesc buffers[] = {
+		{A_BFR_VERTEX, "Input", 0, vertex, sizeof(vertex)},
+		{A_BFR_INDEX, NULL, 0, index, sizeof(index)},
+		{A_BFR_PS_OUT, "Output", 0, output, sizeof(output)}
+	};
+
+	AShaderDesc shader_desc = { 0 };
+	shader_desc.buffers = buffers;
+	shader_desc.buffers_size = sizeof(buffers);
+	shader_desc.textures_count = 1;
+	shader_desc.texture_type = VEC4F;
+
 	float vertices[] = {
 		-1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
 		-1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
@@ -120,23 +136,13 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 		0, 2, 3
 	};
 
-	AMeshDesc desc = { 0 };
-	desc.vertices.enabled = 1;
-	desc.vertices.layout = vertex;
-	desc.vertices.layout_size = sizeof(vertex);
-	desc.vertices.data = vertices;
-	desc.vertices.data_size = sizeof(vertices);
-	desc.indices.enabled = 1;
-	desc.indices.layout = index;
-	desc.indices.layout_size = sizeof(index);
-	desc.indices.data = indices;
-	desc.indices.data_size = sizeof(indices);
-	desc.instances.enabled = 0;
-	desc.instances.layout = NULL;
-	desc.instances.layout_size = 0;
-	desc.instances.data = NULL;
-	desc.instances.data_size = 0;
-	framebuffer->mesh = amesh_create(renderer, framebuffer->shader, desc, A_TRIANGLES);
+	AMeshData md = { 0 };
+	md.vertices.data = vertices;
+	md.vertices.size = sizeof(vertices);
+	md.indices.data = indices;
+	md.indices.size = sizeof(indices);
+
+	framebuffer->mesh = amesh_create(renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
 	if (framebuffer->mesh == NULL) {
 		log_error("Failed to create mesh");
 		return NULL;

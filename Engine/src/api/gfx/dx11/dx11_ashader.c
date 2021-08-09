@@ -31,8 +31,4 @@ void ashader_bind(AShader* shader, ARenderer* renderer) {
 	dx11_ps_bind(shader->ps, renderer->context);
 }
 
-void ashader_bind_uniform_block(AShader* shader, const char* name, uint index) {
-
-}
-
 #endif

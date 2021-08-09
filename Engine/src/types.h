@@ -73,13 +73,10 @@ typedef struct Texture {
 } Texture;
 
 typedef struct Shader {
+	AShaderDesc desc;
 	AShader* shader;
-	AMeshDesc mesh_desc;
-	AValue* props;
-	uint props_size;
 	Image default_image;
 	Texture default_texture;
-	uint num_textures;
 } Shader;
 
 typedef struct Renderer {
@@ -91,9 +88,18 @@ typedef struct Renderer {
 	Mesh mesh;
 } Renderer;
 
+typedef struct UniformBuffer {
+	ABuffer values;
+	AUniformBuffer* buffer;
+} UniformBuffer;
+
+
 typedef struct Material {
 	Shader* shader;
-	AMaterial* material;
+	bool vs;
+	UniformBuffer vs_buffer;
+	bool ps;
+	UniformBuffer ps_buffer;
 	Texture** textures;
 	uint textures_count;
 	uint textures_cap;
@@ -132,10 +138,6 @@ typedef struct Assets {
 	Dictionary* fonts;
 	Dictionary* models;
 } Assets;
-
-typedef struct UniformBuffer {
-	AUniformBuffer* uniform_buffer;
-} UniformBuffer;
 
 typedef struct ModelMesh {
 	Mesh mesh;

@@ -4,19 +4,19 @@
 #include "gl_atypes.h"
 #include "gl/gl_buffer.h"
 
-static void add_layout(ABufferDesc desc, uint* index, GLuint divisor) {
-	uint layout_count = desc.layout_size / sizeof(AValue);
+static void add_layout(ABufferDesc* desc, uint* index, GLuint divisor) {
+	uint layout_count = desc->values_size / sizeof(AValue);
 
 	GLuint stride = 0;
 	for (uint i = 0; i < layout_count; i++) {
-		stride += atype_size(desc.layout[i].type);
+		stride += atype_size(desc->values[i].type);
 	}
 
 	byte offset = 0;
 	for (uint i = 0; i < layout_count; i++) {
-		for (uint j = 0; j < atype_count(desc.layout[i].type, 0); j++) {
+		for (uint j = 0; j < atype_count(desc->values[i].type, 0); j++) {
 			glEnableVertexAttribArray(*index);
-			switch (desc.layout[i].type) {
+			switch (desc->values[i].type) {
 			case VEC1B:
 			case VEC2B:
 			case VEC3B:
@@ -41,25 +41,25 @@ static void add_layout(ABufferDesc desc, uint* index, GLuint divisor) {
 			case VEC2UI:
 			case VEC3UI:
 			case VEC4UI:
-				glVertexAttribIPointer(*index, atype_components(desc.layout[i].type, 0), gl_atype_type(desc.layout[i].type), stride, (void*)(offset));
-				offset += atype_size(desc.layout[i].type);
+				glVertexAttribIPointer(*index, atype_components(desc->values[i].type, 0), gl_atype_type(desc->values[i].type), stride, (void*)(offset));
+				offset += atype_size(desc->values[i].type);
 				break;
 			case VEC1F:
 			case VEC2F:
 			case VEC3F:
 			case VEC4F:
-				glVertexAttribPointer(*index, atype_components(desc.layout[i].type, 0), gl_atype_type(desc.layout[i].type), GL_FALSE, stride, (void*)(offset));
-				offset += atype_size(desc.layout[i].type);
+				glVertexAttribPointer(*index, atype_components(desc->values[i].type, 0), gl_atype_type(desc->values[i].type), GL_FALSE, stride, (void*)(offset));
+				offset += atype_size(desc->values[i].type);
 				break;
 			case VEC1D:
 			case VEC2D:
 			case VEC3D:
 			case VEC4D:
-				glVertexAttribLPointer(*index, atype_components(desc.layout[i].type, 0), gl_atype_type(desc.layout[i].type), stride, (void*)(offset));
-				offset += atype_size(desc.layout[i].type);
+				glVertexAttribLPointer(*index, atype_components(desc->values[i].type, 0), gl_atype_type(desc->values[i].type), stride, (void*)(offset));
+				offset += atype_size(desc->values[i].type);
 				break;
 			case MAT4F:
-				glVertexAttribPointer(*index, atype_components(desc.layout[i].type, 0), gl_atype_type(desc.layout[i].type), GL_FALSE, stride, (void*)(offset));
+				glVertexAttribPointer(*index, atype_components(desc->values[i].type, 0), gl_atype_type(desc->values[i].type), GL_FALSE, stride, (void*)(offset));
 				offset += atype_size(VEC4F);
 				break;
 			}
@@ -69,90 +69,69 @@ static void add_layout(ABufferDesc desc, uint* index, GLuint divisor) {
 	}
 }
 
-static GLuint create_vertex_buffer(AMesh* mesh, ABufferDesc desc, uint* index) {
+static void create_vertex_buffer(AMesh* mesh, ABufferDesc* desc, ABufferData data) {
+	if (desc == NULL) {
+		return;
+	}
 	mesh->vertex_size = abufferdesc_size(desc);
-
-	if (desc.data == NULL) {
-		mesh->vertices = gl_vb_create_dynamic(desc.data_size);
+	if (data.data == NULL) {
+		mesh->vertices = gl_vb_create_dynamic(desc->max_count * mesh->vertex_size);
 		mesh->vertices_count = 0;
 	} else {
-		mesh->vertices = gl_vb_create_static(desc.data, desc.data_size);
-		mesh->vertices_count = desc.data_size / mesh->vertex_size;
+		mesh->vertices = gl_vb_create_static(data.data, data.size);
+		mesh->vertices_count = data.size / mesh->vertex_size;
 	}
-
-	add_layout(desc, index, 0);
-	return mesh->vertices;
 }
 
-static GLuint create_instance_buffer(AMesh* mesh, ABufferDesc desc, uint* index) {
+static void create_instance_buffer(AMesh* mesh, ABufferDesc* desc, ABufferData data) {
+	if (desc == NULL) {
+		return;
+	}
 	mesh->instance_size = abufferdesc_size(desc);
-
-	if (desc.data == NULL) {
-		mesh->instances = gl_vb_create_dynamic(desc.data_size);
+	if (data.data == NULL) {
+		mesh->instances = gl_vb_create_dynamic(desc->max_count * mesh->instance_size);
 		mesh->instances_count = 0;
 	} else {
-		mesh->instances = gl_vb_create_static(desc.data, desc.data_size);
-		mesh->instances_count = desc.data_size / mesh->instance_size;
+		mesh->instances = gl_vb_create_static(data.data, data.size);
+		mesh->instances_count = data.size / mesh->instance_size;
 	}
-
-	add_layout(desc, index, 1);
-	return mesh->instances;
 }
 
-static GLuint create_index_buffer(AMesh* mesh, ABufferDesc desc) {
+static void create_index_buffer(AMesh* mesh, ABufferDesc* desc, ABufferData data) {
+	if (desc == NULL) {
+		return;
+	}
 	mesh->index_size = abufferdesc_size(desc);
-
-	if (desc.data == NULL) {
-		mesh->indices = gl_ib_create_dynamic(desc.data_size);
+	if (data.data == NULL) {
+		mesh->indices = gl_ib_create_dynamic(desc->max_count * mesh->index_size);
 		mesh->indices_count = 0;
 	} else {
-		mesh->indices = gl_ib_create_static(desc.data, desc.data_size);
-		mesh->indices_count = desc.data_size / mesh->index_size;
+		mesh->indices = gl_ib_create_static(data.data, data.size);
+		mesh->indices_count = data.size / mesh->index_size;
 	}
-
-	mesh->index_type = gl_atype_type(desc.layout[0].type);
-	return mesh->indices;
+	mesh->index_type = gl_atype_type(desc->values[0].type);
 }
 
-AMesh* amesh_create(ARenderer* renderer, AShader* shader, AMeshDesc desc, APrimitive primitive) {
+AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMeshData data, APrimitive primitive) {
 	AMesh* mesh = m_malloc(sizeof(AMesh));
+
+	ABufferDesc* vertices_desc = ashaderdesc_get_bufferdesc(desc, A_BFR_VERTEX);
+	ABufferDesc* instances_desc = ashaderdesc_get_bufferdesc(desc, A_BFR_INSTANCE);
+	ABufferDesc* indices_desc = ashaderdesc_get_bufferdesc(desc, A_BFR_INDEX);
 
 	mesh->va = gl_va_create();
 	uint index = 0;
-
-	if (desc.vertices.enabled == 0) {
-		mesh->vertex_size = 0;
-		mesh->vertices = 0;
-		mesh->vertices_count = 0;
-	} else {
-		if (create_vertex_buffer(mesh, desc.vertices, &index) == 0) {
-			log_error("Failed to create vertex buffer");
-			return NULL;
-		}
+	create_vertex_buffer(mesh, vertices_desc, data.vertices);
+	if (vertices_desc != NULL) {
+		add_layout(vertices_desc, &index, 0);
 	}
 
-	if (desc.instances.enabled == 0) {
-		mesh->instance_size = 0;
-		mesh->instances = 0;
-		mesh->instances_count = 0;
-	} else {
-		if (create_instance_buffer(mesh, desc.instances, &index) == 0) {
-			log_error("Failed to create instance buffer");
-			return NULL;
-		}
+	create_instance_buffer(mesh, instances_desc, data.instances);
+	if (instances_desc != NULL) {
+		add_layout(instances_desc, &index, 1);
 	}
 
-	if (desc.indices.enabled == 0) {
-		mesh->index_size = 0;
-		mesh->indices = 0;
-		mesh->indices_count = 0;
-		mesh->index_type = 0;
-	} else {
-		if (create_index_buffer(mesh, desc.indices) == 0) {
-			log_error("Failed to create index buffer");
-			return NULL;
-		}
-	}
+	create_index_buffer(mesh, indices_desc, data.indices);
 
 	mesh->primitive = gl_aprimitive(primitive);
 

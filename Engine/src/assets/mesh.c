@@ -4,8 +4,8 @@
 
 #include "app.h"
 
-Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshDesc desc, APrimitive primitive) {
-	mesh->mesh = amesh_create(renderer->renderer, shader->shader, desc, primitive);
+Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshData data, APrimitive primitive) {
+	mesh->mesh = amesh_create(renderer->renderer, shader->shader, shader->desc, data, primitive);
 	return mesh;
 }
 
@@ -27,7 +27,7 @@ void mesh_set_indices(Mesh* mesh, Renderer* renderer, const void* indices, uint 
 
 void mesh_draw(Mesh* mesh, Renderer* renderer, uint indices) {
 	amesh_draw(mesh->mesh, renderer->renderer, indices);
-	app.stats.draw_calls++;
+	app_get_stats()->draw_calls++;
 }
 
 Mesh* mesh_create_cube(Mesh* mesh, Renderer* renderer, Shader* shader) {
@@ -78,10 +78,10 @@ Mesh* mesh_create_cube(Mesh* mesh, Renderer* renderer, Shader* shader) {
 		23, 21, 22
 	};
 
-	AMeshDesc md = shader->mesh_desc;
+	AMeshData md = { 0 };
 	md.vertices.data = vertices;
-	md.vertices.data_size = sizeof(vertices);
+	md.vertices.size = sizeof(vertices);
 	md.indices.data = indices;
-	md.indices.data_size = sizeof(indices);
+	md.indices.size = sizeof(indices);
 	return mesh_create(mesh, renderer, shader, md, A_TRIANGLES);
 }

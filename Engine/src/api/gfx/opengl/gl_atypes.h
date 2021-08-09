@@ -24,6 +24,7 @@ typedef struct GLAttachment {
 	GLenum type;
 	GLuint texture;
 	GLenum target;
+	GLint slot;
 } GLAttachment;
 
 struct AFramebuffer {
@@ -34,8 +35,6 @@ struct AFramebuffer {
 	uint attachments_count;
 
 	GLuint depth_stencil;
-
-	GLint slots[8];
 
 	AShader* shader;
 	AMesh* mesh;
@@ -75,23 +74,9 @@ struct ATexture {
 	GLuint id;
 };
 
-struct ABuffer {
-	uint* offsets;
-	uint* sizes;
-	GLint* locations;
-	AType* types;
-	uint size;
-	uint count;
-	void* data;
-};
-
 struct AUniformBuffer {
-	GLuint ub;
-	ABuffer* buffer;
-};
-
-struct AMaterial {
-	ABuffer* buffer;
+	GLuint buffer;
+	GLuint slot;
 };
 
 GLenum gl_aprimitive(APrimitive primitive);

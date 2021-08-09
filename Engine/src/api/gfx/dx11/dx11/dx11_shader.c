@@ -14,10 +14,10 @@ ID3D11VertexShader* dx11_vs_create(ID3D11Device* device, const char* src, ID3DBl
 
 	hr = D3DCompile(src, strlen(src), NULL, NULL, NULL, "main", "vs_5_0", 0, 0, blob, &error);
 	if (FAILED(hr)) {
-		log_error("Failed to compile vertex shader");
 		if (error) {
 			printf("%s\n", (char*)error->lpVtbl->GetBufferPointer(error));
 		}
+		log_error("Failed to compile vertex shader");
 		return NULL;
 	}
 
@@ -50,10 +50,10 @@ ID3D11PixelShader* dx11_ps_create(ID3D11Device* device, const char* src, ID3DBlo
 
 	hr = D3DCompile(src, strlen(src), NULL, NULL, NULL, "main", "ps_5_0", 0, 0, blob, &error);
 	if (FAILED(hr)) {
-		log_error("Failed to compile pixel shader");
 		if (error) {
 			printf("%s\n", (char*)error->lpVtbl->GetBufferPointer(error));
 		}
+		log_error("Failed to compile pixel shader");
 		return NULL;
 	}
 

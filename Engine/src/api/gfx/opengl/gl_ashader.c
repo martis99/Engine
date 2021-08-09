@@ -92,8 +92,4 @@ void ashader_bind(AShader* shader, ARenderer* renderer) {
 	}
 }
 
-void ashader_bind_uniform_block(AShader* shader, const char* name, uint index) {
-	gl_shader_bind_uniform_block(shader->program, name, index);
-}
-
 #endif

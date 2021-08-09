@@ -74,47 +74,90 @@ void atype_convert(float* dst, const void* src, AType type) {
 	}
 }
 
-uint abufferdesc_size(ABufferDesc desc) {
-	uint count = desc.layout_size / sizeof(AValue);
-	uint size = 0;
-	for (uint i = 0; i < count; i++) {
-		size += atype_size(desc.layout[i].type);
+char* str_copy(const char* str) {
+	if (str == NULL) {
+		return NULL;
 	}
-	return size;
+	char* dst = m_malloc(strlen(str) + 1);
+	return memcpy(dst, str, strlen(str) + 1);
 }
 
-uint abufferdesc_count(ABufferDesc desc, bool mat_support) {
-	uint count = desc.layout_size / sizeof(AValue);
-	uint size = 0;
-	for (uint i = 0; i < count; i++) {
-		size += atype_count(desc.layout[i].type, mat_support);
-	}
-	return size;
-}
-
-void abufferdesc_copy(ABufferDesc* dst, ABufferDesc* src) {
-	if (src->enabled == 0) {
+void str_delete(char* str) {
+	if (str == NULL) {
 		return;
 	}
-	dst->layout = m_malloc(src->layout_size);
-	memcpy(dst->layout, src->layout, src->layout_size);
+	m_free(str, strlen(str) + 1);
+}
+
+void avalue_copy(AValue* src, AValue* dst) {
+	dst->type = src->type;
+	dst->name = str_copy(src->name);
+}
+
+void avalue_delete(AValue* value) {
+	str_delete(value->name);
+}
+
+uint abufferdesc_size(ABufferDesc* desc) {
+	uint count = desc->values_size / sizeof(AValue);
+	uint size = 0;
+	for (uint i = 0; i < count; i++) {
+		size += atype_size(desc->values[i].type);
+	}
+	return size;
+}
+
+uint abufferdesc_count(ABufferDesc* desc, bool mat_support) {
+	uint count = desc->values_size / sizeof(AValue);
+	uint size = 0;
+	for (uint i = 0; i < count; i++) {
+		size += atype_count(desc->values[i].type, mat_support);
+	}
+	return size;
+}
+
+void abufferdesc_copy(ABufferDesc* src, ABufferDesc* dst) {
+	memcpy(dst, src, sizeof(ABufferDesc));
+	dst->name = str_copy(src->name);
+	dst->values = m_malloc(src->values_size);
+	uint values_count = src->values_size / sizeof(AValue);
+	for (uint i = 0; i < values_count; i++) {
+		avalue_copy(&src->values[i], &dst->values[i]);
+	}
 }
 
 void abufferdesc_delete(ABufferDesc* desc) {
-	if (desc->enabled == 0) {
-		return;
+	str_delete(desc->name);
+	uint values_count = desc->values_size / sizeof(AValue);
+	for (uint i = 0; i < values_count; i++) {
+		avalue_delete(&desc->values[i]);
 	}
-	m_free(desc->layout, desc->layout_size);
+	m_free(desc->values, desc->values_size);
 }
 
-void ameshdesc_copy(AMeshDesc* dst, AMeshDesc* src) {
-	abufferdesc_copy(&dst->vertices, &src->vertices);
-	abufferdesc_copy(&dst->instances, &src->instances);
-	abufferdesc_copy(&dst->indices, &src->indices);
+void ashaderdesc_copy(AShaderDesc* src, AShaderDesc* dst) {
+	memcpy(dst, src, sizeof(AShaderDesc));
+	dst->buffers = m_malloc(src->buffers_size);
+	uint buffers_count = src->buffers_size / sizeof(ABufferDesc);
+	for (uint i = 0; i < buffers_count; i++) {
+		abufferdesc_copy(&src->buffers[i], &dst->buffers[i]);
+	}
 }
 
-void ameshdesc_delete(AMeshDesc* desc) {
-	abufferdesc_delete(&desc->vertices);
-	abufferdesc_delete(&desc->instances);
-	abufferdesc_delete(&desc->indices);
+void ashaderdesc_delete(AShaderDesc* desc) {
+	uint buffers_count = desc->buffers_size / sizeof(ABufferDesc);
+	for (uint i = 0; i < buffers_count; i++) {
+		abufferdesc_delete(&desc->buffers[i]);
+	}
+	m_free(desc->buffers, desc->buffers_size);
+}
+
+ABufferDesc* ashaderdesc_get_bufferdesc(AShaderDesc desc, ABufferType type) {
+	uint buffers_count = desc.buffers_size / sizeof(ABufferDesc);
+	for (uint i = 0; i < buffers_count; i++) {
+		if (desc.buffers[i].type == type) {
+			return &desc.buffers[i];
+		}
+	}
+	return NULL;
 }

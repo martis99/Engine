@@ -89,22 +89,9 @@ struct AFramebuffer {
 	AMesh* mesh;
 };
 
-struct ABuffer {
-	UINT* offsets;
-	UINT* sizes;
-	UINT size;
-	UINT count;
-	void* data;
-};
-
 struct AUniformBuffer {
-	ID3D11Buffer* cb;
-	ABuffer* buffer;
-};
-
-struct AMaterial {
-	ID3D11Buffer* cb;
-	ABuffer* buffer;
+	ID3D11Buffer* buffer;
+	UINT slot;
 };
 
 D3D11_PRIMITIVE_TOPOLOGY dx11_aprimitive(APrimitive primitive);

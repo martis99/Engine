@@ -83,28 +83,15 @@ static void create_systems(Scene* scene) {
 	}
 }
 
-static void create_assets(Scene* scene) {
-	Image* image_white = assets_image_create(&scene->assets, "white", 1, 1, 4);
-	uint data = (uint)0xffffffff;
-	image_set_data(image_white, (unsigned char*)&data);
-
-	Image* image_container = assets_image_load(&scene->assets, "container", "res/images/container.jpg");
-	Image* image_gui = assets_image_load(&scene->assets, "imgui", "res/images/gui.png");
-	Image* image_mountains = assets_image_load(&scene->assets, "mountains", "res/images/mountains.jpg");
-	Font* font = assets_font_load(&scene->assets, "font", "res/fonts/ProggyClean.ttf", 13);
-
-	Texture* texture_white = assets_texture_create_from_image(&scene->assets, "white", image_white, A_CLAMP_TO_EDGE, A_NEAREST);
-	Texture* texture_container = assets_texture_create_from_image(&scene->assets, "container", image_container, A_CLAMP_TO_EDGE, A_LINEAR);
-	Texture* texture_gui = assets_texture_create_from_image(&scene->assets, "gui", image_gui, A_CLAMP_TO_EDGE, A_NEAREST);
-	Texture* texture_mountains = assets_texture_create_from_image(&scene->assets, "mountains", image_mountains, A_CLAMP_TO_EDGE, A_LINEAR);
-}
-
 static void create_entities2d(Scene* scene) {
 
-	Texture* texture_gui = assets_texture_get(&scene->assets, "gui");
-	Texture* texture_mountains = assets_texture_get(&scene->assets, "mountains");
+	Image* image_gui = assets_image_load(&scene->assets, "imgui", "res/images/gui.png");
+	Image* image_mountains = assets_image_load(&scene->assets, "mountains", "res/images/mountains.jpg");
 
-	Font* font = assets_font_get(&scene->assets, "font");
+	Texture* texture_gui = assets_texture_create_from_image(&scene->assets, "gui", image_gui, A_CLAMP_TO_EDGE, A_NEAREST);
+	Texture* texture_mountains = assets_texture_create_from_image(&scene->assets, "mountains", image_mountains, A_CLAMP_TO_EDGE, A_LINEAR);
+
+	Font* font = assets_font_load(&scene->assets, "font", "res/fonts/ProggyClean.ttf", 13);
 
 	Entity panel = ecs_entity(&scene->ecs);
 	scene->panel = panel;
@@ -152,14 +139,22 @@ static void create_entities2d(Scene* scene) {
 
 static void create_entities3d(Scene* scene) {
 
-	Material* material_white = assets_material_get(&scene->assets, "white");
-	Material* material_orange = assets_material_get(&scene->assets, "orange");
-	Material* material_container = assets_material_get(&scene->assets, "container");
+	Image* image_white = assets_image_create(&scene->assets, "white", 1, 1, 4);
+	uint data = (uint)0xffffffff;
+	image_set_data(image_white, (unsigned char*)&data);
+	Image* image_container = assets_image_load(&scene->assets, "container", "res/images/container.jpg");
 
-	Material* material_orange_inst = assets_material_get(&scene->assets, "orange_inst");
-	Material* material_container_inst = assets_material_get(&scene->assets, "container_inst");
+	Texture* texture_white = assets_texture_create_from_image(&scene->assets, "white", image_white, A_CLAMP_TO_EDGE, A_NEAREST);
+	Texture* texture_container = assets_texture_create_from_image(&scene->assets, "container", image_container, A_CLAMP_TO_EDGE, A_LINEAR);
 
-	Texture* texture_white = assets_texture_get(&scene->assets, "white");
+	vec4 color_white = { 1.0f, 1.0f, 1.0f, 1.0f };
+	vec4 color_orange = { 1.0f, 0.5f, 0.2f, 1.0f };
+
+	Material* material_orange = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "orange", texture_white, color_orange);
+	Material* material_container = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "container", texture_container, color_white);
+
+	Material* material_orange_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "orange_inst", texture_white, color_orange);
+	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);
 
 	Mesh* mesh_cube = assets_mesh_create_cube(&scene->assets, "cube", &scene->mesh_renderer.shader);
 	Mesh* mesh_cube_inst = assets_mesh_create_cube(&scene->assets, "cube2", &scene->instance_renderer.shader);
@@ -235,15 +230,6 @@ static void create_entities3d(Scene* scene) {
 	line_renderer_add(&scene->line_renderer, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 1.0f }, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f }, -2);
 }
 
-static void create_entities(Scene* scene) {
-	if (ecs_create(&scene->ecs, 7, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints), sizeof(InstanceComponent), sizeof(Model)) == NULL) {
-		log_error("Failed to create ecs");
-	}
-
-	create_entities2d(scene);
-	create_entities3d(scene);
-}
-
 static void create_camera(Scene* scene, float width, float height) {
 	CameraSettings camera_settings = { 0 };
 	camera_settings.move_speed = 0.01f;
@@ -254,7 +240,7 @@ static void create_camera(Scene* scene, float width, float height) {
 	camera_settings.z_near = 0.001f;
 	camera_settings.z_far = 1000.0f;
 
-	const vec3 camera_position = { -3.0f, -2.0f, -5.0f };
+	const vec3 camera_position = { -3.0f, -4.0f, -20.0f };
 	const vec3 camera_rotation = { 0.0f, 0.0f, 0.0f };
 	camera_create(&scene->camera, camera_position, camera_rotation, camera_settings);
 
@@ -278,23 +264,14 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	framebuffer_create(&scene->framebuffer, renderer, attachments, sizeof(attachments), (int)width, (int)height);
 
 	assets_create(&scene->assets, renderer);
-	create_assets(scene);
 	create_systems(scene);
 
-	Texture* texture_white = assets_texture_get(&scene->assets, "white");
-	Texture* texture_container = assets_texture_get(&scene->assets, "container");
+	if (ecs_create(&scene->ecs, 7, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints), sizeof(InstanceComponent), sizeof(Model)) == NULL) {
+		log_error("Failed to create ecs");
+	}
 
-	vec4 color_white = { 1.0f, 1.0f, 1.0f, 1.0f };
-	vec4 color_orange = { 1.0f, 0.5f, 0.2f, 1.0f };
-
-	Material* material_white = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "white", texture_white, color_white);
-	Material* material_orange = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "orange", texture_white, color_orange);
-	Material* material_container = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "container", texture_container, color_white);
-
-	Material* material_orange_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "orange_inst", texture_white, color_orange);
-	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);
-
-	create_entities(scene);
+	create_entities2d(scene);
+	create_entities3d(scene);
 
 	create_camera(scene, width, height);
 
@@ -302,7 +279,12 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 		{"ViewProjection", MAT4F}
 	};
 
-	uniformbuffer_create_dynamic(&scene->u_camera, renderer, uniforms, sizeof(uniforms));
+	ABufferDesc desc = { 0 };
+	desc.values = uniforms;
+	desc.values_size = sizeof(uniforms);
+	desc.slot = 0;
+
+	uniformbuffer_create_dynamic(&scene->u_camera, renderer, &desc);
 
 	return scene;
 }
@@ -343,7 +325,7 @@ void scene_render(Scene* scene, Renderer* renderer) {
 	float depth = 1.0f;
 	framebuffer_clear_depth_attachment(&scene->framebuffer, renderer, &depth);
 
-	uniformbuffer_bind(&scene->u_camera, renderer, 0);
+	uniformbuffer_bind_vs(&scene->u_camera, renderer);
 
 	uniformbuffer_set_value(&scene->u_camera, 0, &scene->camera.view_projection);
 	uniformbuffer_upload(&scene->u_camera, renderer);

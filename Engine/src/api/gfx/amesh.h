@@ -1,7 +1,7 @@
 #pragma once
 #include "api/atypes.h"
 
-AMesh* amesh_create(ARenderer* renderer, AShader* shader, AMeshDesc desc, APrimitive primitive);
+AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMeshData data, APrimitive primitive);
 void amesh_delete(AMesh* mesh);
 
 void amesh_set_vertices(AMesh* mesh, ARenderer* renderer, const void* vertices, uint vertices_size);

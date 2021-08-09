@@ -14,6 +14,8 @@
 #include "scene/scene.h"
 #include "window/cursor.h"
 
+static App app;
+
 static void key_pressed(byte key) {
 	kb_key_pressed(key);
 	scene_key_pressed(app.scene, key);
@@ -157,4 +159,8 @@ int app_run() {
 
 void app_exit() {
 	window_close(&app.window);
+}
+
+Stats* app_get_stats() {
+	return &app.stats;
 }

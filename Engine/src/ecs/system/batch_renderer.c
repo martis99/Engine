@@ -16,7 +16,8 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* re
 	batch_renderer->shader = material->shader;
 	batch_renderer->material = material;
 
-	batch_renderer->vertex_size = abufferdesc_size(material->shader->mesh_desc.vertices);
+	ABufferDesc* vertices_desc = ashaderdesc_get_bufferdesc(material->shader->desc, A_BFR_VERTEX);
+	batch_renderer->vertex_size = abufferdesc_size(vertices_desc);
 	batch_renderer->vertices = m_malloc(MAX_VERTICES * (size_t)batch_renderer->vertex_size);
 	batch_renderer->vertices_count = 0;
 
@@ -37,11 +38,9 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* re
 		offset += 4;
 	}
 
-	AMeshDesc md = material->shader->mesh_desc;
-	md.vertices.data = NULL;
-	md.vertices.data_size = MAX_VERTICES * batch_renderer->vertex_size;
+	AMeshData md = { 0 };
 	md.indices.data = indices;
-	md.indices.data_size = sizeof(indices);
+	md.indices.size = sizeof(indices);
 	mesh_create(&batch_renderer->mesh, renderer, material->shader, md, A_TRIANGLES);
 
 	return batch_renderer;
@@ -105,8 +104,8 @@ void batch_renderer_end(Transform* transform, BatchRenderer* batch_renderer) {
 
 	shader_bind(batch_renderer->shader, batch_renderer->renderer);
 	mat4 model = transform_to_mat4(transform);
-	material_set_value(batch_renderer->material, 0, &model);
+	material_set_vs_value(batch_renderer->material, 0, &model);
 	material_upload(batch_renderer->material, batch_renderer->renderer);
-	material_bind(batch_renderer->material, batch_renderer->renderer, 1);
+	material_bind(batch_renderer->material, batch_renderer->renderer);
 	mesh_draw(&batch_renderer->mesh, batch_renderer->renderer, batch_renderer->indices_count);
 }

@@ -46,8 +46,7 @@ static ID3D11Buffer* buffer_create_dynamic(ID3D11Device* device, UINT data_size,
 }
 
 static void buffer_set_data(ID3D11Buffer* buffer, ID3D11DeviceContext* context, const void* data, SIZE_T data_size, const char* error_message) {
-	D3D11_MAPPED_SUBRESOURCE ms;
-	ZeroMemory(&ms, sizeof(D3D11_MAPPED_SUBRESOURCE));
+	D3D11_MAPPED_SUBRESOURCE ms = { 0 };
 
 	HRESULT hr = context->lpVtbl->Map(context, (ID3D11Resource*)buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 	if (FAILED(hr)) {
@@ -55,12 +54,17 @@ static void buffer_set_data(ID3D11Buffer* buffer, ID3D11DeviceContext* context, 
 		return;
 	}
 
-	memcpy(ms.pData, data, data_size);
+	if (ms.pData != NULL) {
+		memcpy(ms.pData, data, data_size);
+	}
+
 	context->lpVtbl->Unmap(context, (ID3D11Resource*)buffer, 0);
 }
 
 static void buffer_delete(ID3D11Buffer* buffer) {
-	buffer->lpVtbl->Release(buffer);
+	if (buffer != NULL) {
+		buffer->lpVtbl->Release(buffer);
+	}
 }
 
 ID3D11Buffer* dx11_vb_create_static(ID3D11Device* device, const void* data, UINT data_size, UINT element_size) {

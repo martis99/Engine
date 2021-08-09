@@ -1,7 +1,7 @@
 #pragma once
 #include "types.h"
 
-Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshDesc desc, APrimitive primitive);
+Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshData data, APrimitive primitive);
 void mesh_delete(Mesh* mesh);
 
 void mesh_set_vertices(Mesh* mesh, Renderer* renderer, const void* vertices, uint vertices_size);

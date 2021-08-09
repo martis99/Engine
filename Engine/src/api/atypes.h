@@ -112,27 +112,57 @@ typedef struct AShader AShader;
 typedef struct ARenderer ARenderer;
 typedef struct AMesh AMesh;
 typedef struct AFramebuffer AFramebuffer;
-typedef struct ABuffer ABuffer;
-typedef struct AMaterial AMaterial;
+
+typedef struct ABuffer {
+	uint* offsets;
+	uint* sizes;
+	uint size;
+	uint count;
+	void* data;
+} ABuffer;
 
 typedef struct AValue {
-	const char* name;
+	char* name;
 	AType type;
 } AValue;
 
+typedef enum ABufferType {
+	A_BFR_UNKNOWN,
+	A_BFR_VERTEX,
+	A_BFR_INSTANCE,
+	A_BFR_INDEX,
+	A_BFR_GLOBAL,
+	A_BFR_VS,
+	A_BFR_PS,
+	A_BFR_PS_OUT
+} ABufferType;
+
 typedef struct ABufferDesc {
-	bool enabled;
-	AValue* layout;
-	uint layout_size;
-	const void* data;
-	uint data_size;
+	ABufferType type;
+	char* name;
+	uint slot;
+	AValue* values;
+	uint values_size;
+	uint max_count;
 } ABufferDesc;
 
-typedef struct AMeshDesc {
-	ABufferDesc vertices;
-	ABufferDesc instances;
-	ABufferDesc indices;
-} AMeshDesc;
+typedef struct AShaderDesc {
+	ABufferDesc* buffers;
+	uint buffers_size;
+	uint textures_count;
+	AType texture_type;
+} AShaderDesc;
+
+typedef struct ABufferData {
+	void* data;
+	uint size;
+} ABufferData;
+
+typedef struct AMeshData {
+	ABufferData vertices;
+	ABufferData instances;
+	ABufferData indices;
+} AMeshData;
 
 typedef struct AAttachmentDesc {
 	AType type;
@@ -148,10 +178,17 @@ uint atype_size(AType type);
 uint atype_count(AType type, bool mat_support);
 void atype_convert(float* dst, const void* src, AType type);
 
-uint abufferdesc_size(ABufferDesc desc);
-uint abufferdesc_count(ABufferDesc desc, bool mat_support);
-void abufferdesc_copy(ABufferDesc* dst, ABufferDesc* src);
+char* str_copy(const char* src);
+void str_delete(char* str);
+
+void avalue_copy(AValue* src, AValue* dst);
+void avalue_delete(AValue* value);
+
+uint abufferdesc_size(ABufferDesc* desc);
+uint abufferdesc_count(ABufferDesc* desc, bool mat_support);
+void abufferdesc_copy(ABufferDesc* src, ABufferDesc* dst);
 void abufferdesc_delete(ABufferDesc* desc);
 
-void ameshdesc_copy(AMeshDesc* dst, AMeshDesc* src);
-void ameshdesc_delete(AMeshDesc* desc);
+void ashaderdesc_copy(AShaderDesc* src, AShaderDesc* dst);
+void ashaderdesc_delete(AShaderDesc* desc);
+ABufferDesc* ashaderdesc_get_bufferdesc(AShaderDesc desc, ABufferType type);

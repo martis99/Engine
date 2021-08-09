@@ -22,10 +22,6 @@ void gl_shader_delete(GLuint shader) {
 	glDeleteShader(shader);
 }
 
-void gl_shader_bind_uniform_block(GLuint shader, const GLchar* name, GLuint index) {
-	glUniformBlockBinding(shader, glGetUniformBlockIndex(shader, name), index);
-}
-
 GLuint gl_program_create() {
 	return glCreateProgram();
 }

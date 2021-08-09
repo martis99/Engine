@@ -37,10 +37,10 @@ static void node_draw(Model* model, Renderer* renderer, Shader* shader, ModelNod
 		ModelMesh* mesh = arr_get(&node->meshes, i);
 		if (mesh->material >= 0) {
 			Material* material = arr_get(&model->materials, mesh->material);
-			material_set_value(material, 0, &trans);
-			material_set_value(material, 3, &entity);
+			material_set_vs_value(material, 0, &trans);
+			material_set_ps_value(material, 2, &entity);
 			material_upload(material, renderer);
-			material_bind(material, renderer, 1);
+			material_bind(material, renderer);
 		}
 		mesh_draw(&mesh->mesh, renderer, 0xFFFFFFFF);
 	}
@@ -106,11 +106,11 @@ static void process_mesh(ModelMesh* mesh, Renderer* renderer, Shader* shader, co
 	print_material_name(ai_scene->mMaterials[ai_mesh->mMaterialIndex], depth + 1, print);
 	mesh->material = ai_mesh->mMaterialIndex;
 
-	AMeshDesc md = shader->mesh_desc;
+	AMeshData md = { 0 };
 	md.vertices.data = vertices;
-	md.vertices.data_size = sizeof(Vertex) * ai_mesh->mNumVertices;
+	md.vertices.size = sizeof(Vertex) * ai_mesh->mNumVertices;
 	md.indices.data = indices;
-	md.indices.data_size = sizeof(uint) * index;
+	md.indices.size = sizeof(uint) * index;
 
 	mesh_create(&mesh->mesh, renderer, shader, md, A_TRIANGLES);
 
@@ -207,7 +207,7 @@ static void process_material(Model* model, Renderer* renderer, Shader* shader, M
 	struct aiColor4D diffuseColor;
 	aiGetMaterialColor(ai_material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColor);
 	vec4 diff = (vec4){ diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a };
-	material_set_value(material, 1, &diff);
+	material_set_ps_value(material, 0, &diff);
 	if (print == 1) {
 		for (int i = 0; i < depth + 1; i++) {
 			printf("   ");
@@ -218,7 +218,7 @@ static void process_material(Model* model, Renderer* renderer, Shader* shader, M
 	struct aiColor4D specularColor;
 	aiGetMaterialColor(ai_material, AI_MATKEY_COLOR_SPECULAR, &specularColor);
 	vec4 spec = (vec4){ specularColor.r, specularColor.g, specularColor.b, specularColor.a };
-	material_set_value(material, 2, &spec);
+	material_set_ps_value(material, 1, &spec);
 	if (print == 1) {
 		for (int i = 0; i < depth + 1; i++) {
 			printf("   ");
