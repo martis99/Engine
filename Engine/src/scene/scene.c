@@ -55,43 +55,95 @@ struct Scene {
 	UniformBuffer u_camera;
 };
 
-static void create_systems(Scene* scene) {
+static Scene* create_systems(Scene* scene) {
 	if (mesh_renderer_create(&scene->mesh_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create mesh renderer");
+		return NULL;
 	}
 
 	Transform sprite_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (sprite_renderer_create(&scene->sprite_renderer, scene->renderer, sprite_transform) == NULL) {
 		log_error("Failed to create sprite renderer");
+		return NULL;
 	}
 
 	Transform text_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (text_renderer_create(&scene->text_renderer, scene->renderer, text_transform) == NULL) {
 		log_error("Failed to create text renderer");
+		return NULL;
 	}
 	Transform line_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (line_renderer_create(&scene->line_renderer, scene->renderer, line_transform) == NULL) {
 		log_error("Failed to create line renderer");
+		return NULL;
 	}
 
 	if (instance_renderer_create(&scene->instance_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create instance renderer");
+		return NULL;
 	}
 
 	if (model_renderer_create(&scene->model_renderer, scene->renderer) == NULL) {
 		log_error("Failed to create model renderer");
+		return NULL;
 	}
+	return scene;
+}
+
+#define S_ASSERT(var) if(var == NULL) { return NULL; }
+
+static Scene* create_assets(Scene* scene) {
+	assets_create(&scene->assets, scene->renderer);
+
+	Image* image_gui = assets_image_load(&scene->assets, "imgui", "res/images/gui.png"); S_ASSERT(image_gui);
+	Image* image_mountains = assets_image_load(&scene->assets, "mountains", "res/images/mountains.jpg"); S_ASSERT(image_mountains);
+
+	Texture* texture_gui = assets_texture_create(&scene->assets, "gui", image_gui, A_CLAMP_TO_EDGE, A_NEAREST); S_ASSERT(texture_gui);
+	Texture* texture_mountains = assets_texture_create(&scene->assets, "mountains", image_mountains, A_CLAMP_TO_EDGE, A_LINEAR); S_ASSERT(texture_mountains);
+
+	Font* font = assets_font_load(&scene->assets, "font", "res/fonts/ProggyClean.ttf", 13); S_ASSERT(font);
+
+	Image* image_white = assets_image_create(&scene->assets, "white", 1, 1, 4); S_ASSERT(image_white);
+	uint data = (uint)0xffffffff;
+	image_set_data(image_white, (unsigned char*)&data);
+	Image* image_container = assets_image_load(&scene->assets, "container", "res/images/container.jpg"); S_ASSERT(image_container);
+
+	Texture* texture_white = assets_texture_create(&scene->assets, "white", image_white, A_CLAMP_TO_EDGE, A_NEAREST); S_ASSERT(texture_white);
+	Texture* texture_container = assets_texture_create(&scene->assets, "container", image_container, A_CLAMP_TO_EDGE, A_LINEAR); S_ASSERT(texture_container);
+
+	vec4 color_white = { 1.0f, 1.0f, 1.0f, 1.0f };
+	vec4 color_orange = { 1.0f, 0.5f, 0.2f, 1.0f };
+
+	Material* material_orange = assets_material_create(&scene->assets, "orange", &scene->mesh_renderer.shader); S_ASSERT(material_orange);
+	material_add_texture(material_orange, texture_white);
+	material_set_ps_value(material_orange, 0, &color_orange);
+	Material* material_container = assets_material_create(&scene->assets, "container", &scene->mesh_renderer.shader); S_ASSERT(material_container);
+	material_add_texture(material_container, texture_container);
+	material_set_ps_value(material_container, 0, &color_white);
+
+	Material* material_orange_inst = assets_material_create(&scene->assets, "orange_inst", &scene->instance_renderer.shader); S_ASSERT(material_orange_inst);
+	material_add_texture(material_orange_inst, texture_white);
+	material_set_ps_value(material_orange_inst, 0, &color_orange);
+	Material* material_container_inst = assets_material_create(&scene->assets, "container_inst", &scene->instance_renderer.shader); S_ASSERT(material_container_inst);
+	material_add_texture(material_container_inst, texture_container);
+	material_set_ps_value(material_container_inst, 0, &color_white);
+
+	Mesh* mesh_cube = assets_mesh_create_cube(&scene->assets, "cube", &scene->mesh_renderer.shader); S_ASSERT(mesh_cube);
+	Mesh* mesh_cube_inst = assets_mesh_create_cube(&scene->assets, "cube_inst", &scene->instance_renderer.shader); S_ASSERT(mesh_cube_inst);
+
+	Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", &scene->model_renderer.shader, 0, 0); S_ASSERT(container);
+	Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", &scene->model_renderer.shader, 1, 0); S_ASSERT(backpack);
+	Model* vampire = assets_model_load(&scene->assets, "vampire", "res/models/vampire/", "dancing_vampire.dae", &scene->model_renderer.shader, 0, 0); S_ASSERT(vampire);
+	Model* nanosuit = assets_model_load(&scene->assets, "nonosuit", "res/models/nano_textured/", "nanosuit.obj", &scene->model_renderer.shader, 0, 1); S_ASSERT(nanosuit);
+
+	return scene;
 }
 
 static void create_entities2d(Scene* scene) {
+	Texture* texture_gui = assets_texture_get(&scene->assets, "gui");
+	Texture* texture_mountains = assets_texture_get(&scene->assets, "mountains");
 
-	Image* image_gui = assets_image_load(&scene->assets, "imgui", "res/images/gui.png");
-	Image* image_mountains = assets_image_load(&scene->assets, "mountains", "res/images/mountains.jpg");
-
-	Texture* texture_gui = assets_texture_create_from_image(&scene->assets, "gui", image_gui, A_CLAMP_TO_EDGE, A_NEAREST);
-	Texture* texture_mountains = assets_texture_create_from_image(&scene->assets, "mountains", image_mountains, A_CLAMP_TO_EDGE, A_LINEAR);
-
-	Font* font = assets_font_load(&scene->assets, "font", "res/fonts/ProggyClean.ttf", 13);
+	Font* font = assets_font_get(&scene->assets, "font");
 
 	Entity panel = ecs_entity(&scene->ecs);
 	scene->panel = panel;
@@ -138,31 +190,19 @@ static void create_entities2d(Scene* scene) {
 }
 
 static void create_entities3d(Scene* scene) {
+	Material* material_orange = assets_material_get(&scene->assets, "orange");
+	Material* material_container = assets_material_get(&scene->assets, "container");
 
-	Image* image_white = assets_image_create(&scene->assets, "white", 1, 1, 4);
-	uint data = (uint)0xffffffff;
-	image_set_data(image_white, (unsigned char*)&data);
-	Image* image_container = assets_image_load(&scene->assets, "container", "res/images/container.jpg");
+	Material* material_orange_inst = assets_material_get(&scene->assets, "orange_inst");
+	Material* material_container_inst = assets_material_get(&scene->assets, "container_inst");
 
-	Texture* texture_white = assets_texture_create_from_image(&scene->assets, "white", image_white, A_CLAMP_TO_EDGE, A_NEAREST);
-	Texture* texture_container = assets_texture_create_from_image(&scene->assets, "container", image_container, A_CLAMP_TO_EDGE, A_LINEAR);
+	Mesh* mesh_cube = assets_mesh_get(&scene->assets, "cube");
+	Mesh* mesh_cube_inst = assets_mesh_get(&scene->assets, "cube_inst");
 
-	vec4 color_white = { 1.0f, 1.0f, 1.0f, 1.0f };
-	vec4 color_orange = { 1.0f, 0.5f, 0.2f, 1.0f };
-
-	Material* material_orange = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "orange", texture_white, color_orange);
-	Material* material_container = mesh_renderer_create_material(&scene->mesh_renderer, &scene->assets, "container", texture_container, color_white);
-
-	Material* material_orange_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "orange_inst", texture_white, color_orange);
-	Material* material_container_inst = instance_renderer_create_material(&scene->instance_renderer, &scene->assets, "container_inst", texture_container, color_white);
-
-	Mesh* mesh_cube = assets_mesh_create_cube(&scene->assets, "cube", &scene->mesh_renderer.shader);
-	Mesh* mesh_cube_inst = assets_mesh_create_cube(&scene->assets, "cube2", &scene->instance_renderer.shader);
-
-	Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", &scene->model_renderer.shader, 0, 0);
-	Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", &scene->model_renderer.shader, 1, 0);
-	Model* vampire = assets_model_load(&scene->assets, "vampire", "res/models/vampire/", "dancing_vampire.dae", &scene->model_renderer.shader, 0, 0);
-	Model* nanosuit = assets_model_load(&scene->assets, "nonosuit", "res/models/nano_textured/", "nanosuit.obj", &scene->model_renderer.shader, 0, 1);
+	Model* container = assets_model_get(&scene->assets, "container");
+	Model* backpack = assets_model_get(&scene->assets, "backpack");
+	Model* vampire = assets_model_get(&scene->assets, "vampire");
+	Model* nanosuit = assets_model_get(&scene->assets, "nonosuit");
 
 	{
 		Entity entity = ecs_entity(&scene->ecs);
@@ -261,13 +301,22 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 		{VEC1I, 1, A_LINEAR, A_REPEAT}
 	};
 
-	framebuffer_create(&scene->framebuffer, renderer, attachments, sizeof(attachments), (int)width, (int)height);
-
-	assets_create(&scene->assets, renderer);
-	create_systems(scene);
+	if (framebuffer_create(&scene->framebuffer, renderer, attachments, sizeof(attachments), (int)width, (int)height) == NULL) {
+		log_error("Failed to create framebuffer");
+		return NULL;
+	}
 
 	if (ecs_create(&scene->ecs, 7, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints), sizeof(InstanceComponent), sizeof(Model)) == NULL) {
 		log_error("Failed to create ecs");
+		return NULL;
+	}
+	if (create_systems(scene) == NULL) {
+		log_error("Failed to create systems");
+		return NULL;
+	}
+	if (create_assets(scene) == NULL) {
+		log_error("Failed to create assets");
+		return NULL;
 	}
 
 	create_entities2d(scene);
@@ -284,7 +333,10 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	desc.values_size = sizeof(uniforms);
 	desc.slot = 0;
 
-	uniformbuffer_create_dynamic(&scene->u_camera, renderer, &desc);
+	if (uniformbuffer_create_dynamic(&scene->u_camera, renderer, &desc) == NULL) {
+		log_error("Failed to create camera buffer");
+		return NULL;
+	}
 
 	return scene;
 }

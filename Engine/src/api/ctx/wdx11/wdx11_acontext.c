@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_WINDOWS
+#ifdef SAPI_WINDOWS
 #ifdef GAPI_DX11
 #include "api/ctx/acontext.h"
 #include "api/wnd/awindow.h"
@@ -9,6 +9,9 @@
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "dxguid.lib")
+
+#include "dxerr/dxerr.h"
+#include "api/gfx/dx11/dx11/dx11_error.h"
 
 AContext* acontext_create(AWindow* window) {
 	AContext* context = m_malloc(sizeof(AContext));
@@ -36,23 +39,11 @@ AContext* acontext_create(AWindow* window) {
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	HRESULT hr = D3D11CreateDeviceAndSwapChain(
-		NULL,
-		D3D_DRIVER_TYPE_HARDWARE,
-		NULL,
-		flags,
-		NULL,
-		0,
-		D3D11_SDK_VERSION,
-		&sd,
-		&context->swap_chain,
-		&context->device,
-		NULL,
-		&context->context
-	);
+	dx11_error_create(window->window);
 
-	if (FAILED(hr)) {
-		log_error("Failed to create device and swapchain");
+	if (DX11_FAILED("Failed to create device and swapchain", D3D11CreateDeviceAndSwapChain(
+		NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, NULL, 0, D3D11_SDK_VERSION,
+		&sd, &context->swap_chain, &context->device, NULL, &context->context))) {
 		return NULL;
 	}
 
@@ -60,6 +51,7 @@ AContext* acontext_create(AWindow* window) {
 }
 
 void acontext_delete(AContext* context) {
+	dx11_error_delete();
 	if (context->context != NULL) {
 		context->context->lpVtbl->Release(context->context);
 	}
@@ -73,9 +65,11 @@ void acontext_delete(AContext* context) {
 }
 
 void acontext_swap_buffers(AContext* context) {
-	HRESULT hr = context->swap_chain->lpVtbl->Present(context->swap_chain, 1, 0);
-	if (FAILED(hr)) {
-		log_error("Failed to present swap chain");
+	if (DX11_FAILED("Failed to present", context->swap_chain->lpVtbl->Present(context->swap_chain, 0, 0))) {
+		if (DX11_FAILED("Device removed reason", context->device->lpVtbl->GetDeviceRemovedReason(context->device))) {
+			return;
+		}
+		return;
 	}
 }
 #endif

@@ -109,7 +109,10 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 	line_renderer->vertices_count = 0;
 
 	AMeshData md = { 0 };
-	mesh_create(&line_renderer->mesh, renderer, &line_renderer->shader, md, A_LINES);
+	if (mesh_create(&line_renderer->mesh, renderer, &line_renderer->shader, md, A_LINES) == NULL) {
+		log_error("Failed to create line mesh");
+		return NULL;
+	}
 
 	return line_renderer;
 }

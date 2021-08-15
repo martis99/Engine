@@ -4,6 +4,9 @@
 
 Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height) {
 	renderer->renderer = arenderer_create(context->context);
+	if (renderer->renderer == NULL) {
+		return NULL;
+	}
 	renderer->width = width;
 	renderer->height = height;
 	return renderer;

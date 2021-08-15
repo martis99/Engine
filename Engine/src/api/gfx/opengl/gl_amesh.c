@@ -4,7 +4,44 @@
 #include "gl_atypes.h"
 #include "gl/gl_buffer.h"
 
-static void add_layout(ABufferDesc* desc, uint* index, GLuint divisor) {
+static GLuint create_vertex_buffer(AMesh* mesh, ABufferDesc* desc, ABufferData data) {
+	mesh->vertex_size = abufferdesc_size(desc);
+	if (data.data == NULL) {
+		mesh->vertices = gl_vb_create_dynamic(desc->max_count * mesh->vertex_size);
+		mesh->vertices_count = 0;
+	} else {
+		mesh->vertices = gl_vb_create_static(data.data, data.size);
+		mesh->vertices_count = data.size / mesh->vertex_size;
+	}
+	return mesh->vertices;
+}
+
+static GLuint create_instance_buffer(AMesh* mesh, ABufferDesc* desc, ABufferData data) {
+	mesh->instance_size = abufferdesc_size(desc);
+	if (data.data == NULL) {
+		mesh->instances = gl_vb_create_dynamic(desc->max_count * mesh->instance_size);
+		mesh->instances_count = 0;
+	} else {
+		mesh->instances = gl_vb_create_static(data.data, data.size);
+		mesh->instances_count = data.size / mesh->instance_size;
+	}
+	return mesh->instances;
+}
+
+static GLuint create_index_buffer(AMesh* mesh, ABufferDesc* desc, ABufferData data) {
+	mesh->index_size = abufferdesc_size(desc);
+	if (data.data == NULL) {
+		mesh->indices = gl_ib_create_dynamic(desc->max_count * mesh->index_size);
+		mesh->indices_count = 0;
+	} else {
+		mesh->indices = gl_ib_create_static(data.data, data.size);
+		mesh->indices_count = data.size / mesh->index_size;
+	}
+	mesh->index_type = gl_atype_type(desc->values[0].type);
+	return mesh->indices;
+}
+
+static bool add_layout(ABufferDesc* desc, uint* index, GLuint divisor) {
 	uint layout_count = desc->values_size / sizeof(AValue);
 
 	GLuint stride = 0;
@@ -15,101 +52,15 @@ static void add_layout(ABufferDesc* desc, uint* index, GLuint divisor) {
 	byte offset = 0;
 	for (uint i = 0; i < layout_count; i++) {
 		for (uint j = 0; j < atype_count(desc->values[i].type, 0); j++) {
-			glEnableVertexAttribArray(*index);
-			switch (desc->values[i].type) {
-			case VEC1B:
-			case VEC2B:
-			case VEC3B:
-			case VEC4B:
-			case VEC1UB:
-			case VEC2UB:
-			case VEC3UB:
-			case VEC4UB:
-			case VEC1S:
-			case VEC2S:
-			case VEC3S:
-			case VEC4S:
-			case VEC1US:
-			case VEC2US:
-			case VEC3US:
-			case VEC4US:
-			case VEC1I:
-			case VEC2I:
-			case VEC3I:
-			case VEC4I:
-			case VEC1UI:
-			case VEC2UI:
-			case VEC3UI:
-			case VEC4UI:
-				glVertexAttribIPointer(*index, atype_components(desc->values[i].type, 0), gl_atype_type(desc->values[i].type), stride, (void*)(offset));
-				offset += atype_size(desc->values[i].type);
-				break;
-			case VEC1F:
-			case VEC2F:
-			case VEC3F:
-			case VEC4F:
-				glVertexAttribPointer(*index, atype_components(desc->values[i].type, 0), gl_atype_type(desc->values[i].type), GL_FALSE, stride, (void*)(offset));
-				offset += atype_size(desc->values[i].type);
-				break;
-			case VEC1D:
-			case VEC2D:
-			case VEC3D:
-			case VEC4D:
-				glVertexAttribLPointer(*index, atype_components(desc->values[i].type, 0), gl_atype_type(desc->values[i].type), stride, (void*)(offset));
-				offset += atype_size(desc->values[i].type);
-				break;
-			case MAT4F:
-				glVertexAttribPointer(*index, atype_components(desc->values[i].type, 0), gl_atype_type(desc->values[i].type), GL_FALSE, stride, (void*)(offset));
-				offset += atype_size(VEC4F);
-				break;
+			if (gl_vertex_attrib(*index, atype_components(desc->values[i].type, 0), gl_atype_type(desc->values[i].type), stride, (void*)(offset), divisor) == A_FAIL) {
+				return A_FAIL;
 			}
-			glVertexAttribDivisor(*index, divisor);
+			offset += atype_size(desc->values[i].type == MAT4F ? VEC4F : desc->values[i].type);
 			(*index)++;
 		}
 	}
-}
 
-static void create_vertex_buffer(AMesh* mesh, ABufferDesc* desc, ABufferData data) {
-	if (desc == NULL) {
-		return;
-	}
-	mesh->vertex_size = abufferdesc_size(desc);
-	if (data.data == NULL) {
-		mesh->vertices = gl_vb_create_dynamic(desc->max_count * mesh->vertex_size);
-		mesh->vertices_count = 0;
-	} else {
-		mesh->vertices = gl_vb_create_static(data.data, data.size);
-		mesh->vertices_count = data.size / mesh->vertex_size;
-	}
-}
-
-static void create_instance_buffer(AMesh* mesh, ABufferDesc* desc, ABufferData data) {
-	if (desc == NULL) {
-		return;
-	}
-	mesh->instance_size = abufferdesc_size(desc);
-	if (data.data == NULL) {
-		mesh->instances = gl_vb_create_dynamic(desc->max_count * mesh->instance_size);
-		mesh->instances_count = 0;
-	} else {
-		mesh->instances = gl_vb_create_static(data.data, data.size);
-		mesh->instances_count = data.size / mesh->instance_size;
-	}
-}
-
-static void create_index_buffer(AMesh* mesh, ABufferDesc* desc, ABufferData data) {
-	if (desc == NULL) {
-		return;
-	}
-	mesh->index_size = abufferdesc_size(desc);
-	if (data.data == NULL) {
-		mesh->indices = gl_ib_create_dynamic(desc->max_count * mesh->index_size);
-		mesh->indices_count = 0;
-	} else {
-		mesh->indices = gl_ib_create_static(data.data, data.size);
-		mesh->indices_count = data.size / mesh->index_size;
-	}
-	mesh->index_type = gl_atype_type(desc->values[0].type);
+	return A_SUCCESS;
 }
 
 AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMeshData data, APrimitive primitive) {
@@ -121,17 +72,32 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 
 	mesh->va = gl_va_create();
 	uint index = 0;
-	create_vertex_buffer(mesh, vertices_desc, data.vertices);
 	if (vertices_desc != NULL) {
-		add_layout(vertices_desc, &index, 0);
+		if (create_vertex_buffer(mesh, vertices_desc, data.vertices) == 0) {
+			log_error("Failed to create vertex buffer");
+			return NULL;
+		}
+		if (add_layout(vertices_desc, &index, 0) == A_FAIL) {
+			log_error("Failed to add vertex layout");
+			return NULL;
+		}
 	}
-
-	create_instance_buffer(mesh, instances_desc, data.instances);
 	if (instances_desc != NULL) {
-		add_layout(instances_desc, &index, 1);
+		if (create_instance_buffer(mesh, instances_desc, data.instances) == 0) {
+			log_error("Failed to create instance buffer");
+			return NULL;
+		}
+		if (add_layout(instances_desc, &index, 1) == A_FAIL) {
+			log_error("Failed to add instance layout");
+			return NULL;
+		}
 	}
-
-	create_index_buffer(mesh, indices_desc, data.indices);
+	if (indices_desc != NULL) {
+		if (create_index_buffer(mesh, indices_desc, data.indices) == 0) {
+			log_error("Failed to create index buffer");
+			return NULL;
+		}
+	}
 
 	mesh->primitive = gl_aprimitive(primitive);
 
@@ -141,15 +107,19 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 void amesh_delete(AMesh* mesh) {
 	if (mesh->va != 0) {
 		gl_va_delete(mesh->va);
+		mesh->va = 0;
 	}
 	if (mesh->vertices != 0) {
 		gl_vb_delete(mesh->vertices);
+		mesh->vertices = 0;
 	}
 	if (mesh->instances != 0) {
 		gl_vb_delete(mesh->instances);
+		mesh->instances = 0;
 	}
 	if (mesh->indices != 0) {
 		gl_ib_delete(mesh->indices);
+		mesh->indices = 0;
 	}
 	m_free(mesh, sizeof(AMesh));
 }
@@ -170,18 +140,19 @@ void amesh_set_indices(AMesh* mesh, ARenderer* renderer, const void* indices, ui
 }
 
 void amesh_draw(AMesh* mesh, ARenderer* renderer, uint indices) {
-
+	gl_va_bind(mesh->va);
 	if (mesh->indices == 0) {
 		if (mesh->instances == 0) {
-			gl_va_draw_arrays(mesh->va, mesh->primitive, mesh->vertices_count);
+			gl_draw_arrays(mesh->primitive, mesh->vertices_count);
 		} else {
-			gl_va_draw_arrays_instanced(mesh->va, mesh->primitive, mesh->vertices_count, mesh->instances_count);
+			gl_draw_arrays_instanced(mesh->primitive, mesh->vertices_count, mesh->instances_count);
 		}
 	} else {
+		gl_ib_bind(mesh->indices);
 		if (mesh->instances == 0) {
-			gl_va_draw_elements(mesh->va, mesh->indices, mesh->primitive, indices == 0xFFFFFFFF ? mesh->indices_count : indices, mesh->index_type);
+			gl_draw_elements(mesh->primitive, indices == 0xFFFFFFFF ? mesh->indices_count : indices, mesh->index_type);
 		} else {
-			gl_va_draw_elements_instanced(mesh->va, mesh->indices, mesh->primitive, indices == 0xFFFFFFFF ? mesh->indices_count : indices, mesh->index_type, mesh->instances_count);
+			gl_draw_elements_instanced(mesh->primitive, indices == 0xFFFFFFFF ? mesh->indices_count : indices, mesh->index_type, mesh->instances_count);
 		}
 	}
 }

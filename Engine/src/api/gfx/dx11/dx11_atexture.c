@@ -16,16 +16,19 @@ ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int w
 
 	texture->texture = dx11_texture_create(renderer->device, width, height, format, 0, 1, 0, data, width * channels * sizeof(unsigned char));
 	if (texture->texture == NULL) {
+		log_error("Failed to create texture");
 		return NULL;
 	}
 
 	texture->srv = dx11_srv_create(renderer->device, format, texture->texture);
 	if (texture->srv == NULL) {
+		log_error("Failed to create shader resource view");
 		return NULL;
 	}
 
 	texture->ss = dx11_ss_create(renderer->device, dx11_afilter(filter), dx11_awrap(wrap));
 	if (texture->ss == NULL) {
+		log_error("Failed to create sampler state");
 		return NULL;
 	}
 
@@ -38,9 +41,18 @@ void atexture_bind(ATexture* texture, ARenderer* renderer, uint slot) {
 }
 
 void atexture_delete(ATexture* texture) {
-	dx11_texture_delete(texture->texture);
-	dx11_srv_delete(texture->srv);
-	dx11_ss_delete(texture->ss);
+	if (texture->texture != NULL) {
+		dx11_texture_delete(texture->texture);
+		texture->texture = NULL;
+	}
+	if (texture->srv != NULL) {
+		dx11_srv_delete(texture->srv);
+		texture->srv = NULL;
+	}
+	if (texture->ss != NULL) {
+		dx11_ss_delete(texture->ss);
+		texture->ss = NULL;
+	}
 	m_free(texture, sizeof(ATexture));
 }
 #endif

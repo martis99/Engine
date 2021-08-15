@@ -4,6 +4,9 @@
 
 Framebuffer* framebuffer_create(Framebuffer* framebuffer, Renderer* renderer, AAttachmentDesc* attachments, uint attachments_size, int width, int height) {
 	framebuffer->framebuffer = aframebuffer_create(renderer->renderer, attachments, attachments_size, width, height);
+	if (framebuffer->framebuffer == NULL) {
+		return NULL;
+	}
 	return framebuffer;
 }
 

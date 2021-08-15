@@ -65,7 +65,7 @@ static void print_material_name(const struct aiMaterial* material, int depth, bo
 	}
 }
 
-static void process_mesh(ModelMesh* mesh, Renderer* renderer, Shader* shader, const struct aiMesh* ai_mesh, const struct aiScene* ai_scene, int depth, bool print) {
+static ModelMesh* process_mesh(ModelMesh* mesh, Renderer* renderer, Shader* shader, const struct aiMesh* ai_mesh, const struct aiScene* ai_scene, int depth, bool print) {
 	if (print) {
 		for (int i = 0; i < depth; i++) {
 			printf("   ");
@@ -112,13 +112,18 @@ static void process_mesh(ModelMesh* mesh, Renderer* renderer, Shader* shader, co
 	md.indices.data = indices;
 	md.indices.size = sizeof(uint) * index;
 
-	mesh_create(&mesh->mesh, renderer, shader, md, A_TRIANGLES);
+	if (mesh_create(&mesh->mesh, renderer, shader, md, A_TRIANGLES) == NULL) {
+		log_error("Failed to create model mesh");
+		return NULL;
+	}
 
 	m_free(vertices, sizeof(Vertex) * ai_mesh->mNumVertices);
 	m_free(indices, sizeof(uint) * ai_mesh->mNumFaces * 3);
+
+	return mesh;
 }
 
-static void process_node(ModelNode* node, Renderer* renderer, Shader* shader, const struct aiNode* ai_node, const struct aiScene* ai_scene, int depth, bool print) {
+static ModelNode* process_node(ModelNode* node, Renderer* renderer, Shader* shader, const struct aiNode* ai_node, const struct aiScene* ai_scene, int depth, bool print) {
 	if (print == 1) {
 		for (int i = 0; i < depth; i++) {
 			printf("   ");
@@ -129,16 +134,24 @@ static void process_node(ModelNode* node, Renderer* renderer, Shader* shader, co
 	arr_create(&node->meshes, sizeof(ModelMesh), ai_node->mNumMeshes);
 	for (uint i = 0; i < ai_node->mNumMeshes; i++) {
 		struct aiMesh* ai_mesh = ai_scene->mMeshes[ai_node->mMeshes[i]];
-		process_mesh(arr_add(&node->meshes), renderer, shader, ai_mesh, ai_scene, depth + 1, print);
+		if (process_mesh(arr_add(&node->meshes), renderer, shader, ai_mesh, ai_scene, depth + 1, print) == NULL) {
+			log_error("Failed to process mesh");
+			return NULL;
+		}
 	}
 
 	arr_create(&node->nodes, sizeof(ModelNode), ai_node->mNumChildren);
 	for (uint i = 0; i < ai_node->mNumChildren; i++) {
-		process_node(arr_add(&node->nodes), renderer, shader, ai_node->mChildren[i], ai_scene, depth + 1, print);
+		if (process_node(arr_add(&node->nodes), renderer, shader, ai_node->mChildren[i], ai_scene, depth + 1, print) == NULL) {
+			log_error("Failed to process node");
+			return NULL;
+		}
 	}
 
 	memcpy(&node->transformation, &ai_node->mTransformation, sizeof(node->transformation));
 	node->transformation = mat4_invert(node->transformation);
+
+	return node;
 }
 
 static char* merge(const char* left, const char* right) {
@@ -165,7 +178,7 @@ static void print_texture_type(enum aiTextureType type, char* file, int depth, b
 	}
 }
 
-static void process_textures(Model* model, Renderer* renderer, Material* material, const char* path, const struct aiMaterial* ai_material, enum aiTextureType type, int depth, bool print) {
+static Model* process_textures(Model* model, Renderer* renderer, Material* material, const char* path, const struct aiMaterial* ai_material, enum aiTextureType type, int depth, bool print) {
 	bool found = 0;
 	for (uint i = 0; i < aiGetMaterialTextureCount(ai_material, type); i++) {
 		struct aiString str;
@@ -173,7 +186,15 @@ static void process_textures(Model* model, Renderer* renderer, Material* materia
 		char* file = merge(path, str.data);
 		print_texture_type(type, file, depth, print);
 		Image* image = image_load(arr_add(&model->images), file);
+		if (image == NULL) {
+			log_error("Failed to load model image");
+			return NULL;
+		}
 		Texture* texture = texture_create(arr_add(&model->textures), renderer, image, A_REPEAT, A_LINEAR);
+		if (texture == NULL) {
+			log_error("Failed to create model texture");
+			return NULL;
+		}
 		material_add_texture(material, texture);
 
 		m_free(file, strlen(file) + 1);
@@ -182,6 +203,10 @@ static void process_textures(Model* model, Renderer* renderer, Material* materia
 
 	if (found == 0) {
 		Image* image = image_create(arr_add(&model->images), 1, 1, 4);
+		if (image == NULL) {
+			log_error("Failed to create model image");
+			return NULL;
+		}
 		uint data;
 		if (type == aiTextureType_SPECULAR) {
 			print_texture_type(type, "black", depth, print);
@@ -192,17 +217,31 @@ static void process_textures(Model* model, Renderer* renderer, Material* materia
 		}
 		image_set_data(image, (unsigned char*)&data);
 		Texture* texture = texture_create(arr_add(&model->textures), renderer, image, A_CLAMP_TO_EDGE, A_NEAREST);
+		if (texture == NULL) {
+			log_error("Failed to create model texture");
+			return NULL;
+		}
 		material_add_texture(material, texture);
 	}
+	return model;
 }
 
-static void process_material(Model* model, Renderer* renderer, Shader* shader, Material* material, const char* path, const struct aiMaterial* ai_material, int depth, bool print) {
+static Material* process_material(Material* material, Model* model, Renderer* renderer, Shader* shader, const char* path, const struct aiMaterial* ai_material, int depth, bool print) {
 	print_material_name(ai_material, depth, print);
 
-	material_create(material, renderer, shader);
+	if (material_create(material, renderer, shader) == NULL) {
+		log_error("Failed to create model material");
+		return NULL;
+	}
 
-	process_textures(model, renderer, material, path, ai_material, aiTextureType_DIFFUSE, depth + 1, print);
-	process_textures(model, renderer, material, path, ai_material, aiTextureType_SPECULAR, depth + 1, print);
+	if (process_textures(model, renderer, material, path, ai_material, aiTextureType_DIFFUSE, depth + 1, print) == NULL) {
+		log_error("Failed to process diffuse textures");
+		return NULL;
+	}
+	if (process_textures(model, renderer, material, path, ai_material, aiTextureType_SPECULAR, depth + 1, print) == NULL) {
+		log_error("Failed to process specular textures");
+		return NULL;
+	}
 
 	struct aiColor4D diffuseColor;
 	aiGetMaterialColor(ai_material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColor);
@@ -225,6 +264,7 @@ static void process_material(Model* model, Renderer* renderer, Shader* shader, M
 		}
 		printf("Specular Color: (%f, %f, %f, %f)\n", specularColor.r, specularColor.g, specularColor.b, specularColor.a);
 	}
+	return material;
 }
 
 Model* model_load(Model* model, Renderer* renderer, const char* path, const char* filename, Shader* shader, bool flipUVs, bool print) {
@@ -238,10 +278,16 @@ Model* model_load(Model* model, Renderer* renderer, const char* path, const char
 	arr_create(&model->textures, sizeof(Texture), ai_scene->mNumMaterials * 2);
 
 	for (uint i = 0; i < ai_scene->mNumMaterials; i++) {
-		process_material(model, renderer, shader, arr_add(&model->materials), path, ai_scene->mMaterials[i], 1, print);
+		if (process_material(arr_add(&model->materials), model, renderer, shader, path, ai_scene->mMaterials[i], 1, print) == NULL) {
+			log_error("Failed to process material");
+			return NULL;
+		}
 	}
 
-	process_node(&model->node, renderer, shader, ai_scene->mRootNode, ai_scene, 1, print);
+	if (process_node(&model->node, renderer, shader, ai_scene->mRootNode, ai_scene, 1, print) == NULL) {
+		log_error("Failed to process root node");
+		return NULL;
+	}
 
 	m_free(file, strlen(file) + 1);
 

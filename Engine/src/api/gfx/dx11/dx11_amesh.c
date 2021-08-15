@@ -4,10 +4,7 @@
 #include "dx11_atypes.h"
 #include "dx11/dx11_buffer.h"
 
-static void create_vertex_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* desc, ABufferData data) {
-	if (desc == NULL) {
-		return;
-	}
+static ID3D11Buffer* create_vertex_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* desc, ABufferData data) {
 	mesh->vertex_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
 		mesh->vertices = dx11_vb_create_dynamic(renderer->device, desc->max_count * mesh->vertex_size, mesh->vertex_size);
@@ -16,12 +13,10 @@ static void create_vertex_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* 
 		mesh->vertices = dx11_vb_create_static(renderer->device, data.data, data.size, mesh->vertex_size);
 		mesh->vertices_count = data.size / mesh->vertex_size;
 	}
+	return mesh->vertices;
 }
 
-static void create_instance_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* desc, ABufferData data) {
-	if (desc == NULL) {
-		return;
-	}
+static ID3D11Buffer* create_instance_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* desc, ABufferData data) {
 	mesh->instance_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
 		mesh->instances = dx11_vb_create_dynamic(renderer->device, desc->max_count * mesh->instance_size, mesh->instance_size);
@@ -30,12 +25,10 @@ static void create_instance_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc
 		mesh->instances = dx11_vb_create_static(renderer->device, data.data, data.size, mesh->instance_size);
 		mesh->instances_count = data.size / mesh->instance_size;
 	}
+	return mesh->instances;
 }
 
-static void create_index_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* desc, ABufferData data) {
-	if (desc == NULL) {
-		return;
-	}
+static ID3D11Buffer* create_index_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* desc, ABufferData data) {
 	mesh->index_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
 		mesh->indices = dx11_ib_create_dynamic(renderer->device, desc->max_count * mesh->index_size, mesh->index_size);
@@ -45,6 +38,7 @@ static void create_index_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* d
 		mesh->indices_count = data.size / mesh->index_size;
 	}
 	mesh->index_format = dx11_atype_format(desc->values[0].type);
+	return mesh->indices;
 }
 
 static void add_layout(D3D11_INPUT_ELEMENT_DESC* ied, ABufferDesc* desc, UINT* index, UINT slot, D3D11_INPUT_CLASSIFICATION slot_class, UINT step) {
@@ -70,19 +64,34 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 
 	UINT index = 0;
 
-	create_vertex_buffer(renderer, mesh, vertices_desc, data.vertices);
 	if (vertices_desc != NULL) {
+		if (create_vertex_buffer(renderer, mesh, vertices_desc, data.vertices) == NULL) {
+			log_error("Failed to create vertex buffer");
+			return NULL;
+		}
 		add_layout(ied, vertices_desc, &index, 0, D3D11_INPUT_PER_VERTEX_DATA, 0);
 	}
 
-	create_instance_buffer(renderer, mesh, instances_desc, data.instances);
 	if (instances_desc != NULL) {
+		if (create_instance_buffer(renderer, mesh, instances_desc, data.instances) == NULL) {
+			log_error("Failed to create instance buffer");
+			return NULL;
+		}
 		add_layout(ied, instances_desc, &index, 1, D3D11_INPUT_PER_INSTANCE_DATA, 1);
 	}
 
-	create_index_buffer(renderer, mesh, indices_desc, data.indices);
+	if (indices_desc != NULL) {
+		if (create_index_buffer(renderer, mesh, indices_desc, data.indices) == NULL) {
+			log_error("Failed to create indices buffer");
+			return NULL;
+		}
+	}
 
 	mesh->layout = dx11_il_create(renderer->device, ied, num_elements, shader->vs_blob);
+	if (mesh->layout == NULL) {
+		log_error("Failed to create input layout");
+		return NULL;
+	}
 	m_free(ied, num_elements * sizeof(D3D11_INPUT_ELEMENT_DESC));
 
 	mesh->primitive = dx11_aprimitive(primitive);
@@ -93,15 +102,19 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 void amesh_delete(AMesh* mesh) {
 	if (mesh->vertices != NULL) {
 		dx11_vb_delete(mesh->vertices);
+		mesh->vertices = NULL;
 	}
 	if (mesh->instances != NULL) {
 		dx11_vb_delete(mesh->instances);
+		mesh->instances = NULL;
 	}
 	if (mesh->indices != NULL) {
 		dx11_ib_delete(mesh->indices);
+		mesh->indices = NULL;
 	}
 	if (mesh->layout != NULL) {
 		dx11_il_delete(mesh->layout);
+		mesh->layout = NULL;
 	}
 	m_free(mesh, sizeof(AMesh));
 }

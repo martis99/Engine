@@ -3,7 +3,7 @@
 #include "api/gfx/aframebuffer.h"
 #include "n_atypes.h"
 
-AFramebuffer* aframebuffer_create(AAttachmentFormat* attachments, int attachments_size, int width, int height) {
+AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachments, uint attachments_size, int width, int height) {
 	AFramebuffer* framebuffer = m_malloc(sizeof(AFramebuffer));
 	return framebuffer;
 }
@@ -12,35 +12,24 @@ void aframebuffer_delete(AFramebuffer* framebuffer) {
 	m_free(framebuffer, sizeof(AFramebuffer));
 }
 
-void aframebuffer_bind(AFramebuffer* framebuffer) {
+void aframebuffer_set_render_targets(AFramebuffer* framebuffer, ARenderer* renderer, uint* targets, uint targets_size) {
 
 }
 
-void aframebuffer_unbind(AFramebuffer* framebuffer) {
+void aframebuffer_clear_attachment(AFramebuffer* framebuffer, ARenderer* renderer, uint id, const void* value) {
 
 }
 
-bool aframebuffer_check_status(AFramebuffer* framebuffer) {
-	return 1;
-}
-
-void aframebuffer_attachment_bind(AFramebuffer* framebuffer, int index) {
+void aframebuffer_clear_depth_attachment(AFramebuffer* framebuffer, ARenderer* renderer, const void* value) {
 
 }
 
-void aframebuffer_color_attachments_draw(AFramebuffer* framebuffer) {
+void aframebuffer_read_pixel(AFramebuffer* framebuffer, ARenderer* renderer, uint id, int x, int y, void* pixel) {
 
 }
 
-void aframebuffer_color_attachment_clear_i(AFramebuffer* framebuffer, int index, const int* value) {
+void aframebuffer_draw(AFramebuffer* framebuffer, ARenderer* renderer, uint id) {
 
 }
 
-void aframebuffer_color_attachment_clear_f(AFramebuffer* framebuffer, int index, const float* value) {
-
-}
-
-int aframebuffer_color_attachment_read_pixel(AFramebuffer* framebuffer, int index, int x, int y) {
-	return 0;
-}
 #endif

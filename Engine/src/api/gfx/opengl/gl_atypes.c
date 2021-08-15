@@ -1,6 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_OPENGL
 #include "gl_atypes.h"
+#include "gl/gl_defines.h"
 
 GLenum gl_aprimitive(APrimitive primitive) {
 	switch (primitive) {

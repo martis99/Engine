@@ -3,7 +3,7 @@
 #include "api/gfx/amesh.h"
 #include "n_atypes.h"
 
-AMesh* amesh_create(ARenderer* renderer, AShader* shader, AMeshDesc desc, APrimitive primitive) {
+AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMeshData data, APrimitive primitive) {
 	AMesh* mesh = m_malloc(sizeof(AMesh));
 	return mesh;
 }

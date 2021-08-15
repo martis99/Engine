@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_WINDOWS
+#ifdef SAPI_WINDOWS
 #include "api/wnd/awindow.h"
 #include "api/wnd/acursor.h"
 
@@ -256,6 +256,14 @@ int awindow_poll_events(AWindow* window) {
 	}
 
 	return 1;
+}
+
+void awindow_message_box(AWindow* window, const char* text, const char* caption) {
+	MessageBoxA(window->window, text, caption, MB_ICONERROR);
+}
+
+void awindow_message_boxw(AWindow* window, const wchar* text, const wchar* caption) {
+	MessageBoxW(window->window, text, caption, MB_ICONERROR);
 }
 
 void awindow_close(AWindow* window) {

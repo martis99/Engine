@@ -164,3 +164,7 @@ void app_exit() {
 Stats* app_get_stats() {
 	return &app.stats;
 }
+
+Window* app_get_window() {
+	return &app.window;
+}

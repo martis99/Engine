@@ -1,11 +1,13 @@
 #include "pch.h"
-#ifdef E_WINDOWS
+#ifdef SAPI_WINDOWS
 #ifdef GAPI_OPENGL
 #include "api/ctx/acontext.h"
 #include "api/wnd/awindow.h"
 #include "api/gfx/opengl/gl_atypes.h"
 
 #include "api/gfx/opengl/gl/gl.h"
+#include "api/gfx/opengl/gl/gl_error.h"
+
 #include "wgl.h"
 
 #include <Windows.h>
@@ -30,6 +32,11 @@ static int load_functions(HMODULE library) {
 
 		LOAD_OPENGL_FUNCTION(glDebugMessageCallback) &&
 		LOAD_OPENGL_FUNCTION(glDebugMessageControl) &&
+
+		LOAD_OPENGL_FUNCTION(glGetString) &&
+		LOAD_OPENGL_FUNCTION(glGetStringi) &&
+		LOAD_OPENGL_FUNCTION(glGetError) &&
+		LOAD_OPENGL_FUNCTION(glGetDebugMessageLog) &&
 
 		LOAD_OPENGL_FUNCTION(glCreateProgram) &&
 		LOAD_OPENGL_FUNCTION(glDeleteProgram) &&
@@ -138,7 +145,10 @@ static HMODULE load_opengl_functions(HMODULE module, LPCWSTR class_name) {
 	wglMakeCurrent(device, context);
 
 	HMODULE library = LoadLibraryA("OpenGL32.dll");
-	load_functions(library);
+	if (load_functions(library) == 0) {
+		printf("Failed to load opengl functions");
+	}
+
 	wglDeleteContext(context);
 	DestroyWindow(window);
 	return library;
@@ -169,7 +179,9 @@ static HGLRC create_context(HDC device) {
 		{
 			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
 			WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-			0
+#ifdef _DEBUG
+			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB
+#endif
 		};
 		return wglCreateContextAttribsARB(device, NULL, attribs);
 	}
@@ -182,10 +194,12 @@ AContext* acontext_create(AWindow* window) {
 	context->device = GetDC(context->window);
 	context->context = create_context(context->device);
 	wglMakeCurrent(context->device, context->context);
+	gl_error_create();
 	return context;
 }
 
 void acontext_delete(AContext* context) {
+	gl_error_delete();
 	FreeLibrary(context->library);
 	ReleaseDC(context->window, context->device);
 	wglDeleteContext(context->context);

@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_WINDOWS
+#ifdef SAPI_WINDOWS
 #include "api/wnd/acursor.h"
 #include "api/wnd/awindow.h"
 

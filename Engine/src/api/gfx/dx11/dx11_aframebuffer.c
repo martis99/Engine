@@ -5,17 +5,14 @@
 #include "api/gfx/amesh.h"
 #include "dx11_atypes.h"
 #include "dx11_attachment.h"
+#include "dx11/dx11_error.h"
 
 static ID3D11RenderTargetView* create_back_buffer_attachment(ARenderer* renderer, ID3D11RenderTargetView** view) {
 	ID3D11Resource* back_buffer = NULL;
-	HRESULT hr = renderer->acontext->swap_chain->lpVtbl->GetBuffer(renderer->acontext->swap_chain, 0, &IID_ID3D11Resource, (void**)(&back_buffer));
-	if (FAILED(hr)) {
-		log_error("Failed to get back buffer");
+	if (DX11_FAILED("Failed to get back buffer", renderer->acontext->swap_chain->lpVtbl->GetBuffer(renderer->acontext->swap_chain, 0, &IID_ID3D11Resource, (void**)(&back_buffer)))) {
 		return NULL;
 	}
-	hr = renderer->device->lpVtbl->CreateRenderTargetView(renderer->device, back_buffer, NULL, view);
-	if (FAILED(hr)) {
-		log_error("Failed to create render target view");
+	if (DX11_FAILED("Failed to create render target view", renderer->device->lpVtbl->CreateRenderTargetView(renderer->device, back_buffer, NULL, view))) {
 		return NULL;
 	}
 	back_buffer->lpVtbl->Release(back_buffer);
@@ -35,9 +32,7 @@ static ID3D11DepthStencilView* create_depth_stencil_attachment(ARenderer* render
 	td.Usage = D3D11_USAGE_DEFAULT;
 	td.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
-	HRESULT hr = renderer->device->lpVtbl->CreateTexture2D(renderer->device, &td, NULL, texture);
-	if (FAILED(hr)) {
-		log_error("Failed to create texture");
+	if (DX11_FAILED("Failed to create texture", renderer->device->lpVtbl->CreateTexture2D(renderer->device, &td, NULL, texture))) {
 		return NULL;
 	}
 
@@ -45,9 +40,7 @@ static ID3D11DepthStencilView* create_depth_stencil_attachment(ARenderer* render
 	dsvd.Format = DXGI_FORMAT_D32_FLOAT;
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	dsvd.Texture2D.MipSlice = 0;
-	hr = renderer->device->lpVtbl->CreateDepthStencilView(renderer->device, (ID3D11Resource*)(*texture), &dsvd, view);
-	if (FAILED(hr)) {
-		log_error("Failed to create depth stencil view");
+	if (DX11_FAILED("Failed to create depth stencil view", renderer->device->lpVtbl->CreateDepthStencilView(renderer->device, (ID3D11Resource*)(*texture), &dsvd, view))) {
 		return NULL;
 	}
 
@@ -57,16 +50,26 @@ static ID3D11DepthStencilView* create_depth_stencil_attachment(ARenderer* render
 AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachments, uint attachments_size, int width, int height) {
 	AFramebuffer* framebuffer = m_malloc(sizeof(AFramebuffer));
 
-	create_back_buffer_attachment(renderer, &framebuffer->rtv);
+	if (create_back_buffer_attachment(renderer, &framebuffer->rtv) == NULL) {
+		log_error("Failed to create back buffer attachment");
+		return NULL;
+	}
 
 	framebuffer->attachments_count = attachments_size / sizeof(AAttachmentDesc);
 	framebuffer->attachments = m_malloc(framebuffer->attachments_count * sizeof(DX11Attachment*));
 
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
 		framebuffer->attachments[i] = dx11_attachment_create(renderer, attachments[i], width, height);
+		if (framebuffer->attachments[i] == NULL) {
+			log_error("Failed to create attachment");
+			return NULL;
+		}
 	}
 
-	create_depth_stencil_attachment(renderer, width, height, &framebuffer->dst, &framebuffer->dsv);
+	if (create_depth_stencil_attachment(renderer, width, height, &framebuffer->dst, &framebuffer->dsv) == NULL) {
+		log_error("Failed to create depth stencil attachment");
+		return NULL;
+	}
 
 	const char* src_vert =
 		"struct Input {\n"
@@ -154,6 +157,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 void aframebuffer_delete(AFramebuffer* framebuffer) {
 	if (framebuffer->rtv != NULL) {
 		framebuffer->rtv->lpVtbl->Release(framebuffer->rtv);
+		framebuffer->rtv = NULL;
 	}
 
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
@@ -163,9 +167,11 @@ void aframebuffer_delete(AFramebuffer* framebuffer) {
 
 	if (framebuffer->dst != NULL) {
 		framebuffer->dst->lpVtbl->Release(framebuffer->dst);
+		framebuffer->dst = NULL;
 	}
 	if (framebuffer->dsv != NULL) {
 		framebuffer->dsv->lpVtbl->Release(framebuffer->dsv);
+		framebuffer->dsv = NULL;
 	}
 
 	ashader_delete(framebuffer->shader);

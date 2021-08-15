@@ -18,7 +18,7 @@ Image* assets_image_create(Assets* assets, const char* name, int width, int heig
 Image* assets_image_load(Assets* assets, const char* name, const char* path);
 Image* assets_image_get(Assets* assets, const char* name);
 
-Texture* assets_texture_create_from_image(Assets* assets, const char* name, Image* image, AWrap wrap, AFilter filter);
+Texture* assets_texture_create(Assets* assets, const char* name, Image* image, AWrap wrap, AFilter filter);
 Texture* assets_texture_get(Assets* assets, const char* name);
 
 Font* assets_font_load(Assets* assets, const char* name, const char* path, int size);

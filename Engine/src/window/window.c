@@ -22,6 +22,14 @@ int window_poll_events(Window* window) {
 	return awindow_poll_events(window->window);
 }
 
+void window_message_box(Window* window, const char* text, const char* caption) {
+	awindow_message_box(window->window, text, caption);
+}
+
+void window_message_boxw(Window* window, const wchar* text, const wchar* caption) {
+	awindow_message_boxw(window->window, text, caption);
+}
+
 void window_close(Window* window) {
 	awindow_close(window->window);
 }

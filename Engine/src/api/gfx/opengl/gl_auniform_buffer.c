@@ -29,6 +29,7 @@ AUniformBuffer* auniformbuffer_create_dynamic(ARenderer* renderer, uint slot, ui
 void auniformbuffer_delete(AUniformBuffer* uniform_buffer) {
 	if (uniform_buffer->buffer != 0) {
 		gl_ub_delete(uniform_buffer->buffer);
+		uniform_buffer->buffer = 0;
 	}
 	m_free(uniform_buffer, sizeof(AUniformBuffer));
 }

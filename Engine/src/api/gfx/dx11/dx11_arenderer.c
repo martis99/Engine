@@ -22,61 +22,61 @@ ARenderer* arenderer_create(AContext* context) {
 
 	renderer->depth_stencil = dx11_depth_stencil_create(renderer->device, FALSE, FALSE);
 	if (renderer->depth_stencil == NULL) {
-		log_error("Failed to create arenderer");
+		log_error("Failed to create depth stencil");
 		return NULL;
 	}
 
 	renderer->depth_stencil_depth = dx11_depth_stencil_create(renderer->device, TRUE, FALSE);
 	if (renderer->depth_stencil_depth == NULL) {
-		log_error("Failed to create arenderer");
+		log_error("Failed to create depth stencil depth");
 		return NULL;
 	}
 
 	renderer->depth_stencil_stencil = dx11_depth_stencil_create(renderer->device, FALSE, TRUE);
 	if (renderer->depth_stencil_stencil == NULL) {
-		log_error("Failed to create arenderer");
+		log_error("Failed to create depth stencil stencil");
 		return NULL;
 	}
 
 	renderer->depth_stencil_depth_stencil = dx11_depth_stencil_create(renderer->device, TRUE, TRUE);
 	if (renderer->depth_stencil_depth_stencil == NULL) {
-		log_error("Failed to create arenderer");
+		log_error("Failed to create depth stencil depth stencil");
 		return NULL;
 	}
 
 	renderer->rasterizer_solid_none = dx11_resterizer_create(renderer->device, D3D11_FILL_SOLID, D3D11_CULL_NONE);
 	if (renderer->rasterizer_solid_none == NULL) {
-		log_error("Failed to create arenderer");
+		log_error("Failed to create rasterizer solid none");
 		return NULL;
 	}
 
 	renderer->rasterizer_solid_back = dx11_resterizer_create(renderer->device, D3D11_FILL_SOLID, D3D11_CULL_BACK);
 	if (renderer->rasterizer_solid_back == NULL) {
-		log_error("Failed to create arenderer");
+		log_error("Failed to create rasterizer solid back");
 		return NULL;
 	}
 
 	renderer->rasterizer_wireframe_none = dx11_resterizer_create(renderer->device, D3D11_FILL_WIREFRAME, D3D11_CULL_NONE);
 	if (renderer->rasterizer_wireframe_none == NULL) {
-		log_error("Failed to create arenderer");
+		log_error("Failed to create rasterizer wireframe none");
 		return NULL;
 	}
 
 	renderer->rasterizer_wireframe_back = dx11_resterizer_create(renderer->device, D3D11_FILL_WIREFRAME, D3D11_CULL_BACK);
 	if (renderer->rasterizer_wireframe_back == NULL) {
-		log_error("Failed to create arenderer");
+		log_error("Failed to create rasterizer wireframe back");
 		return NULL;
 	}
 
 	renderer->blend_enabled = dx11_blend_create(renderer->device, TRUE);
 	if (renderer->blend_enabled == NULL) {
-		log_error("Failed to create arenderer");
+		log_error("Failed to create blend enabled");
 		return NULL;
 	}
 
 	renderer->blend_disabled = dx11_blend_create(renderer->device, FALSE);
 	if (renderer->blend_disabled == NULL) {
-		log_error("Failed to create arenderer");
+		log_error("Failed to create blend disabled");
 		return NULL;
 	}
 
@@ -84,16 +84,50 @@ ARenderer* arenderer_create(AContext* context) {
 }
 
 void arenderer_delete(ARenderer* renderer) {
-	dx11_depth_stencil_delete(renderer->depth_stencil);
-	dx11_depth_stencil_delete(renderer->depth_stencil_depth);
-	dx11_depth_stencil_delete(renderer->depth_stencil_stencil);
-	dx11_depth_stencil_delete(renderer->depth_stencil_depth_stencil);
-	dx11_rasterizer_delete(renderer->rasterizer_solid_none);
-	dx11_rasterizer_delete(renderer->rasterizer_solid_back);
-	dx11_rasterizer_delete(renderer->rasterizer_wireframe_none);
-	dx11_rasterizer_delete(renderer->rasterizer_wireframe_back);
-	dx11_blend_delete(renderer->blend_enabled);
-	dx11_blend_delete(renderer->blend_disabled);
+	if (renderer->depth_stencil != NULL) {
+		dx11_depth_stencil_delete(renderer->depth_stencil);
+		renderer->depth_stencil = NULL;
+	}
+	if (renderer->depth_stencil_depth != NULL) {
+		dx11_depth_stencil_delete(renderer->depth_stencil_depth);
+		renderer->depth_stencil_depth = NULL;
+	}
+	if (renderer->depth_stencil_stencil != NULL) {
+		dx11_depth_stencil_delete(renderer->depth_stencil_stencil);
+		renderer->depth_stencil_stencil = NULL;
+	}
+	if (renderer->depth_stencil_depth_stencil != NULL) {
+		dx11_depth_stencil_delete(renderer->depth_stencil_depth_stencil);
+		renderer->depth_stencil_depth_stencil = NULL;
+	}
+	if (renderer->rasterizer_solid_none != NULL) {
+		dx11_rasterizer_delete(renderer->rasterizer_solid_none);
+		renderer->rasterizer_solid_none = NULL;
+	}
+	if (renderer->rasterizer_solid_back != NULL) {
+		dx11_rasterizer_delete(renderer->rasterizer_solid_back);
+		renderer->rasterizer_solid_back = NULL;
+	}
+	if (renderer->rasterizer_wireframe_none != NULL) {
+		dx11_rasterizer_delete(renderer->rasterizer_wireframe_none);
+		renderer->rasterizer_wireframe_none = NULL;
+	}
+	if (renderer->rasterizer_wireframe_back != NULL) {
+		dx11_rasterizer_delete(renderer->rasterizer_wireframe_back);
+		renderer->rasterizer_wireframe_back = NULL;
+	}
+	if (renderer->rasterizer_wireframe_back != NULL) {
+		dx11_rasterizer_delete(renderer->rasterizer_wireframe_back);
+		renderer->rasterizer_wireframe_back = NULL;
+	}
+	if (renderer->blend_enabled != NULL) {
+		dx11_blend_delete(renderer->blend_enabled);
+		renderer->blend_enabled = NULL;
+	}
+	if (renderer->blend_disabled != NULL) {
+		dx11_blend_delete(renderer->blend_disabled);
+		renderer->blend_disabled = NULL;
+	}
 	m_free(renderer, sizeof(ARenderer));
 }
 

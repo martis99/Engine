@@ -4,31 +4,43 @@
 #include "gl_atypes.h"
 #include "gl/gl_shader.h"
 
-static AShader* create_program(AShader* shader, GLuint vert, GLuint frag) {
-	shader->program = gl_program_create();
+static GLuint create_program(GLuint vert, GLuint frag) {
+	GLuint program = gl_program_create();
+	if (program == 0) {
+		return 0;
+	}
 
-	gl_program_attach_shader(shader->program, vert);
-	gl_program_attach_shader(shader->program, frag);
+	if (gl_program_attach_shader(program, vert) == A_FAIL) {
+		return 0;
+	}
+	if (gl_program_attach_shader(program, frag) == A_FAIL) {
+		return 0;
+	}
 
 	int status;
-	gl_program_link(shader->program, &status);
+	if (gl_program_link(program, &status) == A_FAIL) {
+		return 0;
+	}
 
 	if (!status) {
 		int length = 0;
-		gl_program_info_length(shader->program, &length);
+		gl_program_info_length(program, &length);
 		char* info = m_malloc(length);
-		gl_program_info(shader->program, length, info);
+		gl_program_info(program, length, info);
 		log_error(info);
 		m_free(info, length);
-		return NULL;
+		return 0;
 	}
 
-	return shader;
+	return program;
 }
 
 static GLuint compile_shader(GLenum type, const char* source) {
 	int status;
 	GLuint shader = gl_shader_create(type, source, &status);
+	if (shader == 0) {
+		return 0;
+	}
 
 	if (!status) {
 		int length;
@@ -58,7 +70,8 @@ AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* s
 		return NULL;
 	}
 
-	if (create_program(shader, vert, frag) == NULL) {
+	shader->program = create_program(vert, frag);
+	if (shader->program == 0) {
 		log_error("Failed to create shader program");
 		return NULL;
 	}
@@ -72,6 +85,10 @@ AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* s
 			shader->textures[i] = i;
 		}
 		shader->textures_location = gl_program_get_uniform_location(shader->program, textures);
+		if (shader->textures_location == -1) {
+			log_error("Failed to get textures location");
+			return NULL;
+		}
 		shader->num_textures = num_textures;
 	}
 	return shader;
@@ -81,14 +98,17 @@ void ashader_delete(AShader* shader) {
 	if (shader->num_textures > 0) {
 		m_free(shader->textures, shader->num_textures * sizeof(GLint));
 	}
-	gl_program_delete(shader->program);
+	if (shader->program != 0) {
+		gl_program_delete(shader->program);
+		shader->program = 0;
+	}
 	m_free(shader, sizeof(AShader));
 }
 
 void ashader_bind(AShader* shader, ARenderer* renderer) {
 	gl_program_use(shader->program);
 	if (shader->num_textures > 0) {
-		glUniform1iv(shader->textures_location, shader->num_textures, shader->textures);
+		gl_uniform_vec1i(shader->textures_location, shader->num_textures, shader->textures);
 	}
 }
 

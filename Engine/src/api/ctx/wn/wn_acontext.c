@@ -1,5 +1,5 @@
 #include "pch.h"
-#ifdef E_WINDOWS
+#ifdef SAPI_WINDOWS
 #ifdef GAPI_NONE
 #include "api/ctx/acontext.h"
 #include "api/wnd/awindow.h"

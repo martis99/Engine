@@ -8,21 +8,29 @@ AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* s
 	AShader* shader = m_malloc(sizeof(AShader));
 	shader->vs = dx11_vs_create(renderer->device, src_vert, &shader->vs_blob);
 	if (shader->vs == NULL) {
-		log_error("Failed to create shader");
+		log_error("Failed to create vertex shader");
 		return NULL;
 	}
 
 	shader->ps = dx11_ps_create(renderer->device, src_frag, &shader->ps_blob);
 	if (shader->ps == NULL) {
-		log_error("Failed to create shader");
+		log_error("Failed to create pixel shader");
 		return NULL;
 	}
 	return shader;
 }
 
 void ashader_delete(AShader* shader) {
-	dx11_vs_delete(shader->vs, shader->vs_blob);
-	dx11_ps_delete(shader->ps, shader->ps_blob);
+	if (shader->vs != NULL && shader->vs_blob != NULL) {
+		dx11_vs_delete(shader->vs, shader->vs_blob);
+		shader->vs = NULL;
+		shader->vs_blob = NULL;
+	}
+	if (shader->ps != NULL && shader->ps_blob != NULL) {
+		dx11_ps_delete(shader->ps, shader->ps_blob);
+		shader->ps = NULL;
+		shader->ps_blob = NULL;
+	}
 	m_free(shader, sizeof(AShader));
 }
 

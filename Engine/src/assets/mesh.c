@@ -6,6 +6,9 @@
 
 Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshData data, APrimitive primitive) {
 	mesh->mesh = amesh_create(renderer->renderer, shader->shader, shader->desc, data, primitive);
+	if (mesh->mesh == NULL) {
+		return NULL;
+	}
 	return mesh;
 }
 

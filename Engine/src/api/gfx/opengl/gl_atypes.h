@@ -2,7 +2,10 @@
 #ifdef GAPI_OPENGL
 #include "api/atypes.h"
 
-#include "gl/gl.h"
+#include "gl/gl_types.h"
+
+#ifdef SAPI_WINDOWS
+#include <Windows.h>
 
 struct AWindow {
 	LPCWSTR class_name;
@@ -18,6 +21,8 @@ struct AContext {
 	HGLRC context;
 	HMODULE library;
 };
+
+#endif
 
 typedef struct GLAttachment {
 	GLenum format;

@@ -2,6 +2,7 @@
 #ifdef GAPI_OPENGL
 #include "api/gfx/atexture.h"
 #include "gl_atypes.h"
+#include "gl/gl_defines.h"
 #include "gl/gl_texture.h"
 
 ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void* data) {
@@ -24,7 +25,11 @@ ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int w
 		format = GL_RED;
 	}
 
-	texture->id = gl_texture_create(gl_awrap(wrap), gl_afilter(filter), width, height, internal_format, format, type, data);
+	texture->id = gl_texture_create(gl_awrap(wrap), gl_afilter(filter), width, height, internal_format, format, type, data, 1);
+	if (texture->id == 0) {
+		log_error("Failed to create texture");
+		return NULL;
+	}
 	return texture;
 }
 
@@ -33,7 +38,10 @@ void atexture_bind(ATexture* texture, ARenderer* renderer, uint slot) {
 }
 
 void atexture_delete(ATexture* texture) {
-	gl_texture_delete(texture->id);
+	if (texture->id != 0) {
+		gl_texture_delete(texture->id);
+		texture->id = 0;
+	}
 	m_free(texture, sizeof(ATexture));
 }
 #endif

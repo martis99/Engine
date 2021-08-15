@@ -12,12 +12,17 @@ Material* material_create(Material* material, Renderer* renderer, Shader* shader
 
 	if (vs_desc != NULL) {
 		material->vs = 1;
-		uniformbuffer_create_dynamic(&material->vs_buffer, renderer, vs_desc);
+		if (uniformbuffer_create_dynamic(&material->vs_buffer, renderer, vs_desc) == NULL) {
+			log_error("Failed to create material vertex shader buffer");
+			return NULL;
+		}
 	}
 
 	if (ps_desc != NULL) {
 		material->ps = 1;
-		uniformbuffer_create_dynamic(&material->ps_buffer, renderer, ps_desc);
+		if (uniformbuffer_create_dynamic(&material->ps_buffer, renderer, ps_desc) == NULL) {
+			log_error("Failed to create material pixel shader buffer");
+		}
 	}
 
 	material->textures_cap = shader->desc.textures_count;

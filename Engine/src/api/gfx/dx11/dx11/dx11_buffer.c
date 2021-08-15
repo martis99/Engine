@@ -1,9 +1,10 @@
 #include "pch.h"
 #ifdef GAPI_DX11
 #include "dx11_buffer.h"
+#include "api/gfx/dx11/dx11/dx11_error.h"
 
-static ID3D11Buffer* buffer_create_static(ID3D11Device* device, const void* data, UINT data_size, UINT element_size, D3D11_BIND_FLAG bindFlags, const char* error_message) {
-	ID3D11Buffer* buffer;
+static ID3D11Buffer* buffer_create_static(ID3D11Device* device, const void* data, UINT data_size, UINT element_size, D3D11_BIND_FLAG bindFlags) {
+	ID3D11Buffer* buffer = NULL;
 
 	D3D11_BUFFER_DESC bd = { 0 };
 	bd.BindFlags = bindFlags;
@@ -16,17 +17,15 @@ static ID3D11Buffer* buffer_create_static(ID3D11Device* device, const void* data
 	D3D11_SUBRESOURCE_DATA sd = { 0 };
 	sd.pSysMem = data;
 
-	HRESULT hr = device->lpVtbl->CreateBuffer(device, &bd, &sd, &buffer);
-	if (FAILED(hr)) {
-		log_error(error_message);
+	if (DX11_FAILED("Failed to create static buffer", device->lpVtbl->CreateBuffer(device, &bd, &sd, &buffer))) {
 		return NULL;
 	}
 
 	return buffer;
 }
 
-static ID3D11Buffer* buffer_create_dynamic(ID3D11Device* device, UINT data_size, UINT element_size, D3D11_BIND_FLAG bindFlags, const char* error_message) {
-	ID3D11Buffer* buffer;
+static ID3D11Buffer* buffer_create_dynamic(ID3D11Device* device, UINT data_size, UINT element_size, D3D11_BIND_FLAG bindFlags) {
+	ID3D11Buffer* buffer = NULL;
 
 	D3D11_BUFFER_DESC bd = { 0 };
 	bd.BindFlags = bindFlags;
@@ -36,23 +35,17 @@ static ID3D11Buffer* buffer_create_dynamic(ID3D11Device* device, UINT data_size,
 	bd.ByteWidth = data_size;
 	bd.StructureByteStride = element_size;
 
-	HRESULT hr = device->lpVtbl->CreateBuffer(device, &bd, NULL, &buffer);
-	if (FAILED(hr)) {
-		log_error(error_message);
+	if (DX11_FAILED("Failed to create dynamic buffer", device->lpVtbl->CreateBuffer(device, &bd, NULL, &buffer))) {
 		return NULL;
 	}
 
 	return buffer;
 }
 
-static void buffer_set_data(ID3D11Buffer* buffer, ID3D11DeviceContext* context, const void* data, SIZE_T data_size, const char* error_message) {
+static void buffer_set_data(ID3D11Buffer* buffer, ID3D11DeviceContext* context, const void* data, SIZE_T data_size) {
 	D3D11_MAPPED_SUBRESOURCE ms = { 0 };
 
-	HRESULT hr = context->lpVtbl->Map(context, (ID3D11Resource*)buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
-	if (FAILED(hr)) {
-		log_error(error_message);
-		return;
-	}
+	DX11_ASSERT(context->lpVtbl->Map(context, (ID3D11Resource*)buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms));
 
 	if (ms.pData != NULL) {
 		memcpy(ms.pData, data, data_size);
@@ -62,17 +55,15 @@ static void buffer_set_data(ID3D11Buffer* buffer, ID3D11DeviceContext* context, 
 }
 
 static void buffer_delete(ID3D11Buffer* buffer) {
-	if (buffer != NULL) {
-		buffer->lpVtbl->Release(buffer);
-	}
+	buffer->lpVtbl->Release(buffer);
 }
 
 ID3D11Buffer* dx11_vb_create_static(ID3D11Device* device, const void* data, UINT data_size, UINT element_size) {
-	return buffer_create_static(device, data, data_size, element_size, D3D11_BIND_VERTEX_BUFFER, "Failed to create static vertex buffer");
+	return buffer_create_static(device, data, data_size, element_size, D3D11_BIND_VERTEX_BUFFER);
 }
 
 ID3D11Buffer* dx11_vb_create_dynamic(ID3D11Device* device, UINT data_size, UINT element_size) {
-	return buffer_create_dynamic(device, data_size, element_size, D3D11_BIND_VERTEX_BUFFER, "Failed to create dynamic vertex buffer");
+	return buffer_create_dynamic(device, data_size, element_size, D3D11_BIND_VERTEX_BUFFER);
 }
 
 void dx11_vb_bind(ID3D11Buffer* vb, ID3D11DeviceContext* context, UINT stride, UINT offset) {
@@ -80,7 +71,7 @@ void dx11_vb_bind(ID3D11Buffer* vb, ID3D11DeviceContext* context, UINT stride, U
 }
 
 void dx11_vb_set_data(ID3D11Buffer* vb, ID3D11DeviceContext* context, const void* data, SIZE_T data_size) {
-	buffer_set_data(vb, context, data, data_size, "Failed to set vertex buffer data");
+	buffer_set_data(vb, context, data, data_size);
 }
 
 void dx11_vb_delete(ID3D11Buffer* vb) {
@@ -88,11 +79,11 @@ void dx11_vb_delete(ID3D11Buffer* vb) {
 }
 
 ID3D11Buffer* dx11_ib_create_static(ID3D11Device* device, const void* data, UINT data_size, UINT element_size) {
-	return buffer_create_static(device, data, data_size, element_size, D3D11_BIND_INDEX_BUFFER, "Failed to create static index buffer");
+	return buffer_create_static(device, data, data_size, element_size, D3D11_BIND_INDEX_BUFFER);
 }
 
 ID3D11Buffer* dx11_ib_create_dynamic(ID3D11Device* device, UINT data_size, UINT element_size) {
-	return buffer_create_dynamic(device, data_size, element_size, D3D11_BIND_INDEX_BUFFER, "Failed to create dynamic index buffer");
+	return buffer_create_dynamic(device, data_size, element_size, D3D11_BIND_INDEX_BUFFER);
 }
 
 void dx11_ib_bind(ID3D11Buffer* ib, ID3D11DeviceContext* context, DXGI_FORMAT format, UINT offset) {
@@ -100,7 +91,7 @@ void dx11_ib_bind(ID3D11Buffer* ib, ID3D11DeviceContext* context, DXGI_FORMAT fo
 }
 
 void dx11_ib_set_data(ID3D11Buffer* ib, ID3D11DeviceContext* context, const void* data, SIZE_T data_size) {
-	buffer_set_data(ib, context, data, data_size, "Failed to set index buffer data");
+	buffer_set_data(ib, context, data, data_size);
 }
 
 void dx11_ib_delete(ID3D11Buffer* ib) {
@@ -108,11 +99,11 @@ void dx11_ib_delete(ID3D11Buffer* ib) {
 }
 
 ID3D11Buffer* dx11_cb_create_static(ID3D11Device* device, const void* data, UINT data_size) {
-	return buffer_create_static(device, data, data_size, 0, D3D11_BIND_CONSTANT_BUFFER, "Failed to create static constant buffer");
+	return buffer_create_static(device, data, data_size, 0, D3D11_BIND_CONSTANT_BUFFER);
 }
 
 ID3D11Buffer* dx11_cb_create_dynamic(ID3D11Device* device, UINT data_size) {
-	return buffer_create_dynamic(device, data_size, 0, D3D11_BIND_CONSTANT_BUFFER, "Failed to create dynamic constant buffer");
+	return buffer_create_dynamic(device, data_size, 0, D3D11_BIND_CONSTANT_BUFFER);
 }
 
 void dx11_cb_bind_vs(ID3D11Buffer* cb, ID3D11DeviceContext* context, UINT slot) {
@@ -124,7 +115,7 @@ void dx11_cb_bind_ps(ID3D11Buffer* cb, ID3D11DeviceContext* context, UINT slot) 
 }
 
 void dx11_cb_set_data(ID3D11Buffer* cb, ID3D11DeviceContext* context, const void* data, SIZE_T data_size) {
-	buffer_set_data(cb, context, data, data_size, "Failed to set constant buffer data");
+	buffer_set_data(cb, context, data, data_size);
 }
 
 void dx11_cb_delete(ID3D11Buffer* cb) {
@@ -132,10 +123,8 @@ void dx11_cb_delete(ID3D11Buffer* cb) {
 }
 
 ID3D11InputLayout* dx11_il_create(ID3D11Device* device, D3D11_INPUT_ELEMENT_DESC* ied, UINT num_elements, ID3DBlob* blob) {
-	ID3D11InputLayout* layout;
-	HRESULT hr = device->lpVtbl->CreateInputLayout(device, ied, num_elements, blob->lpVtbl->GetBufferPointer(blob), blob->lpVtbl->GetBufferSize(blob), &layout);
-	if (FAILED(hr)) {
-		log_error("Failed to create input layout");
+	ID3D11InputLayout* layout = NULL;
+	if (DX11_FAILED("Failed to create input layour", device->lpVtbl->CreateInputLayout(device, ied, num_elements, blob->lpVtbl->GetBufferPointer(blob), blob->lpVtbl->GetBufferSize(blob), &layout))) {
 		return NULL;
 	}
 	return layout;

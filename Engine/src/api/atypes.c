@@ -74,7 +74,7 @@ void atype_convert(float* dst, const void* src, AType type) {
 	}
 }
 
-char* str_copy(const char* str) {
+static char* str_copy(const char* str) {
 	if (str == NULL) {
 		return NULL;
 	}
@@ -82,7 +82,7 @@ char* str_copy(const char* str) {
 	return memcpy(dst, str, strlen(str) + 1);
 }
 
-void str_delete(char* str) {
+static void str_delete(char* str) {
 	if (str == NULL) {
 		return;
 	}

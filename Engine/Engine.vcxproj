@@ -98,7 +98,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>E_WINDOWS;GAPI_DX11;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -116,7 +116,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>E_WINDOWS;GAPI_DX11;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -134,7 +134,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>E_WINDOWS;GAPI_DX11;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -152,7 +152,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>E_WINDOWS;GAPI_DX11;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -167,6 +167,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="lib\include\dxerr\dxerr.c" />
     <ClCompile Include="lib\include\stb\stb_image.c" />
     <ClCompile Include="lib\include\stb\stb_image_write.c" />
     <ClCompile Include="lib\include\stb\stb_truetype.c" />
@@ -175,12 +176,17 @@
     <ClCompile Include="src\api\ctx\wgl\wgl_acontext.c" />
     <ClCompile Include="src\api\ctx\wn\wn_acontext.c" />
     <ClCompile Include="src\api\gfx\ashadergenerator.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_error.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_ashadergenerator.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11\dx11_buffer.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11\dx11_renderer.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11\dx11_shader.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11\dx11_texture.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_attachment.c" />
+    <ClCompile Include="src\api\gfx\none\n_ashadergenerator.c" />
+    <ClCompile Include="src\api\gfx\opengl\gl\gl_error.c" />
+    <ClCompile Include="src\api\os\none\n_utils.c" />
+    <ClCompile Include="src\api\os\windows\w_utils.c" />
     <ClCompile Include="src\assets\buffer.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_aframebuffer.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_amesh.c" />
@@ -189,9 +195,7 @@
     <ClCompile Include="src\api\gfx\dx11\dx11_ashader.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_atexture.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_auniform_buffer.c" />
-    <ClCompile Include="src\api\gfx\none\n_abuffer.c" />
     <ClCompile Include="src\api\gfx\none\n_aframebuffer.c" />
-    <ClCompile Include="src\api\gfx\none\n_amaterial.c" />
     <ClCompile Include="src\api\gfx\none\n_amesh.c" />
     <ClCompile Include="src\api\gfx\none\n_arenderer.c" />
     <ClCompile Include="src\api\gfx\none\n_ashader.c" />
@@ -210,8 +214,8 @@
     <ClCompile Include="src\api\gfx\opengl\gl\gl_renderer.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_shader.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_texture.c" />
-    <ClCompile Include="src\api\wnd\windows\acursor.c" />
-    <ClCompile Include="src\api\wnd\windows\awindow.c" />
+    <ClCompile Include="src\api\wnd\windows\w_acursor.c" />
+    <ClCompile Include="src\api\wnd\windows\w_awindow.c" />
     <ClCompile Include="src\app.c" />
     <ClCompile Include="src\assets\assets.c" />
     <ClCompile Include="src\assets\font.c" />
@@ -261,11 +265,13 @@
     <ClCompile Include="src\utils\array.c" />
     <ClCompile Include="src\utils\dictionary.c" />
     <ClCompile Include="src\utils\stack.c" />
+    <ClCompile Include="src\utils\str.c" />
     <ClCompile Include="src\window\context.c" />
     <ClCompile Include="src\window\cursor.c" />
     <ClCompile Include="src\window\window.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lib\include\dxerr\dxerr.h" />
     <ClInclude Include="lib\include\stb\stb_image.h" />
     <ClInclude Include="lib\include\stb\stb_image_write.h" />
     <ClInclude Include="lib\include\stb\stb_truetype.h" />
@@ -275,6 +281,9 @@
     <ClInclude Include="src\api\ctx\acontext.h" />
     <ClInclude Include="src\api\ctx\wgl\wgl.h" />
     <ClInclude Include="src\api\atypes.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_error.h" />
+    <ClInclude Include="src\api\gfx\opengl\gl\gl_error.h" />
+    <ClInclude Include="src\api\gfx\opengl\gl\gl_types.h" />
     <ClInclude Include="src\assets\buffer.h" />
     <ClInclude Include="src\api\gfx\aframebuffer.h" />
     <ClInclude Include="src\api\gfx\amesh.h" />
@@ -349,6 +358,8 @@
     <ClInclude Include="src\utils\array.h" />
     <ClInclude Include="src\utils\dictionary.h" />
     <ClInclude Include="src\utils\stack.h" />
+    <ClInclude Include="src\utils\str.h" />
+    <ClInclude Include="src\utils\utils.h" />
     <ClInclude Include="src\window\context.h" />
     <ClInclude Include="src\window\cursor.h" />
     <ClInclude Include="src\window\window.h" />

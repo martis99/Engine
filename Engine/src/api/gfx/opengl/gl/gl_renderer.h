@@ -1,6 +1,6 @@
 #pragma once
 #ifdef GAPI_OPENGL
-#include "gl.h"
+#include "gl_types.h"
 
 void gl_clear_buffers();
 void gl_clear_buffer_color();
@@ -24,7 +24,4 @@ void gl_unpack_alignment();
 void gl_blend_enable();
 void gl_blend_disable();
 void gl_blend_func(GLenum sfactor, GLenum dfactor);
-
-void gl_debug_output_enable();
-void gl_debug_output_disable();
 #endif

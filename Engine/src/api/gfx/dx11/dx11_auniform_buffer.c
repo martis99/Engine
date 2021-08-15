@@ -8,7 +8,7 @@ AUniformBuffer* auniformbuffer_create_static(ARenderer* renderer, uint slot, uin
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));
 	uniform_buffer->buffer = dx11_cb_create_static(renderer->device, data, data_size);
 	if (uniform_buffer->buffer == NULL) {
-		log_error("Failed to create constant buffer");
+		log_error("Failed to create static constant buffer");
 		return NULL;
 	}
 	uniform_buffer->slot = slot;
@@ -19,7 +19,7 @@ AUniformBuffer* auniformbuffer_create_dynamic(ARenderer* renderer, uint slot, ui
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));
 	uniform_buffer->buffer = dx11_cb_create_dynamic(renderer->device, data_size);
 	if (uniform_buffer->buffer == NULL) {
-		log_error("Failed to create constant buffer");
+		log_error("Failed to create dynamic constant buffer");
 		return NULL;
 	}
 	uniform_buffer->slot = slot;
@@ -29,6 +29,7 @@ AUniformBuffer* auniformbuffer_create_dynamic(ARenderer* renderer, uint slot, ui
 void auniformbuffer_delete(AUniformBuffer* uniform_buffer) {
 	if (uniform_buffer->buffer != NULL) {
 		dx11_cb_delete(uniform_buffer->buffer);
+		uniform_buffer->buffer = NULL;
 	}
 	m_free(uniform_buffer, sizeof(AUniformBuffer));
 }

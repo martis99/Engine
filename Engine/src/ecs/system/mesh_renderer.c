@@ -126,10 +126,3 @@ void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs) {
 		mesh_draw(mesh_component->mesh, mesh_renderer->renderer, 0xFFFFFFFF);
 	}
 }
-
-Material* mesh_renderer_create_material(MeshRenderer* mesh_renderer, Assets* assets, const char* name, Texture* texture, vec4 color) {
-	Material* material = assets_material_create(assets, name, &mesh_renderer->shader);
-	material_add_texture(material, texture);
-	material_set_ps_value(material, 0, &color);
-	return material;
-}

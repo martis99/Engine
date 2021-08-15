@@ -17,6 +17,9 @@ Shader* shader_create(Shader* shader, Renderer* renderer, const char* vert, cons
 	ashadergenerator_generate(shader->desc, src_vert, src_frag, vert, frag);
 
 	shader->shader = ashader_create(renderer->renderer, src_vert, src_frag, "Textures", desc.textures_count);
+	if (shader->shader == NULL) {
+		return NULL;
+	}
 
 	m_free(src_vert, vs_size);
 	m_free(src_frag, fs_size);
@@ -24,7 +27,9 @@ Shader* shader_create(Shader* shader, Renderer* renderer, const char* vert, cons
 	image_create(&shader->default_image, 1, 1, 4);
 	uint data = (uint)0xffffffff;
 	image_set_data(&shader->default_image, (unsigned char*)&data);
-	texture_create(&shader->default_texture, renderer, &shader->default_image, A_REPEAT, A_LINEAR);
+	if (texture_create(&shader->default_texture, renderer, &shader->default_image, A_REPEAT, A_LINEAR) == NULL) {
+		return NULL;
+	}
 
 	return shader;
 }

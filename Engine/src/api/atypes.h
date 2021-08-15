@@ -178,9 +178,6 @@ uint atype_size(AType type);
 uint atype_count(AType type, bool mat_support);
 void atype_convert(float* dst, const void* src, AType type);
 
-char* str_copy(const char* src);
-void str_delete(char* str);
-
 void avalue_copy(AValue* src, AValue* dst);
 void avalue_delete(AValue* value);
 

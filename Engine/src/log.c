@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#ifdef E_WINDOWS
-#include <Windows.h>
-#endif
+#include "app.h"
+#include "utils/utils.h"
+#include "window/window.h"
 
 void log_info(const char* format, ...) {
 	va_list args;
@@ -12,9 +12,27 @@ void log_info(const char* format, ...) {
 	va_end(args);
 }
 
-void log_error(const char* message) {
-#ifdef E_WINDOWS
-	MessageBoxA(0, message, "Error", MB_ICONERROR);
+void log_error(const char* text) {
+	printf("%s\n", text);
+}
+
+void show_error(const char* text, const char* caption) {
+	printf("%s\n", caption);
+	printf("%s\n", text);
+	window_message_box(app_get_window(), text, caption);
+
+#ifdef _DEBUG
+	debug_break();
 #endif
-	printf("%s\n", message);
+}
+
+void show_errorw(const wchar* text, const wchar* caption) {
+	wprintf(L"%ls\n", caption);
+	wprintf(L"%ls\n", text);
+
+	window_message_boxw(app_get_window(), text, caption);
+
+#ifdef _DEBUG
+	debug_break();
+#endif
 }

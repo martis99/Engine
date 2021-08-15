@@ -5,14 +5,20 @@
 #include "api/gfx/amesh.h"
 #include "gl_atypes.h"
 #include "gl_attachment.h"
+#include "gl/gl_defines.h"
 #include "gl/gl_buffer.h"
+#include "gl/gl_texture.h"
 
 GLuint create_depth_stencil_attachment(GLsizei width, GLsizei height) {
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture, 0);
+	GLuint texture = gl_texture_create(0, 0, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, 0);
+	if (texture == 0) {
+		log_error("Failed to create depth stencil texture");
+		return 0;
+	}
+	if (gl_fb_attach_texture(GL_DEPTH_STENCIL_ATTACHMENT, texture) == A_FAIL) {
+		log_error("Failed to attach texture");
+		return 0;
+	}
 	return texture;
 }
 
@@ -21,18 +27,30 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	framebuffer->height = height;
 
 	framebuffer->fb = gl_fb_create();
+	if (framebuffer->fb == 0) {
+		log_error("Failed to create framebuffer");
+		return NULL;
+	}
 
 	framebuffer->attachments_count = attachments_size / sizeof(AAttachmentDesc);
 	framebuffer->attachments = m_malloc(framebuffer->attachments_count * sizeof(GLAttachment*));
 
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
 		framebuffer->attachments[i] = gl_attachment_create(attachments[i], width, height, i);
+		if (framebuffer->attachments[i] == NULL) {
+			log_error("Failed to create attachment");
+			return NULL;
+		}
 	}
 
 	framebuffer->depth_stencil = create_depth_stencil_attachment(width, height);
+	if (framebuffer->depth_stencil == 0) {
+		log_error("Failed to create depth stencil attachment");
+		return NULL;
+	}
 
 	if (gl_fb_check_status(framebuffer->fb) == 0) {
-		log_error("Failed to create framebuffer");
+		log_error("Framebuffer is not complete");
 		return NULL;
 	}
 
@@ -117,12 +135,19 @@ void aframebuffer_delete(AFramebuffer* framebuffer) {
 	}
 	m_free(framebuffer->attachments, framebuffer->attachments_count * sizeof(GLAttachment*));
 
-	glDeleteTextures(1, &framebuffer->depth_stencil);
+	if (framebuffer->depth_stencil != 0) {
+		gl_texture_delete(framebuffer->depth_stencil);
+		framebuffer->depth_stencil = 0;
+	}
 
 	amesh_delete(framebuffer->mesh);
 	ashader_delete(framebuffer->shader);
 
-	gl_fb_delete(framebuffer->fb);
+	if (framebuffer->fb != 0) {
+		gl_fb_delete(framebuffer->fb);
+		framebuffer->fb = 0;
+	}
+
 	m_free(framebuffer, sizeof(AFramebuffer));
 }
 
@@ -133,7 +158,7 @@ void aframebuffer_set_render_targets(AFramebuffer* framebuffer, ARenderer* rende
 		buffers[i] = framebuffer->attachments[targets[i]]->target;
 		framebuffer->attachments[targets[i]]->slot = i;
 	}
-	glDrawBuffers(targets_count, buffers);
+	gl_draw_buffers(targets_count, buffers);
 }
 
 void aframebuffer_clear_attachment(AFramebuffer* framebuffer, ARenderer* renderer, uint id, const void* value) {
@@ -141,7 +166,7 @@ void aframebuffer_clear_attachment(AFramebuffer* framebuffer, ARenderer* rendere
 }
 
 void aframebuffer_clear_depth_attachment(AFramebuffer* framebuffer, ARenderer* renderer, const void* value) {
-	glClearBufferfi(GL_DEPTH_STENCIL, 0, 1, 0);
+	gl_dsb_clear(1, 0);
 }
 
 void aframebuffer_read_pixel(AFramebuffer* framebuffer, ARenderer* renderer, uint id, int x, int y, void* pixel) {
@@ -151,9 +176,7 @@ void aframebuffer_read_pixel(AFramebuffer* framebuffer, ARenderer* renderer, uin
 void aframebuffer_draw(AFramebuffer* framebuffer, ARenderer* renderer, uint id) {
 	gl_fb_bind(0);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0, 0, 0, 1);
-	glClearDepth(1);
+	gl_clear(0, 0, 0, 1, 1);
 
 	ashader_bind(framebuffer->shader, renderer);
 	gl_attachment_bind(framebuffer->attachments[id], 0);

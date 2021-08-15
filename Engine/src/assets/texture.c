@@ -8,6 +8,9 @@ Texture* texture_create(Texture* texture, Renderer* renderer, Image* image, AWra
 	texture->channels = image->channels;
 
 	texture->texture = atexture_create(renderer->renderer, wrap, filter, image->width, image->height, image->channels, image->data);
+	if (texture->texture == NULL) {
+		return NULL;
+	}
 	return texture;
 }
 

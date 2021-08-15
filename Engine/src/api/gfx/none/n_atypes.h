@@ -13,10 +13,6 @@ struct AContext {
 	HDC device;
 };
 
-struct ABuffer {
-	byte id;
-};
-
 struct AMaterial {
 	byte id;
 };

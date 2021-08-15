@@ -7,8 +7,6 @@
 ARenderer* arenderer_create(AContext* context) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));
 
-	gl_debug_output_enable();
-
 	gl_cull_face_back();
 	gl_front_face_cw();
 

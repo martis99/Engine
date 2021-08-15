@@ -1,36 +1,22 @@
 #pragma once
 #ifdef GAPI_OPENGL
-#ifdef E_WINDOWS
+#ifdef SAPI_WINDOWS
 #include "gl_defines.h"
+#include "gl_types.h"
 
 #include <Windows.h>
 #endif
-
-typedef unsigned int GLenum;
-typedef unsigned char GLboolean;
-typedef unsigned int GLbitfield;
-typedef signed char GLbyte;
-typedef short GLshort;
-typedef int GLint;
-typedef int GLsizei;
-typedef unsigned char GLubyte;
-typedef unsigned short GLushort;
-typedef unsigned int GLuint;
-typedef float GLfloat;
-typedef float GLclampf;
-typedef double GLdouble;
-typedef double GLclampd;
-typedef void GLvoid;
-
-typedef char GLchar;
-typedef unsigned int GLsizeiptr;
-typedef unsigned int GLintptr;
 
 #define DECL_OPENGL_FUNC(returnType, name, ...) typedef returnType(WINAPI *name##Fn)(__VA_ARGS__); name##Fn name;
 
 typedef void(*DEBUGPROC)(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 DECL_OPENGL_FUNC(void, glDebugMessageCallback, DEBUGPROC callback, const void* userParam)
 DECL_OPENGL_FUNC(void, glDebugMessageControl, GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint* ids, GLboolean enabled)
+
+DECL_OPENGL_FUNC(const GLubyte*, glGetString, GLenum name)
+DECL_OPENGL_FUNC(const GLubyte*, glGetStringi, GLenum name, GLuint index)
+DECL_OPENGL_FUNC(GLenum, glGetError, void)
+DECL_OPENGL_FUNC(GLuint, glGetDebugMessageLog, GLuint count, GLsizei bufSize, GLenum* sources, GLenum* types, GLuint* ids, GLenum* severities, GLsizei* lengths, GLchar* messageLog)
 
 DECL_OPENGL_FUNC(GLuint, glCreateProgram, void)
 DECL_OPENGL_FUNC(void, glDeleteProgram, GLuint program)
@@ -110,6 +96,7 @@ DECL_OPENGL_FUNC(void, glBlendEquation, GLenum mode)
 DECL_OPENGL_FUNC(void, glDrawArraysInstanced, GLenum mode, GLint first, GLsizei count, GLsizei instancecount)
 DECL_OPENGL_FUNC(void, glDrawElementsInstanced, GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLsizei instancecount)
 
+void WINAPI glGetIntegerv(GLenum pname, GLint* data);
 void WINAPI glClear(GLbitfield mask);
 void WINAPI glClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 void WINAPI glClearDepth(GLdouble depth);
