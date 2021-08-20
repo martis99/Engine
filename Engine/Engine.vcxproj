@@ -27,30 +27,30 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -59,55 +59,37 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Properties.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Properties.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Properties.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Properties.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
-    <IntDir>$(SolutionDir)bin\$(Configuration)\x86\int\</IntDir>
-    <LibraryPath>$(ProjectDir)lib\$(Configuration)\x86;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
-    <IntDir>$(SolutionDir)bin\$(Configuration)\x86\int\</IntDir>
-    <LibraryPath>$(ProjectDir)lib\$(Configuration)\x86;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\x64\</OutDir>
-    <IntDir>$(SolutionDir)bin\$(Configuration)\x64\int\</IntDir>
-    <LibraryPath>$(ProjectDir)lib\$(Configuration)\x64;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\x64\</OutDir>
-    <IntDir>$(SolutionDir)bin\$(Configuration)\x64\int\</IntDir>
-    <LibraryPath>$(ProjectDir)lib\$(Configuration)\x64;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -116,34 +98,30 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -152,49 +130,43 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)lib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="lib\include\dxerr\dxerr.c" />
-    <ClCompile Include="lib\include\stb\stb_image.c" />
-    <ClCompile Include="lib\include\stb\stb_image_write.c" />
-    <ClCompile Include="lib\include\stb\stb_truetype.c" />
     <ClCompile Include="src\api\atypes.c" />
     <ClCompile Include="src\api\ctx\wdx11\wdx11_acontext.c" />
     <ClCompile Include="src\api\ctx\wgl\wgl_acontext.c" />
     <ClCompile Include="src\api\ctx\wn\wn_acontext.c" />
     <ClCompile Include="src\api\gfx\ashadergenerator.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_error.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_ashadergenerator.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11\dx11_buffer.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_error.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11\dx11_renderer.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11\dx11_shader.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11\dx11_texture.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11_aframebuffer.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11_amesh.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11_arenderer.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11_ashader.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11_ashadergenerator.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11_atexture.c" />
     <ClCompile Include="src\api\gfx\dx11\dx11_attachment.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11_atypes.c" />
+    <ClCompile Include="src\api\gfx\dx11\dx11_auniform_buffer.c" />
     <ClCompile Include="src\api\gfx\none\n_ashadergenerator.c" />
     <ClCompile Include="src\api\gfx\opengl\gl\gl_error.c" />
     <ClCompile Include="src\api\os\none\n_utils.c" />
     <ClCompile Include="src\api\os\windows\w_utils.c" />
     <ClCompile Include="src\assets\buffer.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_aframebuffer.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_amesh.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_atypes.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_arenderer.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_ashader.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_atexture.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_auniform_buffer.c" />
     <ClCompile Include="src\api\gfx\none\n_aframebuffer.c" />
     <ClCompile Include="src\api\gfx\none\n_amesh.c" />
     <ClCompile Include="src\api\gfx\none\n_arenderer.c" />
@@ -260,7 +232,6 @@
     </ClCompile>
     <ClCompile Include="src\renderer\renderer.c" />
     <ClCompile Include="src\scene\camera.c" />
-    <ClCompile Include="src\scene\scene.c" />
     <ClCompile Include="src\stats.c" />
     <ClCompile Include="src\utils\array.c" />
     <ClCompile Include="src\utils\dictionary.c" />
@@ -271,17 +242,17 @@
     <ClCompile Include="src\window\window.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\include\dxerr\dxerr.h" />
-    <ClInclude Include="lib\include\stb\stb_image.h" />
-    <ClInclude Include="lib\include\stb\stb_image_write.h" />
-    <ClInclude Include="lib\include\stb\stb_truetype.h" />
-    <ClInclude Include="lib\stb\stb_image.h" />
-    <ClInclude Include="lib\stb\stb_image_write.h" />
-    <ClInclude Include="lib\stb\stb_truetype.h" />
     <ClInclude Include="src\api\ctx\acontext.h" />
     <ClInclude Include="src\api\ctx\wgl\wgl.h" />
     <ClInclude Include="src\api\atypes.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11\dx11.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_buffer.h" />
     <ClInclude Include="src\api\gfx\dx11\dx11\dx11_error.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_renderer.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_shader.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_texture.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11_attachment.h" />
+    <ClInclude Include="src\api\gfx\dx11\dx11_atypes.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_error.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_types.h" />
     <ClInclude Include="src\assets\buffer.h" />
@@ -292,13 +263,6 @@
     <ClInclude Include="src\api\gfx\ashadergenerator.h" />
     <ClInclude Include="src\api\gfx\atexture.h" />
     <ClInclude Include="src\api\gfx\auniform_buffer.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_buffer.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_renderer.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_shader.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_texture.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11_attachment.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11_atypes.h" />
     <ClInclude Include="src\api\gfx\none\n_atypes.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl.h" />
     <ClInclude Include="src\api\gfx\opengl\gl\gl_buffer.h" />
@@ -336,6 +300,7 @@
     <ClInclude Include="src\ecs\system\model_renderer.h" />
     <ClInclude Include="src\ecs\system\sprite_renderer.h" />
     <ClInclude Include="src\ecs\system\text_renderer.h" />
+    <ClInclude Include="src\engine.h" />
     <ClInclude Include="src\input\keyboard.h" />
     <ClInclude Include="src\input\keys.h" />
     <ClInclude Include="src\input\mouse.h" />
@@ -363,6 +328,11 @@
     <ClInclude Include="src\window\context.h" />
     <ClInclude Include="src\window\cursor.h" />
     <ClInclude Include="src\window\window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lib\lib.vcxproj">
+      <Project>{72878cbb-277a-4dc9-b385-3adbbfac8218}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

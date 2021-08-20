@@ -1,7 +1,7 @@
 #include "pch.h"
 #ifdef GAPI_DX11
 #include "dx11_buffer.h"
-#include "api/gfx/dx11/dx11/dx11_error.h"
+#include "dx11_error.h"
 
 static ID3D11Buffer* buffer_create_static(ID3D11Device* device, const void* data, UINT data_size, UINT element_size, D3D11_BIND_FLAG bindFlags) {
 	ID3D11Buffer* buffer = NULL;

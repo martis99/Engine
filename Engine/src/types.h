@@ -1,6 +1,5 @@
 #pragma once
 #include "api/atypes.h"
-#include "stb/stb_truetype.h"
 
 typedef struct CameraSettings {
 	float width;
@@ -120,7 +119,7 @@ typedef struct FontCharacter {
 typedef struct Font {
 	unsigned char* data;
 	size_t data_size;
-	stbtt_fontinfo info;
+	//void* info;
 	FontCharacter characters[CHARACTERS_COUNT];
 	Texture* texture;
 	int ascent;

@@ -11,6 +11,16 @@
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
 
+#ifdef _DEBUG
+#pragma comment (lib, "assimp-vc142-mtd.lib")
+#pragma comment (lib, "zlibstaticd.lib")
+#pragma comment (lib, "IrrXMLd.lib")
+#elif NDEBUG
+#pragma comment (lib, "assimp-vc142-mt.lib")
+#pragma comment (lib, "zlibstatic.lib")
+#pragma comment (lib, "IrrXML.lib")
+#endif
+
 Model* model_create(Model* model) {
 	return model;
 }

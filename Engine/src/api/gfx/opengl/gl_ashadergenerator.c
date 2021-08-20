@@ -105,7 +105,7 @@ static void generate_vertex_shader(AShaderDesc desc, char* src, const char* vert
 	int n = 0;
 	int location = 0;
 
-	append(src, &n, "#version 330 core\n");
+	append(src, &n, "#version 440 core\n");
 	uint buffers_count = desc.buffers_size / sizeof(ABufferDesc);
 	for (uint i = 0; i < buffers_count; i++) {
 		switch (desc.buffers[i].type) {
@@ -122,7 +122,7 @@ static void generate_vertex_shader(AShaderDesc desc, char* src, const char* vert
 static void generate_fragment_shader(AShaderDesc desc, char* src, const char* frag) {
 	int n = 0;
 
-	append(src, &n, "#version 330 core\n");
+	append(src, &n, "#version 440 core\n");
 	uint buffers_count = desc.buffers_size / sizeof(ABufferDesc);
 	for (uint i = 0; i < buffers_count; i++) {
 		switch (desc.buffers[i].type) {

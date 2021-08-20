@@ -3,7 +3,9 @@
 #include "image.h"
 #include "texture.h"
 
-static Font* load_data(Font* font, const char* path) {
+#include "stb/stb_truetype.h"
+
+static Font* load_data(Font* font, const char* path, stbtt_fontinfo* info) {
 	FILE* file;
 	fopen_s(&file, path, "rb");
 
@@ -26,7 +28,7 @@ static Font* load_data(Font* font, const char* path) {
 	fread(font->data, font->data_size, 1, file);
 	fclose(file);
 
-	if (!stbtt_InitFont(&font->info, font->data, 0)) {
+	if (!stbtt_InitFont(info, font->data, 0)) {
 		log_error("Failed to init TrueType\n");
 		return NULL;
 	}
@@ -34,15 +36,15 @@ static Font* load_data(Font* font, const char* path) {
 	return font;
 }
 
-static void load_characters(Font* font, float scale, int* area) {
+static void load_characters(Font* font, float scale, int* area, stbtt_fontinfo* info) {
 	*area = 0;
 
 	int i = 0;
 	for (uint c = FIRST_CHARACTER; c < LAST_CHARACTER; c++) {
 		int advance, lsb;
-		stbtt_GetCodepointHMetrics(&font->info, c, &advance, &lsb);
+		stbtt_GetCodepointHMetrics(info, c, &advance, &lsb);
 		int x0, y0, x1, y1;
-		stbtt_GetCodepointBitmapBox(&font->info, c, scale, scale, &x0, &y0, &x1, &y1);
+		stbtt_GetCodepointBitmapBox(info, c, scale, scale, &x0, &y0, &x1, &y1);
 		int width = x1 - x0;
 		int height = y1 - y0;
 
@@ -82,7 +84,7 @@ static void sort_characters(Font* font, int* map) {
 	}
 }
 
-static Texture* create_texture(Font* font, Renderer* renderer, float scale, int area) {
+static Texture* create_texture(Font* font, Renderer* renderer, float scale, int area, stbtt_fontinfo* info) {
 	int map[CHARACTERS_COUNT];
 	sort_characters(font, map);
 
@@ -105,7 +107,7 @@ static Texture* create_texture(Font* font, Renderer* renderer, float scale, int 
 		}
 
 		fc->pos = (vec2i){ x, y };
-		stbtt_MakeCodepointBitmap(&font->info, img.data + x + (size_t)y * w, fc->size.x, fc->size.y, w, scale, scale, fc->c);
+		stbtt_MakeCodepointBitmap(info, img.data + x + (size_t)y * w, fc->size.x, fc->size.y, w, scale, scale, fc->c);
 
 		x += fc->size.x;
 	}
@@ -117,23 +119,24 @@ static Texture* create_texture(Font* font, Renderer* renderer, float scale, int 
 }
 
 Font* font_load(Font* font, Renderer* renderer, const char* path, int size) {
-	if (load_data(font, path) == NULL) {
+	stbtt_fontinfo info;
+	if (load_data(font, path, &info) == NULL) {
 		log_error("Failed to load font");
 		return NULL;
 	}
 
-	float scale = stbtt_ScaleForPixelHeight(&font->info, (float)size);
+	float scale = stbtt_ScaleForPixelHeight(&info, (float)size);
 
 	int ascent, descent, lineGap;
-	stbtt_GetFontVMetrics(&font->info, &ascent, &descent, &lineGap);
+	stbtt_GetFontVMetrics(&info, &ascent, &descent, &lineGap);
 
 	font->ascent = (int)(ascent * scale);
 	font->descent = (int)(descent * scale);
 	font->line_height = (int)((abs(ascent) + abs(descent)) * scale);
 
 	int area;
-	load_characters(font, scale, &area);
-	font->texture = create_texture(font, renderer, scale, area);
+	load_characters(font, scale, &area, &info);
+	font->texture = create_texture(font, renderer, scale, area, &info);
 	return font;
 }
 

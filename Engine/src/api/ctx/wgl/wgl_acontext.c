@@ -177,11 +177,12 @@ static HGLRC create_context(HDC device) {
 	{
 		int attribs[] =
 		{
-			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 4,
 #ifdef _DEBUG
-			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB
+			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
 #endif
+			0
 		};
 		return wglCreateContextAttribsARB(device, NULL, attribs);
 	}
