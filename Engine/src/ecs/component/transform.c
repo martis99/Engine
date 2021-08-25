@@ -10,5 +10,5 @@ mat4 transform_to_mat4(Transform* transform) {
 }
 
 vec3 transform_vec3(Transform* transform, vec3 v) {
-	return mat4_mul_vec3(mat4_invert(transform_to_mat4(transform)), v);
+	return mat4_mul_vec3(transform_to_mat4(transform), v);
 }

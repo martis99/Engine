@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <xmmintrin.h>
 
 float deg2rad(float deg) {
 	return deg * 3.14159265f / 180.0f;
@@ -102,36 +103,27 @@ mat4 mat4_invert(mat4 m) {
 mat4 mat4_mul(mat4 l, mat4 r) {
 	mat4 mat = { 0 };
 
-	vec4 l1 = { l.a11, l.a12, l.a13, l.a14 };
-	vec4 l2 = { l.a21, l.a22, l.a23, l.a24 };
-	vec4 l3 = { l.a31, l.a32, l.a33, l.a34 };
-	vec4 l4 = { l.a41, l.a42, l.a43, l.a44 };
+	float* A = (float*)&l;
+	float* C = (float*)&mat;
 
-	vec4 r1 = { r.a11, r.a21, r.a31, r.a41 };
-	vec4 r2 = { r.a12, r.a22, r.a32, r.a42 };
-	vec4 r3 = { r.a13, r.a23, r.a33, r.a43 };
-	vec4 r4 = { r.a14, r.a24, r.a34, r.a44 };
-
-	mat.a11 = vec4_dot(l1, r1);
-	mat.a12 = vec4_dot(l1, r2);
-	mat.a13 = vec4_dot(l1, r3);
-	mat.a14 = vec4_dot(l1, r4);
-
-	mat.a21 = vec4_dot(l2, r1);
-	mat.a22 = vec4_dot(l2, r2);
-	mat.a23 = vec4_dot(l2, r3);
-	mat.a24 = vec4_dot(l2, r4);
-
-	mat.a31 = vec4_dot(l3, r1);
-	mat.a32 = vec4_dot(l3, r2);
-	mat.a33 = vec4_dot(l3, r3);
-	mat.a34 = vec4_dot(l3, r4);
-
-	mat.a41 = vec4_dot(l4, r1);
-	mat.a42 = vec4_dot(l4, r2);
-	mat.a43 = vec4_dot(l4, r3);
-	mat.a44 = vec4_dot(l4, r4);
-
+	__m128 row1 = _mm_load_ps(&r.a11);
+	__m128 row2 = _mm_load_ps(&r.a21);
+	__m128 row3 = _mm_load_ps(&r.a31);
+	__m128 row4 = _mm_load_ps(&r.a41);
+	for (int i = 0; i < 4; i++) {
+		__m128 brod1 = _mm_set1_ps(A[4 * i + 0]);
+		__m128 brod2 = _mm_set1_ps(A[4 * i + 1]);
+		__m128 brod3 = _mm_set1_ps(A[4 * i + 2]);
+		__m128 brod4 = _mm_set1_ps(A[4 * i + 3]);
+		__m128 row = _mm_add_ps(
+			_mm_add_ps(
+				_mm_mul_ps(brod1, row1),
+				_mm_mul_ps(brod2, row2)),
+			_mm_add_ps(
+				_mm_mul_ps(brod3, row3),
+				_mm_mul_ps(brod4, row4)));
+		_mm_store_ps(&C[4 * i], row);
+	}
 	return mat;
 }
 
@@ -141,18 +133,23 @@ vec3 mat4_mul_vec3(mat4 m, vec3 v) {
 }
 
 vec4 mat4_mul_vec4(mat4 m, vec4 v) {
+	__m128 x = _mm_set1_ps(v.x);
+	__m128 y = _mm_set1_ps(v.y);
+	__m128 z = _mm_set1_ps(v.z);
+	__m128 w = _mm_set1_ps(v.w);
+
+	__m128 row1 = _mm_load_ps(&m.a11);
+	__m128 row2 = _mm_load_ps(&m.a21);
+	__m128 row3 = _mm_load_ps(&m.a31);
+	__m128 row4 = _mm_load_ps(&m.a41);
+
+	__m128 p1 = _mm_mul_ps(x, row1);
+	__m128 p2 = _mm_mul_ps(y, row2);
+	__m128 p3 = _mm_mul_ps(z, row3);
+	__m128 p4 = _mm_mul_ps(w, row4);
+
 	vec4 vec;
-
-	vec4 m1 = { m.a11, m.a12, m.a13, m.a14 };
-	vec4 m2 = { m.a21, m.a22, m.a23, m.a24 };
-	vec4 m3 = { m.a31, m.a32, m.a33, m.a34 };
-	vec4 m4 = { m.a41, m.a42, m.a43, m.a44 };
-
-	vec.x = vec4_dot(m1, v);
-	vec.y = vec4_dot(m2, v);
-	vec.z = vec4_dot(m3, v);
-	vec.w = vec4_dot(m4, v);
-
+	_mm_store_ps((float*)&vec, _mm_add_ps(_mm_add_ps(p1, p2), _mm_add_ps(p3, p4)));
 	return vec;
 }
 

@@ -45,9 +45,9 @@ static void update_position(Camera* camera) {
 }
 
 static void update_directions(Camera* camera) {
-	camera->right = mat4_mul_vec3(camera->rotation_matrix, vec3_right());
-	camera->up = mat4_mul_vec3(camera->rotation_matrix, vec3_up());
-	camera->front = mat4_mul_vec3(camera->rotation_matrix, vec3_front());
+	camera->right = mat4_mul_vec3(mat4_invert(camera->rotation_matrix), vec3_right());
+	camera->up = mat4_mul_vec3(mat4_invert(camera->rotation_matrix), vec3_up());
+	camera->front = mat4_mul_vec3(mat4_invert(camera->rotation_matrix), vec3_front());
 }
 
 static void update_rotation(Camera* camera) {
