@@ -18,6 +18,7 @@ struct Scene {
 	ModelRenderer model_renderer;
 	mat4 projection;
 	UniformBuffer u_camera;
+	bool profile;
 };
 
 static Scene* create_systems(Scene* scene) {
@@ -303,6 +304,8 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 		return NULL;
 	}
 
+	scene->profile = 0;
+
 	return scene;
 }
 
@@ -374,6 +377,15 @@ void scene_key_pressed(Scene* scene, byte key) {
 		break;
 	case 'C':
 		scene->cull_back = 1 - scene->cull_back;
+		break;
+	case 'P':
+		if (scene->profile == 0) {
+			profiler_start("profiler.json");
+			scene->profile = 1;
+		} else if (scene->profile == 1) {
+			profiler_end();
+			scene->profile = 0;
+		}
 		break;
 	}
 }

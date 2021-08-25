@@ -1,18 +1,20 @@
 #include "pch.h"
 #include "app.h"
 
-#include <time.h>
+#include "stats.h"
+#include "profiler.h"
 
 #include "input/keyboard.h"
 #include "input/mouse.h"
 #include "input/keys.h"
 
-#include "stats.h"
 #include "window/context.h"
 #include "window/window.h"
 #include "renderer/renderer.h"
 #include "scene/scene.h"
 #include "window/cursor.h"
+
+#include <time.h>
 
 static App app;
 
@@ -146,6 +148,13 @@ static void main_loop(App* app) {
 }
 
 int app_run() {
+	mem_init();
+
+	if (profiler_create() == NULL) {
+		log_error("Failed to create profiler");
+		return EXIT_FAILURE;
+	}
+
 	if (create_app(&app, 1600, 900) == NULL) {
 		log_error("Failed to create app");
 		return EXIT_FAILURE;
@@ -154,6 +163,8 @@ int app_run() {
 	main_loop(&app);
 
 	delete_app(&app);
+
+	profiler_delete();
 	return EXIT_SUCCESS;
 }
 

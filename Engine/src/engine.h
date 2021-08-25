@@ -5,6 +5,8 @@
 
 #include "app.h"
 
+#include "profiler.h"
+
 #include "ecs/system/mesh_renderer.h"
 #include "ecs/system/sprite_renderer.h"
 #include "ecs/system/text_renderer.h"

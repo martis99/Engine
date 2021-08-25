@@ -4,10 +4,15 @@
 
 #include "app.h"
 
+static Stats* s_stats = NULL;
+
 Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshData data, APrimitive primitive) {
 	mesh->mesh = amesh_create(renderer->renderer, shader->shader, shader->desc, data, primitive);
 	if (mesh->mesh == NULL) {
 		return NULL;
+	}
+	if (s_stats == NULL) {
+		s_stats = app_get_stats();
 	}
 	return mesh;
 }
@@ -30,7 +35,7 @@ void mesh_set_indices(Mesh* mesh, Renderer* renderer, const void* indices, uint 
 
 void mesh_draw(Mesh* mesh, Renderer* renderer, uint indices) {
 	amesh_draw(mesh->mesh, renderer->renderer, indices);
-	app_get_stats()->draw_calls++;
+	s_stats->draw_calls++;
 }
 
 Mesh* mesh_create_cube(Mesh* mesh, Renderer* renderer, Shader* shader) {

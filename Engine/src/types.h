@@ -119,7 +119,6 @@ typedef struct FontCharacter {
 typedef struct Font {
 	unsigned char* data;
 	size_t data_size;
-	//void* info;
 	FontCharacter characters[CHARACTERS_COUNT];
 	Texture* texture;
 	int ascent;

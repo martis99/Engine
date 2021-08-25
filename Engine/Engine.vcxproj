@@ -54,6 +54,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -87,6 +88,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/Gh /GH %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -119,6 +121,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/Gh /GH %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -230,6 +233,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\profiler.c">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="src\renderer\renderer.c" />
     <ClCompile Include="src\scene\camera.c" />
     <ClCompile Include="src\stats.c" />
@@ -315,6 +328,7 @@
     <ClInclude Include="src\math\vec4.h" />
     <ClInclude Include="src\mem.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\profiler.h" />
     <ClInclude Include="src\renderer\renderer.h" />
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\scene\scene.h" />
@@ -334,7 +348,14 @@
       <Project>{72878cbb-277a-4dc9-b385-3adbbfac8218}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <MASM Include="src\hooks.asm">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">X64=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">X86=1</PreprocessorDefinitions>
+    </MASM>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
   </ImportGroup>
 </Project>
