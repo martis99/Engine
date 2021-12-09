@@ -14,29 +14,49 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* re
 	const char* src_frag = "";
 #elif GAPI_OPENGL
 	const char* src_vert =
-		"out Vertex {\n"
+		"struct Output {\n"
+		"	vec4 Position;\n"
 		"	vec2 TexCoord;\n"
-		"} vs_out;\n"
+		"};\n"
+		"struct Input {\n"
+		"	vec3 Position;\n"
+		"	vec2 TexCoord;\n"
+		"};\n"
+		"Output test(Input inp) {\n"
+		"	Output outp;\n"
+		"	outp.Position = ViewProjection * Model * vec4(inp.Position.xy, -inp.Position.z, 1.0);\n"
+		"	outp.TexCoord = inp.TexCoord;\n"
+		"	return outp;\n"
+		"};\n"
+		"out Output vs_out;\n"
 		"void main() {\n"
-		"	gl_Position = ViewProjection * Model * vec4(Position.xy, -Position.z, 1.0);\n"
-		"	vs_out.TexCoord = TexCoord;\n"
-		"}\0";
+		"	Input inp;\n"
+		"	inp.Position = Position;\n"
+		"	inp.TexCoord = TexCoord;\n"
+		"	Output outp = test(inp);\n"
+		"	vs_out.Position = outp.Position;\n"
+		"	vs_out.TexCoord = outp.TexCoord;\n"
+		"	gl_Position = vs_out.Position;\n"
+		"}\n";
 
 	const char* src_frag =
-		"in Vertex {\n"
-		"	vec2 TexCoord; \n"
-		"} ps_in;\n"
+		"struct Output {\n"
+		"	vec4 Position;\n"
+		"	vec2 TexCoord;\n"
+		"};\n"
+		"in Output vs_out;\n"
 		"void main() {\n"
-		"	vec4 diffuse = Diffuse * sample_tex(0, ps_in.TexCoord);\n"
-		"	vec4 specular = Specular * sample_tex(1, ps_in.TexCoord);\n"
+		"	vec4 diffuse = Diffuse * sample_tex(0, vs_out.TexCoord);\n"
+		"	vec4 specular = Specular * sample_tex(1, vs_out.TexCoord);\n"
 		"	vec4 col = diffuse + specular;\n"
 		"	FragColor = vec4(col.xyz, 1.0);\n"
 		"	EntityId = Entity;\n"
 		"}\0";
 #elif GAPI_DX11
 	const char* src_vert =
+		"#define vec4 float4\n"
 		"struct Output {\n"
-		"	float4 Position : SV_Position;\n"
+		"	vec4 Position : SV_Position;\n"
 		"	float2 TexCoord : TexCoord;\n"
 		"};\n"
 		"Output main(Input input) {\n"
@@ -62,38 +82,38 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* re
 		"}\0";
 #endif
 	AValue vertex[] = {
-		{"Position", VEC3F},
-		{"TexCoord", VEC2F}
+		{VEC3F, "Position"},
+		{VEC2F, "TexCoord"}
 	};
 
-	AValue index[] = { {"", VEC1UI} };
+	AValue index[] = { {VEC1UI, ""} };
 
 	AValue global[] = {
-		{"ViewProjection", MAT4F}
+		{MAT4F, "ViewProjection"}
 	};
 
 	AValue vs[] = {
-		{"Model", MAT4F}
+		{MAT4F, "Model"}
 	};
 
 	AValue ps[] = {
-		{"Diffuse", VEC4F},
-		{"Specular", VEC4F},
-		{"Entity", VEC1I}
+		{VEC4F, "Diffuse"},
+		{VEC4F, "Specular"},
+		{VEC1I, "Entity"}
 	};
 
 	AValue output[] = {
-		{"FragColor", VEC4F},
-		{"EntityId", VEC1I}
+		{VEC4F, "FragColor"},
+		{VEC1I, "EntityId"}
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, "Input", 0, vertex, sizeof(vertex)},
-		{A_BFR_INDEX, NULL, 0, index, sizeof(index)},
-		{A_BFR_GLOBAL, "Camera", 0, global, sizeof(global)},
-		{A_BFR_VS, "VSMaterial", 1, vs, sizeof(vs)},
-		{A_BFR_PS, "PSMaterial", 2, ps, sizeof(ps)},
-		{A_BFR_PS_OUT, "Output", 0, output, sizeof(output)}
+		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), 0, "Input"},
+		{A_BFR_INDEX, 0, index, sizeof(index), 0, ""},
+		{A_BFR_GLOBAL, 0, global, sizeof(global), 0, "Camera"},
+		{A_BFR_VS, 1, vs, sizeof(vs), 0, "VSMaterial"},
+		{A_BFR_PS, 2, ps, sizeof(ps), 0, "PSMaterial"},
+		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
 	};
 
 	AShaderDesc shader_desc = { 0 };

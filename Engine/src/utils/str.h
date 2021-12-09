@@ -29,12 +29,20 @@ void wstr_catf(WStr* str, const wchar* format, ...);
 
 void str_cat(Str* str, const char* data);
 void wstr_cat(WStr* str, const wchar* data);
+void str_catch(Str* str, char data);
+void wstr_catch(WStr* str, wchar data);
 void str_catc(Str* str, const char* data, uint count);
 void wstr_catc(WStr* str, const wchar* data, uint count);
 void str_cats(Str* str, Str src);
 void wstr_catws(WStr* str, WStr src);
 void str_cati(Str* str, int data);
 void wstr_cati(WStr* str, int data);
+
+void str_cpy(Str* str, char* dst);
+void wstr_cpy(WStr* str, wchar* dst);
+
+int str_cmp(Str* str, const char* data);
+int wstr_cmp(WStr* str, const wchar* data);
 
 Str str_view(Str* str, uint start, uint length);
 WStr wstr_view(WStr* str, uint start, uint length);

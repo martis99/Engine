@@ -122,8 +122,8 @@ typedef struct ABuffer {
 } ABuffer;
 
 typedef struct AValue {
-	char* name;
 	AType type;
+	char name[20];
 } AValue;
 
 typedef enum ABufferType {
@@ -139,11 +139,11 @@ typedef enum ABufferType {
 
 typedef struct ABufferDesc {
 	ABufferType type;
-	char* name;
 	uint slot;
 	AValue* values;
 	uint values_size;
 	uint max_count;
+	char name[20];
 } ABufferDesc;
 
 typedef struct AShaderDesc {
@@ -177,9 +177,6 @@ uint atype_component_size(AType type);
 uint atype_size(AType type);
 uint atype_count(AType type, bool mat_support);
 void atype_convert(float* dst, const void* src, AType type);
-
-void avalue_copy(AValue* src, AValue* dst);
-void avalue_delete(AValue* value);
 
 uint abufferdesc_size(ABufferDesc* desc);
 uint abufferdesc_count(ABufferDesc* desc, bool mat_support);

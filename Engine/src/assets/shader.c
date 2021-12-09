@@ -15,6 +15,8 @@ Shader* shader_create(Shader* shader, Renderer* renderer, const char* vert, cons
 	char* src_frag = m_malloc(fs_size);
 
 	ashadergenerator_generate(shader->desc, src_vert, src_frag, vert, frag);
+	printf("%s\n", src_vert);
+	printf("%s\n", src_frag);
 
 	shader->shader = ashader_create(renderer->renderer, src_vert, src_frag, "Textures", desc.textures_count);
 	if (shader->shader == NULL) {

@@ -291,7 +291,7 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	create_camera(scene, width, height);
 
 	AValue uniforms[] = {
-		{"ViewProjection", MAT4F}
+		{MAT4F, "ViewProjection"}
 	};
 
 	ABufferDesc desc = { 0 };

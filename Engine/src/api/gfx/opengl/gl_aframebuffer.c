@@ -80,20 +80,20 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	}
 
 	AValue vertex[] = {
-		{"Position", VEC3F},
-		{"TexCoord", VEC2F}
+		{VEC3F, "Position"},
+		{VEC2F, "TexCoord"}
 	};
 
-	AValue index[] = { {"", VEC1UI} };
+	AValue index[] = { {VEC1UI, ""} };
 
 	AValue output[] = {
-		{"Color", VEC4F}
+		{VEC4F, "Color"}
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, "Input", 0, vertex, sizeof(vertex)},
-		{A_BFR_INDEX, NULL, 0, index, sizeof(index)},
-		{A_BFR_PS_OUT, "Output", 0, output, sizeof(output)}
+		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), 0, "Input"},
+		{A_BFR_INDEX, 0, index, sizeof(index), 0, ""},
+		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
 	};
 
 	AShaderDesc shader_desc = { 0 };

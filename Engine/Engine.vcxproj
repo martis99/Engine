@@ -120,7 +120,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_OPENGL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gh /GH %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>

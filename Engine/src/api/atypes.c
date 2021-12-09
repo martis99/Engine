@@ -74,30 +74,6 @@ void atype_convert(float* dst, const void* src, AType type) {
 	}
 }
 
-static char* str_copy(const char* str) {
-	if (str == NULL) {
-		return NULL;
-	}
-	char* dst = m_malloc(strlen(str) + 1);
-	return memcpy(dst, str, strlen(str) + 1);
-}
-
-static void str_delete(char* str) {
-	if (str == NULL) {
-		return;
-	}
-	m_free(str, strlen(str) + 1);
-}
-
-void avalue_copy(AValue* src, AValue* dst) {
-	dst->type = src->type;
-	dst->name = str_copy(src->name);
-}
-
-void avalue_delete(AValue* value) {
-	str_delete(value->name);
-}
-
 uint abufferdesc_size(ABufferDesc* desc) {
 	uint count = desc->values_size / sizeof(AValue);
 	uint size = 0;
@@ -118,20 +94,12 @@ uint abufferdesc_count(ABufferDesc* desc, bool mat_support) {
 
 void abufferdesc_copy(ABufferDesc* src, ABufferDesc* dst) {
 	memcpy(dst, src, sizeof(ABufferDesc));
-	dst->name = str_copy(src->name);
 	dst->values = m_malloc(src->values_size);
-	uint values_count = src->values_size / sizeof(AValue);
-	for (uint i = 0; i < values_count; i++) {
-		avalue_copy(&src->values[i], &dst->values[i]);
-	}
+	memcpy(dst->values, src->values, src->values_size);
 }
 
 void abufferdesc_delete(ABufferDesc* desc) {
-	str_delete(desc->name);
 	uint values_count = desc->values_size / sizeof(AValue);
-	for (uint i = 0; i < values_count; i++) {
-		avalue_delete(&desc->values[i]);
-	}
 	m_free(desc->values, desc->values_size);
 }
 

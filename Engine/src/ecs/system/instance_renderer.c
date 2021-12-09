@@ -62,42 +62,42 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 #endif
 
 	AValue vertex[] = {
-		{"Position", VEC3F},
-		{"TexCoord", VEC2F}
+		{VEC3F, "Position"},
+		{VEC2F, "TexCoord"}
 	};
 
 	AValue instance[] = {
-		{"Transform", MAT4F }
+		{MAT4F, "Transform" }
 	};
 
-	AValue index[] = { {"", VEC1UI} };
+	AValue index[] = { {VEC1UI, ""} };
 
 	AValue global[] = {
-		{"ViewProjection", MAT4F}
+		{MAT4F, "ViewProjection"}
 	};
 
 	AValue vs[] = {
-		{"Model", MAT4F}
+		{MAT4F, "Model"}
 	};
 
 	AValue ps[] = {
-		{"Color", VEC4F},
-		{"Entity", VEC1I}
+		{VEC4F, "Color"},
+		{VEC1I, "Entity"}
 	};
 
 	AValue output[] = {
-		{"FragColor", VEC4F},
-		{"EntityId", VEC1I}
+		{VEC4F, "FragColor"},
+		{VEC1I, "EntityId"}
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, "Input", 0, vertex, sizeof(vertex)},
-		{A_BFR_INSTANCE, "Input2", 0, instance, sizeof(instance), MAX_INSTANCES },
-		{A_BFR_INDEX, NULL, 0, index, sizeof(index)},
-		{A_BFR_GLOBAL, "Camera", 0, global, sizeof(global)},
-		{A_BFR_VS, "VSMaterial", 1, vs, sizeof(vs)},
-		{A_BFR_PS, "PSMaterial", 2, ps, sizeof(ps)},
-		{A_BFR_PS_OUT, "Output", 0, output, sizeof(output)}
+		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), 0, "Input"},
+		{A_BFR_INSTANCE, 0, instance, sizeof(instance), MAX_INSTANCES, "Input2" },
+		{A_BFR_INDEX, 0, index, sizeof(index), 0, ""},
+		{A_BFR_GLOBAL, 0, global, sizeof(global), 0, "Camera"},
+		{A_BFR_VS, 1, vs, sizeof(vs), 0, "VSMaterial"},
+		{A_BFR_PS, 2, ps, sizeof(ps), 0, "PSMaterial"},
+		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
 	};
 
 	AShaderDesc shader_desc = { 0 };

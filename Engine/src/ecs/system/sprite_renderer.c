@@ -175,37 +175,37 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 		"}\0";
 #endif
 	AValue vertex[] = {
-		{"Position", VEC3F},
-		{"Color", VEC4F},
-		{"TexCoord", VEC2F},
-		{"TexSize", VEC2F},
-		{"TexId", VEC1I},
-		{"SprSize", VEC2F },
-		{"SprBorders", VEC4F},
-		{"Entity", VEC1I},
+		{VEC3F, "Position"},
+		{VEC4F, "Color"},
+		{VEC2F, "TexCoord"},
+		{VEC2F, "TexSize"},
+		{VEC1I, "TexId"},
+		{VEC2F, "SprSize" },
+		{VEC4F, "SprBorders"},
+		{VEC1I, "Entity"},
 	};
 
-	AValue index[] = { {"", VEC1UI} };
+	AValue index[] = { {VEC1UI, ""} };
 
 	AValue global[] = {
-		{"ViewProjection", MAT4F}
+		{MAT4F, "ViewProjection"}
 	};
 
 	AValue vs[] = {
-		{"Model", MAT4F}
+		{MAT4F, "Model"}
 	};
 
 	AValue output[] = {
-		{"FragColor", VEC4F},
-		{"EntityId", VEC1I}
+		{VEC4F, "FragColor"},
+		{VEC1I, "EntityId"}
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, "Input", 0, vertex, sizeof(vertex), MAX_VERTICES},
-		{A_BFR_INDEX, NULL, 0, index, sizeof(index)},
-		{A_BFR_GLOBAL, "Camera", 0, global, sizeof(global)},
-		{A_BFR_VS, "VSMaterial", 1, vs, sizeof(vs)},
-		{A_BFR_PS_OUT, "Output", 0, output, sizeof(output)}
+		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), MAX_VERTICES, "Input"},
+		{A_BFR_INDEX, 0, index, sizeof(index), 0, ""},
+		{A_BFR_GLOBAL, 0, global, sizeof(global), 0, "Camera"},
+		{A_BFR_VS, 1, vs, sizeof(vs), 0, "VSMaterial"},
+		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
 	};
 
 	AShaderDesc shader_desc = { 0 };

@@ -54,8 +54,8 @@ static void add_texture_sampler_function(char* src, int* n, AType return_type, c
 	char* coords = "coords";
 
 	AValue args[] = {
-		{id, VEC1I},
-		{coords, VEC2F}
+		{VEC1I, "id"},
+		{VEC2F, "coords"}
 	};
 
 	add_function_header(src, n, return_type, "sample_tex", args, sizeof(args));

@@ -66,29 +66,29 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 		"}\0";
 #endif
 	AValue vertex[] = {
-		{"Position", VEC3F},
-		{"Color", VEC4F},
-		{"Entity", VEC1I}
+		{VEC3F, "Position"},
+		{VEC4F, "Color"},
+		{VEC1I, "Entity"}
 	};
 
 	AValue global[] = {
-		{"ViewProjection", MAT4F}
+		{MAT4F, "ViewProjection"}
 	};
 
 	AValue vs[] = {
-		{"Model", MAT4F}
+		{MAT4F, "Model"}
 	};
 
 	AValue output[] = {
-		{"Color", VEC4F},
-		{"EntityId", VEC1I}
+		{VEC4F, "Color"},
+		{VEC1I, "EntityId"}
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, "Input", 0, vertex, sizeof(vertex), MAX_VERTICES},
-		{A_BFR_GLOBAL, "Camera", 0, global, sizeof(global)},
-		{A_BFR_VS, "VSMaterial", 1, vs, sizeof(vs)},
-		{A_BFR_PS_OUT, "Output", 0, output, sizeof(output)}
+		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), MAX_VERTICES, "Input"},
+		{A_BFR_GLOBAL, 0, global, sizeof(global), 0, "Camera"},
+		{A_BFR_VS, 1, vs, sizeof(vs), 0, "VSMaterial"},
+		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
 	};
 
 	AShaderDesc shader_desc = { 0 };
