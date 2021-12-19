@@ -12,13 +12,13 @@
 #include "assimp/postprocess.h"
 
 #ifdef _DEBUG
-#pragma comment (lib, "assimp-vc142-mtd.lib")
+#pragma comment (lib, "assimp-vc143-mtd.lib")
 #pragma comment (lib, "zlibstaticd.lib")
-#pragma comment (lib, "IrrXMLd.lib")
+#pragma comment (lib, "Advapi32.lib")
 #elif NDEBUG
-#pragma comment (lib, "assimp-vc142-mt.lib")
+#pragma comment (lib, "assimp-vc143-mt.lib")
 #pragma comment (lib, "zlibstatic.lib")
-#pragma comment (lib, "IrrXML.lib")
+#pragma comment (lib, "Advapi32.lib")
 #endif
 
 Model* model_create(Model* model) {
@@ -283,6 +283,11 @@ Model* model_load(Model* model, Renderer* renderer, const char* path, const char
 		printf("%s\n", file);
 	}
 	const struct aiScene* ai_scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs * flipUVs);
+	if (ai_scene == NULL)
+	{
+		log_error(aiGetErrorString());
+		return NULL;
+	}
 	arr_create(&model->materials, sizeof(Material), ai_scene->mNumMaterials);
 	arr_create(&model->images, sizeof(Image), ai_scene->mNumMaterials * 2);
 	arr_create(&model->textures, sizeof(Texture), ai_scene->mNumMaterials * 2);

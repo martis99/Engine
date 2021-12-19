@@ -99,7 +99,6 @@ static Scene* create_assets(Scene* scene) {
 
 	Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", &scene->model_renderer.shader, 0, 0); S_ASSERT(container);
 	Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", &scene->model_renderer.shader, 1, 0); S_ASSERT(backpack);
-	Model* vampire = assets_model_load(&scene->assets, "vampire", "res/models/vampire/", "dancing_vampire.dae", &scene->model_renderer.shader, 0, 0); S_ASSERT(vampire);
 	Model* nanosuit = assets_model_load(&scene->assets, "nonosuit", "res/models/nano_textured/", "nanosuit.obj", &scene->model_renderer.shader, 0, 1); S_ASSERT(nanosuit);
 
 	return scene;
@@ -167,7 +166,6 @@ static void create_entities3d(Scene* scene) {
 
 	Model* container = assets_model_get(&scene->assets, "container");
 	Model* backpack = assets_model_get(&scene->assets, "backpack");
-	Model* vampire = assets_model_get(&scene->assets, "vampire");
 	Model* nanosuit = assets_model_get(&scene->assets, "nonosuit");
 
 	{
@@ -179,21 +177,14 @@ static void create_entities3d(Scene* scene) {
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create((vec3) { -5.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+		Transform transform = transform_create((vec3) { -5.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 3.14f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, entity.id, C_MODEL, backpack);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create((vec3) { 10.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 3.0f, 3.0f, 3.0f });
-
-		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
-		ecs_add(&scene->ecs, entity.id, C_MODEL, vampire);
-	}
-	{
-		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create((vec3) { 15.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 0.4f, 0.4f, 0.4f });
+		Transform transform = transform_create((vec3) { 10.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 3.14f, 0.0f }, (vec3) { 0.4f, 0.4f, 0.4f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, entity.id, C_MODEL, nanosuit);
