@@ -1,13 +1,23 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31410.357
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{0FB0DEB3-74EA-450C-AC37-7491FC97B60D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{9E07D319-F45C-40F4-976F-B4F8F1BF7F8C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib", "lib\lib.vcxproj", "{72878CBB-277A-4DC9-B385-3ADBBFAC8218}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apis", "apis", "{3FCEB0B4-E62E-46E1-A18C-F8419AEC3CD6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gfx", "gfx", "{5D91B6CF-7B69-4E7B-BD8E-B04692697C30}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx_ogl", "apis\gfx\gfx_ogl\gfx_ogl.vcxproj", "{7B509775-EB66-4E4F-BF4B-D391092DA64F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx_dx11", "apis\gfx\gfx_dx11\gfx_dx11.vcxproj", "{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx_none", "apis\gfx\gfx_none\gfx_none.vcxproj", "{78F622C9-58C9-4D57-B6C1-27A4DB567C89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,9 +51,39 @@ Global
 		{72878CBB-277A-4DC9-B385-3ADBBFAC8218}.Release|x64.Build.0 = Release|x64
 		{72878CBB-277A-4DC9-B385-3ADBBFAC8218}.Release|x86.ActiveCfg = Release|Win32
 		{72878CBB-277A-4DC9-B385-3ADBBFAC8218}.Release|x86.Build.0 = Release|Win32
+		{7B509775-EB66-4E4F-BF4B-D391092DA64F}.Debug|x64.ActiveCfg = Debug|x64
+		{7B509775-EB66-4E4F-BF4B-D391092DA64F}.Debug|x64.Build.0 = Debug|x64
+		{7B509775-EB66-4E4F-BF4B-D391092DA64F}.Debug|x86.ActiveCfg = Debug|Win32
+		{7B509775-EB66-4E4F-BF4B-D391092DA64F}.Debug|x86.Build.0 = Debug|Win32
+		{7B509775-EB66-4E4F-BF4B-D391092DA64F}.Release|x64.ActiveCfg = Release|x64
+		{7B509775-EB66-4E4F-BF4B-D391092DA64F}.Release|x64.Build.0 = Release|x64
+		{7B509775-EB66-4E4F-BF4B-D391092DA64F}.Release|x86.ActiveCfg = Release|Win32
+		{7B509775-EB66-4E4F-BF4B-D391092DA64F}.Release|x86.Build.0 = Release|Win32
+		{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}.Debug|x64.ActiveCfg = Debug|x64
+		{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}.Debug|x64.Build.0 = Debug|x64
+		{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}.Debug|x86.ActiveCfg = Debug|Win32
+		{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}.Debug|x86.Build.0 = Debug|Win32
+		{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}.Release|x64.ActiveCfg = Release|x64
+		{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}.Release|x64.Build.0 = Release|x64
+		{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}.Release|x86.ActiveCfg = Release|Win32
+		{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}.Release|x86.Build.0 = Release|Win32
+		{78F622C9-58C9-4D57-B6C1-27A4DB567C89}.Debug|x64.ActiveCfg = Debug|x64
+		{78F622C9-58C9-4D57-B6C1-27A4DB567C89}.Debug|x64.Build.0 = Debug|x64
+		{78F622C9-58C9-4D57-B6C1-27A4DB567C89}.Debug|x86.ActiveCfg = Debug|Win32
+		{78F622C9-58C9-4D57-B6C1-27A4DB567C89}.Debug|x86.Build.0 = Debug|Win32
+		{78F622C9-58C9-4D57-B6C1-27A4DB567C89}.Release|x64.ActiveCfg = Release|x64
+		{78F622C9-58C9-4D57-B6C1-27A4DB567C89}.Release|x64.Build.0 = Release|x64
+		{78F622C9-58C9-4D57-B6C1-27A4DB567C89}.Release|x86.ActiveCfg = Release|Win32
+		{78F622C9-58C9-4D57-B6C1-27A4DB567C89}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7B509775-EB66-4E4F-BF4B-D391092DA64F} = {5D91B6CF-7B69-4E7B-BD8E-B04692697C30}
+		{26B47D1C-DE72-4E98-BF34-6B1AA59078DF} = {5D91B6CF-7B69-4E7B-BD8E-B04692697C30}
+		{5D91B6CF-7B69-4E7B-BD8E-B04692697C30} = {3FCEB0B4-E62E-46E1-A18C-F8419AEC3CD6}
+		{78F622C9-58C9-4D57-B6C1-27A4DB567C89} = {5D91B6CF-7B69-4E7B-BD8E-B04692697C30}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8DAB66AF-73F3-4AC9-9897-8A311BC88364}

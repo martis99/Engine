@@ -7,7 +7,7 @@ Engine - 3D graphics and physics engine
 ## The Plan
 The plan for this engine is to create a multi-platform fast 3D graphics and physics engine.
 
-### Supported graphics APIS:
+### Supported graphics APIs:
 - OpenGL
 - Direct3D
 

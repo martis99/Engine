@@ -21,7 +21,7 @@ void wstr_delete(WStr* str) {
 
 void str_resize(Str* str, uint new_count) {
 	if (new_count > str->count) {
-		str->data = realloc(str->data, new_count * sizeof(char), str->count * sizeof(char));
+		str->data = m_realloc(str->data, new_count * sizeof(char), str->count * sizeof(char));
 		str->count = new_count;
 	}
 }
@@ -85,8 +85,8 @@ void str_catch(Str* str, char data) {
 }
 
 void wstr_catch(WStr* str, wchar data) {
-	str_increase(str, 1);
-	str->data[strlen(str->data)] = data;
+	wstr_increase(str, 1);
+	str->data[wcslen(str->data)] = data;
 }
 
 void str_catc(Str* str, const char* data, uint count) {

@@ -86,7 +86,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gh /GH %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -103,7 +103,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -119,8 +119,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_OPENGL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gh /GH %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -136,7 +136,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\dxerr\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -147,48 +147,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\api\atypes.c" />
-    <ClCompile Include="src\api\ctx\wdx11\wdx11_acontext.c" />
-    <ClCompile Include="src\api\ctx\wgl\wgl_acontext.c" />
-    <ClCompile Include="src\api\ctx\wn\wn_acontext.c" />
     <ClCompile Include="src\api\gfx\ashadergenerator.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_buffer.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_error.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_renderer.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_shader.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11\dx11_texture.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_aframebuffer.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_amesh.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_arenderer.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_ashader.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_ashadergenerator.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_atexture.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_attachment.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_atypes.c" />
-    <ClCompile Include="src\api\gfx\dx11\dx11_auniform_buffer.c" />
-    <ClCompile Include="src\api\gfx\none\n_ashadergenerator.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl\gl_error.c" />
     <ClCompile Include="src\api\os\none\n_utils.c" />
     <ClCompile Include="src\api\os\windows\w_utils.c" />
     <ClCompile Include="src\assets\buffer.c" />
-    <ClCompile Include="src\api\gfx\none\n_aframebuffer.c" />
-    <ClCompile Include="src\api\gfx\none\n_amesh.c" />
-    <ClCompile Include="src\api\gfx\none\n_arenderer.c" />
-    <ClCompile Include="src\api\gfx\none\n_ashader.c" />
-    <ClCompile Include="src\api\gfx\none\n_atexture.c" />
-    <ClCompile Include="src\api\gfx\none\n_auniform_buffer.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl_ashadergenerator.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl_aframebuffer.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl_amesh.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl_arenderer.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl_ashader.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl_atexture.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl_attachment.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl_auniform_buffer.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl\gl_buffer.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl_atypes.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl\gl_renderer.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl\gl_shader.c" />
-    <ClCompile Include="src\api\gfx\opengl\gl\gl_texture.c" />
     <ClCompile Include="src\api\wnd\windows\w_acursor.c" />
     <ClCompile Include="src\api\wnd\windows\w_awindow.c" />
     <ClCompile Include="src\app.c" />
@@ -256,18 +218,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\api\ctx\acontext.h" />
-    <ClInclude Include="src\api\ctx\wgl\wgl.h" />
     <ClInclude Include="src\api\atypes.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_buffer.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_error.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_renderer.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_shader.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11\dx11_texture.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11_attachment.h" />
-    <ClInclude Include="src\api\gfx\dx11\dx11_atypes.h" />
-    <ClInclude Include="src\api\gfx\opengl\gl\gl_error.h" />
-    <ClInclude Include="src\api\gfx\opengl\gl\gl_types.h" />
     <ClInclude Include="src\assets\buffer.h" />
     <ClInclude Include="src\api\gfx\aframebuffer.h" />
     <ClInclude Include="src\api\gfx\amesh.h" />
@@ -276,15 +227,6 @@
     <ClInclude Include="src\api\gfx\ashadergenerator.h" />
     <ClInclude Include="src\api\gfx\atexture.h" />
     <ClInclude Include="src\api\gfx\auniform_buffer.h" />
-    <ClInclude Include="src\api\gfx\none\n_atypes.h" />
-    <ClInclude Include="src\api\gfx\opengl\gl\gl.h" />
-    <ClInclude Include="src\api\gfx\opengl\gl\gl_buffer.h" />
-    <ClInclude Include="src\api\gfx\opengl\gl\gl_defines.h" />
-    <ClInclude Include="src\api\gfx\opengl\gl\gl_renderer.h" />
-    <ClInclude Include="src\api\gfx\opengl\gl\gl_shader.h" />
-    <ClInclude Include="src\api\gfx\opengl\gl\gl_texture.h" />
-    <ClInclude Include="src\api\gfx\opengl\gl_attachment.h" />
-    <ClInclude Include="src\api\gfx\opengl\gl_atypes.h" />
     <ClInclude Include="src\api\wnd\acursor.h" />
     <ClInclude Include="src\api\wnd\awindow.h" />
     <ClInclude Include="src\app.h" />

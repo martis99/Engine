@@ -100,7 +100,6 @@ static Scene* create_assets(Scene* scene) {
 	Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", &scene->model_renderer.shader, 0, 0); S_ASSERT(container);
 	Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", &scene->model_renderer.shader, 1, 0); S_ASSERT(backpack);
 	Model* nanosuit = assets_model_load(&scene->assets, "nonosuit", "res/models/nano_textured/", "nanosuit.obj", &scene->model_renderer.shader, 0, 1); S_ASSERT(nanosuit);
-
 	return scene;
 }
 
