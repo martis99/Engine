@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "instance_renderer.h"
 
 #include "ecs/component/transform.h"
@@ -8,6 +7,8 @@
 #include "assets/mesh.h"
 #include "assets/material.h"
 #include "assets/shader.h"
+
+#include "ecs/ecs.h"
 
 #define MAX_INSTANCES 200
 

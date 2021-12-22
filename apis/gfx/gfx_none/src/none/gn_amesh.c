@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/gfx/amesh.h"
 #include "gn_atypes.h"
 

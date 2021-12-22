@@ -1,7 +1,8 @@
-#include "pch.h"
 #include "constraints_resolver.h"
 #include "ecs/component/transform.h"
 #include "ecs/component/constraints.h"
+
+#include "ecs/ecs.h"
 
 static void resolve_constraints_x(Ecs* ecs, Transform* transform, Constraints* constraints);
 static void resolve_constraints_y(Ecs* ecs, Transform* transform, Constraints* constraints);

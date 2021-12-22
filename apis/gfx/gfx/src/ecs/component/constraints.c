@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "constraints.h"
 
 Constraint constraint_create(Entity entity, float pos, int distance) {

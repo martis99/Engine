@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/gfx/arenderer.h"
 #include "api/gfx/aframebuffer.h"
 #include "dx11_atypes.h"

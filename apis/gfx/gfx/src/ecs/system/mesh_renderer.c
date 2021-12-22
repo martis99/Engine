@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "mesh_renderer.h"
 #include "ecs/component/transform.h"
 #include "ecs/component/mesh_component.h"
@@ -7,6 +6,8 @@
 #include "assets/mesh.h"
 #include "assets/material.h"
 #include "assets/shader.h"
+
+#include "ecs/ecs.h"
 
 MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* renderer) {
 	mesh_renderer->renderer = renderer;

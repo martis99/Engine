@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/gfx/atexture.h"
 #include "gl_atypes.h"
 #include "gl/gl_defines.h"

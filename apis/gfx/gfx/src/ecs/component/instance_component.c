@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "instance_component.h"
 
 #include "assets/mesh.h"

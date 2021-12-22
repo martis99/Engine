@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "dx11_error.h"
 #include "dxerr/dxerr.h"
 

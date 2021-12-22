@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "mesh.h"
 #include "api/gfx/amesh.h"
 

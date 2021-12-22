@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "texture.h"
 #include "api/gfx/atexture.h"
 

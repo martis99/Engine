@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "gl_attachment.h"
 #include "gl/gl_defines.h"
 #include "gl/gl_texture.h"

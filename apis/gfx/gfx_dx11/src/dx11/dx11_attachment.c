@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "dx11_attachment.h"
 #include "dx11/dx11_texture.h"
 

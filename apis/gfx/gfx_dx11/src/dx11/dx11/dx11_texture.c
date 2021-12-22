@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "dx11_texture.h"
 #include "dx11_error.h"
 

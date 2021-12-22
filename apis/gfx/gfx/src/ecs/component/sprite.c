@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "sprite.h"
 
 Sprite sprite_create(Texture* texture, vec4 color, vec4 borders) {

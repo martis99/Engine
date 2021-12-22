@@ -1,10 +1,11 @@
-#include "pch.h"
 #include "model_renderer.h"
 #include "ecs/component/transform.h"
 #include "ecs/component/mesh_component.h"
 
 #include "assets/shader.h"
 #include "assets/model.h"
+
+#include "ecs/ecs.h"
 
 ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* renderer) {
 	model_renderer->renderer = renderer;

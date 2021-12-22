@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/ctx/acontext.h"
 #include "opengl/gl_atypes.h"
 
@@ -10,7 +9,6 @@
 #include <Windows.h>
 
 #pragma comment (lib, "opengl32.lib")
-#pragma warning( disable : 6387 )
 
 static PROC load_function(HMODULE library, const char* name) {
 	PROC p = wglGetProcAddress(name);

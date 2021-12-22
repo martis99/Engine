@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "assets.h"
 
 #include "shader.h"
@@ -9,6 +8,8 @@
 #include "font.h"
 #include "uniform_buffer.h"
 #include "model.h"
+
+#include "utils/dictionary.h"
 
 Assets* assets_create(Assets* assets, Renderer* renderer) {
 	assets->renderer = renderer;

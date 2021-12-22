@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/gfx/ashader.h"
 #include "dx11_atypes.h"
 #include "dx11/dx11_shader.h"

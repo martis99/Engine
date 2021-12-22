@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/gfx/amesh.h"
 #include "dx11_atypes.h"
 #include "dx11/dx11_buffer.h"

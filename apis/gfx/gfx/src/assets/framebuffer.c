@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "framebuffer.h"
 #include "api/gfx/aframebuffer.h"
 

@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/gfx/ashadergenerator.h"
 #include "gl_atypes.h"
 

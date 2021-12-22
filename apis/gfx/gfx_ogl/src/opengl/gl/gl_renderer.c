@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "gl_renderer.h"
 #include "gl_error.h"
 

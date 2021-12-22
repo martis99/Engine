@@ -1,5 +1,6 @@
-#include "pch.h"
 #include "transform.h"
+
+#include "math/maths.h"
 
 Transform transform_create(vec3 position, vec3 rotation, vec3 scale) {
 	return (Transform) { position, rotation, scale, (vec3) { 0.0f, 0.0f, 0.0f } };

@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "assets/image.h"
 #include "texture.h"
 

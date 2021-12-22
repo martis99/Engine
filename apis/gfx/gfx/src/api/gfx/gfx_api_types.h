@@ -1,6 +1,9 @@
 #pragma once
 #include "eng_types.h"
 
+#define A_FAIL 0
+#define A_SUCCESS 1
+
 typedef enum APrimitive {
 	A_PRIMITIVE_UNKNOWN,
 	A_POINTS,

@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/gfx/auniform_buffer.h"
 #include "gn_atypes.h"
 

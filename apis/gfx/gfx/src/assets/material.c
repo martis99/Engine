@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "material.h"
 #include "uniform_buffer.h"
 

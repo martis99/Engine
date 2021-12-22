@@ -1,5 +1,6 @@
-#include "pch.h"
 #include "ashadergenerator.h"
+
+#include <stdarg.h>
 
 void append(char* src, int* n, const char* text) {
 	strcpy_s(src + *n, strlen(text) + 1, text);

@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "dx11_atypes.h"
 
 D3D11_PRIMITIVE_TOPOLOGY dx11_aprimitive(APrimitive primitive) {

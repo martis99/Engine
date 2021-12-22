@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "uniform_buffer.h"
 #include "buffer.h"
 #include "api/gfx/auniform_buffer.h"

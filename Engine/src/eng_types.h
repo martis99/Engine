@@ -4,3 +4,6 @@
 #include "utils/data_types.h"
 #include "ecs/ecs_types.h"
 #include "assets/assets_types.h"
+
+#include "mem.h"
+#include "log.h"

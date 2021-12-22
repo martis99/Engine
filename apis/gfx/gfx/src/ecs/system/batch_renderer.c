@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "batch_renderer.h"
 
 #include "ecs/component/transform.h"

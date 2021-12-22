@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/gfx/arenderer.h"
 #include "gn_atypes.h"
 

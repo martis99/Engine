@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "buffer.h"
 
 ABuffer* buffer_create(ABuffer* buffer, AValue* values, uint values_size, const void* data) {

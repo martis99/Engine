@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "model.h"
 
 #include "assets/image.h"
@@ -10,6 +9,10 @@
 #include "assimp/cimport.h"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
+
+#include "math/maths.h"
+#include "utils/array.h"
+#include "log.h"
 
 #ifdef _DEBUG
 #pragma comment (lib, "assimp-vc143-mtd.lib")

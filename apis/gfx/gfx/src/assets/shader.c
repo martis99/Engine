@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "shader.h"
 #include "api/gfx/ashader.h"
 #include "api/gfx/ashadergenerator.h"

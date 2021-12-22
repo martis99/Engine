@@ -1,4 +1,5 @@
 #pragma once
+#include "eng_common_types.h"
 
 void log_info(const char* format, ...);
 void log_error(const char* text);

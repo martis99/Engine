@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "text_renderer.h"
 
 #include "ecs/component/transform.h"
@@ -7,6 +6,9 @@
 #include "assets/font.h"
 #include "assets/material.h"
 #include "assets/shader.h"
+
+#include "math/maths.h"
+#include "ecs/ecs.h"
 
 #define MAX_QUADS 200
 #define MAX_VERTICES MAX_QUADS * 4

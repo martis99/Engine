@@ -1,4 +1,5 @@
 #pragma once
+#include "eng_common_types.h"
 
 void mem_init();
 void* m_realloc(void* memory, size_t new_size, size_t old_size);

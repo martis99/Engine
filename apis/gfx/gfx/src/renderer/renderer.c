@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "renderer.h"
 #include "api/gfx/arenderer.h"
 

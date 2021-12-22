@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/gfx/arenderer.h"
 #include "gl_atypes.h"
 #include "gl/gl_renderer.h"

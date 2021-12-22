@@ -1,4 +1,5 @@
 #pragma once
+#include "api/gfx/gfx_api_types.h"
 
 typedef unsigned int GLenum;
 typedef unsigned char GLboolean;

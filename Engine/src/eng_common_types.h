@@ -6,3 +6,9 @@ typedef unsigned int uint;
 
 #define false 0
 #define true 1
+
+#include <vcruntime.h>
+#include <memory.h>
+#include <math.h>
+#include <stdio.h>
+#include <string.h>

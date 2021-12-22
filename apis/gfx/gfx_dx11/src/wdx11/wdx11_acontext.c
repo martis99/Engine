@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "api/ctx/acontext.h"
 #include "dx11/dx11_atypes.h"
 
