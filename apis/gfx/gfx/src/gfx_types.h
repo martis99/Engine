@@ -132,26 +132,6 @@ typedef struct Text {
 	vec4 color;
 } Text;
 
-typedef struct Constraint {
-	bool enabled;
-	Entity entity;
-	float pos;
-	int distance;
-} Constraint;
-
-typedef struct Constraints {
-	vec3 resolved;
-	vec3 size;
-	Constraint l, r, u, d, f, b;
-} Constraints;
-
-typedef struct Transform {
-	vec3 position;
-	vec3 rotation;
-	vec3 scale;
-	vec3 scale_pref;
-} Transform;
-
 typedef struct BatchRenderer {
 	Renderer* renderer;
 	Shader* shader;

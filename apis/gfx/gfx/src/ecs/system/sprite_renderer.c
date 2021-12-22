@@ -5,7 +5,6 @@
 #include "ecs/system/batch_renderer.h"
 
 #include "math/maths.h"
-#include "ecs/ecs.h"
 
 #define MAX_QUADS 200
 #define MAX_VERTICES MAX_QUADS * 4
@@ -268,13 +267,14 @@ static void add_sprite(SpriteRenderer* sprite_renderer, Transform* transform, Sp
 	}
 }
 
-void sprite_renderer_render(SpriteRenderer* sprite_renderer, Ecs* ecs) {
+void sprite_renderer_begin(SpriteRenderer* sprite_renderer) {
 	batch_renderer_begin(&sprite_renderer->batch_renderer);
-	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_SPRITE);
-	for (uint i = 0; i < qr->count; ++i) {
-		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
-		Sprite* sprite = (Sprite*)ecs_get(ecs, qr->list[i], C_SPRITE);
-		add_sprite(sprite_renderer, transform, sprite, qr->list[i]);
-	}
+}
+
+void sprite_renderer_render(SpriteRenderer* sprite_renderer, int id, Transform* transform, Sprite* sprite) {
+	add_sprite(sprite_renderer, transform, sprite, id);
+}
+
+void sprite_renderer_end(SpriteRenderer* sprite_renderer) {
 	batch_renderer_end(&sprite_renderer->transform, &sprite_renderer->batch_renderer);
 }

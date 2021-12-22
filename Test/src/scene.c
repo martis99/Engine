@@ -4,8 +4,19 @@
 #include "window/window.h"
 #include "renderer/renderer.h"
 #include "window/cursor.h"
+#include "assets/font.h"
+
+#include "ecs/ecs.h"
 
 #include <time.h>
+
+#define C_TRANSFORM 0
+#define C_MESH 1
+#define C_SPRITE 2
+#define C_TEXT 3
+#define C_CONSTRAINTS 4
+#define C_INSTANCE 5
+#define C_MODEL 6
 
 struct Scene {
 	Window window;
@@ -386,6 +397,10 @@ void scene_delete(Scene* scene) {
 	sprite_renderer_delete(&scene->sprite_renderer);
 	text_renderer_delete(&scene->text_renderer);
 	line_renderer_delete(&scene->line_renderer);
+	QueryResult* qr = ecs_query(&scene->ecs, 1, C_INSTANCE);
+	for (uint i = 0; i < qr->count; ++i) {
+		instance_component_delete(ecs_get(&scene->ecs, qr->list[i], C_INSTANCE));
+	}
 	instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
 	model_renderer_delete(&scene->model_renderer);
 	ecs_delete(&scene->ecs);
@@ -432,13 +447,102 @@ void scene_main_loop(Scene* scene) {
 	}
 }
 
+static void calculate_preffered(Transform* transform, Text* text, Constraints* constraints) {
+	float x = 0;
+	float y = 0;
+
+	for (size_t i = 0; i < strlen(text->text); i++) {
+		FontCharacter fc = font_get_char(text->font, text->text[i]);
+
+		x += fc.advance;
+		if (i + 1 < strlen(text->text)) {
+			FontCharacter next = font_get_char(text->font, text->text[i + 1]);
+			if (constraints->size.x != -1 && x + next.offset.x + next.size.x > constraints->size.x) {
+				x = 0;
+				y += text->font->line_height;
+				if (text->text[i + 1] == ' ') {
+					i++;
+				}
+			}
+		}
+	}
+
+	transform->scale_pref.x = x + 1;
+	transform->scale_pref.y = y + text->font->line_height;
+}
+
+static void text_renderer_calculate_preffered(Ecs* ecs) {
+	QueryResult* qr = ecs_query(ecs, 3, C_TRANSFORM, C_TEXT, C_CONSTRAINTS);
+	for (uint i = 0; i < qr->count; ++i) {
+		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
+		Text* text = (Text*)ecs_get(ecs, qr->list[i], C_TEXT);
+		Constraints* constraints = (Constraints*)ecs_get(ecs, qr->list[i], C_CONSTRAINTS);
+		calculate_preffered(transform, text, constraints);
+	}
+}
+
 void scene_update(Scene* scene, float dt) {
 	text_renderer_calculate_preffered(&scene->ecs);
-	constraints_resolver_resolve(&scene->ecs);
+	constraints_resolver_resolve(&scene->ecs, C_TRANSFORM, C_CONSTRAINTS);
 
 	if (is_key_pressed('R')) {
 		((Transform*)ecs_get(&scene->ecs, scene->cube.id, C_TRANSFORM))->rotation.y -= 1.0f * dt;
 	}
+}
+
+static void render_models(ModelRenderer* model_renderer, Ecs* ecs) {
+	model_renderer_begin(model_renderer);
+	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_MODEL);
+	for (uint i = 0; i < qr->count; ++i) {
+		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
+		Model* model = (Model*)ecs_get(ecs, qr->list[i], C_MODEL);
+		model_renderer_render(model_renderer, qr->list[i], transform, model);
+	}
+	model_renderer_end(model_renderer);
+}
+
+static void render_instances(InstanceRenderer* instance_renderer, Ecs* ecs) {
+	instance_renderer_begin(instance_renderer);
+	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_INSTANCE);
+	for (uint i = 0; i < qr->count; ++i) {
+		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
+		InstanceComponent* instance_component = (InstanceComponent*)ecs_get(ecs, qr->list[i], C_INSTANCE);
+		instance_renderer_render(instance_renderer, qr->list[i], transform, instance_component);
+	}
+	instance_renderer_end(instance_renderer);
+}
+
+static void render_meshes(MeshRenderer* mesh_renderer, Ecs* ecs) {
+	mesh_renderer_begin(mesh_renderer);
+	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_MESH);
+	for (uint i = 0; i < qr->count; ++i) {
+		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
+		MeshComponent* mesh_component = (MeshComponent*)ecs_get(ecs, qr->list[i], C_MESH);
+		mesh_renderer_render(mesh_renderer, qr->list[i], transform, mesh_component);
+	}
+	mesh_renderer_end(mesh_renderer);
+}
+
+static void render_texts(TextRenderer* text_renderer, Ecs* ecs) {
+	text_renderer_begin(text_renderer);
+	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_TEXT);
+	for (uint i = 0; i < qr->count; ++i) {
+		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
+		Text* text = (Text*)ecs_get(ecs, qr->list[i], C_TEXT);
+		text_renderer_render(text_renderer, qr->list[i], transform, text);
+	}
+	text_renderer_end(text_renderer);
+}
+
+static void render_sprites(SpriteRenderer* sprite_renderer, Ecs* ecs) {
+	sprite_renderer_begin(sprite_renderer);
+	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_SPRITE);
+	for (uint i = 0; i < qr->count; ++i) {
+		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
+		Sprite* sprite = (Sprite*)ecs_get(ecs, qr->list[i], C_SPRITE);
+		sprite_renderer_render(sprite_renderer, qr->list[i], transform, sprite);
+	}
+	sprite_renderer_end(sprite_renderer);
 }
 
 void scene_render(Scene* scene) {
@@ -458,9 +562,9 @@ void scene_render(Scene* scene) {
 	uniformbuffer_set_value(&scene->u_camera, 0, &scene->camera.view_projection);
 	uniformbuffer_upload(&scene->u_camera, &scene->renderer);
 
-	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
-	model_renderer_render(&scene->model_renderer, &scene->ecs);
-	instance_renderer_render(&scene->instance_renderer, &scene->ecs);
+	render_meshes(&scene->mesh_renderer, &scene->ecs);
+	render_models(&scene->model_renderer, &scene->ecs);
+	render_instances(&scene->instance_renderer, &scene->ecs);
 	line_renderer_render(&scene->line_renderer);
 
 	framebuffer_clear_depth_attachment(&scene->framebuffer, &scene->renderer, &depth);
@@ -468,8 +572,8 @@ void scene_render(Scene* scene) {
 	uniformbuffer_set_value(&scene->u_camera, 0, &scene->projection);
 	uniformbuffer_upload(&scene->u_camera, &scene->renderer);
 
-	text_renderer_render(&scene->text_renderer, &scene->ecs);
-	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs);
+	render_texts(&scene->text_renderer, &scene->ecs);
+	render_sprites(&scene->sprite_renderer, &scene->ecs);
 
 	renderer_rasterizer_set(&scene->renderer, 0, 1);
 	framebuffer_draw(&scene->framebuffer, &scene->renderer, 0);

@@ -8,7 +8,6 @@
 #include "assets/shader.h"
 
 #include "math/maths.h"
-#include "ecs/ecs.h"
 
 #define MAX_QUADS 200
 #define MAX_VERTICES MAX_QUADS * 4
@@ -207,47 +206,14 @@ static void add_text(TextRenderer* text_renderer, Transform* transform, Text* te
 	}
 }
 
-void text_renderer_render(TextRenderer* text_renderer, Ecs* ecs) {
+void text_renderer_begin(TextRenderer* text_renderer) {
 	batch_renderer_begin(&text_renderer->batch_renderer);
-	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_TEXT);
-	for (uint i = 0; i < qr->count; ++i) {
-		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
-		Text* text = (Text*)ecs_get(ecs, qr->list[i], C_TEXT);
-		add_text(text_renderer, transform, text, qr->list[i]);
-	}
+}
+
+void text_renderer_render(TextRenderer* text_renderer, int id, Transform* transform, Text* text) {
+	add_text(text_renderer, transform, text, id);
+}
+
+void text_renderer_end(TextRenderer* text_renderer) {
 	batch_renderer_end(&text_renderer->transform, &text_renderer->batch_renderer);
-}
-
-static void calculate_preffered(Transform* transform, Text* text, Constraints* constraints) {
-	float x = 0;
-	float y = 0;
-
-	for (size_t i = 0; i < strlen(text->text); i++) {
-		FontCharacter fc = font_get_char(text->font, text->text[i]);
-
-		x += fc.advance;
-		if (i + 1 < strlen(text->text)) {
-			FontCharacter next = font_get_char(text->font, text->text[i + 1]);
-			if (constraints->size.x != -1 && x + next.offset.x + next.size.x > constraints->size.x) {
-				x = 0;
-				y += text->font->line_height;
-				if (text->text[i + 1] == ' ') {
-					i++;
-				}
-			}
-		}
-	}
-
-	transform->scale_pref.x = x + 1;
-	transform->scale_pref.y = y + text->font->line_height;
-}
-
-void text_renderer_calculate_preffered(Ecs* ecs) {
-	QueryResult* qr = ecs_query(ecs, 3, C_TRANSFORM, C_TEXT, C_CONSTRAINTS);
-	for (uint i = 0; i < qr->count; ++i) {
-		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
-		Text* text = (Text*)ecs_get(ecs, qr->list[i], C_TEXT);
-		Constraints* constraints = (Constraints*)ecs_get(ecs, qr->list[i], C_CONSTRAINTS);
-		calculate_preffered(transform, text, constraints);
-	}
 }

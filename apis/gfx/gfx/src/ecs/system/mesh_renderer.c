@@ -7,8 +7,6 @@
 #include "assets/material.h"
 #include "assets/shader.h"
 
-#include "ecs/ecs.h"
-
 MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* renderer) {
 	mesh_renderer->renderer = renderer;
 
@@ -111,19 +109,19 @@ void mesh_renderer_delete(MeshRenderer* mesh_renderer) {
 	shader_delete(&mesh_renderer->shader);
 }
 
-void mesh_renderer_render(MeshRenderer* mesh_renderer, Ecs* ecs) {
+void mesh_renderer_begin(MeshRenderer* mesh_renderer) {
 	shader_bind(&mesh_renderer->shader, mesh_renderer->renderer);
+}
 
-	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_MESH);
-	for (uint i = 0; i < qr->count; ++i) {
-		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
-		MeshComponent* mesh_component = (MeshComponent*)ecs_get(ecs, qr->list[i], C_MESH);
+void mesh_renderer_render(MeshRenderer* mesh_renderer, int id, Transform* transform, MeshComponent* mesh_component) {
+	mat4 model = transform_to_mat4(transform);
+	material_set_vs_value(mesh_component->material, 0, &model);
+	material_set_ps_value(mesh_component->material, 1, &id);
+	material_upload(mesh_component->material, mesh_renderer->renderer);
+	material_bind(mesh_component->material, mesh_renderer->renderer);
+	mesh_draw(mesh_component->mesh, mesh_renderer->renderer, 0xFFFFFFFF);
+}
 
-		mat4 model = transform_to_mat4(transform);
-		material_set_vs_value(mesh_component->material, 0, &model);
-		material_set_ps_value(mesh_component->material, 1, &qr->list[i]);
-		material_upload(mesh_component->material, mesh_renderer->renderer);
-		material_bind(mesh_component->material, mesh_renderer->renderer);
-		mesh_draw(mesh_component->mesh, mesh_renderer->renderer, 0xFFFFFFFF);
-	}
+void mesh_renderer_end(MeshRenderer* mesh_renderer) {
+
 }

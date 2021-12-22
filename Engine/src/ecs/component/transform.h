@@ -1,5 +1,5 @@
 #pragma once
-#include "gfx_types.h"
+#include "ecs/ecs_types.h"
 
 Transform transform_create(vec3 position, vec3 rotation, vec3 scale);
 mat4 transform_to_mat4(Transform* transform);

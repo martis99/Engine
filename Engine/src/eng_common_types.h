@@ -11,4 +11,5 @@ typedef unsigned int uint;
 #include <memory.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>

@@ -5,8 +5,6 @@
 #include "assets/shader.h"
 #include "assets/model.h"
 
-#include "ecs/ecs.h"
-
 ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* renderer) {
 	model_renderer->renderer = renderer;
 
@@ -135,15 +133,15 @@ void model_renderer_delete(ModelRenderer* model_renderer) {
 	shader_delete(&model_renderer->shader);
 }
 
-void model_renderer_render(ModelRenderer* model_renderer, Ecs* ecs) {
+void model_renderer_begin(ModelRenderer* model_renderer) {
 	shader_bind(&model_renderer->shader, model_renderer->renderer);
+}
 
-	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_MODEL);
-	for (uint i = 0; i < qr->count; ++i) {
-		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
-		Model* model = (Model*)ecs_get(ecs, qr->list[i], C_MODEL);
+void model_renderer_render(ModelRenderer* model_renderer, int id, Transform* transform, Model* model) {
+	mat4 mat = transform_to_mat4(transform);
+	model_draw(model, model_renderer->renderer, &model_renderer->shader, mat, id);
+}
 
-		mat4 mat = transform_to_mat4(transform);
-		model_draw(model, model_renderer->renderer, &model_renderer->shader, mat, qr->list[i]);
-	}
+void model_renderer_end(ModelRenderer* model_renderer) {
+
 }

@@ -16,5 +16,3 @@
 #include "utils/dictionary.h"
 #include "utils/stack.h"
 #include "utils/array.h"
-
-#include "ecs/ecs.h"

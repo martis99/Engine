@@ -152,7 +152,10 @@
     <ClCompile Include="src\api\wnd\windows\w_awindow.c" />
     <ClCompile Include="src\app.c" />
     <ClCompile Include="src\assets\image.c" />
+    <ClCompile Include="src\ecs\component\constraints.c" />
     <ClCompile Include="src\ecs\ecs.c" />
+    <ClCompile Include="src\ecs\system\constraints_resolver.c" />
+    <ClCompile Include="src\ecs\component\transform.c" />
     <ClCompile Include="src\input\keyboard.c" />
     <ClCompile Include="src\input\mouse.c" />
     <ClCompile Include="src\log.c" />
@@ -195,8 +198,11 @@
     <ClInclude Include="src\app.h" />
     <ClInclude Include="src\assets\assets_types.h" />
     <ClInclude Include="src\assets\image.h" />
+    <ClInclude Include="src\ecs\component\constraints.h" />
     <ClInclude Include="src\ecs\ecs.h" />
     <ClInclude Include="src\ecs\ecs_types.h" />
+    <ClInclude Include="src\ecs\system\constraints_resolver.h" />
+    <ClInclude Include="src\ecs\component\transform.h" />
     <ClInclude Include="src\engine.h" />
     <ClInclude Include="src\eng_common_types.h" />
     <ClInclude Include="src\eng_types.h" />

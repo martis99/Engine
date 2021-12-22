@@ -1,15 +1,9 @@
 #pragma once
 #include "eng_common_types.h"
 #include "utils/data_types.h"
+#include "math/math_types.h"
 
 #define ENTITY_FLAG_ALIVE 1
-#define C_TRANSFORM 0
-#define C_MESH 1
-#define C_SPRITE 2
-#define C_TEXT 3
-#define C_CONSTRAINTS 4
-#define C_INSTANCE 5
-#define C_MODEL 6
 
 typedef uint Id;
 
@@ -45,3 +39,23 @@ typedef struct Ecs {
 	QueryResult query_result;
 	Stack* entity_pool;
 } Ecs;
+
+typedef struct Constraint {
+	bool enabled;
+	Entity entity;
+	float pos;
+	int distance;
+} Constraint;
+
+typedef struct Constraints {
+	vec3 resolved;
+	vec3 size;
+	Constraint l, r, u, d, f, b;
+} Constraints;
+
+typedef struct Transform {
+	vec3 position;
+	vec3 rotation;
+	vec3 scale;
+	vec3 scale_pref;
+} Transform;

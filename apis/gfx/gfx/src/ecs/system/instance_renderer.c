@@ -8,8 +8,6 @@
 #include "assets/material.h"
 #include "assets/shader.h"
 
-#include "ecs/ecs.h"
-
 #define MAX_INSTANCES 200
 
 InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, Renderer* renderer) {
@@ -114,28 +112,24 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 	return instance_renderer;
 }
 
-void instance_renderer_delete(InstanceRenderer* instance_renderer, Ecs* ecs) {
-	QueryResult* qr = ecs_query(ecs, 1, C_INSTANCE);
-	for (uint i = 0; i < qr->count; ++i) {
-		instance_component_delete(ecs_get(ecs, qr->list[i], C_INSTANCE));
-	}
+void instance_renderer_delete(InstanceRenderer* instance_renderer) {
 	shader_delete(&instance_renderer->shader);
 }
 
-void instance_renderer_render(InstanceRenderer* instance_renderer, Ecs* ecs) {
+void instance_renderer_begin(InstanceRenderer* instance_renderer) {
 	shader_bind(&instance_renderer->shader, instance_renderer->renderer);
+}
 
-	QueryResult* qr = ecs_query(ecs, 2, C_TRANSFORM, C_INSTANCE);
-	for (uint i = 0; i < qr->count; ++i) {
-		Transform* transform = (Transform*)ecs_get(ecs, qr->list[i], C_TRANSFORM);
-		InstanceComponent* instance_component = (InstanceComponent*)ecs_get(ecs, qr->list[i], C_INSTANCE);
+void instance_renderer_render(InstanceRenderer* instance_renderer, int id, Transform* transform, InstanceComponent* instance_component) {
+	mat4 model = transform_to_mat4(transform);
+	material_set_vs_value(instance_component->material, 0, &model);
+	material_set_ps_value(instance_component->material, 1, &id);
+	material_upload(instance_component->material, instance_renderer->renderer);
+	material_bind(instance_component->material, instance_renderer->renderer);
+	mesh_set_instances(instance_component->mesh, instance_renderer->renderer, instance_component->transforms, instance_component->transforms_count * sizeof(mat4));
+	mesh_draw(instance_component->mesh, instance_renderer->renderer, 0xFFFFFFFF);
+}
 
-		mat4 model = transform_to_mat4(transform);
-		material_set_vs_value(instance_component->material, 0, &model);
-		material_set_ps_value(instance_component->material, 1, &qr->list[i]);
-		material_upload(instance_component->material, instance_renderer->renderer);
-		material_bind(instance_component->material, instance_renderer->renderer);
-		mesh_set_instances(instance_component->mesh, instance_renderer->renderer, instance_component->transforms, instance_component->transforms_count * sizeof(mat4));
-		mesh_draw(instance_component->mesh, instance_renderer->renderer, 0xFFFFFFFF);
-	}
+void instance_renderer_end(InstanceRenderer* instance_renderer) {
+
 }
