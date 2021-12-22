@@ -1,8 +1,5 @@
 #pragma once
-
-typedef struct quaternion {
-	float w, x, y, z;
-} quaternion;
+#include "math_types.h"
 
 quaternion quaternion_zero();
 

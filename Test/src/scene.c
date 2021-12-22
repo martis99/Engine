@@ -1,7 +1,17 @@
 #include "engine.h"
 
+#include "context.h"
+#include "window/window.h"
+#include "renderer/renderer.h"
+#include "window/cursor.h"
+
+#include <time.h>
+
 struct Scene {
-	Renderer* renderer;
+	Window window;
+	Cursor cursor;
+	Context context;
+	Renderer renderer;
 	bool wireframe;
 	bool cull_back;
 	Framebuffer framebuffer;
@@ -21,35 +31,37 @@ struct Scene {
 	bool profile;
 };
 
+static Scene* s_scene;
+
 static Scene* create_systems(Scene* scene) {
-	if (mesh_renderer_create(&scene->mesh_renderer, scene->renderer) == NULL) {
+	if (mesh_renderer_create(&scene->mesh_renderer, &scene->renderer) == NULL) {
 		log_error("Failed to create mesh renderer");
 		return NULL;
 	}
 
 	Transform sprite_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
-	if (sprite_renderer_create(&scene->sprite_renderer, scene->renderer, sprite_transform) == NULL) {
+	if (sprite_renderer_create(&scene->sprite_renderer, &scene->renderer, sprite_transform) == NULL) {
 		log_error("Failed to create sprite renderer");
 		return NULL;
 	}
 
 	Transform text_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
-	if (text_renderer_create(&scene->text_renderer, scene->renderer, text_transform) == NULL) {
+	if (text_renderer_create(&scene->text_renderer, &scene->renderer, text_transform) == NULL) {
 		log_error("Failed to create text renderer");
 		return NULL;
 	}
 	Transform line_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
-	if (line_renderer_create(&scene->line_renderer, scene->renderer, line_transform) == NULL) {
+	if (line_renderer_create(&scene->line_renderer, &scene->renderer, line_transform) == NULL) {
 		log_error("Failed to create line renderer");
 		return NULL;
 	}
 
-	if (instance_renderer_create(&scene->instance_renderer, scene->renderer) == NULL) {
+	if (instance_renderer_create(&scene->instance_renderer, &scene->renderer) == NULL) {
 		log_error("Failed to create instance renderer");
 		return NULL;
 	}
 
-	if (model_renderer_create(&scene->model_renderer, scene->renderer) == NULL) {
+	if (model_renderer_create(&scene->model_renderer, &scene->renderer) == NULL) {
 		log_error("Failed to create model renderer");
 		return NULL;
 	}
@@ -59,7 +71,7 @@ static Scene* create_systems(Scene* scene) {
 #define S_ASSERT(var) if(var == NULL) { return NULL; }
 
 static Scene* create_assets(Scene* scene) {
-	assets_create(&scene->assets, scene->renderer);
+	assets_create(&scene->assets, &scene->renderer);
 
 	Image* image_gui = assets_image_load(&scene->assets, "imgui", "res/images/gui.png"); S_ASSERT(image_gui);
 	Image* image_mountains = assets_image_load(&scene->assets, "mountains", "res/images/mountains.jpg"); S_ASSERT(image_mountains);
@@ -243,11 +255,79 @@ static void create_camera(Scene* scene, float width, float height) {
 	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f, 1000.0, -1);
 }
 
-Scene* scene_create(float width, float height, Renderer* renderer) {
-	Scene* scene = m_malloc(sizeof(Scene));
-	scene->renderer = renderer;
+static void key_pressed(byte key) {
+	kb_key_pressed(key);
+	scene_key_pressed(s_scene, key);
+}
 
-	renderer_depth_stencil_set(renderer, 1, 1);
+static void key_released(byte key) {
+	kb_key_released(key);
+	scene_key_released(s_scene, key);
+}
+
+static void mouse_pressed(byte button) {
+	ms_button_pressed(button);
+	scene_mouse_pressed(s_scene, button);
+}
+
+static void mouse_released(byte button) {
+	ms_button_released(button);
+	scene_mouse_released(s_scene, button);
+}
+
+static void mouse_moved(float x, float y) {
+	ms_moved(x, y);
+	scene_mouse_moved(s_scene, x, y);
+}
+
+static void mouse_moved_delta(float dx, float dy) {
+	ms_moved_delta(dx, dy);
+	scene_mouse_moved_delta(s_scene, dx, dy);
+}
+
+static void mouse_wheel(float delta) {
+	ms_mouse_wheel(delta);
+	scene_mouse_wheel(s_scene, delta);
+}
+
+Scene* scene_create(int width, int height) {
+	Scene* scene = m_malloc(sizeof(Scene));
+	s_scene = scene;
+	
+	if (cursor_create(&scene->cursor, &scene->window, 1) == NULL) {
+		log_error("Failed to create cursor");
+		return NULL;
+	}
+
+	WindowSettings window_settings = { 0 };
+	window_settings.width = width;
+	window_settings.height = height;
+
+	AWindowCallbacks callbacks;
+	callbacks.key_pressed = key_pressed;
+	callbacks.key_released = key_released;
+	callbacks.mouse_pressed = mouse_pressed;
+	callbacks.mouse_released = mouse_released;
+	callbacks.mouse_moved = mouse_moved;
+	callbacks.mouse_moved_delta = mouse_moved_delta;
+	callbacks.mouse_wheel = mouse_wheel;
+
+	if (window_create(&scene->window, window_settings, &callbacks, &scene->cursor) == NULL) {
+		log_error("Failed to create window");
+		return NULL;
+	}
+
+	if (context_create(&scene->context, scene->window.window) == NULL) {
+		log_error("Failed to create context");
+		return NULL;
+	}
+
+	if (renderer_create(&scene->renderer, &scene->context, width, height) == NULL) {
+		log_error("Failed to create renderer");
+		return NULL;
+	}
+
+	renderer_depth_stencil_set(&scene->renderer, 1, 1);
 
 	scene->wireframe = 0;
 	scene->cull_back = 1;
@@ -257,7 +337,7 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 		{VEC1I, 1, A_LINEAR, A_REPEAT}
 	};
 
-	if (framebuffer_create(&scene->framebuffer, renderer, attachments, sizeof(attachments), (int)width, (int)height) == NULL) {
+	if (framebuffer_create(&scene->framebuffer, &scene->renderer, attachments, sizeof(attachments), width, height) == NULL) {
 		log_error("Failed to create framebuffer");
 		return NULL;
 	}
@@ -278,7 +358,7 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	create_entities2d(scene);
 	create_entities3d(scene);
 
-	create_camera(scene, width, height);
+	create_camera(scene, (float)width, (float)height);
 
 	AValue uniforms[] = {
 		{MAT4F, "ViewProjection"}
@@ -289,7 +369,7 @@ Scene* scene_create(float width, float height, Renderer* renderer) {
 	desc.values_size = sizeof(uniforms);
 	desc.slot = 0;
 
-	if (uniformbuffer_create_dynamic(&scene->u_camera, renderer, &desc) == NULL) {
+	if (uniformbuffer_create_dynamic(&scene->u_camera, &scene->renderer, &desc) == NULL) {
 		log_error("Failed to create camera buffer");
 		return NULL;
 	}
@@ -311,7 +391,45 @@ void scene_delete(Scene* scene) {
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
 	framebuffer_delete(&scene->framebuffer);
+	renderer_delete(&scene->renderer);
+	context_delete(&scene->context);
+	window_delete(&scene->window);
+	cursor_delete(&scene->cursor);
 	m_free(scene, sizeof(Scene));
+}
+
+static void loop(Scene* scene, float dt) {
+	scene_update(scene, dt);
+
+	//app->stats.draw_calls = 0;
+	scene_render(scene);
+}
+
+void scene_main_loop(Scene* scene) {
+	clock_t last = clock();
+	clock_t previous = last;
+	uint frames = 0;
+
+	while (window_poll_events(&scene->window)) {
+		clock_t current = clock();
+		clock_t elapsed = current - last;
+
+		if (elapsed > CLOCKS_PER_SEC) {
+			char title[100];
+			float ms = elapsed / (float)frames;
+			//sprintf_s(title, 100, "Engine %u FPS %.2f ms, mem: %u, dc: %i", frames, ms, (uint)app->stats.memory, app->stats.draw_calls);
+			//window_set_title(&scene->window, title);
+
+			last = current;
+			frames = 0;
+		}
+
+		float dt = (current - previous) / (float)CLOCKS_PER_SEC;
+		loop(scene, dt);
+
+		previous = current;
+		frames++;
+	}
 }
 
 void scene_update(Scene* scene, float dt) {
@@ -323,38 +441,40 @@ void scene_update(Scene* scene, float dt) {
 	}
 }
 
-void scene_render(Scene* scene, Renderer* renderer) {
-	renderer_rasterizer_set(renderer, scene->wireframe, scene->cull_back);
+void scene_render(Scene* scene) {
+	renderer_rasterizer_set(&scene->renderer, scene->wireframe, scene->cull_back);
 
 	uint targets[] = { 0, 1 };
-	framebuffer_set_render_targets(&scene->framebuffer, renderer, targets, sizeof(targets));
+	framebuffer_set_render_targets(&scene->framebuffer, &scene->renderer, targets, sizeof(targets));
 	float color[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	framebuffer_clear_attachment(&scene->framebuffer, renderer, 0, color);
+	framebuffer_clear_attachment(&scene->framebuffer, &scene->renderer, 0, color);
 	int entity = -1;
-	framebuffer_clear_attachment(&scene->framebuffer, renderer, 1, &entity);
+	framebuffer_clear_attachment(&scene->framebuffer, &scene->renderer, 1, &entity);
 	float depth = 1.0f;
-	framebuffer_clear_depth_attachment(&scene->framebuffer, renderer, &depth);
+	framebuffer_clear_depth_attachment(&scene->framebuffer, &scene->renderer, &depth);
 
-	uniformbuffer_bind_vs(&scene->u_camera, renderer);
+	uniformbuffer_bind_vs(&scene->u_camera, &scene->renderer);
 
 	uniformbuffer_set_value(&scene->u_camera, 0, &scene->camera.view_projection);
-	uniformbuffer_upload(&scene->u_camera, renderer);
+	uniformbuffer_upload(&scene->u_camera, &scene->renderer);
 
 	mesh_renderer_render(&scene->mesh_renderer, &scene->ecs);
 	model_renderer_render(&scene->model_renderer, &scene->ecs);
 	instance_renderer_render(&scene->instance_renderer, &scene->ecs);
 	line_renderer_render(&scene->line_renderer);
 
-	framebuffer_clear_depth_attachment(&scene->framebuffer, renderer, &depth);
+	framebuffer_clear_depth_attachment(&scene->framebuffer, &scene->renderer, &depth);
 
 	uniformbuffer_set_value(&scene->u_camera, 0, &scene->projection);
-	uniformbuffer_upload(&scene->u_camera, renderer);
+	uniformbuffer_upload(&scene->u_camera, &scene->renderer);
 
 	text_renderer_render(&scene->text_renderer, &scene->ecs);
 	sprite_renderer_render(&scene->sprite_renderer, &scene->ecs);
 
-	renderer_rasterizer_set(renderer, 0, 1);
-	framebuffer_draw(&scene->framebuffer, renderer, 0);
+	renderer_rasterizer_set(&scene->renderer, 0, 1);
+	framebuffer_draw(&scene->framebuffer, &scene->renderer, 0);
+
+	context_swap_buffers(&scene->context);
 }
 
 void scene_key_pressed(Scene* scene, byte key) {
@@ -389,7 +509,7 @@ void scene_mouse_pressed(Scene* scene, byte button) {
 		int x = (int)get_mouse_x();
 		int y = (int)get_mouse_y();
 		int entity = 0;
-		framebuffer_read_pixel(&scene->framebuffer, scene->renderer, 1, x, y, &entity);
+		framebuffer_read_pixel(&scene->framebuffer, &scene->renderer, 1, x, y, &entity);
 		printf("%i\n", entity);
 	}
 }
@@ -408,4 +528,12 @@ void scene_mouse_moved_delta(Scene* scene, float dx, float dy) {
 
 void scene_mouse_wheel(Scene* scene, float delta) {
 	camera_mouse_wheel(&scene->camera, delta);
+}
+
+void scene_exit(Scene* scene) {
+	window_close(&scene->window);
+}
+
+Window* app_get_window() {
+	return &s_scene->window;
 }

@@ -1,5 +1,2 @@
 #pragma once
-
-typedef struct vec2i {
-	int x, y;
-} vec2i;
+#include "math_types.h"

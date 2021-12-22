@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "api/ctx/acontext.h"
-#include "api/wnd/awindow.h"
 #include "opengl/gl_atypes.h"
 
 #include "opengl/gl/gl.h"
@@ -186,10 +185,17 @@ static HGLRC create_context(HDC device) {
 	}
 }
 
-AContext* acontext_create(AWindow* window) {
+typedef struct AWindow {
+	LPCWSTR class_name;
+	HMODULE module;
+	HWND window;
+} AWindow;
+
+AContext* acontext_create(void* window) {
+	AWindow* awindow = window;
 	AContext* context = m_malloc(sizeof(AContext));
-	context->window = awindow_get_window(window);
-	context->library = load_opengl_functions(window->module, window->class_name);
+	context->window = awindow->window;
+	context->library = load_opengl_functions(awindow->module, awindow->class_name);
 	context->device = GetDC(context->window);
 	context->context = create_context(context->device);
 	wglMakeCurrent(context->device, context->context);

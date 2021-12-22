@@ -1,8 +1,5 @@
 #pragma once
-
-typedef struct vec3 {
-	float x, y, z;
-} vec3;
+#include "math_types.h"
 
 vec3 vec3_mulf(vec3 value, float scalar);
 vec3 vec3_sub(vec3 l, vec3 r);

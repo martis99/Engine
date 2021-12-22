@@ -1,6 +1,8 @@
 #pragma once
 #include "types.h"
 
+#include <Windows.h>
+
 Window* window_create(Window* window, WindowSettings settings, AWindowCallbacks* callbacks, Cursor* cursor);
 void window_delete(Window* window);
 

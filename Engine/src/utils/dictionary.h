@@ -1,12 +1,5 @@
 #pragma once
-
-typedef struct dic_entry dic_entry;
-
-typedef struct Dictionary {
-	size_t entry_count;
-	size_t entry_size;
-	dic_entry** entries;
-} Dictionary;
+#include "data_types.h"
 
 Dictionary* dic_create(size_t entry_count, size_t entry_size);
 void dic_delete(Dictionary* dic, void(*func)(void*));

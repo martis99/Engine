@@ -1,5 +1,5 @@
 #pragma once
-#include "types.h"
+#include "assets_types.h"
 
 Image* image_create(Image* image, int width, int height, int channels);
 void image_delete(Image* image);

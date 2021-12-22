@@ -1,11 +1,7 @@
 #pragma once
-#include "api/atypes.h"
+#include "api/gfx/gfx_api_types.h"
 
 #include <Windows.h>
-
-struct AWindow {
-	byte id;
-};
 
 struct AContext {
 	HWND window;

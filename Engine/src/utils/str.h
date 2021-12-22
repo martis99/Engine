@@ -1,14 +1,5 @@
 #pragma once
-
-typedef struct Str {
-	char* data;
-	uint count;
-} Str;
-
-typedef struct WStr {
-	wchar* data;
-	uint count;
-} WStr;
+#include "data_types.h"
 
 void str_create(Str* str, uint count);
 void wstr_create(WStr* str, uint count);

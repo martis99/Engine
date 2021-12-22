@@ -86,7 +86,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gh /GH %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -103,7 +103,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -119,7 +119,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gh /GH %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -136,7 +136,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -146,39 +146,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\api\atypes.c" />
-    <ClCompile Include="src\api\gfx\ashadergenerator.c" />
     <ClCompile Include="src\api\os\none\n_utils.c" />
     <ClCompile Include="src\api\os\windows\w_utils.c" />
-    <ClCompile Include="src\assets\buffer.c" />
     <ClCompile Include="src\api\wnd\windows\w_acursor.c" />
     <ClCompile Include="src\api\wnd\windows\w_awindow.c" />
     <ClCompile Include="src\app.c" />
-    <ClCompile Include="src\assets\assets.c" />
-    <ClCompile Include="src\assets\font.c" />
-    <ClCompile Include="src\assets\framebuffer.c" />
     <ClCompile Include="src\assets\image.c" />
-    <ClCompile Include="src\assets\material.c" />
-    <ClCompile Include="src\assets\mesh.c" />
-    <ClCompile Include="src\assets\model.c" />
-    <ClCompile Include="src\assets\shader.c" />
-    <ClCompile Include="src\assets\texture.c" />
-    <ClCompile Include="src\assets\uniform_buffer.c" />
-    <ClCompile Include="src\ecs\component\constraints.c" />
-    <ClCompile Include="src\ecs\component\instance_component.c" />
-    <ClCompile Include="src\ecs\component\mesh_component.c" />
-    <ClCompile Include="src\ecs\component\sprite.c" />
-    <ClCompile Include="src\ecs\component\text.c" />
-    <ClCompile Include="src\ecs\component\transform.c" />
     <ClCompile Include="src\ecs\ecs.c" />
-    <ClCompile Include="src\ecs\system\batch_renderer.c" />
-    <ClCompile Include="src\ecs\system\constraints_resolver.c" />
-    <ClCompile Include="src\ecs\system\instance_renderer.c" />
-    <ClCompile Include="src\ecs\system\line_renderer.c" />
-    <ClCompile Include="src\ecs\system\mesh_renderer.c" />
-    <ClCompile Include="src\ecs\system\model_renderer.c" />
-    <ClCompile Include="src\ecs\system\sprite_renderer.c" />
-    <ClCompile Include="src\ecs\system\text_renderer.c" />
     <ClCompile Include="src\input\keyboard.c" />
     <ClCompile Include="src\input\mouse.c" />
     <ClCompile Include="src\log.c" />
@@ -205,57 +179,27 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalOptions>
     </ClCompile>
-    <ClCompile Include="src\renderer\renderer.c" />
     <ClCompile Include="src\scene\camera.c" />
     <ClCompile Include="src\stats.c" />
     <ClCompile Include="src\utils\array.c" />
     <ClCompile Include="src\utils\dictionary.c" />
     <ClCompile Include="src\utils\stack.c" />
     <ClCompile Include="src\utils\str.c" />
-    <ClCompile Include="src\window\context.c" />
     <ClCompile Include="src\window\cursor.c" />
     <ClCompile Include="src\window\window.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\api\ctx\acontext.h" />
     <ClInclude Include="src\api\atypes.h" />
-    <ClInclude Include="src\assets\buffer.h" />
-    <ClInclude Include="src\api\gfx\aframebuffer.h" />
-    <ClInclude Include="src\api\gfx\amesh.h" />
-    <ClInclude Include="src\api\gfx\arenderer.h" />
-    <ClInclude Include="src\api\gfx\ashader.h" />
-    <ClInclude Include="src\api\gfx\ashadergenerator.h" />
-    <ClInclude Include="src\api\gfx\atexture.h" />
-    <ClInclude Include="src\api\gfx\auniform_buffer.h" />
     <ClInclude Include="src\api\wnd\acursor.h" />
     <ClInclude Include="src\api\wnd\awindow.h" />
     <ClInclude Include="src\app.h" />
-    <ClInclude Include="src\assets\assets.h" />
-    <ClInclude Include="src\assets\font.h" />
-    <ClInclude Include="src\assets\framebuffer.h" />
+    <ClInclude Include="src\assets\assets_types.h" />
     <ClInclude Include="src\assets\image.h" />
-    <ClInclude Include="src\assets\material.h" />
-    <ClInclude Include="src\assets\mesh.h" />
-    <ClInclude Include="src\assets\model.h" />
-    <ClInclude Include="src\assets\shader.h" />
-    <ClInclude Include="src\assets\texture.h" />
-    <ClInclude Include="src\assets\uniform_buffer.h" />
-    <ClInclude Include="src\ecs\component\constraints.h" />
-    <ClInclude Include="src\ecs\component\instance_component.h" />
-    <ClInclude Include="src\ecs\component\mesh_component.h" />
-    <ClInclude Include="src\ecs\component\sprite.h" />
-    <ClInclude Include="src\ecs\component\text.h" />
-    <ClInclude Include="src\ecs\component\transform.h" />
     <ClInclude Include="src\ecs\ecs.h" />
-    <ClInclude Include="src\ecs\system\batch_renderer.h" />
-    <ClInclude Include="src\ecs\system\constraints_resolver.h" />
-    <ClInclude Include="src\ecs\system\instance_renderer.h" />
-    <ClInclude Include="src\ecs\system\line_renderer.h" />
-    <ClInclude Include="src\ecs\system\mesh_renderer.h" />
-    <ClInclude Include="src\ecs\system\model_renderer.h" />
-    <ClInclude Include="src\ecs\system\sprite_renderer.h" />
-    <ClInclude Include="src\ecs\system\text_renderer.h" />
+    <ClInclude Include="src\ecs\ecs_types.h" />
     <ClInclude Include="src\engine.h" />
+    <ClInclude Include="src\eng_common_types.h" />
+    <ClInclude Include="src\eng_types.h" />
     <ClInclude Include="src\input\keyboard.h" />
     <ClInclude Include="src\input\keys.h" />
     <ClInclude Include="src\input\mouse.h" />
@@ -268,33 +212,33 @@
     <ClInclude Include="src\math\vec2i.h" />
     <ClInclude Include="src\math\vec3.h" />
     <ClInclude Include="src\math\vec4.h" />
+    <ClInclude Include="src\math\math_types.h" />
     <ClInclude Include="src\mem.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\profiler.h" />
-    <ClInclude Include="src\renderer\renderer.h" />
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\stats.h" />
     <ClInclude Include="src\types.h" />
     <ClInclude Include="src\utils\array.h" />
+    <ClInclude Include="src\utils\data_types.h" />
     <ClInclude Include="src\utils\dictionary.h" />
     <ClInclude Include="src\utils\stack.h" />
     <ClInclude Include="src\utils\str.h" />
     <ClInclude Include="src\utils\utils.h" />
-    <ClInclude Include="src\window\context.h" />
     <ClInclude Include="src\window\cursor.h" />
     <ClInclude Include="src\window\window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\lib\lib.vcxproj">
-      <Project>{72878cbb-277a-4dc9-b385-3adbbfac8218}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="src\hooks.asm">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">X64=1</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">X86=1</PreprocessorDefinitions>
     </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lib\lib.vcxproj">
+      <Project>{72878cbb-277a-4dc9-b385-3adbbfac8218}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "api/ctx/acontext.h"
-#include "api/wnd/awindow.h"
 #include "dx11/dx11_atypes.h"
 
 #include <Windows.h>
@@ -11,9 +10,16 @@
 #include "dxerr/dxerr.h"
 #include "dx11/dx11/dx11_error.h"
 
-AContext* acontext_create(AWindow* window) {
+typedef struct AWindow {
+	LPCWSTR class_name;
+	HMODULE module;
+	HWND window;
+} AWindow;
+
+AContext* acontext_create(void* window) {
+	AWindow* awindow = window;
 	AContext* context = m_malloc(sizeof(AContext));
-	context->window = awindow_get_window(window);
+	context->window = awindow->window;
 
 	DXGI_SWAP_CHAIN_DESC sd = { 0 };
 	sd.BufferDesc.Width = 0;
@@ -37,7 +43,7 @@ AContext* acontext_create(AWindow* window) {
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	dx11_error_create(window->window);
+	dx11_error_create();
 
 	if (DX11_FAILED("Failed to create device and swapchain", D3D11CreateDeviceAndSwapChain(
 		NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, NULL, 0, D3D11_SDK_VERSION,

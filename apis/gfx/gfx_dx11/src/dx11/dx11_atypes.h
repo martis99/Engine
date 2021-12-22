@@ -1,15 +1,7 @@
 #pragma once
-#include "api/atypes.h"
+#include "api/gfx/gfx_api_types.h"
 
 #include "dx11/dx11.h"
-
-struct AWindow {
-	LPCWSTR class_name;
-	HMODULE module;
-	HWND window;
-	AWindowCallbacks callbacks;
-	ACursor* cursor;
-};
 
 struct AContext {
 	HWND window;

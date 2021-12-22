@@ -2,7 +2,6 @@
 #include "gl_error.h"
 
 #include "app.h"
-#include "window/window.h"
 #include "utils/str.h"
 
 static GLint s_max_len;

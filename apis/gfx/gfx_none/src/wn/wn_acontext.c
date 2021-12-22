@@ -1,13 +1,19 @@
 #include "pch.h"
 #include "api/ctx/acontext.h"
-#include "api/wnd/awindow.h"
 #include "none/gn_atypes.h"
 
 #include <Windows.h>
 
-AContext* acontext_create(AWindow* window) {
+typedef struct AWindow {
+	LPCWSTR class_name;
+	HMODULE module;
+	HWND window;
+} AWindow;
+
+AContext* acontext_create(void* window) {
+	AWindow* awindow = window;
 	AContext* context = m_malloc(sizeof(AContext));
-	context->window = awindow_get_window(window);
+	context->window = awindow->window;
 	context->device = GetDC(context->window);
 	return context;
 }

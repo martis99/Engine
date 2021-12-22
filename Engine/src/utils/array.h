@@ -1,11 +1,5 @@
 #pragma once
-
-typedef struct Array {
-	size_t size;
-	uint count;
-	uint cap;
-	void* data;
-} Array;
+#include "data_types.h"
 
 Array* arr_create(Array* arr, size_t size, uint cap);
 void arr_delete(Array* arr, void(*func)(void*));
