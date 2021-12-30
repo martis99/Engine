@@ -95,12 +95,12 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 	shader_desc.buffers_size = sizeof(buffers);
 
 	if (shader_create(&line_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_error("Failed to create line shader");
+		renderer->callbacks.on_error("Failed to create line shader", NULL);
 		return NULL;
 	}
 
 	if (material_create(&line_renderer->material, renderer, &line_renderer->shader) == NULL) {
-		log_error("Failed to create line material");
+		renderer->callbacks.on_error("Failed to create line material", NULL);
 		return NULL;
 	}
 
@@ -109,7 +109,7 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 
 	AMeshData md = { 0 };
 	if (mesh_create(&line_renderer->mesh, renderer, &line_renderer->shader, md, A_LINES) == NULL) {
-		log_error("Failed to create line mesh");
+		renderer->callbacks.on_error("Failed to create line mesh", NULL);
 		return NULL;
 	}
 
@@ -118,9 +118,9 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 
 void line_renderer_delete(LineRenderer* line_renderer) {
 	m_free(line_renderer->vertices, MAX_VERTICES * sizeof(LineVertex));
-	material_delete(&line_renderer->material);
-	mesh_delete(&line_renderer->mesh);
-	shader_delete(&line_renderer->shader);
+	material_delete(&line_renderer->material, line_renderer->renderer);
+	mesh_delete(&line_renderer->mesh, line_renderer->renderer);
+	shader_delete(&line_renderer->shader, line_renderer->renderer);
 }
 
 void line_renderer_add(LineRenderer* line_renderer, vec3 start, vec3 end, vec4 color, int entity) {

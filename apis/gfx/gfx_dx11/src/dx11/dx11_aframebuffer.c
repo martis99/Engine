@@ -7,10 +7,10 @@
 
 static ID3D11RenderTargetView* create_back_buffer_attachment(ARenderer* renderer, ID3D11RenderTargetView** view) {
 	ID3D11Resource* back_buffer = NULL;
-	if (DX11_FAILED("Failed to get back buffer", renderer->acontext->swap_chain->lpVtbl->GetBuffer(renderer->acontext->swap_chain, 0, &IID_ID3D11Resource, (void**)(&back_buffer)))) {
+	if (DX11_FAILED(renderer->error, "Failed to get back buffer", renderer->acontext->swap_chain->lpVtbl->GetBuffer(renderer->acontext->swap_chain, 0, &IID_ID3D11Resource, (void**)(&back_buffer)))) {
 		return NULL;
 	}
-	if (DX11_FAILED("Failed to create render target view", renderer->device->lpVtbl->CreateRenderTargetView(renderer->device, back_buffer, NULL, view))) {
+	if (DX11_FAILED(renderer->error, "Failed to create render target view", renderer->device->lpVtbl->CreateRenderTargetView(renderer->device, back_buffer, NULL, view))) {
 		return NULL;
 	}
 	back_buffer->lpVtbl->Release(back_buffer);
@@ -30,7 +30,7 @@ static ID3D11DepthStencilView* create_depth_stencil_attachment(ARenderer* render
 	td.Usage = D3D11_USAGE_DEFAULT;
 	td.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
-	if (DX11_FAILED("Failed to create texture", renderer->device->lpVtbl->CreateTexture2D(renderer->device, &td, NULL, texture))) {
+	if (DX11_FAILED(renderer->error, "Failed to create texture", renderer->device->lpVtbl->CreateTexture2D(renderer->device, &td, NULL, texture))) {
 		return NULL;
 	}
 
@@ -38,7 +38,7 @@ static ID3D11DepthStencilView* create_depth_stencil_attachment(ARenderer* render
 	dsvd.Format = DXGI_FORMAT_D32_FLOAT;
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	dsvd.Texture2D.MipSlice = 0;
-	if (DX11_FAILED("Failed to create depth stencil view", renderer->device->lpVtbl->CreateDepthStencilView(renderer->device, (ID3D11Resource*)(*texture), &dsvd, view))) {
+	if (DX11_FAILED(renderer->error, "Failed to create depth stencil view", renderer->device->lpVtbl->CreateDepthStencilView(renderer->device, (ID3D11Resource*)(*texture), &dsvd, view))) {
 		return NULL;
 	}
 
@@ -49,7 +49,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	AFramebuffer* framebuffer = m_malloc(sizeof(AFramebuffer));
 
 	if (create_back_buffer_attachment(renderer, &framebuffer->rtv) == NULL) {
-		log_error("Failed to create back buffer attachment");
+		renderer->error->callbacks.on_error("Failed to create back buffer attachment", NULL);
 		return NULL;
 	}
 
@@ -59,13 +59,13 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
 		framebuffer->attachments[i] = dx11_attachment_create(renderer, attachments[i], width, height);
 		if (framebuffer->attachments[i] == NULL) {
-			log_error("Failed to create attachment");
+			renderer->error->callbacks.on_error("Failed to create attachment", NULL);
 			return NULL;
 		}
 	}
 
 	if (create_depth_stencil_attachment(renderer, width, height, &framebuffer->dst, &framebuffer->dsv) == NULL) {
-		log_error("Failed to create depth stencil attachment");
+		renderer->error->callbacks.on_error("Failed to create depth stencil attachment", NULL);
 		return NULL;
 	}
 
@@ -98,7 +98,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 
 	framebuffer->shader = ashader_create(renderer, src_vert, src_frag, "Texture", 1);
 	if (framebuffer->shader == NULL) {
-		log_error("Failed to create shader");
+		renderer->error->callbacks.on_error("Failed to create shader", NULL);
 		return NULL;
 	}
 
@@ -145,14 +145,14 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 
 	framebuffer->mesh = amesh_create(renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
 	if (framebuffer->mesh == NULL) {
-		log_error("Failed to create mesh");
+		renderer->error->callbacks.on_error("Failed to create mesh", NULL);
 		return NULL;
 	}
 
 	return framebuffer;
 }
 
-void aframebuffer_delete(AFramebuffer* framebuffer) {
+void aframebuffer_delete(AFramebuffer* framebuffer, ARenderer* renderer) {
 	if (framebuffer->rtv != NULL) {
 		framebuffer->rtv->lpVtbl->Release(framebuffer->rtv);
 		framebuffer->rtv = NULL;
@@ -172,8 +172,8 @@ void aframebuffer_delete(AFramebuffer* framebuffer) {
 		framebuffer->dsv = NULL;
 	}
 
-	ashader_delete(framebuffer->shader);
-	amesh_delete(framebuffer->mesh);
+	ashader_delete(framebuffer->shader, renderer);
+	amesh_delete(framebuffer->mesh, renderer);
 
 	m_free(framebuffer, sizeof(AFramebuffer));
 }
@@ -196,7 +196,7 @@ void aframebuffer_clear_depth_attachment(AFramebuffer* framebuffer, ARenderer* r
 }
 
 void aframebuffer_read_pixel(AFramebuffer* framebuffer, ARenderer* renderer, uint id, int x, int y, void* pixel) {
-	dx11_attachment_read_pixel(framebuffer->attachments[1], renderer->context, x, y, pixel);
+	dx11_attachment_read_pixel(renderer, framebuffer->attachments[1], renderer->context, x, y, pixel);
 }
 
 void aframebuffer_draw(AFramebuffer* framebuffer, ARenderer* renderer, uint id) {

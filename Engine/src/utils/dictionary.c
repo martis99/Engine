@@ -49,6 +49,30 @@ void dic_delete(Dictionary* dic, void(*func)(void*)) {
 	m_free(dic, sizeof(Dictionary));
 }
 
+void dic_delete_arg(Dictionary* dic, void(*func)(void*,void*), void* arg) {
+	for (size_t i = 0; i < dic->entry_count; i++) {
+		dic_entry* entry = dic->entries[i];
+
+		if (entry == NULL) {
+			continue;
+		}
+
+		while (entry != NULL) {
+			dic_entry* next = entry->next;
+
+			func(entry->value, arg);
+
+			m_free(entry->key, strlen(entry->key) + 1);
+			m_free(entry->value, dic->entry_size);
+			m_free(entry, sizeof(dic_entry));
+			entry = next;
+		}
+	}
+
+	m_free(dic->entries, dic->entry_count * sizeof(dic_entry*));
+	m_free(dic, sizeof(Dictionary));
+}
+
 dic_entry* dic_pair(const char* key, size_t size) {
 	dic_entry* entry = m_malloc(sizeof(dic_entry));
 	entry->key = m_malloc(strlen(key) + 1);

@@ -1,8 +1,9 @@
 #include "context.h"
 #include "api/ctx/acontext.h"
 
-Context* context_create(Context* context, void* window) {
-	context->context = acontext_create(window);
+Context* context_create(Context* context, void* window, AContextCallbacks* callbacks) {
+	context->context = acontext_create(window, callbacks);
+	context->callbacks = *callbacks;
 	return context;
 }
 

@@ -20,9 +20,9 @@ UniformBuffer* uniformbuffer_create_dynamic(UniformBuffer* uniform_buffer, Rende
 	return uniform_buffer;
 }
 
-void uniformbuffer_delete(UniformBuffer* uniform_buffer) {
+void uniformbuffer_delete(UniformBuffer* uniform_buffer, Renderer* renderer) {
 	buffer_delete(&uniform_buffer->values);
-	auniformbuffer_delete(uniform_buffer->buffer);
+	auniformbuffer_delete(uniform_buffer->buffer, renderer->renderer);
 }
 
 void uniformbuffer_set_value(UniformBuffer* uniform_buffer, uint index, const void* value) {

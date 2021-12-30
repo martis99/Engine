@@ -167,7 +167,12 @@ static HGLRC create_context(HDC device) {
 		UINT num_formats;
 
 		wglChoosePixelFormatARB(device, attribs, NULL, 1, &format, &num_formats);
+
+#pragma warning( push )
+#pragma warning( disable : 6387 )
 		SetPixelFormat(device, format, 0);
+#pragma warning( pop ) 
+
 	}
 	{
 		int attribs[] =
@@ -189,20 +194,23 @@ typedef struct AWindow {
 	HWND window;
 } AWindow;
 
-AContext* acontext_create(void* window) {
+AContext* acontext_create(void* window, AContextCallbacks* callbacks) {
 	AWindow* awindow = window;
 	AContext* context = m_malloc(sizeof(AContext));
 	context->window = awindow->window;
 	context->library = load_opengl_functions(awindow->module, awindow->class_name);
 	context->device = GetDC(context->window);
 	context->context = create_context(context->device);
+	context->callbacks = *callbacks;
 	wglMakeCurrent(context->device, context->context);
-	gl_error_create();
+	if (gl_error_create(&context->error, &callbacks->error_callbacks) == NULL) {
+		return NULL;
+	}
 	return context;
 }
 
 void acontext_delete(AContext* context) {
-	gl_error_delete();
+	gl_error_delete(&context->error);
 	FreeLibrary(context->library);
 	ReleaseDC(context->window, context->device);
 	wglDeleteContext(context->context);

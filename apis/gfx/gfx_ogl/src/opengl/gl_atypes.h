@@ -10,6 +10,8 @@ struct AContext {
 	HDC device;
 	HGLRC context;
 	HMODULE library;
+	AContextCallbacks callbacks;
+	GLError error;
 };
 
 typedef struct GLAttachment {
@@ -53,7 +55,7 @@ struct AMesh {
 };
 
 struct ARenderer {
-	byte id;
+	GLError* error;
 };
 
 struct AShader {

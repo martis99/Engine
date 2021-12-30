@@ -137,17 +137,17 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 	shader_desc.texture_type = VEC4F;
 
 	if (shader_create(&text_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_error("Failed to create text shader");
+		renderer->callbacks.on_error("Failed to create text shader", NULL);
 		return NULL;
 	}
 
 	if (material_create(&text_renderer->material, renderer, &text_renderer->shader) == NULL) {
-		log_error("Failed to create text material");
+		renderer->callbacks.on_error("Failed to create text material", NULL);
 		return NULL;
 	};
 
 	if (batch_renderer_create(&text_renderer->batch_renderer, renderer, &text_renderer->material) == NULL) {
-		log_error("Failed to create text batch renderer");
+		renderer->callbacks.on_error("Failed to create text batch renderer", NULL);
 		return NULL;
 	}
 
@@ -155,8 +155,8 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 }
 
 void text_renderer_delete(TextRenderer* text_renderer) {
-	material_delete(&text_renderer->material);
-	shader_delete(&text_renderer->shader);
+	material_delete(&text_renderer->material, text_renderer->batch_renderer.renderer);
+	shader_delete(&text_renderer->shader, text_renderer->batch_renderer.renderer);
 	batch_renderer_delete(&text_renderer->batch_renderer);
 }
 

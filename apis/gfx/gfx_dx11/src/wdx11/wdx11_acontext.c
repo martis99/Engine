@@ -15,10 +15,11 @@ typedef struct AWindow {
 	HWND window;
 } AWindow;
 
-AContext* acontext_create(void* window) {
+AContext* acontext_create(void* window, AContextCallbacks* callbacks) {
 	AWindow* awindow = window;
 	AContext* context = m_malloc(sizeof(AContext));
 	context->window = awindow->window;
+	context->callbacks = *callbacks;
 
 	DXGI_SWAP_CHAIN_DESC sd = { 0 };
 	sd.BufferDesc.Width = 0;
@@ -42,9 +43,11 @@ AContext* acontext_create(void* window) {
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	dx11_error_create();
+	if (dx11_error_create(&context->error, &context->callbacks.error_callbacks) == NULL) {
+		return NULL;
+	}
 
-	if (DX11_FAILED("Failed to create device and swapchain", D3D11CreateDeviceAndSwapChain(
+	if (DX11_FAILED(&context->error, "Failed to create device and swapchain", D3D11CreateDeviceAndSwapChain(
 		NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, NULL, 0, D3D11_SDK_VERSION,
 		&sd, &context->swap_chain, &context->device, NULL, &context->context))) {
 		return NULL;
@@ -54,7 +57,7 @@ AContext* acontext_create(void* window) {
 }
 
 void acontext_delete(AContext* context) {
-	dx11_error_delete();
+	dx11_error_delete(&context->error);
 	if (context->context != NULL) {
 		context->context->lpVtbl->Release(context->context);
 	}
@@ -68,8 +71,8 @@ void acontext_delete(AContext* context) {
 }
 
 void acontext_swap_buffers(AContext* context) {
-	if (DX11_FAILED("Failed to present", context->swap_chain->lpVtbl->Present(context->swap_chain, 0, 0))) {
-		if (DX11_FAILED("Device removed reason", context->device->lpVtbl->GetDeviceRemovedReason(context->device))) {
+	if (DX11_FAILED(&context->error, "Failed to present", context->swap_chain->lpVtbl->Present(context->swap_chain, 0, 0))) {
+		if (DX11_FAILED(&context->error, "Device removed reason", context->device->lpVtbl->GetDeviceRemovedReason(context->device))) {
 			return;
 		}
 		return;

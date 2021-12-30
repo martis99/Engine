@@ -3,12 +3,12 @@
 
 #include "stb/stb_truetype.h"
 
-static Font* load_data(Font* font, const char* path, stbtt_fontinfo* info) {
+static Font* load_data(Renderer* renderer, Font* font, const char* path, stbtt_fontinfo* info) {
 	FILE* file;
 	fopen_s(&file, path, "rb");
 
 	if (file == NULL) {
-		log_error("Failed to open font file");
+		renderer->callbacks.on_error("Failed to open font file", NULL);
 		return NULL;
 	}
 
@@ -19,7 +19,7 @@ static Font* load_data(Font* font, const char* path, stbtt_fontinfo* info) {
 	font->data = m_malloc(font->data_size);
 
 	if (font->data == 0) {
-		log_error("Failed to allocate memory");
+		renderer->callbacks.on_error("Failed to allocate memory", NULL);
 		return NULL;
 	}
 
@@ -27,7 +27,7 @@ static Font* load_data(Font* font, const char* path, stbtt_fontinfo* info) {
 	fclose(file);
 
 	if (!stbtt_InitFont(info, font->data, 0)) {
-		log_error("Failed to init TrueType\n");
+		renderer->callbacks.on_error("Failed to init TrueType\n", NULL);
 		return NULL;
 	}
 
@@ -118,8 +118,8 @@ static Texture* create_texture(Font* font, Renderer* renderer, float scale, int 
 
 Font* font_load(Font* font, Renderer* renderer, const char* path, int size) {
 	stbtt_fontinfo info;
-	if (load_data(font, path, &info) == NULL) {
-		log_error("Failed to load font");
+	if (load_data(renderer, font, path, &info) == NULL) {
+		renderer->callbacks.on_error("Failed to load font", NULL);
 		return NULL;
 	}
 
@@ -142,8 +142,8 @@ FontCharacter font_get_char(Font* font, char c) {
 	return font->characters[c - FIRST_CHARACTER];
 }
 
-void font_delete(Font* font) {
-	texture_delete(font->texture);
+void font_delete(Font* font, Renderer* renderer) {
+	texture_delete(font->texture, renderer);
 	m_free(font->texture, sizeof(Texture));
 	m_free(font->data, font->data_size);
 }

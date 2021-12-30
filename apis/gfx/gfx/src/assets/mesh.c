@@ -16,8 +16,8 @@ Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshData data
 	return mesh;
 }
 
-void mesh_delete(Mesh* mesh) {
-	amesh_delete(mesh->mesh);
+void mesh_delete(Mesh* mesh, Renderer* renderer) {
+	amesh_delete(mesh->mesh, renderer->renderer);
 }
 
 void mesh_set_vertices(Mesh* mesh, Renderer* renderer, const void* vertices, uint vertices_size) {

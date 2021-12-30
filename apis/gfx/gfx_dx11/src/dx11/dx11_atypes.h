@@ -3,11 +3,28 @@
 
 #include "dx11/dx11.h"
 
+#include <dxgidebug.h>
+
+typedef struct DX11Error {
+	HMODULE library;
+	IDXGIInfoQueue* info_queue;
+	UINT64 begin;
+
+	WStr caption;
+	WStr text;
+	WStr desc;
+	Str info;
+
+	AErrorCallbacks callbacks;
+} DX11Error;
+
 struct AContext {
 	HWND window;
 	ID3D11Device* device;
 	IDXGISwapChain* swap_chain;
 	ID3D11DeviceContext* context;
+	AContextCallbacks callbacks;
+	DX11Error error;
 };
 
 struct ARenderer {
@@ -24,6 +41,7 @@ struct ARenderer {
 	ID3D11RasterizerState* rasterizer_wireframe_back;
 	ID3D11BlendState* blend_enabled;
 	ID3D11BlendState* blend_disabled;
+	DX11Error* error;
 };
 
 struct AShader {

@@ -2,7 +2,7 @@
 #include "gfx_api_types.h"
 
 AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachments, uint attachments_size, int width, int height);
-void aframebuffer_delete(AFramebuffer* framebuffer);
+void aframebuffer_delete(AFramebuffer* framebuffer, ARenderer* renderer);
 
 void aframebuffer_set_render_targets(AFramebuffer* framebuffer, ARenderer* renderer, uint* targets, uint targets_size);
 void aframebuffer_clear_attachment(AFramebuffer* framebuffer, ARenderer* renderer, uint id, const void* value);

@@ -2,7 +2,7 @@
 #include "gfx_types.h"
 
 Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshData data, APrimitive primitive);
-void mesh_delete(Mesh* mesh);
+void mesh_delete(Mesh* mesh, Renderer* renderer);
 
 void mesh_set_vertices(Mesh* mesh, Renderer* renderer, const void* vertices, uint vertices_size);
 void mesh_set_instances(Mesh* mesh, Renderer* renderer, const void* instances, uint instances_size);

@@ -1,7 +1,7 @@
 #include "dx11_texture.h"
 #include "dx11_error.h"
 
-ID3D11Texture2D* dx11_texture_create(ID3D11Device* device, UINT width, UINT height, DXGI_FORMAT format, bool render_target, bool shader_resource, bool readable, const void* data, UINT row_size) {
+ID3D11Texture2D* dx11_texture_create(DX11Error* error, ID3D11Device* device, UINT width, UINT height, DXGI_FORMAT format, bool render_target, bool shader_resource, bool readable, const void* data, UINT row_size) {
 	ID3D11Texture2D* texture = NULL;
 
 	D3D11_TEXTURE2D_DESC desc = { 0 };
@@ -18,7 +18,7 @@ ID3D11Texture2D* dx11_texture_create(ID3D11Device* device, UINT width, UINT heig
 	desc.MiscFlags = 0;
 
 	if (data == NULL) {
-		if (DX11_FAILED("Failed to create texture", device->lpVtbl->CreateTexture2D(device, &desc, NULL, &texture))) {
+		if (DX11_FAILED(error, "Failed to create texture", device->lpVtbl->CreateTexture2D(device, &desc, NULL, &texture))) {
 			return NULL;
 		}
 	} else {
@@ -26,7 +26,7 @@ ID3D11Texture2D* dx11_texture_create(ID3D11Device* device, UINT width, UINT heig
 		sd.pSysMem = data;
 		sd.SysMemPitch = row_size;
 
-		if (DX11_FAILED("Failed to create texture", device->lpVtbl->CreateTexture2D(device, &desc, &sd, &texture))) {
+		if (DX11_FAILED(error, "Failed to create texture", device->lpVtbl->CreateTexture2D(device, &desc, &sd, &texture))) {
 			return NULL;
 		}
 	}
@@ -34,9 +34,9 @@ ID3D11Texture2D* dx11_texture_create(ID3D11Device* device, UINT width, UINT heig
 	return texture;
 }
 
-void dx11_texture_read_pixel(ID3D11Texture2D* texture, ID3D11DeviceContext* context, int x, int y, uint pixel_size, void* pixel) {
+void dx11_texture_read_pixel(DX11Error* error, ID3D11Texture2D* texture, ID3D11DeviceContext* context, int x, int y, uint pixel_size, void* pixel) {
 	D3D11_MAPPED_SUBRESOURCE ms = { 0 };
-	DX11_ASSERT(context->lpVtbl->Map(context, (ID3D11Resource*)texture, 0, D3D11_MAP_READ, 0, &ms));
+	DX11_ASSERT(error, context->lpVtbl->Map(context, (ID3D11Resource*)texture, 0, D3D11_MAP_READ, 0, &ms));
 
 	if (ms.pData != NULL) {
 		memcpy(pixel, (byte*)ms.pData + (size_t)y * ms.RowPitch + (size_t)x * pixel_size, pixel_size);
@@ -48,7 +48,7 @@ void dx11_texture_delete(ID3D11Texture2D* texture) {
 	texture->lpVtbl->Release(texture);
 }
 
-ID3D11RenderTargetView* dx11_rtv_create(ID3D11Device* device, DXGI_FORMAT format, ID3D11Texture2D* texture) {
+ID3D11RenderTargetView* dx11_rtv_create(DX11Error* error, ID3D11Device* device, DXGI_FORMAT format, ID3D11Texture2D* texture) {
 	ID3D11RenderTargetView* rtv = NULL;
 
 	D3D11_RENDER_TARGET_VIEW_DESC desc = { 0 };
@@ -56,7 +56,7 @@ ID3D11RenderTargetView* dx11_rtv_create(ID3D11Device* device, DXGI_FORMAT format
 	desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	desc.Texture2D.MipSlice = 0;
 
-	if (DX11_FAILED("Failed to create render target view", device->lpVtbl->CreateRenderTargetView(device, (ID3D11Resource*)texture, &desc, &rtv))) {
+	if (DX11_FAILED(error, "Failed to create render target view", device->lpVtbl->CreateRenderTargetView(device, (ID3D11Resource*)texture, &desc, &rtv))) {
 		return NULL;
 	}
 
@@ -67,7 +67,7 @@ void dx11_rtv_delete(ID3D11RenderTargetView* rtv) {
 	rtv->lpVtbl->Release(rtv);
 }
 
-ID3D11ShaderResourceView* dx11_srv_create(ID3D11Device* device, DXGI_FORMAT format, ID3D11Texture2D* texture) {
+ID3D11ShaderResourceView* dx11_srv_create(DX11Error* error, ID3D11Device* device, DXGI_FORMAT format, ID3D11Texture2D* texture) {
 	ID3D11ShaderResourceView* srv = NULL;
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC desc = { 0 };
@@ -76,7 +76,7 @@ ID3D11ShaderResourceView* dx11_srv_create(ID3D11Device* device, DXGI_FORMAT form
 	desc.Texture2D.MostDetailedMip = 0;
 	desc.Texture2D.MipLevels = 1;
 
-	if (DX11_FAILED("Failed to create shader resource view", device->lpVtbl->CreateShaderResourceView(device, (ID3D11Resource*)texture, &desc, &srv))) {
+	if (DX11_FAILED(error, "Failed to create shader resource view", device->lpVtbl->CreateShaderResourceView(device, (ID3D11Resource*)texture, &desc, &srv))) {
 		return NULL;
 	}
 
@@ -91,7 +91,7 @@ void dx11_srv_delete(ID3D11ShaderResourceView* srv) {
 	srv->lpVtbl->Release(srv);
 }
 
-ID3D11SamplerState* dx11_ss_create(ID3D11Device* device, D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE address) {
+ID3D11SamplerState* dx11_ss_create(DX11Error* error, ID3D11Device* device, D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE address) {
 	ID3D11SamplerState* ss = NULL;
 
 	D3D11_SAMPLER_DESC desc = { 0 };
@@ -100,7 +100,7 @@ ID3D11SamplerState* dx11_ss_create(ID3D11Device* device, D3D11_FILTER filter, D3
 	desc.AddressV = address;
 	desc.AddressW = address;
 
-	if (DX11_FAILED("Failed to create sampler state", device->lpVtbl->CreateSamplerState(device, &desc, &ss))) {
+	if (DX11_FAILED(error, "Failed to create sampler state", device->lpVtbl->CreateSamplerState(device, &desc, &ss))) {
 		return NULL;
 	}
 

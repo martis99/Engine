@@ -100,9 +100,17 @@ typedef struct AUniformBuffer AUniformBuffer;
 typedef struct ATexture ATexture;
 typedef struct ARenderer ARenderer;
 typedef struct AShader AShader;
-typedef struct ARenderer ARenderer;
 typedef struct AMesh AMesh;
 typedef struct AFramebuffer AFramebuffer;
+
+typedef struct AErrorCallbacks {
+	void(*on_error)(const char* text, const char* caption);
+	void(*on_errorw)(const wchar*, const wchar* caption);
+} AErrorCallbacks;
+
+typedef struct AContextCallbacks {
+	AErrorCallbacks error_callbacks;
+} AContextCallbacks;
 
 typedef struct ABuffer {
 	uint* offsets;

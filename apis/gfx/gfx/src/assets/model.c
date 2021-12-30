@@ -28,20 +28,20 @@ Model* model_create(Model* model) {
 	return model;
 }
 
-static void delete_mesh(ModelMesh* mesh) {
-	mesh_delete(&mesh->mesh);
+static void delete_mesh(ModelMesh* mesh, Renderer* renderer) {
+	mesh_delete(&mesh->mesh, renderer);
 }
 
-static void delete_node(ModelNode* node) {
-	arr_delete(&node->nodes, delete_node);
-	arr_delete(&node->meshes, delete_mesh);
+static void delete_node(ModelNode* node, Renderer* renderer) {
+	arr_delete_arg(&node->nodes, delete_node, renderer);
+	arr_delete_arg(&node->meshes, delete_mesh, renderer);
 }
 
-void model_delete(Model* model) {
-	delete_node(&model->node);
+void model_delete(Model* model, Renderer* renderer) {
+	delete_node(&model->node, renderer);
 	arr_delete(&model->images, image_delete);
-	arr_delete(&model->textures, texture_delete);
-	arr_delete(&model->materials, material_delete);
+	arr_delete_arg(&model->textures, texture_delete, renderer);
+	arr_delete_arg(&model->materials, material_delete, renderer);
 }
 
 static void node_draw(Model* model, Renderer* renderer, Shader* shader, ModelNode* node, mat4 transformation, int entity) {
@@ -126,7 +126,7 @@ static ModelMesh* process_mesh(ModelMesh* mesh, Renderer* renderer, Shader* shad
 	md.indices.size = sizeof(uint) * index;
 
 	if (mesh_create(&mesh->mesh, renderer, shader, md, A_TRIANGLES) == NULL) {
-		log_error("Failed to create model mesh");
+		renderer->callbacks.on_error("Failed to create model mesh", NULL);
 		return NULL;
 	}
 
@@ -148,7 +148,7 @@ static ModelNode* process_node(ModelNode* node, Renderer* renderer, Shader* shad
 	for (uint i = 0; i < ai_node->mNumMeshes; i++) {
 		struct aiMesh* ai_mesh = ai_scene->mMeshes[ai_node->mMeshes[i]];
 		if (process_mesh(arr_add(&node->meshes), renderer, shader, ai_mesh, ai_scene, depth + 1, print) == NULL) {
-			log_error("Failed to process mesh");
+			renderer->callbacks.on_error("Failed to process mesh", NULL);
 			return NULL;
 		}
 	}
@@ -156,7 +156,7 @@ static ModelNode* process_node(ModelNode* node, Renderer* renderer, Shader* shad
 	arr_create(&node->nodes, sizeof(ModelNode), ai_node->mNumChildren);
 	for (uint i = 0; i < ai_node->mNumChildren; i++) {
 		if (process_node(arr_add(&node->nodes), renderer, shader, ai_node->mChildren[i], ai_scene, depth + 1, print) == NULL) {
-			log_error("Failed to process node");
+			renderer->callbacks.on_error("Failed to process node", NULL);
 			return NULL;
 		}
 	}
@@ -200,12 +200,12 @@ static Model* process_textures(Model* model, Renderer* renderer, Material* mater
 		print_texture_type(type, file, depth, print);
 		Image* image = image_load(arr_add(&model->images), file);
 		if (image == NULL) {
-			log_error("Failed to load model image");
+			renderer->callbacks.on_error("Failed to load model image", NULL);
 			return NULL;
 		}
 		Texture* texture = texture_create(arr_add(&model->textures), renderer, image, A_REPEAT, A_LINEAR);
 		if (texture == NULL) {
-			log_error("Failed to create model texture");
+			renderer->callbacks.on_error("Failed to create model texture", NULL);
 			return NULL;
 		}
 		material_add_texture(material, texture);
@@ -217,7 +217,7 @@ static Model* process_textures(Model* model, Renderer* renderer, Material* mater
 	if (found == 0) {
 		Image* image = image_create(arr_add(&model->images), 1, 1, 4);
 		if (image == NULL) {
-			log_error("Failed to create model image");
+			renderer->callbacks.on_error("Failed to create model image", NULL);
 			return NULL;
 		}
 		uint data;
@@ -231,7 +231,7 @@ static Model* process_textures(Model* model, Renderer* renderer, Material* mater
 		image_set_data(image, (unsigned char*)&data);
 		Texture* texture = texture_create(arr_add(&model->textures), renderer, image, A_CLAMP_TO_EDGE, A_NEAREST);
 		if (texture == NULL) {
-			log_error("Failed to create model texture");
+			renderer->callbacks.on_error("Failed to create model texture", NULL);
 			return NULL;
 		}
 		material_add_texture(material, texture);
@@ -243,16 +243,16 @@ static Material* process_material(Material* material, Model* model, Renderer* re
 	print_material_name(ai_material, depth, print);
 
 	if (material_create(material, renderer, shader) == NULL) {
-		log_error("Failed to create model material");
+		renderer->callbacks.on_error("Failed to create model material", NULL);
 		return NULL;
 	}
 
 	if (process_textures(model, renderer, material, path, ai_material, aiTextureType_DIFFUSE, depth + 1, print) == NULL) {
-		log_error("Failed to process diffuse textures");
+		renderer->callbacks.on_error("Failed to process diffuse textures", NULL);
 		return NULL;
 	}
 	if (process_textures(model, renderer, material, path, ai_material, aiTextureType_SPECULAR, depth + 1, print) == NULL) {
-		log_error("Failed to process specular textures");
+		renderer->callbacks.on_error("Failed to process specular textures", NULL);
 		return NULL;
 	}
 
@@ -288,7 +288,7 @@ Model* model_load(Model* model, Renderer* renderer, const char* path, const char
 	const struct aiScene* ai_scene = aiImportFile(file, aiProcess_Triangulate | aiProcess_FlipUVs * flipUVs);
 	if (ai_scene == NULL)
 	{
-		log_error(aiGetErrorString());
+		renderer->callbacks.on_error(aiGetErrorString(), NULL);
 		return NULL;
 	}
 	arr_create(&model->materials, sizeof(Material), ai_scene->mNumMaterials);
@@ -297,13 +297,13 @@ Model* model_load(Model* model, Renderer* renderer, const char* path, const char
 
 	for (uint i = 0; i < ai_scene->mNumMaterials; i++) {
 		if (process_material(arr_add(&model->materials), model, renderer, shader, path, ai_scene->mMaterials[i], 1, print) == NULL) {
-			log_error("Failed to process material");
+			renderer->callbacks.on_error("Failed to process material", NULL);
 			return NULL;
 		}
 	}
 
 	if (process_node(&model->node, renderer, shader, ai_scene->mRootNode, ai_scene, 1, print) == NULL) {
-		log_error("Failed to process root node");
+		renderer->callbacks.on_error("Failed to process root node", NULL);
 		return NULL;
 	}
 

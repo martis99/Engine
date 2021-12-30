@@ -3,6 +3,7 @@
 
 Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height) {
 	renderer->renderer = arenderer_create(context->context);
+	renderer->callbacks = context->callbacks.error_callbacks;
 	if (renderer->renderer == NULL) {
 		return NULL;
 	}

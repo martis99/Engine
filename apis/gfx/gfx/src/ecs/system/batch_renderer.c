@@ -41,7 +41,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* re
 	md.indices.data = indices;
 	md.indices.size = sizeof(indices);
 	if (mesh_create(&batch_renderer->mesh, renderer, material->shader, md, A_TRIANGLES) == NULL) {
-		log_error("Failed to create batch renderer mesh");
+		renderer->callbacks.on_error("Failed to create batch renderer mesh", NULL);
 		return NULL;
 	}
 
@@ -50,7 +50,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* re
 
 void batch_renderer_delete(BatchRenderer* batch_renderer) {
 	m_free(batch_renderer->vertices, MAX_VERTICES * (size_t)batch_renderer->vertex_size);
-	mesh_delete(&batch_renderer->mesh);
+	mesh_delete(&batch_renderer->mesh, batch_renderer->renderer);
 }
 
 void batch_renderer_begin(BatchRenderer* batch_renderer) {

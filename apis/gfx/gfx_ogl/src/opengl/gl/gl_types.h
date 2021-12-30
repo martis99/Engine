@@ -20,3 +20,19 @@ typedef void GLvoid;
 typedef char GLchar;
 typedef unsigned int GLsizeiptr;
 typedef unsigned int GLintptr;
+
+typedef struct GLError {
+	GLint max_len;
+	GLint max_count;
+	GLenum* sources;
+	GLenum* types;
+	GLuint* ids;
+	GLenum* severities;
+	GLsizei* lengths;
+
+	Str msgs;
+	Str text;
+	Str info;
+
+	AErrorCallbacks callbacks;
+} GLError;

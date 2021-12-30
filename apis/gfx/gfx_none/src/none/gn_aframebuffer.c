@@ -6,7 +6,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	return framebuffer;
 }
 
-void aframebuffer_delete(AFramebuffer* framebuffer) {
+void aframebuffer_delete(AFramebuffer* framebuffer, ARenderer* renderer) {
 	m_free(framebuffer, sizeof(AFramebuffer));
 }
 

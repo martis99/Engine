@@ -35,11 +35,11 @@ Shader* shader_create(Shader* shader, Renderer* renderer, const char* vert, cons
 	return shader;
 }
 
-void shader_delete(Shader* shader) {
+void shader_delete(Shader* shader, Renderer* renderer) {
 	ashaderdesc_delete(&shader->desc);
 	image_delete(&shader->default_image);
-	texture_delete(&shader->default_texture);
-	ashader_delete(shader->shader);
+	texture_delete(&shader->default_texture, renderer);
+	ashader_delete(shader->shader, renderer->renderer);
 }
 
 void shader_bind(Shader* shader, Renderer* renderer) {

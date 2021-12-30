@@ -12,7 +12,7 @@ Material* material_create(Material* material, Renderer* renderer, Shader* shader
 	if (vs_desc != NULL) {
 		material->vs = 1;
 		if (uniformbuffer_create_dynamic(&material->vs_buffer, renderer, vs_desc) == NULL) {
-			log_error("Failed to create material vertex shader buffer");
+			renderer->callbacks.on_error("Failed to create material vertex shader buffer", NULL);
 			return NULL;
 		}
 	}
@@ -20,7 +20,7 @@ Material* material_create(Material* material, Renderer* renderer, Shader* shader
 	if (ps_desc != NULL) {
 		material->ps = 1;
 		if (uniformbuffer_create_dynamic(&material->ps_buffer, renderer, ps_desc) == NULL) {
-			log_error("Failed to create material pixel shader buffer");
+			renderer->callbacks.on_error("Failed to create material pixel shader buffer", NULL);
 		}
 	}
 
@@ -37,12 +37,12 @@ Material* material_create(Material* material, Renderer* renderer, Shader* shader
 	return material;
 }
 
-void material_delete(Material* material) {
+void material_delete(Material* material, Renderer* renderer) {
 	if (material->vs == 1) {
-		uniformbuffer_delete(&material->vs_buffer);
+		uniformbuffer_delete(&material->vs_buffer, renderer);
 	}
 	if (material->ps == 1) {
-		uniformbuffer_delete(&material->ps_buffer);
+		uniformbuffer_delete(&material->ps_buffer, renderer);
 	}
 	if (material->textures_cap > 0) {
 		m_free(material->textures, material->textures_cap * sizeof(Texture*));

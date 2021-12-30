@@ -9,8 +9,8 @@ Framebuffer* framebuffer_create(Framebuffer* framebuffer, Renderer* renderer, AA
 	return framebuffer;
 }
 
-void framebuffer_delete(Framebuffer* framebuffer) {
-	aframebuffer_delete(framebuffer->framebuffer);
+void framebuffer_delete(Framebuffer* framebuffer, Renderer* renderer) {
+	aframebuffer_delete(framebuffer->framebuffer, renderer->renderer);
 }
 
 void framebuffer_set_render_targets(Framebuffer* framebuffer, Renderer* renderer, uint* targets, uint targets_size) {

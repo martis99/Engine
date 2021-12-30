@@ -216,17 +216,17 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 	shader_desc.texture_type = VEC4F;
 
 	if (shader_create(&sprite_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_error("Failed to create sprite shader");
+		renderer->callbacks.on_error("Failed to create sprite shader", NULL);
 		return NULL;
 	}
 
 	if (material_create(&sprite_renderer->material, renderer, &sprite_renderer->shader) == NULL) {
-		log_error("Failed to create sprite material");
+		renderer->callbacks.on_error("Failed to create sprite material", NULL);
 		return NULL;
 	}
 
 	if (batch_renderer_create(&sprite_renderer->batch_renderer, renderer, &sprite_renderer->material) == NULL) {
-		log_error("Failed to create sprite batch renderer");
+		renderer->callbacks.on_error("Failed to create sprite batch renderer", NULL);
 		return NULL;
 	}
 
@@ -234,8 +234,8 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 }
 
 void sprite_renderer_delete(SpriteRenderer* sprite_renderer) {
-	material_delete(&sprite_renderer->material);
-	shader_delete(&sprite_renderer->shader);
+	material_delete(&sprite_renderer->material, sprite_renderer->batch_renderer.renderer);
+	shader_delete(&sprite_renderer->shader, sprite_renderer->batch_renderer.renderer);
 	batch_renderer_delete(&sprite_renderer->batch_renderer);
 }
 

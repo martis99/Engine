@@ -24,13 +24,13 @@ Assets* assets_create(Assets* assets, Renderer* renderer) {
 }
 
 void assets_delete(Assets* assets) {
-	dic_delete(assets->shaders, shader_delete);
-	dic_delete(assets->meshes, mesh_delete);
-	dic_delete(assets->materials, material_delete);
+	dic_delete_arg(assets->shaders, shader_delete, assets->renderer);
+	dic_delete_arg(assets->meshes, mesh_delete, assets->renderer);
+	dic_delete_arg(assets->materials, material_delete, assets->renderer);
 	dic_delete(assets->images, image_delete);
-	dic_delete(assets->textures, texture_delete);
-	dic_delete(assets->fonts, font_delete);
-	dic_delete(assets->models, model_delete);
+	dic_delete_arg(assets->textures, texture_delete, assets->renderer);
+	dic_delete_arg(assets->fonts, font_delete, assets->renderer);
+	dic_delete_arg(assets->models, model_delete, assets->renderer);
 }
 
 Shader* assets_shader_create(Assets* assets, const char* name, const char* vertex_source, const char* fragment_source, AShaderDesc desc) {

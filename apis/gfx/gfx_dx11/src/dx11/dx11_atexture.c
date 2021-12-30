@@ -12,21 +12,21 @@ ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int w
 	case 4: format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
 	}
 
-	texture->texture = dx11_texture_create(renderer->device, width, height, format, 0, 1, 0, data, width * channels * sizeof(unsigned char));
+	texture->texture = dx11_texture_create(renderer->error, renderer->device, width, height, format, 0, 1, 0, data, width * channels * sizeof(unsigned char));
 	if (texture->texture == NULL) {
-		log_error("Failed to create texture");
+		renderer->error->callbacks.on_error("Failed to create texture", NULL);
 		return NULL;
 	}
 
-	texture->srv = dx11_srv_create(renderer->device, format, texture->texture);
+	texture->srv = dx11_srv_create(renderer->error, renderer->device, format, texture->texture);
 	if (texture->srv == NULL) {
-		log_error("Failed to create shader resource view");
+		renderer->error->callbacks.on_error("Failed to create shader resource view", NULL);
 		return NULL;
 	}
 
-	texture->ss = dx11_ss_create(renderer->device, dx11_afilter(filter), dx11_awrap(wrap));
+	texture->ss = dx11_ss_create(renderer->error, renderer->device, dx11_afilter(filter), dx11_awrap(wrap));
 	if (texture->ss == NULL) {
-		log_error("Failed to create sampler state");
+		renderer->error->callbacks.on_error("Failed to create sampler state", NULL);
 		return NULL;
 	}
 
@@ -38,7 +38,7 @@ void atexture_bind(ATexture* texture, ARenderer* renderer, uint slot) {
 	dx11_ss_bind(texture->ss, renderer->context, slot);
 }
 
-void atexture_delete(ATexture* texture) {
+void atexture_delete(ATexture* texture, ARenderer* renderer) {
 	if (texture->texture != NULL) {
 		dx11_texture_delete(texture->texture);
 		texture->texture = NULL;

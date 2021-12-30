@@ -8,6 +8,7 @@ ARenderer* arenderer_create(AContext* context) {
 	renderer->device = context->device;
 	renderer->context = context->context;
 	renderer->acontext = context;
+	renderer->error = &context->error;
 
 	D3D11_VIEWPORT vp;
 	vp.Width = 1600;
@@ -18,63 +19,63 @@ ARenderer* arenderer_create(AContext* context) {
 	vp.TopLeftY = 0;
 	renderer->context->lpVtbl->RSSetViewports(renderer->context, 1, &vp);
 
-	renderer->depth_stencil = dx11_depth_stencil_create(renderer->device, FALSE, FALSE);
+	renderer->depth_stencil = dx11_depth_stencil_create(&context->error, renderer->device, FALSE, FALSE);
 	if (renderer->depth_stencil == NULL) {
-		log_error("Failed to create depth stencil");
+		renderer->error->callbacks.on_error("Failed to create depth stencil", NULL);
 		return NULL;
 	}
 
-	renderer->depth_stencil_depth = dx11_depth_stencil_create(renderer->device, TRUE, FALSE);
+	renderer->depth_stencil_depth = dx11_depth_stencil_create(&context->error, renderer->device, TRUE, FALSE);
 	if (renderer->depth_stencil_depth == NULL) {
-		log_error("Failed to create depth stencil depth");
+		renderer->error->callbacks.on_error("Failed to create depth stencil depth", NULL);
 		return NULL;
 	}
 
-	renderer->depth_stencil_stencil = dx11_depth_stencil_create(renderer->device, FALSE, TRUE);
+	renderer->depth_stencil_stencil = dx11_depth_stencil_create(&context->error, renderer->device, FALSE, TRUE);
 	if (renderer->depth_stencil_stencil == NULL) {
-		log_error("Failed to create depth stencil stencil");
+		renderer->error->callbacks.on_error("Failed to create depth stencil stencil", NULL);
 		return NULL;
 	}
 
-	renderer->depth_stencil_depth_stencil = dx11_depth_stencil_create(renderer->device, TRUE, TRUE);
+	renderer->depth_stencil_depth_stencil = dx11_depth_stencil_create(&context->error, renderer->device, TRUE, TRUE);
 	if (renderer->depth_stencil_depth_stencil == NULL) {
-		log_error("Failed to create depth stencil depth stencil");
+		renderer->error->callbacks.on_error("Failed to create depth stencil depth stencil", NULL);
 		return NULL;
 	}
 
-	renderer->rasterizer_solid_none = dx11_resterizer_create(renderer->device, D3D11_FILL_SOLID, D3D11_CULL_NONE);
+	renderer->rasterizer_solid_none = dx11_resterizer_create(&context->error, renderer->device, D3D11_FILL_SOLID, D3D11_CULL_NONE);
 	if (renderer->rasterizer_solid_none == NULL) {
-		log_error("Failed to create rasterizer solid none");
+		renderer->error->callbacks.on_error("Failed to create rasterizer solid none", NULL);
 		return NULL;
 	}
 
-	renderer->rasterizer_solid_back = dx11_resterizer_create(renderer->device, D3D11_FILL_SOLID, D3D11_CULL_BACK);
+	renderer->rasterizer_solid_back = dx11_resterizer_create(&context->error, renderer->device, D3D11_FILL_SOLID, D3D11_CULL_BACK);
 	if (renderer->rasterizer_solid_back == NULL) {
-		log_error("Failed to create rasterizer solid back");
+		renderer->error->callbacks.on_error("Failed to create rasterizer solid back", NULL);
 		return NULL;
 	}
 
-	renderer->rasterizer_wireframe_none = dx11_resterizer_create(renderer->device, D3D11_FILL_WIREFRAME, D3D11_CULL_NONE);
+	renderer->rasterizer_wireframe_none = dx11_resterizer_create(&context->error, renderer->device, D3D11_FILL_WIREFRAME, D3D11_CULL_NONE);
 	if (renderer->rasterizer_wireframe_none == NULL) {
-		log_error("Failed to create rasterizer wireframe none");
+		renderer->error->callbacks.on_error("Failed to create rasterizer wireframe none", NULL);
 		return NULL;
 	}
 
-	renderer->rasterizer_wireframe_back = dx11_resterizer_create(renderer->device, D3D11_FILL_WIREFRAME, D3D11_CULL_BACK);
+	renderer->rasterizer_wireframe_back = dx11_resterizer_create(&context->error, renderer->device, D3D11_FILL_WIREFRAME, D3D11_CULL_BACK);
 	if (renderer->rasterizer_wireframe_back == NULL) {
-		log_error("Failed to create rasterizer wireframe back");
+		renderer->error->callbacks.on_error("Failed to create rasterizer wireframe back", NULL);
 		return NULL;
 	}
 
-	renderer->blend_enabled = dx11_blend_create(renderer->device, TRUE);
+	renderer->blend_enabled = dx11_blend_create(&context->error, renderer->device, TRUE);
 	if (renderer->blend_enabled == NULL) {
-		log_error("Failed to create blend enabled");
+		renderer->error->callbacks.on_error("Failed to create blend enabled", NULL);
 		return NULL;
 	}
 
-	renderer->blend_disabled = dx11_blend_create(renderer->device, FALSE);
+	renderer->blend_disabled = dx11_blend_create(&context->error, renderer->device, FALSE);
 	if (renderer->blend_disabled == NULL) {
-		log_error("Failed to create blend disabled");
+		renderer->error->callbacks.on_error("Failed to create blend disabled", NULL);
 		return NULL;
 	}
 

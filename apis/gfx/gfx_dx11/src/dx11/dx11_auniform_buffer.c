@@ -4,9 +4,9 @@
 
 AUniformBuffer* auniformbuffer_create_static(ARenderer* renderer, uint slot, uint data_size, const void* data) {
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));
-	uniform_buffer->buffer = dx11_cb_create_static(renderer->device, data, data_size);
+	uniform_buffer->buffer = dx11_cb_create_static(renderer->error, renderer->device, data, data_size);
 	if (uniform_buffer->buffer == NULL) {
-		log_error("Failed to create static constant buffer");
+		renderer->error->callbacks.on_error("Failed to create static constant buffer", NULL);
 		return NULL;
 	}
 	uniform_buffer->slot = slot;
@@ -15,16 +15,16 @@ AUniformBuffer* auniformbuffer_create_static(ARenderer* renderer, uint slot, uin
 
 AUniformBuffer* auniformbuffer_create_dynamic(ARenderer* renderer, uint slot, uint data_size) {
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));
-	uniform_buffer->buffer = dx11_cb_create_dynamic(renderer->device, data_size);
+	uniform_buffer->buffer = dx11_cb_create_dynamic(renderer->error, renderer->device, data_size);
 	if (uniform_buffer->buffer == NULL) {
-		log_error("Failed to create dynamic constant buffer");
+		renderer->error->callbacks.on_error("Failed to create dynamic constant buffer", NULL);
 		return NULL;
 	}
 	uniform_buffer->slot = slot;
 	return uniform_buffer;
 }
 
-void auniformbuffer_delete(AUniformBuffer* uniform_buffer) {
+void auniformbuffer_delete(AUniformBuffer* uniform_buffer, ARenderer* renderer) {
 	if (uniform_buffer->buffer != NULL) {
 		dx11_cb_delete(uniform_buffer->buffer);
 		uniform_buffer->buffer = NULL;
@@ -33,7 +33,7 @@ void auniformbuffer_delete(AUniformBuffer* uniform_buffer) {
 }
 
 void auniformbuffer_upload(AUniformBuffer* uniform_buffer, ARenderer* renderer, const void* data, uint data_size) {
-	dx11_cb_set_data(uniform_buffer->buffer, renderer->context, data, data_size);
+	dx11_cb_set_data(renderer->error, uniform_buffer->buffer, renderer->context, data, data_size);
 }
 
 void auniformbuffer_bind_vs(AUniformBuffer* uniform_buffer, ARenderer* renderer) {

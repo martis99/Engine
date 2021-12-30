@@ -98,7 +98,7 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 	shader_desc.texture_type = VEC4F;
 
 	if (shader_create(&mesh_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_error("Failed to create mesh shader");
+		renderer->callbacks.on_error("Failed to create mesh shader", NULL);
 		return NULL;
 	}
 
@@ -106,7 +106,7 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 }
 
 void mesh_renderer_delete(MeshRenderer* mesh_renderer) {
-	shader_delete(&mesh_renderer->shader);
+	shader_delete(&mesh_renderer->shader, mesh_renderer->renderer);
 }
 
 void mesh_renderer_begin(MeshRenderer* mesh_renderer) {

@@ -23,21 +23,21 @@ ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int w
 		format = GL_RED;
 	}
 
-	texture->id = gl_texture_create(gl_awrap(wrap), gl_afilter(filter), width, height, internal_format, format, type, data, 1);
+	texture->id = gl_texture_create(renderer->error, gl_awrap(wrap), gl_afilter(filter), width, height, internal_format, format, type, data, 1);
 	if (texture->id == 0) {
-		log_error("Failed to create texture");
+		renderer->error->callbacks.on_error("Failed to create texture", NULL);
 		return NULL;
 	}
 	return texture;
 }
 
 void atexture_bind(ATexture* texture, ARenderer* renderer, uint slot) {
-	gl_texture_bind(texture->id, slot);
+	gl_texture_bind(renderer->error, texture->id, slot);
 }
 
-void atexture_delete(ATexture* texture) {
+void atexture_delete(ATexture* texture, ARenderer* renderer) {
 	if (texture->id != 0) {
-		gl_texture_delete(texture->id);
+		gl_texture_delete(renderer->error, texture->id);
 		texture->id = 0;
 	}
 	m_free(texture, sizeof(ATexture));

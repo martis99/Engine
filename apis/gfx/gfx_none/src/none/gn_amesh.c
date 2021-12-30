@@ -6,7 +6,7 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 	return mesh;
 }
 
-void amesh_delete(AMesh* mesh) {
+void amesh_delete(AMesh* mesh, ARenderer* renderer) {
 	m_free(mesh, sizeof(AMesh));
 }
 

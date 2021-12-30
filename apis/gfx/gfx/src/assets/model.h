@@ -2,7 +2,7 @@
 #include "gfx_types.h"
 
 Model* model_create(Model* model);
-void model_delete(Model* model);
+void model_delete(Model* model, Renderer* renderer);
 
 void model_draw(Model* model, Renderer* renderer, Shader* shader, mat4 transformation, int entity);
 

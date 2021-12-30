@@ -3,45 +3,36 @@
 #include "app.h"
 #include "utils/str.h"
 
-static GLint s_max_len;
-static GLint s_max_count;
-static GLenum* s_sources;
-static GLenum* s_types;
-static GLuint* s_ids;
-static GLenum* s_severities;
-static GLsizei* s_lengths;
-
-static Str s_msgs;
-static Str s_text;
-static Str s_info;
-
-void gl_error_create() {
+GLError* gl_error_create(GLError* error, AErrorCallbacks* callbacks) {
+	error->callbacks = *callbacks;
 #ifdef _DEBUG
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if ((flags & GL_CONTEXT_FLAG_DEBUG_BIT) == 0) {
-		show_error("Debugging is disabled", "Error");
-		return;
+		callbacks->on_error("Debugging is disabled", "Error");
+		return NULL;
 	}
 #endif
 
-	s_max_len = 0;
-	glGetIntegerv(GL_MAX_DEBUG_MESSAGE_LENGTH, &s_max_len);
-	s_max_count = 0;
-	glGetIntegerv(GL_MAX_DEBUG_LOGGED_MESSAGES, &s_max_count);
+	error->max_len = 0;
+	glGetIntegerv(GL_MAX_DEBUG_MESSAGE_LENGTH, &error->max_len);
+	error->max_count = 0;
+	glGetIntegerv(GL_MAX_DEBUG_LOGGED_MESSAGES, &error->max_count);
 
-	s_sources = m_malloc(s_max_count * sizeof(GLenum));
-	s_types = m_malloc(s_max_count * sizeof(GLenum));
-	s_ids = m_malloc(s_max_count * sizeof(GLuint));
-	s_severities = m_malloc(s_max_count * sizeof(GLenum));
-	s_lengths = m_malloc(s_max_count * sizeof(GLsizei));
+	error->sources = m_malloc(error->max_count * sizeof(GLenum));
+	error->types = m_malloc(error->max_count * sizeof(GLenum));
+	error->ids = m_malloc(error->max_count * sizeof(GLuint));
+	error->severities = m_malloc(error->max_count * sizeof(GLenum));
+	error->lengths = m_malloc(error->max_count * sizeof(GLsizei));
 
-	str_create(&s_msgs, s_max_count * s_max_len);
-	str_create(&s_text, 2048);
-	str_create(&s_info, 2048);
+	str_create(&error->msgs, error->max_count * error->max_len);
+	str_create(&error->text, 2048);
+	str_create(&error->info, 2048);
+
+	return error;
 }
 
-void gl_error_begin() {
+void gl_error_begin(GLError* error) {
 
 }
 
@@ -70,61 +61,61 @@ static const char* get_type(GLenum type) {
 	return "";
 }
 
-static char* get_info(GLuint num_msgs) {
-	str_zero(&s_info);
+static char* get_info(GLError* error, GLuint num_msgs) {
+	str_zero(&error->info);
 
 	GLuint curpos = 0;
 	for (GLuint i = 0; i < num_msgs; i++) {
-		printf("Id: 0x%X\n", s_ids[i]);
-		str_catf(&s_info, "%s %s %u: ", get_severity(s_severities[i]), get_type(s_types[i]), s_ids[i]);
-		str_cats(&s_info, str_view(&s_msgs, curpos, s_lengths[i]));
-		str_nl(&s_info);
-		curpos += s_lengths[i];
+		printf("Id: 0x%X\n", error->ids[i]);
+		str_catf(&error->info, "%s %s %u: ", get_severity(error->severities[i]), get_type(error->types[i]), error->ids[i]);
+		str_cats(&error->info, str_view(&error->msgs, curpos, error->lengths[i]));
+		str_nl(&error->info);
+		curpos += error->lengths[i];
 	}
-	return s_info.data;
+	return error->info.data;
 }
 
-bool gl_error_failed(const char* msg, const char* fn, const char* file, int line) {
-	GLuint num_msgs = glGetDebugMessageLog(s_max_count, s_msgs.count, s_sources, s_types, s_ids, s_severities, s_lengths, s_msgs.data);
+bool gl_error_failed(GLError* error, const char* msg, const char* fn, const char* file, int line) {
+	GLuint num_msgs = glGetDebugMessageLog(error->max_count, error->msgs.count, error->sources, error->types, error->ids, error->severities, error->lengths, error->msgs.data);
 	if (num_msgs > 0) {
-		str_zero(&s_text);
+		str_zero(&error->text);
 
-		str_catf(&s_text,
+		str_catf(&error->text,
 			"%s\n"
 			"INFO:\n%s\n"
 			"%s: %i\n",
-			fn, get_info(num_msgs), file, line);
+			fn, get_info(error, num_msgs), file, line);
 
-		show_error(s_text.data, msg);
+		error->callbacks.on_error(error->text.data, msg);
 		return 0;
 	}
 	return 1;
 }
 
-bool gl_error_assert(const char* fn, const char* file, int line) {
-	GLuint num_msgs = glGetDebugMessageLog(s_max_count, s_msgs.count, s_sources, s_types, s_ids, s_severities, s_lengths, s_msgs.data);
+bool gl_error_assert(GLError* error, const char* fn, const char* file, int line) {
+	GLuint num_msgs = glGetDebugMessageLog(error->max_count, error->msgs.count, error->sources, error->types, error->ids, error->severities, error->lengths, error->msgs.data);
 	if (num_msgs > 0) {
-		str_zero(&s_text);
+		str_zero(&error->text);
 
-		str_catf(&s_text,
+		str_catf(&error->text,
 			"%s\n"
 			"INFO:\n%s\n"
 			"%s: %i\n",
-			fn, get_info(num_msgs), file, line);
+			fn, get_info(error, num_msgs), file, line);
 
-		show_error(s_text.data, "Error");
+		error->callbacks.on_error(error->text.data, "Error");
 		return 0;
 	}
 	return 1;
 }
 
-void gl_error_delete() {
-	m_free(s_sources, s_max_count * sizeof(GLenum));
-	m_free(s_types, s_max_count * sizeof(GLenum));
-	m_free(s_ids, s_max_count * sizeof(GLuint));
-	m_free(s_severities, s_max_count * sizeof(GLenum));
-	m_free(s_lengths, s_max_count * sizeof(GLsizei));
-	str_delete(&s_msgs);
-	str_delete(&s_text);
-	str_delete(&s_info);
+void gl_error_delete(GLError* error) {
+	m_free(error->sources, error->max_count * sizeof(GLenum));
+	m_free(error->types, error->max_count * sizeof(GLenum));
+	m_free(error->ids, error->max_count * sizeof(GLuint));
+	m_free(error->severities, error->max_count * sizeof(GLenum));
+	m_free(error->lengths, error->max_count * sizeof(GLsizei));
+	str_delete(&error->msgs);
+	str_delete(&error->text);
+	str_delete(&error->info);
 }

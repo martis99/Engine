@@ -17,6 +17,6 @@ void texture_bind(Texture* texture, Renderer* renderer, int slot) {
 	atexture_bind(texture->texture, renderer->renderer, slot);
 }
 
-void texture_delete(Texture* texture) {
-	atexture_delete(texture->texture);
+void texture_delete(Texture* texture, Renderer* renderer) {
+	atexture_delete(texture->texture, renderer->renderer);
 }

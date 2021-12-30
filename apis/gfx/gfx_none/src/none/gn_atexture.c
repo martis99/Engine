@@ -10,6 +10,6 @@ void atexture_bind(ATexture* texture, ARenderer* renderer, uint slot) {
 
 }
 
-void atexture_delete(ATexture* texture) {
+void atexture_delete(ATexture* texture, ARenderer* renderer) {
 	m_free(texture, sizeof(ATexture));
 }

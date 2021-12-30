@@ -7,14 +7,14 @@
 #include "gl/gl_buffer.h"
 #include "gl/gl_texture.h"
 
-GLuint create_depth_stencil_attachment(GLsizei width, GLsizei height) {
-	GLuint texture = gl_texture_create(0, 0, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, 0);
+static GLuint create_depth_stencil_attachment(ARenderer* renderer, GLsizei width, GLsizei height) {
+	GLuint texture = gl_texture_create(renderer->error, 0, 0, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, 0);
 	if (texture == 0) {
-		log_error("Failed to create depth stencil texture");
+		renderer->error->callbacks.on_error("Failed to create depth stencil texture", NULL);
 		return 0;
 	}
-	if (gl_fb_attach_texture(GL_DEPTH_STENCIL_ATTACHMENT, texture) == A_FAIL) {
-		log_error("Failed to attach texture");
+	if (gl_fb_attach_texture(renderer->error, GL_DEPTH_STENCIL_ATTACHMENT, texture) == A_FAIL) {
+		renderer->error->callbacks.on_error("Failed to attach texture", NULL);
 		return 0;
 	}
 	return texture;
@@ -24,9 +24,9 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	AFramebuffer* framebuffer = m_malloc(sizeof(AFramebuffer));
 	framebuffer->height = height;
 
-	framebuffer->fb = gl_fb_create();
+	framebuffer->fb = gl_fb_create(renderer->error);
 	if (framebuffer->fb == 0) {
-		log_error("Failed to create framebuffer");
+		renderer->error->callbacks.on_error("Failed to create framebuffer", NULL);
 		return NULL;
 	}
 
@@ -34,21 +34,21 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	framebuffer->attachments = m_malloc(framebuffer->attachments_count * sizeof(GLAttachment*));
 
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
-		framebuffer->attachments[i] = gl_attachment_create(attachments[i], width, height, i);
+		framebuffer->attachments[i] = gl_attachment_create(renderer, attachments[i], width, height, i);
 		if (framebuffer->attachments[i] == NULL) {
-			log_error("Failed to create attachment");
+			renderer->error->callbacks.on_error("Failed to create attachment", NULL);
 			return NULL;
 		}
 	}
 
-	framebuffer->depth_stencil = create_depth_stencil_attachment(width, height);
+	framebuffer->depth_stencil = create_depth_stencil_attachment(renderer, width, height);
 	if (framebuffer->depth_stencil == 0) {
-		log_error("Failed to create depth stencil attachment");
+		renderer->error->callbacks.on_error("Failed to create depth stencil attachment", NULL);
 		return NULL;
 	}
 
-	if (gl_fb_check_status(framebuffer->fb) == 0) {
-		log_error("Framebuffer is not complete");
+	if (gl_fb_check_status(renderer->error, framebuffer->fb) == 0) {
+		renderer->error->callbacks.on_error("Framebuffer is not complete", NULL);
 		return NULL;
 	}
 
@@ -73,7 +73,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 
 	framebuffer->shader = ashader_create(renderer, src_vert, src_frag, "Texture", 1);
 	if (framebuffer->shader == NULL) {
-		log_error("Failed to create shader");
+		renderer->error->callbacks.on_error("Failed to create shader", NULL);
 		return NULL;
 	}
 
@@ -120,29 +120,29 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 
 	framebuffer->mesh = amesh_create(renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
 	if (framebuffer->mesh == NULL) {
-		log_error("Failed to create mesh");
+		renderer->error->callbacks.on_error("Failed to create mesh", NULL);
 		return NULL;
 	}
 
 	return framebuffer;
 }
 
-void aframebuffer_delete(AFramebuffer* framebuffer) {
+void aframebuffer_delete(AFramebuffer* framebuffer, ARenderer* renderer) {
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
-		gl_attachment_delete(framebuffer->attachments[i]);
+		gl_attachment_delete(framebuffer->attachments[i], renderer);
 	}
 	m_free(framebuffer->attachments, framebuffer->attachments_count * sizeof(GLAttachment*));
 
 	if (framebuffer->depth_stencil != 0) {
-		gl_texture_delete(framebuffer->depth_stencil);
+		gl_texture_delete(renderer->error, framebuffer->depth_stencil);
 		framebuffer->depth_stencil = 0;
 	}
 
-	amesh_delete(framebuffer->mesh);
-	ashader_delete(framebuffer->shader);
+	amesh_delete(framebuffer->mesh, renderer);
+	ashader_delete(framebuffer->shader, renderer);
 
 	if (framebuffer->fb != 0) {
-		gl_fb_delete(framebuffer->fb);
+		gl_fb_delete(renderer->error, framebuffer->fb);
 		framebuffer->fb = 0;
 	}
 
@@ -156,30 +156,30 @@ void aframebuffer_set_render_targets(AFramebuffer* framebuffer, ARenderer* rende
 		buffers[i] = framebuffer->attachments[targets[i]]->target;
 		framebuffer->attachments[targets[i]]->slot = i;
 	}
-	gl_draw_buffers(targets_count, buffers);
+	gl_draw_buffers(renderer->error, targets_count, buffers);
 }
 
 void aframebuffer_clear_attachment(AFramebuffer* framebuffer, ARenderer* renderer, uint id, const void* value) {
-	gl_attachment_clear(framebuffer->attachments[id], framebuffer->attachments[id]->slot, value);
+	gl_attachment_clear(renderer, framebuffer->attachments[id], framebuffer->attachments[id]->slot, value);
 }
 
 void aframebuffer_clear_depth_attachment(AFramebuffer* framebuffer, ARenderer* renderer, const void* value) {
-	gl_dsb_clear(1, 0);
+	gl_dsb_clear(renderer->error, 1, 0);
 }
 
 void aframebuffer_read_pixel(AFramebuffer* framebuffer, ARenderer* renderer, uint id, int x, int y, void* pixel) {
-	gl_attachment_read_pixel(framebuffer->attachments[id], x, framebuffer->height - y, pixel);
+	gl_attachment_read_pixel(renderer, framebuffer->attachments[id], x, framebuffer->height - y, pixel);
 }
 
 void aframebuffer_draw(AFramebuffer* framebuffer, ARenderer* renderer, uint id) {
-	gl_fb_bind(0);
+	gl_fb_bind(renderer->error, 0);
 
-	gl_clear(0, 0, 0, 1, 1);
+	gl_clear(renderer->error, 0, 0, 0, 1, 1);
 
 	ashader_bind(framebuffer->shader, renderer);
-	gl_attachment_bind(framebuffer->attachments[id], 0);
+	gl_attachment_bind(renderer, framebuffer->attachments[id], 0);
 	amesh_draw(framebuffer->mesh, renderer, 0xFFFFFFFF);
-	gl_attachment_unbind(framebuffer->attachments[id], 0);
+	gl_attachment_unbind(renderer, framebuffer->attachments[id], 0);
 
-	gl_fb_bind(framebuffer->fb);
+	gl_fb_bind(renderer->error, framebuffer->fb);
 }

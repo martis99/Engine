@@ -106,14 +106,14 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 	shader_desc.texture_type = VEC4F;
 
 	if (shader_create(&instance_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_error("Failed to create mesh shader");
+		renderer->callbacks.on_error("Failed to create mesh shader", NULL);
 		return NULL;
 	}
 	return instance_renderer;
 }
 
 void instance_renderer_delete(InstanceRenderer* instance_renderer) {
-	shader_delete(&instance_renderer->shader);
+	shader_delete(&instance_renderer->shader, instance_renderer->renderer);
 }
 
 void instance_renderer_begin(InstanceRenderer* instance_renderer) {

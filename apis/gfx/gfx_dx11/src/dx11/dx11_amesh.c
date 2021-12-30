@@ -5,10 +5,10 @@
 static ID3D11Buffer* create_vertex_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* desc, ABufferData data) {
 	mesh->vertex_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
-		mesh->vertices = dx11_vb_create_dynamic(renderer->device, desc->max_count * mesh->vertex_size, mesh->vertex_size);
+		mesh->vertices = dx11_vb_create_dynamic(renderer->error, renderer->device, desc->max_count * mesh->vertex_size, mesh->vertex_size);
 		mesh->vertices_count = 0;
 	} else {
-		mesh->vertices = dx11_vb_create_static(renderer->device, data.data, data.size, mesh->vertex_size);
+		mesh->vertices = dx11_vb_create_static(renderer->error, renderer->device, data.data, data.size, mesh->vertex_size);
 		mesh->vertices_count = data.size / mesh->vertex_size;
 	}
 	return mesh->vertices;
@@ -17,10 +17,10 @@ static ID3D11Buffer* create_vertex_buffer(ARenderer* renderer, AMesh* mesh, ABuf
 static ID3D11Buffer* create_instance_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* desc, ABufferData data) {
 	mesh->instance_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
-		mesh->instances = dx11_vb_create_dynamic(renderer->device, desc->max_count * mesh->instance_size, mesh->instance_size);
+		mesh->instances = dx11_vb_create_dynamic(renderer->error, renderer->device, desc->max_count * mesh->instance_size, mesh->instance_size);
 		mesh->instances_count = 0;
 	} else {
-		mesh->instances = dx11_vb_create_static(renderer->device, data.data, data.size, mesh->instance_size);
+		mesh->instances = dx11_vb_create_static(renderer->error, renderer->device, data.data, data.size, mesh->instance_size);
 		mesh->instances_count = data.size / mesh->instance_size;
 	}
 	return mesh->instances;
@@ -29,10 +29,10 @@ static ID3D11Buffer* create_instance_buffer(ARenderer* renderer, AMesh* mesh, AB
 static ID3D11Buffer* create_index_buffer(ARenderer* renderer, AMesh* mesh, ABufferDesc* desc, ABufferData data) {
 	mesh->index_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
-		mesh->indices = dx11_ib_create_dynamic(renderer->device, desc->max_count * mesh->index_size, mesh->index_size);
+		mesh->indices = dx11_ib_create_dynamic(renderer->error, renderer->device, desc->max_count * mesh->index_size, mesh->index_size);
 		mesh->indices_count = 0;
 	} else {
-		mesh->indices = dx11_ib_create_static(renderer->device, data.data, data.size, mesh->index_size);
+		mesh->indices = dx11_ib_create_static(renderer->error, renderer->device, data.data, data.size, mesh->index_size);
 		mesh->indices_count = data.size / mesh->index_size;
 	}
 	mesh->index_format = dx11_atype_format(desc->values[0].type);
@@ -64,7 +64,7 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 
 	if (vertices_desc != NULL) {
 		if (create_vertex_buffer(renderer, mesh, vertices_desc, data.vertices) == NULL) {
-			log_error("Failed to create vertex buffer");
+			renderer->error->callbacks.on_error("Failed to create vertex buffer", NULL);
 			return NULL;
 		}
 		add_layout(ied, vertices_desc, &index, 0, D3D11_INPUT_PER_VERTEX_DATA, 0);
@@ -72,7 +72,7 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 
 	if (instances_desc != NULL) {
 		if (create_instance_buffer(renderer, mesh, instances_desc, data.instances) == NULL) {
-			log_error("Failed to create instance buffer");
+			renderer->error->callbacks.on_error("Failed to create instance buffer", NULL);
 			return NULL;
 		}
 		add_layout(ied, instances_desc, &index, 1, D3D11_INPUT_PER_INSTANCE_DATA, 1);
@@ -80,14 +80,14 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 
 	if (indices_desc != NULL) {
 		if (create_index_buffer(renderer, mesh, indices_desc, data.indices) == NULL) {
-			log_error("Failed to create indices buffer");
+			renderer->error->callbacks.on_error("Failed to create indices buffer", NULL);
 			return NULL;
 		}
 	}
 
-	mesh->layout = dx11_il_create(renderer->device, ied, num_elements, shader->vs_blob);
+	mesh->layout = dx11_il_create(renderer->error, renderer->device, ied, num_elements, shader->vs_blob);
 	if (mesh->layout == NULL) {
-		log_error("Failed to create input layout");
+		renderer->error->callbacks.on_error("Failed to create input layout", NULL);
 		return NULL;
 	}
 	m_free(ied, num_elements * sizeof(D3D11_INPUT_ELEMENT_DESC));
@@ -97,7 +97,7 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 	return mesh;
 }
 
-void amesh_delete(AMesh* mesh) {
+void amesh_delete(AMesh* mesh, ARenderer* renderer) {
 	if (mesh->vertices != NULL) {
 		dx11_vb_delete(mesh->vertices);
 		mesh->vertices = NULL;
@@ -121,7 +121,7 @@ void amesh_set_vertices(AMesh* mesh, ARenderer* renderer, const void* vertices, 
 	if (mesh->vertices == NULL) {
 		return;
 	}
-	dx11_vb_set_data(mesh->vertices, renderer->context, vertices, vertices_size);
+	dx11_vb_set_data(renderer->error, mesh->vertices, renderer->context, vertices, vertices_size);
 	mesh->vertices_count = vertices_size / mesh->vertex_size;
 }
 
@@ -129,7 +129,7 @@ void amesh_set_instances(AMesh* mesh, ARenderer* renderer, const void* instances
 	if (mesh->instances == NULL) {
 		return;
 	}
-	dx11_vb_set_data(mesh->instances, renderer->context, instances, instances_size);
+	dx11_vb_set_data(renderer->error, mesh->instances, renderer->context, instances, instances_size);
 	mesh->instances_count = instances_size / mesh->instance_size;
 }
 
@@ -137,7 +137,7 @@ void amesh_set_indices(AMesh* mesh, ARenderer* renderer, const void* indices, ui
 	if (mesh->indices == NULL) {
 		return;
 	}
-	dx11_ib_set_data(mesh->indices, renderer->context, indices, indices_size);
+	dx11_ib_set_data(renderer->error, mesh->indices, renderer->context, indices, indices_size);
 	mesh->indices_count = indices_size / mesh->index_size;
 }
 

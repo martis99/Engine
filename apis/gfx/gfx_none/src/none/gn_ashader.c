@@ -6,7 +6,7 @@ AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* s
 	return shader;
 }
 
-void ashader_delete(AShader* shader) {
+void ashader_delete(AShader* shader, ARenderer* renderer) {
 	m_free(shader, sizeof(AShader));
 }
 

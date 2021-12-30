@@ -7,36 +7,36 @@ DX11Attachment* dx11_attachment_create(ARenderer* renderer, AAttachmentDesc desc
 
 	DXGI_FORMAT format = dx11_atype_format(desc.type);
 
-	attachment->texture = dx11_texture_create(renderer->device, width, height, format, 1, 1, 0, NULL, 0);
+	attachment->texture = dx11_texture_create(renderer->error, renderer->device, width, height, format, 1, 1, 0, NULL, 0);
 	if (attachment->texture == NULL) {
-		log_error("Failed to create texture");
+		renderer->error->callbacks.on_error("Failed to create texture", NULL);
 		return NULL;
 	}
 
-	attachment->rtv = dx11_rtv_create(renderer->device, format, attachment->texture);
+	attachment->rtv = dx11_rtv_create(renderer->error, renderer->device, format, attachment->texture);
 	if (attachment->rtv == NULL) {
-		log_error("Failed to create render target view");
+		renderer->error->callbacks.on_error("Failed to create render target view", NULL);
 		return NULL;
 	}
 
-	attachment->srv = dx11_srv_create(renderer->device, format, attachment->texture);
+	attachment->srv = dx11_srv_create(renderer->error, renderer->device, format, attachment->texture);
 	if (attachment->srv == NULL) {
-		log_error("Failed to create shader resource view");
+		renderer->error->callbacks.on_error("Failed to create shader resource view", NULL);
 		return NULL;
 	}
 
-	attachment->ss = dx11_ss_create(renderer->device, dx11_afilter(desc.filter), dx11_awrap(desc.wrap));
+	attachment->ss = dx11_ss_create(renderer->error, renderer->device, dx11_afilter(desc.filter), dx11_awrap(desc.wrap));
 	if (attachment->ss == NULL) {
-		log_error("Failed to create sampler state");
+		renderer->error->callbacks.on_error("Failed to create sampler state", NULL);
 		return NULL;
 	}
 
 	if (desc.readable == 0) {
 		attachment->st = NULL;
 	} else {
-		attachment->st = dx11_texture_create(renderer->device, width, height, format, 0, 0, 1, NULL, 0);
+		attachment->st = dx11_texture_create(renderer->error, renderer->device, width, height, format, 0, 0, 1, NULL, 0);
 		if (attachment->st == NULL) {
-			log_error("Failed to create attachment");
+			renderer->error->callbacks.on_error("Failed to create attachment", NULL);
 			return NULL;
 		}
 	}
@@ -86,7 +86,7 @@ void dx11_attachment_clear(DX11Attachment* attachment, ID3D11DeviceContext* cont
 	context->lpVtbl->ClearRenderTargetView(context, attachment->rtv, fvalue);
 }
 
-void dx11_attachment_read_pixel(DX11Attachment* attachment, ID3D11DeviceContext* context, int x, int y, void* pixel) {
+void dx11_attachment_read_pixel(ARenderer* renderer, DX11Attachment* attachment, ID3D11DeviceContext* context, int x, int y, void* pixel) {
 	context->lpVtbl->CopyResource(context, (ID3D11Resource*)attachment->st, (ID3D11Resource*)attachment->texture);
-	dx11_texture_read_pixel(attachment->st, context, x, y, attachment->pixel_size, pixel);
+	dx11_texture_read_pixel(renderer->error, attachment->st, context, x, y, attachment->pixel_size, pixel);
 }

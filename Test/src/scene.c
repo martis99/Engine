@@ -301,6 +301,22 @@ static void mouse_wheel(float delta) {
 	scene_mouse_wheel(s_scene, delta);
 }
 
+static void on_error(const char* text, const char* caption) {
+	if (caption == NULL) {
+		log_error(text);
+	} else {
+		show_error(text, caption);
+	}
+}
+
+static void on_errorw(const wchar* text, const wchar* caption) {
+	if (caption == NULL) {
+		
+	} else {
+		show_errorw(text, caption);
+	}
+}
+
 Scene* scene_create(int width, int height) {
 	Scene* scene = m_malloc(sizeof(Scene));
 	s_scene = scene;
@@ -328,7 +344,11 @@ Scene* scene_create(int width, int height) {
 		return NULL;
 	}
 
-	if (context_create(&scene->context, scene->window.window) == NULL) {
+	AContextCallbacks ctx_callbacks;
+	ctx_callbacks.error_callbacks.on_error = on_error;
+	ctx_callbacks.error_callbacks.on_errorw = on_errorw;
+
+	if (context_create(&scene->context, scene->window.window, &ctx_callbacks) == NULL) {
 		log_error("Failed to create context");
 		return NULL;
 	}
@@ -391,7 +411,7 @@ Scene* scene_create(int width, int height) {
 }
 
 void scene_delete(Scene* scene) {
-	uniformbuffer_delete(&scene->u_camera);
+	uniformbuffer_delete(&scene->u_camera, &scene->renderer);
 
 	mesh_renderer_delete(&scene->mesh_renderer);
 	sprite_renderer_delete(&scene->sprite_renderer);
@@ -401,11 +421,11 @@ void scene_delete(Scene* scene) {
 	for (uint i = 0; i < qr->count; ++i) {
 		instance_component_delete(ecs_get(&scene->ecs, qr->list[i], C_INSTANCE));
 	}
-	instance_renderer_delete(&scene->instance_renderer, &scene->ecs);
+	instance_renderer_delete(&scene->instance_renderer);
 	model_renderer_delete(&scene->model_renderer);
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
-	framebuffer_delete(&scene->framebuffer);
+	framebuffer_delete(&scene->framebuffer, &scene->renderer);
 	renderer_delete(&scene->renderer);
 	context_delete(&scene->context);
 	window_delete(&scene->window);

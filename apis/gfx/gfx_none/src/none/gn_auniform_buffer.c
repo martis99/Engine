@@ -11,7 +11,7 @@ AUniformBuffer* auniformbuffer_create_dynamic(ARenderer* renderer, uint slot, ui
 	return uniform_buffer;
 }
 
-void auniformbuffer_delete(AUniformBuffer* uniform_buffer) {
+void auniformbuffer_delete(AUniformBuffer* uniform_buffer, ARenderer* renderer) {
 	m_free(uniform_buffer, sizeof(AUniformBuffer));
 }
 
