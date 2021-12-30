@@ -3,13 +3,13 @@
 #include "app.h"
 #include "utils/str.h"
 
-GLError* gl_error_create(GLError* error, AErrorCallbacks* callbacks) {
-	error->callbacks = *callbacks;
+GLError* gl_error_create(GLError* error, LogCallbacks* log) {
+	error->log = log;
 #ifdef _DEBUG
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if ((flags & GL_CONTEXT_FLAG_DEBUG_BIT) == 0) {
-		callbacks->on_error("Debugging is disabled", "Error");
+		log_err(error->log, "Debugging is disabled", "Error");
 		return NULL;
 	}
 #endif
@@ -86,7 +86,7 @@ bool gl_error_failed(GLError* error, const char* msg, const char* fn, const char
 			"%s: %i\n",
 			fn, get_info(error, num_msgs), file, line);
 
-		error->callbacks.on_error(error->text.data, msg);
+		log_err(error->log, error->text.data, msg);
 		return 0;
 	}
 	return 1;
@@ -103,7 +103,7 @@ bool gl_error_assert(GLError* error, const char* fn, const char* file, int line)
 			"%s: %i\n",
 			fn, get_info(error, num_msgs), file, line);
 
-		error->callbacks.on_error(error->text.data, "Error");
+		log_err(error->log, error->text.data, "Error");
 		return 0;
 	}
 	return 1;

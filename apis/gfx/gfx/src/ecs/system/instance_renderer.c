@@ -106,7 +106,7 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 	shader_desc.texture_type = VEC4F;
 
 	if (shader_create(&instance_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		renderer->callbacks.on_error("Failed to create mesh shader", NULL);
+		log_msg(renderer->log, "Failed to create mesh shader");
 		return NULL;
 	}
 	return instance_renderer;

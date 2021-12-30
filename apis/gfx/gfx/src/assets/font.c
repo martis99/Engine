@@ -8,7 +8,7 @@ static Font* load_data(Renderer* renderer, Font* font, const char* path, stbtt_f
 	fopen_s(&file, path, "rb");
 
 	if (file == NULL) {
-		renderer->callbacks.on_error("Failed to open font file", NULL);
+		log_msg(renderer->log, "Failed to open font file");
 		return NULL;
 	}
 
@@ -19,7 +19,7 @@ static Font* load_data(Renderer* renderer, Font* font, const char* path, stbtt_f
 	font->data = m_malloc(font->data_size);
 
 	if (font->data == 0) {
-		renderer->callbacks.on_error("Failed to allocate memory", NULL);
+		log_msg(renderer->log, "Failed to allocate memory");
 		return NULL;
 	}
 
@@ -27,7 +27,7 @@ static Font* load_data(Renderer* renderer, Font* font, const char* path, stbtt_f
 	fclose(file);
 
 	if (!stbtt_InitFont(info, font->data, 0)) {
-		renderer->callbacks.on_error("Failed to init TrueType\n", NULL);
+		log_msg(renderer->log, "Failed to init TrueType\n");
 		return NULL;
 	}
 
@@ -119,7 +119,7 @@ static Texture* create_texture(Font* font, Renderer* renderer, float scale, int 
 Font* font_load(Font* font, Renderer* renderer, const char* path, int size) {
 	stbtt_fontinfo info;
 	if (load_data(renderer, font, path, &info) == NULL) {
-		renderer->callbacks.on_error("Failed to load font", NULL);
+		log_msg(renderer->log, "Failed to load font");
 		return NULL;
 	}
 

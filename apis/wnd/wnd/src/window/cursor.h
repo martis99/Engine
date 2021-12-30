@@ -1,7 +1,7 @@
 #pragma once
-#include "types.h"
+#include "wnd_types.h"
 
-Cursor* cursor_create(Cursor* cursor, Window* window, bool enabled);
+Cursor* cursor_create(Cursor* cursor, Window* window, bool enabled, LogCallbacks* log);
 void cursor_delete(Cursor* cursor);
 
 void cursor_confine(Cursor* cursor);

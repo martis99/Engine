@@ -1,9 +1,9 @@
 #include "renderer.h"
 #include "api/gfx/arenderer.h"
 
-Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height) {
-	renderer->renderer = arenderer_create(context->context);
-	renderer->callbacks = context->callbacks.error_callbacks;
+Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height, LogCallbacks* log) {
+	renderer->renderer = arenderer_create(context->context, log);
+	renderer->log = log;
 	if (renderer->renderer == NULL) {
 		return NULL;
 	}

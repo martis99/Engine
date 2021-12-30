@@ -1,7 +1,7 @@
 #pragma once
-#include "api/atypes.h"
+#include "wnd_api_types.h"
 
-ACursor* acursor_create(AWindow* window, byte enabled);
+ACursor* acursor_create(AWindow* window, byte enabled, LogCallbacks* log);
 void acursor_delete(ACursor* cursor);
 
 void acursor_confine(ACursor* cursor);

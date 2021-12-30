@@ -4,19 +4,19 @@
 #include "app.h"
 #include "utils/str.h"
 
-DX11Error* dx11_error_create(DX11Error* error, AErrorCallbacks* callbacks) {
+DX11Error* dx11_error_create(DX11Error* error, LogCallbacks* log) {
 	error->library = LoadLibraryA("dxgidebug.dll");
-	error->callbacks = *callbacks;
+	error->log = log;
 
 	if (error->library == NULL) {
-		error->callbacks.on_error("Failed to load library", "Error");
+		log_err(error->log, "Failed to load library", "Error");
 		return NULL;
 	}
 
 	typedef HRESULT(WINAPI* DXGIGetDebugInterface)(REFIID, void**);
 	DXGIGetDebugInterface debug_interface = (DXGIGetDebugInterface)GetProcAddress(error->library, "DXGIGetDebugInterface");
 	if (debug_interface == NULL) {
-		error->callbacks.on_error("Failed to get process address", "Error");
+		log_err(error->log, "Failed to get process address", "Error");
 		return NULL;
 	}
 
@@ -70,14 +70,14 @@ static char* get_info(DX11Error* error) {
 		SIZE_T messageLength;
 		HRESULT hr = error->info_queue->lpVtbl->GetMessageW(error->info_queue, DXGI_DEBUG_ALL, i, NULL, &messageLength);
 		if (FAILED(hr)) {
-			error->callbacks.on_error("Failed to get message length", "Error");
+			log_err(error->log, "Failed to get message length", "Error");
 			return NULL;
 		}
 
 		DXGI_INFO_QUEUE_MESSAGE* msg = m_malloc(messageLength);
 		hr = error->info_queue->lpVtbl->GetMessageW(error->info_queue, DXGI_DEBUG_ALL, i, msg, &messageLength);
 		if (FAILED(hr)) {
-			error->callbacks.on_error("Failed to get message", "Error");
+			log_err(error->log, "Failed to get message", "Error");
 			return NULL;
 		}
 
@@ -111,7 +111,7 @@ bool dx11_error_failed(DX11Error* error, const char* msg, HRESULT hr, const char
 
 		wstr_zero(&error->caption);
 		wstr_catf(&error->caption, L"%hs", msg);
-		error->callbacks.on_errorw(error->text.data, error->caption.data);
+		log_errw(error->log, error->text.data, error->caption.data);
 		return 0;
 	}
 
@@ -139,7 +139,7 @@ bool dx11_error_assert(DX11Error* error, HRESULT hr, const char* fn, const char*
 #endif
 
 		wstr_zero(&error->caption);
-		error->callbacks.on_errorw(error->text.data, L"Error");
+		log_errw(error->log, error->text.data, L"Error");
 		return 0;
 	}
 

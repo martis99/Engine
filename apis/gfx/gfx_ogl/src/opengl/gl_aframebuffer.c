@@ -10,11 +10,11 @@
 static GLuint create_depth_stencil_attachment(ARenderer* renderer, GLsizei width, GLsizei height) {
 	GLuint texture = gl_texture_create(renderer->error, 0, 0, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, 0);
 	if (texture == 0) {
-		renderer->error->callbacks.on_error("Failed to create depth stencil texture", NULL);
+		log_msg(renderer->log, "Failed to create depth stencil texture");
 		return 0;
 	}
 	if (gl_fb_attach_texture(renderer->error, GL_DEPTH_STENCIL_ATTACHMENT, texture) == A_FAIL) {
-		renderer->error->callbacks.on_error("Failed to attach texture", NULL);
+		log_msg(renderer->log, "Failed to attach texture");
 		return 0;
 	}
 	return texture;
@@ -26,7 +26,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 
 	framebuffer->fb = gl_fb_create(renderer->error);
 	if (framebuffer->fb == 0) {
-		renderer->error->callbacks.on_error("Failed to create framebuffer", NULL);
+		log_msg(renderer->log, "Failed to create framebuffer");
 		return NULL;
 	}
 
@@ -36,19 +36,19 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
 		framebuffer->attachments[i] = gl_attachment_create(renderer, attachments[i], width, height, i);
 		if (framebuffer->attachments[i] == NULL) {
-			renderer->error->callbacks.on_error("Failed to create attachment", NULL);
+			log_msg(renderer->log, "Failed to create attachment");
 			return NULL;
 		}
 	}
 
 	framebuffer->depth_stencil = create_depth_stencil_attachment(renderer, width, height);
 	if (framebuffer->depth_stencil == 0) {
-		renderer->error->callbacks.on_error("Failed to create depth stencil attachment", NULL);
+		log_msg(renderer->log, "Failed to create depth stencil attachment");
 		return NULL;
 	}
 
 	if (gl_fb_check_status(renderer->error, framebuffer->fb) == 0) {
-		renderer->error->callbacks.on_error("Framebuffer is not complete", NULL);
+		log_msg(renderer->log, "Framebuffer is not complete");
 		return NULL;
 	}
 
@@ -73,7 +73,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 
 	framebuffer->shader = ashader_create(renderer, src_vert, src_frag, "Texture", 1);
 	if (framebuffer->shader == NULL) {
-		renderer->error->callbacks.on_error("Failed to create shader", NULL);
+		log_msg(renderer->log, "Failed to create shader");
 		return NULL;
 	}
 
@@ -120,7 +120,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 
 	framebuffer->mesh = amesh_create(renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
 	if (framebuffer->mesh == NULL) {
-		renderer->error->callbacks.on_error("Failed to create mesh", NULL);
+		log_msg(renderer->log, "Failed to create mesh");
 		return NULL;
 	}
 

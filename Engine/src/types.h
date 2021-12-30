@@ -1,5 +1,4 @@
 #pragma once
-#include "api/atypes.h"
 
 typedef struct CameraSettings {
 	float width;
@@ -29,20 +28,6 @@ typedef struct Camera {
 	mat4 projection;
 	mat4 view_projection;
 } Camera;
-
-typedef struct WindowSettings {
-	int width;
-	int height;
-} WindowSettings;
-
-typedef struct Window {
-	AWindow* window;
-	WindowSettings settings;
-} Window;
-
-typedef struct Cursor {
-	ACursor* cursor;
-} Cursor;
 
 typedef struct Scene Scene;;
 

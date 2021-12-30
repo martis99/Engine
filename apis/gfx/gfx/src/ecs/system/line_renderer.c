@@ -95,12 +95,12 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 	shader_desc.buffers_size = sizeof(buffers);
 
 	if (shader_create(&line_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		renderer->callbacks.on_error("Failed to create line shader", NULL);
+		log_msg(renderer->log, "Failed to create line shader");
 		return NULL;
 	}
 
 	if (material_create(&line_renderer->material, renderer, &line_renderer->shader) == NULL) {
-		renderer->callbacks.on_error("Failed to create line material", NULL);
+		log_msg(renderer->log, "Failed to create line material");
 		return NULL;
 	}
 
@@ -109,7 +109,7 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 
 	AMeshData md = { 0 };
 	if (mesh_create(&line_renderer->mesh, renderer, &line_renderer->shader, md, A_LINES) == NULL) {
-		renderer->callbacks.on_error("Failed to create line mesh", NULL);
+		log_msg(renderer->log, "Failed to create line mesh");
 		return NULL;
 	}
 

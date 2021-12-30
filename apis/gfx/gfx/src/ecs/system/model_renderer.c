@@ -122,7 +122,7 @@ ModelRenderer* model_renderer_create(ModelRenderer* model_renderer, Renderer* re
 	shader_desc.texture_type = VEC4F;
 
 	if (shader_create(&model_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		renderer->callbacks.on_error("Failed to create model shader", NULL);
+		log_msg(renderer->log, "Failed to create model shader");
 		return NULL;
 	}
 

@@ -49,7 +49,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	AFramebuffer* framebuffer = m_malloc(sizeof(AFramebuffer));
 
 	if (create_back_buffer_attachment(renderer, &framebuffer->rtv) == NULL) {
-		renderer->error->callbacks.on_error("Failed to create back buffer attachment", NULL);
+		log_msg(renderer->log, "Failed to create back buffer attachment");
 		return NULL;
 	}
 
@@ -59,13 +59,13 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
 		framebuffer->attachments[i] = dx11_attachment_create(renderer, attachments[i], width, height);
 		if (framebuffer->attachments[i] == NULL) {
-			renderer->error->callbacks.on_error("Failed to create attachment", NULL);
+			log_msg(renderer->log, "Failed to create attachment");
 			return NULL;
 		}
 	}
 
 	if (create_depth_stencil_attachment(renderer, width, height, &framebuffer->dst, &framebuffer->dsv) == NULL) {
-		renderer->error->callbacks.on_error("Failed to create depth stencil attachment", NULL);
+		log_msg(renderer->log, "Failed to create depth stencil attachment");
 		return NULL;
 	}
 
@@ -98,7 +98,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 
 	framebuffer->shader = ashader_create(renderer, src_vert, src_frag, "Texture", 1);
 	if (framebuffer->shader == NULL) {
-		renderer->error->callbacks.on_error("Failed to create shader", NULL);
+		log_msg(renderer->log, "Failed to create shader");
 		return NULL;
 	}
 
@@ -145,7 +145,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 
 	framebuffer->mesh = amesh_create(renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
 	if (framebuffer->mesh == NULL) {
-		renderer->error->callbacks.on_error("Failed to create mesh", NULL);
+		log_msg(renderer->log, "Failed to create mesh");
 		return NULL;
 	}
 

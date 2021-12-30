@@ -2,7 +2,7 @@
 #include "gl.h"
 #include "opengl/gl_atypes.h"
 
-GLError* gl_error_create(GLError* error, AErrorCallbacks* callbacks);
+GLError* gl_error_create(GLError* error, LogCallbacks* log);
 void gl_error_begin(GLError* error);
 bool gl_error_failed(GLError* error, const char* msg, const char* fn, const char* file, int line);
 bool gl_error_assert(GLError* error, const char* fn, const char* file, int line);

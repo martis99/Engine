@@ -15,11 +15,10 @@ typedef struct AWindow {
 	HWND window;
 } AWindow;
 
-AContext* acontext_create(void* window, AContextCallbacks* callbacks) {
+AContext* acontext_create(void* window, LogCallbacks* log) {
 	AWindow* awindow = window;
 	AContext* context = m_malloc(sizeof(AContext));
 	context->window = awindow->window;
-	context->callbacks = *callbacks;
 
 	DXGI_SWAP_CHAIN_DESC sd = { 0 };
 	sd.BufferDesc.Width = 0;
@@ -43,7 +42,7 @@ AContext* acontext_create(void* window, AContextCallbacks* callbacks) {
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	if (dx11_error_create(&context->error, &context->callbacks.error_callbacks) == NULL) {
+	if (dx11_error_create(&context->error, log) == NULL) {
 		return NULL;
 	}
 

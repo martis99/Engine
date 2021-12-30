@@ -64,7 +64,7 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 
 	if (vertices_desc != NULL) {
 		if (create_vertex_buffer(renderer, mesh, vertices_desc, data.vertices) == NULL) {
-			renderer->error->callbacks.on_error("Failed to create vertex buffer", NULL);
+			log_msg(renderer->log, "Failed to create vertex buffer");
 			return NULL;
 		}
 		add_layout(ied, vertices_desc, &index, 0, D3D11_INPUT_PER_VERTEX_DATA, 0);
@@ -72,7 +72,7 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 
 	if (instances_desc != NULL) {
 		if (create_instance_buffer(renderer, mesh, instances_desc, data.instances) == NULL) {
-			renderer->error->callbacks.on_error("Failed to create instance buffer", NULL);
+			log_msg(renderer->log, "Failed to create instance buffer");
 			return NULL;
 		}
 		add_layout(ied, instances_desc, &index, 1, D3D11_INPUT_PER_INSTANCE_DATA, 1);
@@ -80,14 +80,14 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 
 	if (indices_desc != NULL) {
 		if (create_index_buffer(renderer, mesh, indices_desc, data.indices) == NULL) {
-			renderer->error->callbacks.on_error("Failed to create indices buffer", NULL);
+			log_msg(renderer->log, "Failed to create indices buffer");
 			return NULL;
 		}
 	}
 
 	mesh->layout = dx11_il_create(renderer->error, renderer->device, ied, num_elements, shader->vs_blob);
 	if (mesh->layout == NULL) {
-		renderer->error->callbacks.on_error("Failed to create input layout", NULL);
+		log_msg(renderer->log, "Failed to create input layout");
 		return NULL;
 	}
 	m_free(ied, num_elements * sizeof(D3D11_INPUT_ELEMENT_DESC));

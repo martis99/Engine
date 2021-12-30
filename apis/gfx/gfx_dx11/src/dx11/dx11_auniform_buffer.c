@@ -6,7 +6,7 @@ AUniformBuffer* auniformbuffer_create_static(ARenderer* renderer, uint slot, uin
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));
 	uniform_buffer->buffer = dx11_cb_create_static(renderer->error, renderer->device, data, data_size);
 	if (uniform_buffer->buffer == NULL) {
-		renderer->error->callbacks.on_error("Failed to create static constant buffer", NULL);
+		log_msg(renderer->log, "Failed to create static constant buffer");
 		return NULL;
 	}
 	uniform_buffer->slot = slot;
@@ -17,7 +17,7 @@ AUniformBuffer* auniformbuffer_create_dynamic(ARenderer* renderer, uint slot, ui
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));
 	uniform_buffer->buffer = dx11_cb_create_dynamic(renderer->error, renderer->device, data_size);
 	if (uniform_buffer->buffer == NULL) {
-		renderer->error->callbacks.on_error("Failed to create dynamic constant buffer", NULL);
+		log_msg(renderer->log, "Failed to create dynamic constant buffer");
 		return NULL;
 	}
 	uniform_buffer->slot = slot;

@@ -14,19 +14,19 @@ ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int w
 
 	texture->texture = dx11_texture_create(renderer->error, renderer->device, width, height, format, 0, 1, 0, data, width * channels * sizeof(unsigned char));
 	if (texture->texture == NULL) {
-		renderer->error->callbacks.on_error("Failed to create texture", NULL);
+		log_msg(renderer->log, "Failed to create texture");
 		return NULL;
 	}
 
 	texture->srv = dx11_srv_create(renderer->error, renderer->device, format, texture->texture);
 	if (texture->srv == NULL) {
-		renderer->error->callbacks.on_error("Failed to create shader resource view", NULL);
+		log_msg(renderer->log, "Failed to create shader resource view");
 		return NULL;
 	}
 
 	texture->ss = dx11_ss_create(renderer->error, renderer->device, dx11_afilter(filter), dx11_awrap(wrap));
 	if (texture->ss == NULL) {
-		renderer->error->callbacks.on_error("Failed to create sampler state", NULL);
+		log_msg(renderer->log, "Failed to create sampler state");
 		return NULL;
 	}
 

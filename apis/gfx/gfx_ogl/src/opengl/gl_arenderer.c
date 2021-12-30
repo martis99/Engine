@@ -2,9 +2,10 @@
 #include "gl_atypes.h"
 #include "gl/gl_renderer.h"
 
-ARenderer* arenderer_create(AContext* context) {
+ARenderer* arenderer_create(AContext* context, LogCallbacks* log) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));
 	renderer->error = &context->error;
+	renderer->log = log;
 
 	gl_cull_face_back(renderer->error);
 	gl_front_face_cw(renderer->error);

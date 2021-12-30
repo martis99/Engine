@@ -25,7 +25,7 @@ static GLuint create_program(ARenderer* renderer, GLuint vert, GLuint frag) {
 		gl_program_info_length(renderer->error, program, &length);
 		char* info = m_malloc(length);
 		gl_program_info(renderer->error, program, length, info);
-		renderer->error->callbacks.on_error(info, NULL);
+		log_msg(renderer->log, info);
 		m_free(info, length);
 		return 0;
 	}
@@ -45,7 +45,7 @@ static GLuint compile_shader(ARenderer* renderer, GLenum type, const char* sourc
 		gl_shader_info_length(renderer->error, shader, &length);
 		char* info = m_malloc(length);
 		gl_shader_info(renderer->error, shader, length, info);
-		renderer->error->callbacks.on_error(info, NULL);
+		log_msg(renderer->log, info);
 		m_free(info, length);
 		gl_shader_delete(renderer->error, shader);
 		return 0;
@@ -58,19 +58,19 @@ AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* s
 
 	GLuint vert = compile_shader(renderer, gl_ashadertype(A_VERTEX), src_vert);
 	if (vert == 0) {
-		renderer->error->callbacks.on_error("Failed to compile vertex shader", NULL);
+		log_msg(renderer->log, "Failed to compile vertex shader");
 		return NULL;
 	}
 
 	GLuint frag = compile_shader(renderer, gl_ashadertype(A_FRAGMENT), src_frag);
 	if (frag == 0) {
-		renderer->error->callbacks.on_error("Failed to compile fragment shader", NULL);
+		log_msg(renderer->log, "Failed to compile fragment shader");
 		return NULL;
 	}
 
 	shader->program = create_program(renderer, vert, frag);
 	if (shader->program == 0) {
-		renderer->error->callbacks.on_error("Failed to create shader program", NULL);
+		log_msg(renderer->log, "Failed to create shader program");
 		return NULL;
 	}
 
@@ -84,7 +84,7 @@ AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* s
 		}
 		shader->textures_location = gl_program_get_uniform_location(renderer->error, shader->program, textures);
 		if (shader->textures_location == -1) {
-			renderer->error->callbacks.on_error("Failed to get textures location", NULL);
+			log_msg(renderer->log, "Failed to get textures location");
 			return NULL;
 		}
 		shader->num_textures = num_textures;

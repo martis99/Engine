@@ -1,9 +1,7 @@
-#include "pch.h"
-#ifdef SAPI_WINDOWS
-#include "api/wnd/awindow.h"
-#include "api/wnd/acursor.h"
+#include "api/awindow.h"
+#include "api/acursor.h"
 
-#include <Windows.h>
+#include  "wnd_win_types.h"
 
 #pragma comment (lib, "user32.lib")
 #pragma comment (lib, "gdi32.lib")
@@ -12,14 +10,6 @@ static const LPCWSTR s_ClassName = L"EngineClass";
 static const LPCWSTR s_WindowName = L"Engine";
 static const DWORD s_ExStyle = 0;
 static const DWORD s_Style = WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
-
-struct AWindow {
-	LPCWSTR class_name;
-	HMODULE module;
-	HWND window;
-	AWindowCallbacks callbacks;
-	ACursor* cursor;
-};
 
 static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM param_l) {
 
@@ -175,12 +165,13 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 	return DefWindowProc(wnd, message, param_w, param_l);
 }
 
-AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width, int height) {
+AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width, int height, LogCallbacks* log) {
 	AWindow* window = m_malloc(sizeof(AWindow));
 	window->class_name = s_ClassName;
 	window->module = GetModuleHandleW(0);
 	window->callbacks = *callbacks;
 	window->cursor = cursor;
+	window->log = log;
 
 	WNDCLASS wc = { 0 };
 	wc.lpfnWndProc = wnd_proc;
@@ -189,7 +180,7 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.style = CS_OWNDC;
 	if (!RegisterClass(&wc)) {
-		log_error("Failed to register class");
+		log_msg(window->log, "Failed to register class");
 		return NULL;
 	}
 
@@ -222,7 +213,7 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 	rid.dwFlags = 0;
 	rid.hwndTarget = NULL;
 	if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE) {
-		log_error("Failed to register raw input device");
+		log_msg(window->log, "Failed to register raw input device");
 		return NULL;
 	}
 
@@ -241,7 +232,7 @@ void* awindow_get_window(AWindow* window) {
 
 void awindow_set_title(AWindow* window, const char* title) {
 	if (SetWindowTextA(window->window, title) == 0) {
-		log_error("Failed to set title");
+		log_msg(window->log, "Failed to set title");
 	}
 }
 
@@ -269,4 +260,3 @@ void awindow_message_boxw(AWindow* window, const wchar* text, const wchar* capti
 void awindow_close(AWindow* window) {
 	PostQuitMessage(0);
 }
-#endif

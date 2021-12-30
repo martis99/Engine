@@ -194,16 +194,15 @@ typedef struct AWindow {
 	HWND window;
 } AWindow;
 
-AContext* acontext_create(void* window, AContextCallbacks* callbacks) {
+AContext* acontext_create(void* window, LogCallbacks* log) {
 	AWindow* awindow = window;
 	AContext* context = m_malloc(sizeof(AContext));
 	context->window = awindow->window;
 	context->library = load_opengl_functions(awindow->module, awindow->class_name);
 	context->device = GetDC(context->window);
 	context->context = create_context(context->device);
-	context->callbacks = *callbacks;
 	wglMakeCurrent(context->device, context->context);
-	if (gl_error_create(&context->error, &callbacks->error_callbacks) == NULL) {
+	if (gl_error_create(&context->error, log) == NULL) {
 		return NULL;
 	}
 	return context;

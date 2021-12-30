@@ -1,9 +1,8 @@
-#include "pch.h"
 #include "cursor.h"
-#include "api/wnd/acursor.h"
+#include "api/acursor.h"
 
-Cursor* cursor_create(Cursor* cursor, Window* window, bool enabled) {
-	cursor->cursor = acursor_create(window->window, enabled);
+Cursor* cursor_create(Cursor* cursor, Window* window, bool enabled, LogCallbacks* log) {
+	cursor->cursor = acursor_create(window->window, enabled, log);
 	return cursor;
 }
 

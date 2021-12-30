@@ -3,5 +3,14 @@
 
 void log_info(const char* format, ...);
 void log_error(const char* text);
-void show_error(const char* text, const char* caption);
-void show_errorw(const wchar* text, const wchar* caption);
+
+typedef struct LogCallbacks {
+	void(*on_msg)(void* arg, const char* text);
+	void(*on_err)(void* arg, const char* text, const char* caption);
+	void(*on_errw)(void* arg, const wchar* text, const wchar* caption);
+	void* arg;
+} LogCallbacks;
+
+void log_msg(LogCallbacks* log, const char* text);
+void log_err(LogCallbacks* log, const char* text, const char* caption);
+void log_errw(LogCallbacks* log, const wchar* text, const wchar* caption);

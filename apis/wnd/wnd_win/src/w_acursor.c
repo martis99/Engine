@@ -1,20 +1,13 @@
-#include "pch.h"
-#ifdef SAPI_WINDOWS
-#include "api/wnd/acursor.h"
-#include "api/wnd/awindow.h"
+#include "api/acursor.h"
+#include "api/awindow.h"
 
-#include <Windows.h>
+#include "wnd_win_types.h"
 
-struct ACursor {
-	AWindow* window;
-	bool enabled;
-	bool in_window;
-};
-
-ACursor* acursor_create(AWindow* window, byte enabled) {
+ACursor* acursor_create(AWindow* window, byte enabled, LogCallbacks* log) {
 	ACursor* cursor = m_malloc(sizeof(ACursor));
 	cursor->window = window;
 	cursor->enabled = enabled;
+	cursor->log = log;
 	return cursor;
 }
 
@@ -56,4 +49,3 @@ void acursor_set_enabled(ACursor* cursor, bool enabled) {
 bool acursor_get_enabled(ACursor* cursor) {
 	return cursor->enabled;
 }
-#endif

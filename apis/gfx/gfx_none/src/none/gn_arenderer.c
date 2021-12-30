@@ -1,7 +1,7 @@
 #include "api/gfx/arenderer.h"
 #include "gn_atypes.h"
 
-ARenderer* arenderer_create(AContext* context) {
+ARenderer* arenderer_create(AContext* context, LogCallbacks* log) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));
 	return renderer;
 }

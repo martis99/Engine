@@ -15,7 +15,7 @@ typedef struct DX11Error {
 	WStr desc;
 	Str info;
 
-	AErrorCallbacks callbacks;
+	LogCallbacks* log;
 } DX11Error;
 
 struct AContext {
@@ -23,7 +23,6 @@ struct AContext {
 	ID3D11Device* device;
 	IDXGISwapChain* swap_chain;
 	ID3D11DeviceContext* context;
-	AContextCallbacks callbacks;
 	DX11Error error;
 };
 
@@ -42,6 +41,7 @@ struct ARenderer {
 	ID3D11BlendState* blend_enabled;
 	ID3D11BlendState* blend_disabled;
 	DX11Error* error;
+	LogCallbacks* log;
 };
 
 struct AShader {

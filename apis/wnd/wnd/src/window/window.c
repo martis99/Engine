@@ -1,11 +1,10 @@
-#include "pch.h"
 #include "window.h"
-#include "api/wnd/awindow.h"
+#include "api/awindow.h"
 
 #include "app.h"
 
-Window* window_create(Window* window, WindowSettings settings, AWindowCallbacks* callbacks, Cursor* cursor) {
-	window->window = awindow_create(callbacks, cursor->cursor, settings.width, settings.height);
+Window* window_create(Window* window, WindowSettings settings, AWindowCallbacks* callbacks, Cursor* cursor, LogCallbacks* log) {
+	window->window = awindow_create(callbacks, cursor->cursor, settings.width, settings.height, log);
 	window->settings = settings;
 	return window;
 }

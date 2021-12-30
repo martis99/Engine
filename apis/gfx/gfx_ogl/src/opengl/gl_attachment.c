@@ -10,13 +10,13 @@ GLAttachment* gl_attachment_create(ARenderer* renderer, AAttachmentDesc desc, GL
 	attachment->type = gl_atype_type(desc.type);
 	attachment->texture = gl_texture_create(renderer->error, gl_awrap(desc.wrap), gl_afilter(desc.filter), width, height, gl_atype_internal_format(desc.type), attachment->format, attachment->type, NULL, 1);
 	if (attachment->texture == 0) {
-		renderer->error->callbacks.on_error("Failed to create texture", NULL);
+		log_msg(renderer->log, "Failed to create texture");
 		return NULL;
 	}
 
 	attachment->target = GL_COLOR_ATTACHMENT0 + index;
 	if (gl_fb_attach_texture(renderer->error, attachment->target, attachment->texture) == A_FAIL) {
-		renderer->error->callbacks.on_error("Failed to attach texture to framebuffer", NULL);
+		log_msg(renderer->log, "Failed to attach texture to framebuffer");
 		return NULL;
 	}
 

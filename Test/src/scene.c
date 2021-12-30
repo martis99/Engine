@@ -4,6 +4,7 @@
 #include "window/window.h"
 #include "renderer/renderer.h"
 #include "window/cursor.h"
+#include "wnd_log.h"
 #include "assets/font.h"
 
 #include "ecs/ecs.h"
@@ -40,6 +41,7 @@ struct Scene {
 	mat4 projection;
 	UniformBuffer u_camera;
 	bool profile;
+	LogCallbacks log;
 };
 
 static Scene* s_scene;
@@ -301,27 +303,28 @@ static void mouse_wheel(float delta) {
 	scene_mouse_wheel(s_scene, delta);
 }
 
-static void on_error(const char* text, const char* caption) {
-	if (caption == NULL) {
-		log_error(text);
-	} else {
-		show_error(text, caption);
-	}
+static void on_msg(void* arg, const char* text) {
+	log_error(text);
 }
 
-static void on_errorw(const wchar* text, const wchar* caption) {
-	if (caption == NULL) {
-		
-	} else {
-		show_errorw(text, caption);
-	}
+static void on_err(void* arg, const char* text, const char* caption) {
+	show_error(arg, text, caption);
+}
+
+static void on_errw(void* arg, const wchar* text, const wchar* caption) {
+	show_errorw(arg, text, caption);
 }
 
 Scene* scene_create(int width, int height) {
 	Scene* scene = m_malloc(sizeof(Scene));
 	s_scene = scene;
 	
-	if (cursor_create(&scene->cursor, &scene->window, 1) == NULL) {
+	scene->log.on_msg = on_msg;
+	scene->log.on_err = on_err;
+	scene->log.on_errw = on_errw;
+	scene->log.arg = &scene->window;
+
+	if (cursor_create(&scene->cursor, &scene->window, 1, &scene->log) == NULL) {
 		log_error("Failed to create cursor");
 		return NULL;
 	}
@@ -339,21 +342,17 @@ Scene* scene_create(int width, int height) {
 	callbacks.mouse_moved_delta = mouse_moved_delta;
 	callbacks.mouse_wheel = mouse_wheel;
 
-	if (window_create(&scene->window, window_settings, &callbacks, &scene->cursor) == NULL) {
+	if (window_create(&scene->window, window_settings, &callbacks, &scene->cursor, &scene->log) == NULL) {
 		log_error("Failed to create window");
 		return NULL;
 	}
 
-	AContextCallbacks ctx_callbacks;
-	ctx_callbacks.error_callbacks.on_error = on_error;
-	ctx_callbacks.error_callbacks.on_errorw = on_errorw;
-
-	if (context_create(&scene->context, scene->window.window, &ctx_callbacks) == NULL) {
+	if (context_create(&scene->context, scene->window.window, &scene->log) == NULL) {
 		log_error("Failed to create context");
 		return NULL;
 	}
 
-	if (renderer_create(&scene->renderer, &scene->context, width, height) == NULL) {
+	if (renderer_create(&scene->renderer, &scene->context, width, height, &scene->log) == NULL) {
 		log_error("Failed to create renderer");
 		return NULL;
 	}
@@ -656,8 +655,4 @@ void scene_mouse_wheel(Scene* scene, float delta) {
 
 void scene_exit(Scene* scene) {
 	window_close(&scene->window);
-}
-
-Window* app_get_window() {
-	return &s_scene->window;
 }

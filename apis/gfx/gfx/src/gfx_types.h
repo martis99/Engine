@@ -31,12 +31,11 @@ typedef struct Renderer {
 	Framebuffer framebuffer;
 	Shader shader;
 	Mesh mesh;
-	AErrorCallbacks callbacks;
+	LogCallbacks* log;
 } Renderer;
 
 typedef struct Context {
 	AContext* context;
-	AContextCallbacks callbacks;
 } Context;
 
 typedef struct UniformBuffer {

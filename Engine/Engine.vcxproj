@@ -148,8 +148,6 @@
   <ItemGroup>
     <ClCompile Include="src\api\os\none\n_utils.c" />
     <ClCompile Include="src\api\os\windows\w_utils.c" />
-    <ClCompile Include="src\api\wnd\windows\w_acursor.c" />
-    <ClCompile Include="src\api\wnd\windows\w_awindow.c" />
     <ClCompile Include="src\app.c" />
     <ClCompile Include="src\assets\image.c" />
     <ClCompile Include="src\ecs\component\constraints.c" />
@@ -188,13 +186,8 @@
     <ClCompile Include="src\utils\dictionary.c" />
     <ClCompile Include="src\utils\stack.c" />
     <ClCompile Include="src\utils\str.c" />
-    <ClCompile Include="src\window\cursor.c" />
-    <ClCompile Include="src\window\window.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\api\atypes.h" />
-    <ClInclude Include="src\api\wnd\acursor.h" />
-    <ClInclude Include="src\api\wnd\awindow.h" />
     <ClInclude Include="src\app.h" />
     <ClInclude Include="src\assets\assets_types.h" />
     <ClInclude Include="src\assets\image.h" />
@@ -232,8 +225,6 @@
     <ClInclude Include="src\utils\stack.h" />
     <ClInclude Include="src\utils\str.h" />
     <ClInclude Include="src\utils\utils.h" />
-    <ClInclude Include="src\window\cursor.h" />
-    <ClInclude Include="src\window\window.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="src\hooks.asm">

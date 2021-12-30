@@ -6,7 +6,7 @@ AUniformBuffer* auniformbuffer_create_static(ARenderer* renderer, uint slot, uin
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));
 	uniform_buffer->buffer = gl_ub_create_static(renderer->error, data, data_size);
 	if (uniform_buffer->buffer == 0) {
-		renderer->error->callbacks.on_error("Failed to create uniform buffer", NULL);
+		log_msg(renderer->log, "Failed to create uniform buffer");
 		return NULL;
 	}
 	uniform_buffer->slot = slot;
@@ -17,7 +17,7 @@ AUniformBuffer* auniformbuffer_create_dynamic(ARenderer* renderer, uint slot, ui
 	AUniformBuffer* uniform_buffer = m_malloc(sizeof(AUniformBuffer));
 	uniform_buffer->buffer = gl_ub_create_dynamic(renderer->error, data_size);
 	if (uniform_buffer->buffer == 0) {
-		renderer->error->callbacks.on_error("Failed to create uniform buffer", NULL);
+		log_msg(renderer->log, "Failed to create uniform buffer");
 		return NULL;
 	}
 	uniform_buffer->slot = slot;

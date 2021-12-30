@@ -41,7 +41,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* re
 	md.indices.data = indices;
 	md.indices.size = sizeof(indices);
 	if (mesh_create(&batch_renderer->mesh, renderer, material->shader, md, A_TRIANGLES) == NULL) {
-		renderer->callbacks.on_error("Failed to create batch renderer mesh", NULL);
+		log_msg(renderer->log, "Failed to create batch renderer mesh");
 		return NULL;
 	}
 

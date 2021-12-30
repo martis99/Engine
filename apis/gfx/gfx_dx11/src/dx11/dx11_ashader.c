@@ -6,13 +6,13 @@ AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* s
 	AShader* shader = m_malloc(sizeof(AShader));
 	shader->vs = dx11_vs_create(renderer->error, renderer->device, src_vert, &shader->vs_blob);
 	if (shader->vs == NULL) {
-		renderer->error->callbacks.on_error("Failed to create vertex shader", NULL);
+		log_msg(renderer->log, "Failed to create vertex shader");
 		return NULL;
 	}
 
 	shader->ps = dx11_ps_create(renderer->error, renderer->device, src_frag, &shader->ps_blob);
 	if (shader->ps == NULL) {
-		renderer->error->callbacks.on_error("Failed to create pixel shader", NULL);
+		log_msg(renderer->log, "Failed to create pixel shader");
 		return NULL;
 	}
 	return shader;

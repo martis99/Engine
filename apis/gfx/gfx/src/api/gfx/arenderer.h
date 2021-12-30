@@ -1,7 +1,7 @@
 #pragma once
 #include "gfx_api_types.h"
 
-ARenderer* arenderer_create(AContext* context);
+ARenderer* arenderer_create(AContext* context, LogCallbacks* log);
 void arenderer_delete(ARenderer* renderer);
 
 void arenderer_depth_stencil_set(ARenderer* renderer, bool depth_enabled, bool stencil_enabled);

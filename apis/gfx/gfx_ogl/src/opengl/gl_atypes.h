@@ -10,7 +10,6 @@ struct AContext {
 	HDC device;
 	HGLRC context;
 	HMODULE library;
-	AContextCallbacks callbacks;
 	GLError error;
 };
 
@@ -56,6 +55,7 @@ struct AMesh {
 
 struct ARenderer {
 	GLError* error;
+	LogCallbacks* log;
 };
 
 struct AShader {

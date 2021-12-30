@@ -25,7 +25,7 @@ ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int w
 
 	texture->id = gl_texture_create(renderer->error, gl_awrap(wrap), gl_afilter(filter), width, height, internal_format, format, type, data, 1);
 	if (texture->id == 0) {
-		renderer->error->callbacks.on_error("Failed to create texture", NULL);
+		log_msg(renderer->log, "Failed to create texture");
 		return NULL;
 	}
 	return texture;

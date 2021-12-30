@@ -72,27 +72,27 @@ AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMes
 	uint index = 0;
 	if (vertices_desc != NULL) {
 		if (create_vertex_buffer(renderer, mesh, vertices_desc, data.vertices) == 0) {
-			renderer->error->callbacks.on_error("Failed to create vertex buffer", NULL);
+			log_msg(renderer->log, "Failed to create vertex buffer");
 			return NULL;
 		}
 		if (add_layout(renderer, vertices_desc, &index, 0) == A_FAIL) {
-			renderer->error->callbacks.on_error("Failed to add vertex layout", NULL);
+			log_msg(renderer->log, "Failed to add vertex layout");
 			return NULL;
 		}
 	}
 	if (instances_desc != NULL) {
 		if (create_instance_buffer(renderer, mesh, instances_desc, data.instances) == 0) {
-			renderer->error->callbacks.on_error("Failed to create instance buffer", NULL);
+			log_msg(renderer->log, "Failed to create instance buffer");
 			return NULL;
 		}
 		if (add_layout(renderer, instances_desc, &index, 1) == A_FAIL) {
-			renderer->error->callbacks.on_error("Failed to add instance layout", NULL);
+			log_msg(renderer->log, "Failed to add instance layout");
 			return NULL;
 		}
 	}
 	if (indices_desc != NULL) {
 		if (create_index_buffer(renderer, mesh, indices_desc, data.indices) == 0) {
-			renderer->error->callbacks.on_error("Failed to create index buffer", NULL);
+			log_msg(renderer->log, "Failed to create index buffer");
 			return NULL;
 		}
 	}
