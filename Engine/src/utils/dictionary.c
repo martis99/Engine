@@ -1,4 +1,6 @@
-#include "pch.h"
+#include "dictionary.h"
+
+#include "eng_types.h"
 
 struct dic_entry {
 	char* key;

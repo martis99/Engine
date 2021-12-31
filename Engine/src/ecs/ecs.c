@@ -1,4 +1,9 @@
-#include "pch.h"
+#include "ecs.h"
+
+#include "eng_types.h"
+#include "utils/stack.h"
+
+#include <stdarg.h>
 
 #define INITIAL_CAPACITY 2
 

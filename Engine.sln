@@ -9,23 +9,23 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib", "lib\lib.vcxproj", "{72878CBB-277A-4DC9-B385-3ADBBFAC8218}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apis", "apis", "{3FCEB0B4-E62E-46E1-A18C-F8419AEC3CD6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{3FCEB0B4-E62E-46E1-A18C-F8419AEC3CD6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gfx", "gfx", "{5D91B6CF-7B69-4E7B-BD8E-B04692697C30}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx_ogl", "apis\gfx\gfx_ogl\gfx_ogl.vcxproj", "{7B509775-EB66-4E4F-BF4B-D391092DA64F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx_ogl", "api\gfx\gfx_ogl\gfx_ogl.vcxproj", "{7B509775-EB66-4E4F-BF4B-D391092DA64F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx_dx11", "apis\gfx\gfx_dx11\gfx_dx11.vcxproj", "{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx_dx11", "api\gfx\gfx_dx11\gfx_dx11.vcxproj", "{26B47D1C-DE72-4E98-BF34-6B1AA59078DF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx_none", "apis\gfx\gfx_none\gfx_none.vcxproj", "{78F622C9-58C9-4D57-B6C1-27A4DB567C89}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx_none", "api\gfx\gfx_none\gfx_none.vcxproj", "{78F622C9-58C9-4D57-B6C1-27A4DB567C89}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx", "apis\gfx\gfx\gfx.vcxproj", "{46FCBC57-1A11-4D82-BA42-A592F640A163}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfx", "api\gfx\gfx\gfx.vcxproj", "{46FCBC57-1A11-4D82-BA42-A592F640A163}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wnd", "wnd", "{C173B8B8-4F03-4CD3-9C8A-B7F762057A63}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wnd", "apis\wnd\wnd\wnd.vcxproj", "{BE35E2A9-5B96-432E-9191-C47120199BB3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wnd", "api\wnd\wnd\wnd.vcxproj", "{BE35E2A9-5B96-432E-9191-C47120199BB3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wnd_win", "apis\wnd\wnd_win\wnd_win.vcxproj", "{D3A773FE-5D24-4906-830A-FC5A0747B689}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wnd_win", "api\wnd\wnd_win\wnd_win.vcxproj", "{D3A773FE-5D24-4906-830A-FC5A0747B689}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,8 @@
-#include "pch.h"
+#include "quaternion.h"
+#include "vec3.h"
+#include "mat4.h"
+
+#include <math.h>
 
 quaternion quaternion_zero() {
 	quaternion q = { 0 };

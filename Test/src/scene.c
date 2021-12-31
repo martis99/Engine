@@ -1,13 +1,43 @@
-#include "engine.h"
+#include "scene.h"
 
-#include "context.h"
-#include "window/window.h"
-#include "renderer/renderer.h"
-#include "window/cursor.h"
-#include "wnd_log.h"
-#include "assets/font.h"
+#include "math/maths.h"
+#include "input/keys.h"
+#include "input/keyboard.h"
+#include "input/mouse.h"
+#include "scene/camera.h"
+#include "profiler.h"
+#include "assets/image.h"
 
 #include "ecs/ecs.h"
+#include "ecs/component/transform.h"
+#include "ecs/component/constraints.h"
+#include "ecs/system/constraints_resolver.h"
+
+#include "wnd_window.h"
+#include "wnd_cursor.h"
+#include "wnd_log.h"
+
+#include "gfx_context.h"
+#include "gfx_renderer.h"
+
+#include "ecs/system/gfx_mesh_renderer.h"
+#include "ecs/system/gfx_sprite_renderer.h"
+#include "ecs/system/gfx_text_renderer.h"
+#include "ecs/system/gfx_line_renderer.h"
+#include "ecs/system/gfx_instance_renderer.h"
+#include "ecs/system/gfx_model_renderer.h"
+
+#include "ecs/component/gfx_mesh_component.h"
+#include "ecs/component/gfx_instance_component.h"
+#include "ecs/component/gfx_text.h"
+#include "ecs/component/gfx_sprite.h"
+
+#include "assets/gfx_assets.h"
+#include "assets/gfx_font.h"
+#include "assets/gfx_framebuffer.h"
+#include "assets/gfx_material.h"
+#include "assets/gfx_model.h"
+#include "assets/gfx_uniform_buffer.h"
 
 #include <time.h>
 
@@ -19,7 +49,7 @@
 #define C_INSTANCE 5
 #define C_MODEL 6
 
-struct Scene {
+typedef struct Scene {
 	Window window;
 	Cursor cursor;
 	Context context;
@@ -42,9 +72,7 @@ struct Scene {
 	UniformBuffer u_camera;
 	bool profile;
 	LogCallbacks log;
-};
-
-static Scene* s_scene;
+} Scene;
 
 static Scene* create_systems(Scene* scene) {
 	if (mesh_renderer_create(&scene->mesh_renderer, &scene->renderer) == NULL) {
@@ -268,41 +296,6 @@ static void create_camera(Scene* scene, float width, float height) {
 	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f, 1000.0, -1);
 }
 
-static void key_pressed(byte key) {
-	kb_key_pressed(key);
-	scene_key_pressed(s_scene, key);
-}
-
-static void key_released(byte key) {
-	kb_key_released(key);
-	scene_key_released(s_scene, key);
-}
-
-static void mouse_pressed(byte button) {
-	ms_button_pressed(button);
-	scene_mouse_pressed(s_scene, button);
-}
-
-static void mouse_released(byte button) {
-	ms_button_released(button);
-	scene_mouse_released(s_scene, button);
-}
-
-static void mouse_moved(float x, float y) {
-	ms_moved(x, y);
-	scene_mouse_moved(s_scene, x, y);
-}
-
-static void mouse_moved_delta(float dx, float dy) {
-	ms_moved_delta(dx, dy);
-	scene_mouse_moved_delta(s_scene, dx, dy);
-}
-
-static void mouse_wheel(float delta) {
-	ms_mouse_wheel(delta);
-	scene_mouse_wheel(s_scene, delta);
-}
-
 static void on_msg(void* arg, const char* text) {
 	log_error(text);
 }
@@ -315,9 +308,65 @@ static void on_errw(void* arg, const wchar* text, const wchar* caption) {
 	show_errorw(arg, text, caption);
 }
 
-Scene* scene_create(int width, int height) {
+static void scene_key_pressed(Scene* scene, byte key) {
+	kb_key_pressed(key);
+	switch (key) {
+	case K_ESCAPE:
+		window_close(&scene->window);
+		break;
+	case K_TAB:
+		scene->wireframe = 1 - scene->wireframe;
+		break;
+	case 'C':
+		scene->cull_back = 1 - scene->cull_back;
+		break;
+	case 'P':
+		if (scene->profile == 0) {
+			profiler_start("profiler.json");
+			scene->profile = 1;
+		} else if (scene->profile == 1) {
+			profiler_end();
+			scene->profile = 0;
+		}
+		break;
+	}
+}
+
+static void scene_key_released(Scene* scene, byte key) {
+	kb_key_released(key);
+}
+
+static void scene_mouse_pressed(Scene* scene, byte button) {
+	ms_button_pressed(button);
+	if (button == 0) {
+		int x = (int)get_mouse_x();
+		int y = (int)get_mouse_y();
+		int entity = 0;
+		framebuffer_read_pixel(&scene->framebuffer, &scene->renderer, 1, x, y, &entity);
+		printf("%i\n", entity);
+	}
+}
+
+static void scene_mouse_released(Scene* scene, byte button) {
+	ms_button_released(button);
+}
+
+static void scene_mouse_moved(Scene* scene, float x, float y) {
+	ms_moved(x, y);
+}
+
+static void scene_mouse_moved_delta(Scene* scene, float dx, float dy) {
+	ms_moved_delta(dx, dy);
+	camera_mouse_moved(&scene->camera, dx, dy);
+}
+
+static void scene_mouse_wheel(Scene* scene, float delta) {
+	ms_mouse_wheel(delta);
+	camera_mouse_wheel(&scene->camera, delta);
+}
+
+static Scene* scene_create(int width, int height) {
 	Scene* scene = m_malloc(sizeof(Scene));
-	s_scene = scene;
 	
 	scene->log.on_msg = on_msg;
 	scene->log.on_err = on_err;
@@ -334,13 +383,14 @@ Scene* scene_create(int width, int height) {
 	window_settings.height = height;
 
 	AWindowCallbacks callbacks;
-	callbacks.key_pressed = key_pressed;
-	callbacks.key_released = key_released;
-	callbacks.mouse_pressed = mouse_pressed;
-	callbacks.mouse_released = mouse_released;
-	callbacks.mouse_moved = mouse_moved;
-	callbacks.mouse_moved_delta = mouse_moved_delta;
-	callbacks.mouse_wheel = mouse_wheel;
+	callbacks.key_pressed = scene_key_pressed;
+	callbacks.key_released = scene_key_released;
+	callbacks.mouse_pressed = scene_mouse_pressed;
+	callbacks.mouse_released = scene_mouse_released;
+	callbacks.mouse_moved = scene_mouse_moved;
+	callbacks.mouse_moved_delta = scene_mouse_moved_delta;
+	callbacks.mouse_wheel = scene_mouse_wheel;
+	callbacks.arg = scene;
 
 	if (window_create(&scene->window, window_settings, &callbacks, &scene->cursor, &scene->log) == NULL) {
 		log_error("Failed to create window");
@@ -409,63 +459,6 @@ Scene* scene_create(int width, int height) {
 	return scene;
 }
 
-void scene_delete(Scene* scene) {
-	uniformbuffer_delete(&scene->u_camera, &scene->renderer);
-
-	mesh_renderer_delete(&scene->mesh_renderer);
-	sprite_renderer_delete(&scene->sprite_renderer);
-	text_renderer_delete(&scene->text_renderer);
-	line_renderer_delete(&scene->line_renderer);
-	QueryResult* qr = ecs_query(&scene->ecs, 1, C_INSTANCE);
-	for (uint i = 0; i < qr->count; ++i) {
-		instance_component_delete(ecs_get(&scene->ecs, qr->list[i], C_INSTANCE));
-	}
-	instance_renderer_delete(&scene->instance_renderer);
-	model_renderer_delete(&scene->model_renderer);
-	ecs_delete(&scene->ecs);
-	assets_delete(&scene->assets);
-	framebuffer_delete(&scene->framebuffer, &scene->renderer);
-	renderer_delete(&scene->renderer);
-	context_delete(&scene->context);
-	window_delete(&scene->window);
-	cursor_delete(&scene->cursor);
-	m_free(scene, sizeof(Scene));
-}
-
-static void loop(Scene* scene, float dt) {
-	scene_update(scene, dt);
-
-	//app->stats.draw_calls = 0;
-	scene_render(scene);
-}
-
-void scene_main_loop(Scene* scene) {
-	clock_t last = clock();
-	clock_t previous = last;
-	uint frames = 0;
-
-	while (window_poll_events(&scene->window)) {
-		clock_t current = clock();
-		clock_t elapsed = current - last;
-
-		if (elapsed > CLOCKS_PER_SEC) {
-			char title[100];
-			float ms = elapsed / (float)frames;
-			//sprintf_s(title, 100, "Engine %u FPS %.2f ms, mem: %u, dc: %i", frames, ms, (uint)app->stats.memory, app->stats.draw_calls);
-			//window_set_title(&scene->window, title);
-
-			last = current;
-			frames = 0;
-		}
-
-		float dt = (current - previous) / (float)CLOCKS_PER_SEC;
-		loop(scene, dt);
-
-		previous = current;
-		frames++;
-	}
-}
-
 static void calculate_preffered(Transform* transform, Text* text, Constraints* constraints) {
 	float x = 0;
 	float y = 0;
@@ -500,7 +493,7 @@ static void text_renderer_calculate_preffered(Ecs* ecs) {
 	}
 }
 
-void scene_update(Scene* scene, float dt) {
+static void scene_update(Scene* scene, float dt) {
 	text_renderer_calculate_preffered(&scene->ecs);
 	constraints_resolver_resolve(&scene->ecs, C_TRANSFORM, C_CONSTRAINTS);
 
@@ -564,7 +557,7 @@ static void render_sprites(SpriteRenderer* sprite_renderer, Ecs* ecs) {
 	sprite_renderer_end(sprite_renderer);
 }
 
-void scene_render(Scene* scene) {
+static void scene_render(Scene* scene) {
 	renderer_rasterizer_set(&scene->renderer, scene->wireframe, scene->cull_back);
 
 	uint targets[] = { 0, 1 };
@@ -600,59 +593,84 @@ void scene_render(Scene* scene) {
 	context_swap_buffers(&scene->context);
 }
 
-void scene_key_pressed(Scene* scene, byte key) {
-	switch (key) {
-	case K_ESCAPE:
-		app_exit();
-		break;
-	case K_TAB:
-		scene->wireframe = 1 - scene->wireframe;
-		break;
-	case 'C':
-		scene->cull_back = 1 - scene->cull_back;
-		break;
-	case 'P':
-		if (scene->profile == 0) {
-			profiler_start("profiler.json");
-			scene->profile = 1;
-		} else if (scene->profile == 1) {
-			profiler_end();
-			scene->profile = 0;
+static void loop(Scene* scene, float dt) {
+	scene_update(scene, dt);
+
+	scene->renderer.draw_calls = 0;
+	scene_render(scene);
+}
+
+static void scene_main_loop(Scene* scene, size_t* mem_usage) {
+	clock_t last = clock();
+	clock_t previous = last;
+	uint frames = 0;
+
+	while (window_poll_events(&scene->window)) {
+		clock_t current = clock();
+		clock_t elapsed = current - last;
+
+		if (elapsed > CLOCKS_PER_SEC) {
+			char title[100];
+			float ms = elapsed / (float)frames;
+			sprintf_s(title, 100, "Engine %u FPS %.2f ms, mem: %u, dc: %i", frames, ms, (uint)*mem_usage, scene->renderer.draw_calls);
+			window_set_title(&scene->window, title);
+
+			last = current;
+			frames = 0;
 		}
-		break;
+
+		float dt = (current - previous) / (float)CLOCKS_PER_SEC;
+		loop(scene, dt);
+
+		previous = current;
+		frames++;
 	}
 }
 
-void scene_key_released(Scene* scene, byte key) {
+static void scene_delete(Scene* scene) {
+	uniformbuffer_delete(&scene->u_camera, &scene->renderer);
 
-}
-
-void scene_mouse_pressed(Scene* scene, byte button) {
-	if (button == 0) {
-		int x = (int)get_mouse_x();
-		int y = (int)get_mouse_y();
-		int entity = 0;
-		framebuffer_read_pixel(&scene->framebuffer, &scene->renderer, 1, x, y, &entity);
-		printf("%i\n", entity);
+	mesh_renderer_delete(&scene->mesh_renderer);
+	sprite_renderer_delete(&scene->sprite_renderer);
+	text_renderer_delete(&scene->text_renderer);
+	line_renderer_delete(&scene->line_renderer);
+	QueryResult* qr = ecs_query(&scene->ecs, 1, C_INSTANCE);
+	for (uint i = 0; i < qr->count; ++i) {
+		instance_component_delete(ecs_get(&scene->ecs, qr->list[i], C_INSTANCE));
 	}
+	instance_renderer_delete(&scene->instance_renderer);
+	model_renderer_delete(&scene->model_renderer);
+	ecs_delete(&scene->ecs);
+	assets_delete(&scene->assets);
+	framebuffer_delete(&scene->framebuffer, &scene->renderer);
+	renderer_delete(&scene->renderer);
+	context_delete(&scene->context);
+	window_delete(&scene->window);
+	cursor_delete(&scene->cursor);
+	m_free(scene, sizeof(Scene));
 }
 
-void scene_mouse_released(Scene* scene, byte button) {
+int scene_run() {
+	size_t mem_usage = 0;
+	mem_init(&mem_usage);
 
-}
+	if (profiler_create() == NULL) {
+		log_error("Failed to create profiler");
+		return EXIT_FAILURE;
+	}
 
-void scene_mouse_moved(Scene* scene, float x, float y) {
+	Scene* scene = scene_create(1600, 900);
+	if (scene == NULL) {
+		log_error("Failed to create scene");
+		return EXIT_FAILURE;
+	}
 
-}
+	scene_main_loop(scene, &mem_usage);
 
-void scene_mouse_moved_delta(Scene* scene, float dx, float dy) {
-	camera_mouse_moved(&scene->camera, dx, dy);
-}
+	scene_delete(scene);
+	profiler_delete();
 
-void scene_mouse_wheel(Scene* scene, float delta) {
-	camera_mouse_wheel(&scene->camera, delta);
-}
+	printf("memory: %i\n", (int)mem_usage);
 
-void scene_exit(Scene* scene) {
-	window_close(&scene->window);
+	return EXIT_SUCCESS;
 }

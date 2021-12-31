@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "constraints_resolver.h"
 #include "ecs/component/transform.h"
 #include "ecs/component/constraints.h"

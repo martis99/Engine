@@ -1,4 +1,6 @@
-#include "pch.h"
+#include "array.h"
+
+#include "eng_types.h"
 
 Array* arr_create(Array* arr, size_t size, uint cap) {
 	arr->size = size;

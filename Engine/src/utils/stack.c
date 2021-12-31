@@ -1,4 +1,6 @@
-#include "pch.h"
+#include "stack.h"
+
+#include "eng_types.h"
 
 #define INITIAL_CAPACITY 4
 

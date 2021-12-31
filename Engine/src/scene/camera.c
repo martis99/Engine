@@ -1,6 +1,6 @@
-#include "pch.h"
 #include "camera.h"
 
+#include "math/maths.h"
 #include "input/mouse.h"
 
 static void update_view_projection(Camera* camera) {

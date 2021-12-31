@@ -1,5 +1,9 @@
-#include "pch.h"
+#include "mat4.h"
 #include <xmmintrin.h>
+
+#include "vec3.h"
+
+#include <math.h>
 
 float deg2rad(float deg) {
 	return deg * 3.14159265f / 180.0f;

@@ -84,8 +84,6 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gh /GH %(AdditionalOptions)</AdditionalOptions>
@@ -101,8 +99,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -117,8 +113,6 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gh /GH %(AdditionalOptions)</AdditionalOptions>
@@ -134,8 +128,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAPI_WINDOWS;GAPI_DX11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -146,9 +138,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\api\os\none\n_utils.c" />
-    <ClCompile Include="src\api\os\windows\w_utils.c" />
-    <ClCompile Include="src\app.c" />
     <ClCompile Include="src\assets\image.c" />
     <ClCompile Include="src\ecs\component\constraints.c" />
     <ClCompile Include="src\ecs\ecs.c" />
@@ -157,19 +146,12 @@
     <ClCompile Include="src\input\keyboard.c" />
     <ClCompile Include="src\input\mouse.c" />
     <ClCompile Include="src\log.c" />
-    <ClCompile Include="src\main.c" />
     <ClCompile Include="src\math\convert.c" />
     <ClCompile Include="src\math\mat4.c" />
     <ClCompile Include="src\math\quaternion.c" />
     <ClCompile Include="src\math\vec3.c" />
     <ClCompile Include="src\math\vec4.c" />
     <ClCompile Include="src\mem.c" />
-    <ClCompile Include="src\pch.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="src\profiler.c">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </AdditionalOptions>
@@ -181,14 +163,12 @@
       </AdditionalOptions>
     </ClCompile>
     <ClCompile Include="src\scene\camera.c" />
-    <ClCompile Include="src\stats.c" />
     <ClCompile Include="src\utils\array.c" />
     <ClCompile Include="src\utils\dictionary.c" />
     <ClCompile Include="src\utils\stack.c" />
     <ClCompile Include="src\utils\str.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\app.h" />
     <ClInclude Include="src\assets\assets_types.h" />
     <ClInclude Include="src\assets\image.h" />
     <ClInclude Include="src\ecs\component\constraints.h" />
@@ -196,7 +176,6 @@
     <ClInclude Include="src\ecs\ecs_types.h" />
     <ClInclude Include="src\ecs\system\constraints_resolver.h" />
     <ClInclude Include="src\ecs\component\transform.h" />
-    <ClInclude Include="src\engine.h" />
     <ClInclude Include="src\eng_common_types.h" />
     <ClInclude Include="src\eng_types.h" />
     <ClInclude Include="src\input\keyboard.h" />
@@ -213,12 +192,8 @@
     <ClInclude Include="src\math\vec4.h" />
     <ClInclude Include="src\math\math_types.h" />
     <ClInclude Include="src\mem.h" />
-    <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\profiler.h" />
     <ClInclude Include="src\scene\camera.h" />
-    <ClInclude Include="src\scene\scene.h" />
-    <ClInclude Include="src\stats.h" />
-    <ClInclude Include="src\types.h" />
     <ClInclude Include="src\utils\array.h" />
     <ClInclude Include="src\utils\data_types.h" />
     <ClInclude Include="src\utils\dictionary.h" />

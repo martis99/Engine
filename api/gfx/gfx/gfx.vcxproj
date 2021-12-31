@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{46fcbc57-1a11-4d82-ba42-a592f640a163}</ProjectGuid>
+    <RootNamespace>gfx</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\Properties.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\Properties.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\Properties.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\Properties.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>GAPI_DX11;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>gfx_pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>GAPI_DX11;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>gfx_pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>GAPI_DX11;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>gfx_pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>GAPI_DX11;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>gfx_pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="src\api\ctx\gfx_api_context.h" />
+    <ClInclude Include="src\api\gfx\gfx_api_framebuffer.h" />
+    <ClInclude Include="src\api\gfx\gfx_api_mesh.h" />
+    <ClInclude Include="src\gfx_types.h" />
+    <ClInclude Include="src\api\gfx\gfx_api_renderer.h" />
+    <ClInclude Include="src\api\gfx\gfx_api_shader.h" />
+    <ClInclude Include="src\api\gfx\gfx_api_shadergenerator.h" />
+    <ClInclude Include="src\api\gfx\gfx_api_texture.h" />
+    <ClInclude Include="src\api\gfx\gfx_api_uniform_buffer.h" />
+    <ClInclude Include="src\api\gfx\gfx_api_types.h" />
+    <ClInclude Include="src\assets\gfx_assets.h" />
+    <ClInclude Include="src\assets\gfx_buffer.h" />
+    <ClInclude Include="src\assets\gfx_font.h" />
+    <ClInclude Include="src\assets\gfx_framebuffer.h" />
+    <ClInclude Include="src\assets\gfx_material.h" />
+    <ClInclude Include="src\assets\gfx_mesh.h" />
+    <ClInclude Include="src\assets\gfx_model.h" />
+    <ClInclude Include="src\assets\gfx_shader.h" />
+    <ClInclude Include="src\assets\gfx_texture.h" />
+    <ClInclude Include="src\assets\gfx_uniform_buffer.h" />
+    <ClInclude Include="src\gfx_context.h" />
+    <ClInclude Include="src\ecs\component\gfx_instance_component.h" />
+    <ClInclude Include="src\ecs\component\gfx_mesh_component.h" />
+    <ClInclude Include="src\ecs\component\gfx_sprite.h" />
+    <ClInclude Include="src\ecs\component\gfx_text.h" />
+    <ClInclude Include="src\ecs\system\gfx_batch_renderer.h" />
+    <ClInclude Include="src\ecs\system\gfx_instance_renderer.h" />
+    <ClInclude Include="src\ecs\system\gfx_line_renderer.h" />
+    <ClInclude Include="src\ecs\system\gfx_mesh_renderer.h" />
+    <ClInclude Include="src\ecs\system\gfx_model_renderer.h" />
+    <ClInclude Include="src\ecs\system\gfx_sprite_renderer.h" />
+    <ClInclude Include="src\ecs\system\gfx_text_renderer.h" />
+    <ClInclude Include="src\gfx_renderer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\api\gfx\gfx_api_shadergenerator.c" />
+    <ClCompile Include="src\gfx_types.c" />
+    <ClCompile Include="src\assets\gfx_assets.c" />
+    <ClCompile Include="src\assets\gfx_buffer.c" />
+    <ClCompile Include="src\assets\gfx_font.c" />
+    <ClCompile Include="src\assets\gfx_framebuffer.c" />
+    <ClCompile Include="src\assets\gfx_material.c" />
+    <ClCompile Include="src\assets\gfx_mesh.c" />
+    <ClCompile Include="src\assets\gfx_model.c" />
+    <ClCompile Include="src\assets\gfx_shader.c" />
+    <ClCompile Include="src\assets\gfx_texture.c" />
+    <ClCompile Include="src\assets\gfx_uniform_buffer.c" />
+    <ClCompile Include="src\gfx_context.c" />
+    <ClCompile Include="src\ecs\component\gfx_instance_component.c" />
+    <ClCompile Include="src\ecs\component\gfx_mesh_component.c" />
+    <ClCompile Include="src\ecs\component\gfx_sprite.c" />
+    <ClCompile Include="src\ecs\component\gfx_text.c" />
+    <ClCompile Include="src\ecs\system\gfx_batch_renderer.c" />
+    <ClCompile Include="src\ecs\system\gfx_instance_renderer.c" />
+    <ClCompile Include="src\ecs\system\gfx_line_renderer.c" />
+    <ClCompile Include="src\ecs\system\gfx_mesh_renderer.c" />
+    <ClCompile Include="src\ecs\system\gfx_model_renderer.c" />
+    <ClCompile Include="src\ecs\system\gfx_sprite_renderer.c" />
+    <ClCompile Include="src\ecs\system\gfx_text_renderer.c" />
+    <ClCompile Include="src\gfx_renderer.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\lib\lib.vcxproj">
+      <Project>{72878cbb-277a-4dc9-b385-3adbbfac8218}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

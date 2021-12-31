@@ -1,4 +1,5 @@
 #pragma once
+#include "eng_common_types.h"
 
 void ms_button_pressed(byte button);
 void ms_button_released(byte button);

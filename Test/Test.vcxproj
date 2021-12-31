@@ -83,7 +83,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)apis\gfx\gfx\src;$(SolutionDir)apis\wnd\wnd\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)api\gfx\gfx\src;$(SolutionDir)api\wnd\wnd\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -99,7 +99,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)apis\gfx\gfx\src;$(SolutionDir)apis\wnd\wnd\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)api\gfx\gfx\src;$(SolutionDir)api\wnd\wnd\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -115,7 +115,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)apis\gfx\gfx\src;$(SolutionDir)apis\wnd\wnd\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)api\gfx\gfx\src;$(SolutionDir)api\wnd\wnd\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -131,7 +131,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)apis\gfx\gfx\src;$(SolutionDir)apis\wnd\wnd\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)api\gfx\gfx\src;$(SolutionDir)api\wnd\wnd\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -143,19 +143,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\main.c" />
     <ClCompile Include="src\scene.c" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\apis\gfx\gfx\gfx.vcxproj">
+    <ProjectReference Include="..\api\gfx\gfx\gfx.vcxproj">
       <Project>{46fcbc57-1a11-4d82-ba42-a592f640a163}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\apis\gfx\gfx_dx11\gfx_dx11.vcxproj">
+    <ProjectReference Include="..\api\gfx\gfx_dx11\gfx_dx11.vcxproj">
       <Project>{26b47d1c-de72-4e98-bf34-6b1aa59078df}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\apis\wnd\wnd\wnd.vcxproj">
+    <ProjectReference Include="..\api\wnd\wnd\wnd.vcxproj">
       <Project>{be35e2a9-5b96-432e-9191-c47120199bb3}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\apis\wnd\wnd_win\wnd_win.vcxproj">
+    <ProjectReference Include="..\api\wnd\wnd_win\wnd_win.vcxproj">
       <Project>{d3a773fe-5d24-4906-830a-fc5a0747b689}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
@@ -164,6 +165,9 @@
     <ProjectReference Include="..\lib\lib.vcxproj">
       <Project>{72878cbb-277a-4dc9-b385-3adbbfac8218}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

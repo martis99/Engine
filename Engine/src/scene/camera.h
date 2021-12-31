@@ -1,5 +1,5 @@
 #pragma once
-#include "types.h"
+#include "eng_types.h"
 
 Camera* camera_create(Camera* camera, vec3 position, vec3 rotation, CameraSettings settings);
 void camera_mouse_wheel(Camera* camera, float delta);

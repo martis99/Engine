@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "mouse.h"
 
 bool left_is_pressed = 0;
 bool right_is_pressed = 0;

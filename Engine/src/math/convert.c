@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "convert.h"
 
 vec2 vec2i_to_vec2(vec2i value) {

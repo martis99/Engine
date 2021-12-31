@@ -1,5 +1,8 @@
-#include "pch.h"
 #include "str.h"
+
+#include "eng_types.h"
+
+#include <stdarg.h>
 
 void str_create(Str* str, uint count) {
 	str->data = malloc(count * sizeof(char));

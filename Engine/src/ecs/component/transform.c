@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "transform.h"
 
 #include "math/maths.h"

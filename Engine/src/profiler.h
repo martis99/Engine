@@ -1,5 +1,4 @@
 #pragma once
-#include "types.h"
 
 void* profiler_create();
 void profiler_delete();

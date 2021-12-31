@@ -1,8 +1,9 @@
-#include "pch.h"
 #include "image.h"
 
 #include "stb/stb_image.h"
 #include "stb/stb_image_write.h"
+
+#include "eng_types.h"
 
 Image* image_create(Image* image, int width, int height, int channels) {
 	image->width = width;
