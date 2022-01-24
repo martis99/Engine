@@ -15,7 +15,7 @@ BatchRenderer* batch_renderer_create(BatchRenderer* batch_renderer, Renderer* re
 	batch_renderer->shader = material->shader;
 	batch_renderer->material = material;
 
-	ABufferDesc* vertices_desc = ashaderdesc_get_bufferdesc(material->shader->desc, A_BFR_VERTEX);
+	ABufferDesc* vertices_desc = ashaderdesc_get_bufferdesc(material->shader->desc, A_BFR_VS_IN0);
 	batch_renderer->vertex_size = abufferdesc_size(vertices_desc);
 	batch_renderer->vertices = m_malloc(MAX_VERTICES * (size_t)batch_renderer->vertex_size);
 	batch_renderer->vertices_count = 0;

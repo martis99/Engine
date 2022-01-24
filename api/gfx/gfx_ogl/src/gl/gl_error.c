@@ -61,25 +61,25 @@ static const char* get_type(GLenum type) {
 }
 
 static char* get_info(GLError* error, GLuint num_msgs) {
-	str_zero(&error->info);
-
-	GLuint curpos = 0;
+	str_clear(&error->info);
+	str_off_reset(&error->msgs);
 	for (GLuint i = 0; i < num_msgs; i++) {
 		printf("Id: 0x%X\n", error->ids[i]);
-		str_catf(&error->info, "%s %s %u: ", get_severity(error->severities[i]), get_type(error->types[i]), error->ids[i]);
-		str_cats(&error->info, str_view(&error->msgs, curpos, error->lengths[i]));
-		str_nl(&error->info);
-		curpos += error->lengths[i];
+		str_add_cstrf(&error->info, "%s %s %u: ", get_severity(error->severities[i]), get_type(error->types[i]), error->ids[i]);
+		str_add_strn(&error->info, &error->msgs, error->lengths[i]);
+		str_add_nl(&error->info);
+		str_off_add(&error->msgs, error->lengths[i]);
 	}
+	str_off_reset(&error->msgs);
 	return error->info.data;
 }
 
 bool gl_error_failed(GLError* error, const char* msg, const char* fn, const char* file, int line) {
 	GLuint num_msgs = glGetDebugMessageLog(error->max_count, error->msgs.count, error->sources, error->types, error->ids, error->severities, error->lengths, error->msgs.data);
 	if (num_msgs > 0) {
-		str_zero(&error->text);
+		str_clear(&error->text);
 
-		str_catf(&error->text,
+		str_add_cstrf(&error->text,
 			"%s\n"
 			"INFO:\n%s\n"
 			"%s: %i\n",
@@ -94,9 +94,9 @@ bool gl_error_failed(GLError* error, const char* msg, const char* fn, const char
 bool gl_error_assert(GLError* error, const char* fn, const char* file, int line) {
 	GLuint num_msgs = glGetDebugMessageLog(error->max_count, error->msgs.count, error->sources, error->types, error->ids, error->severities, error->lengths, error->msgs.data);
 	if (num_msgs > 0) {
-		str_zero(&error->text);
+		str_clear(&error->text);
 
-		str_catf(&error->text,
+		str_add_cstrf(&error->text,
 			"%s\n"
 			"INFO:\n%s\n"
 			"%s: %i\n",

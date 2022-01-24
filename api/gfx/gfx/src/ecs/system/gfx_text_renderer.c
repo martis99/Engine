@@ -9,6 +9,8 @@
 
 #include "math/maths.h"
 
+#include "gfx_shader_creator.h"
+
 #define MAX_QUADS 200
 #define MAX_VERTICES MAX_QUADS * 4
 
@@ -28,79 +30,40 @@ typedef struct TextVertexData {
 TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* renderer, Transform transform) {
 	text_renderer->transform = transform;
 
-#ifdef GAPI_NONE
-	const char* src_vert = "";
-	const char* src_frag = "";
-#elif GAPI_OPENGL
 	const char* src_vert =
-		"out Vertex {\n"
-		"	vec4     Color;\n"
-		"	vec2     TexCoord;\n"
-		"	flat int TexId;\n"
-		"	flat int Entity;\n"
-		"} vs_out;\n"
-		"void main() {\n"
-		"	gl_Position = ViewProjection * Model * vec4(Position, 1.0);\n"
-		"	vs_out.Color = Color;\n"
-		"	vs_out.TexCoord = TexCoord;\n"
-		"	vs_out.TexId = TexId;\n"
-		"	vs_out.Entity = Entity;\n"
-		"}\0";
+		"VSOutput vs_main(VSInput vs_input) {\n"
+		"	VSOutput vs_output;\n"
+		"	vs_output.SV_Position = mul(vec4f(vs_input.Position, 1.0f), mul(Model, ViewProjection));\n"
+		"	vs_output.Color = vs_input.Color;\n"
+		"	vs_output.TexCoord = vs_input.TexCoord;\n"
+		"	vs_output.TexId = vs_input.TexId;\n"
+		"	vs_output.Entity = vs_input.Entity;\n"
+		"	return vs_output;\n"
+		"}\n"
+		"\0";
 
 	const char* src_frag =
-		"in Vertex {\n"
-		"	vec4     Color;\n"
-		"	vec2     TexCoord;\n"
-		"	flat int TexId;\n"
-		"	flat int Entity;\n"
-		"} vs_in;\n"
-		"void main() {\n"
-		"	float alpha = sample_tex(vs_in.TexId, vs_in.TexCoord).r;"
-		"	if(alpha == 0) {\n"
-		"		discard;\n"
+		"FSOutput fs_main(VSOutput fs_input) {\n"
+		"	FSOutput fs_output;\n"
+		"	float alpha = sample_tex(fs_input.TexId, fs_input.TexCoord).r;\n"
+		"	if (alpha == 0) {\n"
+		"		discard();\n"
 		"	}\n"
-		"	FragColor = vs_in.Color * vec4(1.0f, 1.0f, 1.0f, alpha);\n"
-		"	EntityId = vs_in.Entity;\n"
-		"}\0";
-#elif GAPI_DX11
-	const char* src_vert =
-		"struct Output {\n"
-		"	float4 pos         : SV_Position;\n"
-		"	float4 color       : Color;\n"
-		"	float2 tex_coord   : TexCoord;\n"
-		"	int    tex_id      : TexId;\n"
-		"	int    entity      : Entity;\n"
-		"};\n"
-		"Output main(Input input) {\n"
-		"	Output output;\n"
-		"	output.pos         = mul(float4(input.Position, 1.0f), mul(Model, ViewProjection));\n"
-		"	output.color       = input.Color;\n"
-		"	output.tex_coord   = input.TexCoord;\n"
-		"	output.tex_id      = input.TexId;\n"
-		"	output.entity      = input.Entity;\n"
-		"	return output;\n"
-		"}\0";
+		"	fs_output.FragColor = fs_input.Color * vec4f(1.0f, 1.0f, 1.0f, alpha);\n"
+		"	fs_output.EntityId = fs_input.Entity;\n"
+		"	return fs_output;\n"
+		"}\n\0";
 
-	const char* src_frag =
-		"struct Input {\n"
-		"	float4 pos         : SV_Position;\n"
-		"	float4 color       : Color;\n"
-		"	float2 tex_coord   : TexCoord;\n"
-		"	int    tex_id      : TexId;\n"
-		"	int    entity      : Entity;\n"
-		"};\n"
-		"Output main(Input input) {\n"
-		"	Output output;\n"
-		"	float alpha = sample_tex(input.tex_id, input.tex_coord);\n"
-		"	clip(alpha == 0 ? -1 : 1);\n"
-		"	output.FragColor = input.color * float4(1.0, 1.0, 1.0, alpha);\n"
-		"	output.EntityId = input.entity;\n"
-		"	return output;\n"
-		"}\0";
-#endif
-
-	AValue vertex[] = {
+	AValue vs_in[] = {
 		{VEC3F, "Position"},
+		{VEC4F, "Color"},
+		{VEC2F, "TexCoord"},
+		{VEC1I, "TexId"},
+		{VEC1I, "Entity"}
+	};
+
+	AValue vs_out[] = {
+		{VEC4F, "SV_Position"},
 		{VEC4F, "Color"},
 		{VEC2F, "TexCoord"},
 		{VEC1I, "TexId"},
@@ -123,11 +86,12 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), MAX_VERTICES, "Input"},
+		{A_BFR_VS_IN0, 0, vs_in, sizeof(vs_in), MAX_VERTICES, "VSInput"},
+		{A_BFR_VS_OUT, 0, vs_out, sizeof(vs_out), MAX_VERTICES, "VSOutput"},
 		{A_BFR_INDEX, 0, index, sizeof(index), 0, ""},
 		{A_BFR_GLOBAL, 0, global, sizeof(global), 0, "Camera"},
 		{A_BFR_VS, 1, vs, sizeof(vs), 0, "VSMaterial"},
-		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
+		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "FSOutput"}
 	};
 
 	AShaderDesc shader_desc = { 0 };
@@ -136,7 +100,7 @@ TextRenderer* text_renderer_create(TextRenderer* text_renderer, Renderer* render
 	shader_desc.textures_count = 16;
 	shader_desc.texture_type = VEC4F;
 
-	if (shader_create(&text_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
+	if (gfx_sc_create_shader(&renderer->shader_creator, &text_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
 		log_msg(renderer->log, "Failed to create text shader");
 		return NULL;
 	}

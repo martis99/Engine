@@ -164,6 +164,8 @@
     </ClCompile>
     <ClCompile Include="src\scene\camera.c" />
     <ClCompile Include="src\utils\array.c" />
+    <ClCompile Include="src\utils\ast.c" />
+    <ClCompile Include="src\utils\bnf.c" />
     <ClCompile Include="src\utils\dictionary.c" />
     <ClCompile Include="src\utils\stack.c" />
     <ClCompile Include="src\utils\str.c" />
@@ -195,10 +197,13 @@
     <ClInclude Include="src\profiler.h" />
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\utils\array.h" />
+    <ClInclude Include="src\utils\ast.h" />
+    <ClInclude Include="src\utils\bnf.h" />
     <ClInclude Include="src\utils\data_types.h" />
     <ClInclude Include="src\utils\dictionary.h" />
     <ClInclude Include="src\utils\stack.h" />
     <ClInclude Include="src\utils\str.h" />
+    <ClInclude Include="src\utils\str_type.h" />
     <ClInclude Include="src\utils\utils.h" />
   </ItemGroup>
   <ItemGroup>

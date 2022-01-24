@@ -62,7 +62,7 @@ static const char* get_category(DXGI_INFO_QUEUE_MESSAGE_CATEGORY category) {
 }
 
 static char* get_info(DX11Error* error) {
-	str_zero(&error->info);
+	str_clear(&error->info);
 
 	UINT64 end = error->info_queue->lpVtbl->GetNumStoredMessages(error->info_queue, DXGI_DEBUG_ALL);
 	for (UINT64 i = error->begin; i < end; i++) {
@@ -80,9 +80,9 @@ static char* get_info(DX11Error* error) {
 			return NULL;
 		}
 
-		str_catf(&error->info, "%s %s #%i: ", get_category(msg->Category), get_severity(msg->Severity), msg->ID);
-		str_catc(&error->info, msg->pDescription, (uint)msg->DescriptionByteLength);
-		str_nl(&error->info);
+		str_add_cstrf(&error->info, "%s %s #%i: ", get_category(msg->Category), get_severity(msg->Severity), msg->ID);
+		str_add_cstr(&error->info, msg->pDescription, (uint)msg->DescriptionByteLength - 1);
+		str_add_nl(&error->info);
 		m_free(msg, messageLength);
 	}
 	return error->info.data;

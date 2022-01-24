@@ -39,6 +39,8 @@
 #include "assets/gfx_model.h"
 #include "assets/gfx_uniform_buffer.h"
 
+#include "ecs/../gfx_shader_creator.h"
+
 #include <time.h>
 
 #define C_TRANSFORM 0
@@ -91,6 +93,7 @@ static Scene* create_systems(Scene* scene) {
 		log_error("Failed to create text renderer");
 		return NULL;
 	}
+
 	Transform line_transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 	if (line_renderer_create(&scene->line_renderer, &scene->renderer, line_transform) == NULL) {
 		log_error("Failed to create line renderer");
@@ -367,7 +370,7 @@ static void scene_mouse_wheel(Scene* scene, float delta) {
 
 static Scene* scene_create(int width, int height) {
 	Scene* scene = m_malloc(sizeof(Scene));
-	
+
 	scene->log.on_msg = on_msg;
 	scene->log.on_err = on_err;
 	scene->log.on_errw = on_errw;
@@ -382,7 +385,7 @@ static Scene* scene_create(int width, int height) {
 	window_settings.width = width;
 	window_settings.height = height;
 
-	AWindowCallbacks callbacks;
+	AWindowCallbacks callbacks = { 0 };
 	callbacks.key_pressed = scene_key_pressed;
 	callbacks.key_released = scene_key_released;
 	callbacks.mouse_pressed = scene_mouse_pressed;
@@ -404,6 +407,11 @@ static Scene* scene_create(int width, int height) {
 
 	if (renderer_create(&scene->renderer, &scene->context, width, height, &scene->log) == NULL) {
 		log_error("Failed to create renderer");
+		return NULL;
+	}
+
+	if (gfx_sc_create(&scene->renderer.shader_creator) == NULL) {
+		log_error("Failed to create shader creator");
 		return NULL;
 	}
 
@@ -643,6 +651,7 @@ static void scene_delete(Scene* scene) {
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
 	framebuffer_delete(&scene->framebuffer, &scene->renderer);
+	gfx_sc_delete(&scene->renderer.shader_creator);
 	renderer_delete(&scene->renderer);
 	context_delete(&scene->context);
 	window_delete(&scene->window);

@@ -65,8 +65,8 @@ static bool add_layout(ARenderer* renderer, ABufferDesc* desc, uint* index, GLui
 AMesh* amesh_create(ARenderer* renderer, AShader* shader, AShaderDesc desc, AMeshData data, APrimitive primitive) {
 	AMesh* mesh = m_malloc(sizeof(AMesh));
 
-	ABufferDesc* vertices_desc = ashaderdesc_get_bufferdesc(desc, A_BFR_VERTEX);
-	ABufferDesc* instances_desc = ashaderdesc_get_bufferdesc(desc, A_BFR_INSTANCE);
+	ABufferDesc* vertices_desc = ashaderdesc_get_bufferdesc(desc, A_BFR_VS_IN0);
+	ABufferDesc* instances_desc = ashaderdesc_get_bufferdesc(desc, A_BFR_VS_IN1);
 	ABufferDesc* indices_desc = ashaderdesc_get_bufferdesc(desc, A_BFR_INDEX);
 
 	mesh->va = gl_va_create(renderer->error);

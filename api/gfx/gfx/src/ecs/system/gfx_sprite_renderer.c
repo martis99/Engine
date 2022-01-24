@@ -6,6 +6,8 @@
 
 #include "math/maths.h"
 
+#include "gfx_shader_creator.h"
+
 #define MAX_QUADS 200
 #define MAX_VERTICES MAX_QUADS * 4
 
@@ -31,152 +33,73 @@ typedef struct SpriteVertexData {
 SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer* renderer, Transform transform) {
 	sprite_renderer->transform = transform;
 
-#ifdef GAPI_NONE
-	const char* src_vert = "";
-	const char* src_frag = "";
-#elif GAPI_OPENGL
 	const char* src_vert =
-		"out Vertex {\n"
-		"	vec4     Color;\n"
-		"	vec2     TexCoord;\n"
-		"	vec2     TexSize;\n"
-		"	flat int TexId;\n"
-		"	vec2     SprSize;\n"
-		"	vec4     SprBorders;\n"
-		"	flat int Entity;\n"
-		"} vs_out;\n"
-		"void main() {\n"
-		"	gl_Position = ViewProjection * Model * vec4(Position, 1.0);\n"
-		"	vs_out.Color = Color;\n"
-		"	vs_out.TexCoord = TexCoord;\n"
-		"	vs_out.TexSize = TexSize;\n"
-		"	vs_out.TexId = TexId;\n"
-		"	vs_out.SprSize = SprSize;\n"
-		"	vs_out.SprBorders = SprBorders;\n"
-		"	vs_out.Entity = Entity;\n"
-		"}\0";
+		"VSOutput vs_main(VSInput vs_input) {\n"
+		"	VSOutput vs_output;\n"
+		"	vs_output.SV_Position = mul(vec4f(vs_input.Position, 1.0f), mul(Model, ViewProjection));\n"
+		"	vs_output.Color = vs_input.Color;\n"
+		"	vs_output.TexCoord = vs_input.TexCoord;\n"
+		"	vs_output.TexSize = vs_input.TexSize;\n"
+		"	vs_output.TexId = vs_input.TexId;\n"
+		"	vs_output.SprSize = vs_input.SprSize;\n"
+		"	vs_output.SprBorders = vs_input.SprBorders;\n"
+		"	vs_output.Entity = vs_input.Entity;\n"
+		"	return vs_output;\n"
+		"}\n"
+		"\0";
 
 	const char* src_frag =
-		"in Vertex {\n"
-		"	vec4     Color;\n"
-		"	vec2     TexCoord;\n"
-		"	vec2     TexSize;\n"
-		"	flat int TexId;\n"
-		"	vec2     SprSize;\n"
-		"	vec4     SprBorders;\n"
-		"	flat int Entity;\n"
-		"} vs_in;\n"
-		"vec2 tex_borders(vec2 tex_coord, vec2 tex_size, vec2 spr_size, vec4 spr_borders) {\n"
-		"	vec2 pixel = tex_coord * spr_size;\n"
+		"vec2f tex_borders(vec2f tex_coord, vec2f tex_size, vec2f spr_size, vec4f spr_borders) {\n"
+		"	vec2f pixel = tex_coord * spr_size;\n"
 		"	float l = spr_borders.x;\n"
 		"	float r = spr_size.x - spr_borders.y;\n"
 		"	float u = spr_borders.z;\n"
 		"	float d = spr_size.y - spr_borders.w;\n"
-		"	if(pixel.x < l) {\n"
+		"	if (pixel.x < l) {\n"
 		"		tex_coord.x = pixel.x / tex_size.x;\n"
-		"	} else if(pixel.x > r) {\n"
+		"	} else if (pixel.x > r) {\n"
 		"		tex_coord.x = 1 - (spr_size.x - pixel.x) / tex_size.x;\n"
 		"	} else {\n"
 		"		float offset = spr_borders.x / tex_size.x;\n"
 		"		float coords = (pixel.x - spr_borders.x) / tex_size.x;\n"
-		"		float borders = spr_borders.x + spr_borders.y;"
+		"		float borders = spr_borders.x + spr_borders.y;\n"
 		"		float scale = (tex_size.x - borders) / (spr_size.x - borders);\n"
 		"		tex_coord.x = offset + coords * scale;\n"
 		"	}\n"
-		"	if(pixel.y < u) {\n"
+		"	if (pixel.y < u) {\n"
 		"		tex_coord.y = 1 - pixel.y / tex_size.y;\n"
-		"	} else if(pixel.y > d) {\n"
+		"	} else if (pixel.y > d) {\n"
 		"		tex_coord.y = (spr_size.y - pixel.y) / tex_size.y;\n"
 		"	} else {\n"
 		"		float offset = spr_borders.z / tex_size.y;\n"
 		"		float coords = (pixel.y - spr_borders.z) / tex_size.y;\n"
-		"		float borders = spr_borders.z + spr_borders.w;"
+		"		float borders = spr_borders.z + spr_borders.w;\n"
 		"		float scale = (tex_size.y - borders) / (spr_size.y - borders);\n"
-		"		tex_coord.y = 1.0 - (offset + coords * scale);\n"
+		"		tex_coord.y = 1.0f - (offset + coords * scale);\n"
 		"	}\n"
 		"	return tex_coord;\n"
 		"}\n"
-		"void main() {\n"
-		"	vec2 tex_coord = tex_borders(vs_in.TexCoord, vs_in.TexSize, vs_in.SprSize, vs_in.SprBorders);\n"
-		"	FragColor = vs_in.Color * sample_tex(vs_in.TexId, tex_coord);\n"
-		"	EntityId = vs_in.Entity;\n"
-		"}\0";
-#elif GAPI_DX11
-	const char* src_vert =
-		"struct Output {\n"
-		"	float4 pos         : SV_Position;\n"
-		"	float4 color       : Color;\n"
-		"	float2 tex_coord   : TexCoord;\n"
-		"	float2 tex_size    : TexSize;\n"
-		"	int    tex_id      : TexId;\n"
-		"	float2 spr_size    : SprSize;\n"
-		"	float4 spr_borders : SprBorders;\n"
-		"	int    entity      : Entity;\n"
-		"};\n"
-		"Output main(Input input) {\n"
-		"	Output output;\n"
-		"	output.pos         = mul(float4(input.Position, 1.0f), mul(Model, ViewProjection));\n"
-		"	output.color       = input.Color;\n"
-		"	output.tex_coord   = input.TexCoord;\n"
-		"	output.tex_size    = input.TexSize;\n"
-		"	output.tex_id      = input.TexId;\n"
-		"	output.spr_size    = input.SprSize;\n"
-		"	output.spr_borders = input.SprBorders;\n"
-		"	output.entity      = input.Entity;\n"
-		"	return output;\n"
-		"}\0";
+		"FSOutput fs_main(VSOutput fs_input) {\n"
+		"	FSOutput fs_output;\n"
+		"	vec2f tex_coord = tex_borders(fs_input.TexCoord, fs_input.TexSize, fs_input.SprSize, fs_input.SprBorders);\n"
+		"	fs_output.FragColor = fs_input.Color * sample_tex(fs_input.TexId, tex_coord);\n"
+		"	fs_output.EntityId = fs_input.Entity;\n"
+		"	return fs_output;\n"
+		"}\n\0";
 
-	const char* src_frag =
-		"struct Input {\n"
-		"	float4 pos         : SV_Position;\n"
-		"	float4 color       : Color;\n"
-		"	float2 tex_coord   : TexCoord;\n"
-		"	float2 tex_size    : TexSize;\n"
-		"	int    tex_id      : TexId;\n"
-		"	float2 spr_size    : SprSize;\n"
-		"	float4 spr_borders : SprBorders;\n"
-		"	int    entity      : Entity;\n"
-		"};\n"
-		"float2 tex_borders(float2 tex_coord, float2 tex_size, float2 spr_size, float4 spr_borders) {\n"
-		"	float2 pixel = tex_coord * spr_size;\n"
-		"	float l = spr_borders.x;\n"
-		"	float r = spr_size.x - spr_borders.y;\n"
-		"	float u = spr_borders.z;\n"
-		"	float d = spr_size.y - spr_borders.w;\n"
-		"	if(pixel.x < l) {\n"
-		"		tex_coord.x = pixel.x / tex_size.x;\n"
-		"	} else if(pixel.x > r) {\n"
-		"		tex_coord.x = 1 - (spr_size.x - pixel.x) / tex_size.x;\n"
-		"	} else {\n"
-		"		float offset = spr_borders.x / tex_size.x;\n"
-		"		float coords = (pixel.x - spr_borders.x) / tex_size.x;\n"
-		"		float borders = spr_borders.x + spr_borders.y;"
-		"		float scale = (tex_size.x - borders) / (spr_size.x - borders);\n"
-		"		tex_coord.x = offset + coords * scale;\n"
-		"	}\n"
-		"	if(pixel.y < u) {\n"
-		"		tex_coord.y = 1 - pixel.y / tex_size.y;\n"
-		"	} else if(pixel.y > d) {\n"
-		"		tex_coord.y = (spr_size.y - pixel.y) / tex_size.y;\n"
-		"	} else {\n"
-		"		float offset = spr_borders.z / tex_size.y;\n"
-		"		float coords = (pixel.y - spr_borders.z) / tex_size.y;\n"
-		"		float borders = spr_borders.z + spr_borders.w;"
-		"		float scale = (tex_size.y - borders) / (spr_size.y - borders);\n"
-		"		tex_coord.y = 1.0 - (offset + coords * scale);\n"
-		"	}\n"
-		"	return tex_coord;\n"
-		"}\n"
-		"Output main(Input input) {\n"
-		"	Output output;\n"
-		"	float2 tex_coord = tex_borders(input.tex_coord, input.tex_size, input.spr_size, input.spr_borders);\n"
-		"	output.FragColor = input.color * sample_tex(input.tex_id, tex_coord);\n"
-		"	output.EntityId = input.entity;\n"
-		"	return output;\n"
-		"}\0";
-#endif
-	AValue vertex[] = {
+	AValue vs_in[] = {
 		{VEC3F, "Position"},
+		{VEC4F, "Color"},
+		{VEC2F, "TexCoord"},
+		{VEC2F, "TexSize"},
+		{VEC1I, "TexId"},
+		{VEC2F, "SprSize" },
+		{VEC4F, "SprBorders"},
+		{VEC1I, "Entity"},
+	};
+
+	AValue vs_out[] = {
+		{VEC4F, "SV_Position"},
 		{VEC4F, "Color"},
 		{VEC2F, "TexCoord"},
 		{VEC2F, "TexSize"},
@@ -202,11 +125,12 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), MAX_VERTICES, "Input"},
+		{A_BFR_VS_IN0, 0, vs_in, sizeof(vs_in), MAX_VERTICES, "VSInput"},
+		{A_BFR_VS_OUT, 0, vs_out, sizeof(vs_out), MAX_VERTICES, "VSOutput"},
 		{A_BFR_INDEX, 0, index, sizeof(index), 0, ""},
 		{A_BFR_GLOBAL, 0, global, sizeof(global), 0, "Camera"},
 		{A_BFR_VS, 1, vs, sizeof(vs), 0, "VSMaterial"},
-		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
+		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "FSOutput"}
 	};
 
 	AShaderDesc shader_desc = { 0 };
@@ -215,7 +139,7 @@ SpriteRenderer* sprite_renderer_create(SpriteRenderer* sprite_renderer, Renderer
 	shader_desc.textures_count = 16;
 	shader_desc.texture_type = VEC4F;
 
-	if (shader_create(&sprite_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
+	if (gfx_sc_create_shader(&renderer->shader_creator, &sprite_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
 		log_msg(renderer->log, "Failed to create sprite shader");
 		return NULL;
 	}

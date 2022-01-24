@@ -118,8 +118,9 @@ typedef struct AValue {
 
 typedef enum ABufferType {
 	A_BFR_UNKNOWN,
-	A_BFR_VERTEX,
-	A_BFR_INSTANCE,
+	A_BFR_VS_IN0,
+	A_BFR_VS_IN1,
+	A_BFR_VS_OUT,
 	A_BFR_INDEX,
 	A_BFR_GLOBAL,
 	A_BFR_VS,

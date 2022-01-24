@@ -2,6 +2,14 @@
 #include "eng_types.h"
 #include "api/gfx/gfx_api_types.h"
 
+#include "utils/ast.h"
+#include "utils/bnf.h"
+
+typedef struct ShaderCreator {
+	Bnf from_bnf;
+	Bnf to_bnf;
+} ShaderCreator;
+
 typedef struct Mesh {
 	AMesh* mesh;
 } Mesh;
@@ -28,6 +36,7 @@ typedef struct Renderer {
 	int width;
 	int height;
 	ARenderer* renderer;
+	ShaderCreator shader_creator;
 	Framebuffer framebuffer;
 	Shader shader;
 	Mesh mesh;

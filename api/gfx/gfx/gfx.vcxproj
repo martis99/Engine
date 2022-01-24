@@ -90,7 +90,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GAPI_DX11;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -107,7 +107,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GAPI_DX11;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -124,7 +124,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GAPI_DX11;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -141,7 +141,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GAPI_DX11;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)Engine\src;$(SolutionDir)lib\assimp\include;$(SolutionDir)lib\stb\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -158,6 +158,7 @@
     <ClInclude Include="src\api\ctx\gfx_api_context.h" />
     <ClInclude Include="src\api\gfx\gfx_api_framebuffer.h" />
     <ClInclude Include="src\api\gfx\gfx_api_mesh.h" />
+    <ClInclude Include="src\gfx_shader_creator.h" />
     <ClInclude Include="src\gfx_types.h" />
     <ClInclude Include="src\api\gfx\gfx_api_renderer.h" />
     <ClInclude Include="src\api\gfx\gfx_api_shader.h" />
@@ -190,7 +191,7 @@
     <ClInclude Include="src\gfx_renderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\api\gfx\gfx_api_shadergenerator.c" />
+    <ClCompile Include="src\gfx_shader_creator.c" />
     <ClCompile Include="src\gfx_types.c" />
     <ClCompile Include="src\assets\gfx_assets.c" />
     <ClCompile Include="src\assets\gfx_buffer.c" />

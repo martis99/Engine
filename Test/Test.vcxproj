@@ -150,8 +150,8 @@
     <ProjectReference Include="..\api\gfx\gfx\gfx.vcxproj">
       <Project>{46fcbc57-1a11-4d82-ba42-a592f640a163}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\api\gfx\gfx_dx11\gfx_dx11.vcxproj">
-      <Project>{26b47d1c-de72-4e98-bf34-6b1aa59078df}</Project>
+    <ProjectReference Include="..\api\gfx\gfx_none\gfx_none.vcxproj">
+      <Project>{78f622c9-58c9-4d57-b6c1-27a4db567c89}</Project>
     </ProjectReference>
     <ProjectReference Include="..\api\wnd\wnd\wnd.vcxproj">
       <Project>{be35e2a9-5b96-432e-9191-c47120199bb3}</Project>

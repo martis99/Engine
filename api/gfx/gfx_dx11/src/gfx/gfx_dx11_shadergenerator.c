@@ -2,144 +2,59 @@
 
 #include "gfx_dx11_types.h"
 
-const char* get_type_token(AType type) {
-	switch (type) {
-	case VEC1B:	return NULL;
-	case VEC2B:	return NULL;
-	case VEC3B:	return NULL;
-	case VEC4B:	return NULL;
-	case VEC1UB: return NULL;
-	case VEC2UB: return NULL;
-	case VEC3UB: return NULL;
-	case VEC4UB: return NULL;
-	case VEC1S:	return NULL;
-	case VEC2S:	return NULL;
-	case VEC3S:	return NULL;
-	case VEC4S:	return NULL;
-	case VEC1US: return NULL;
-	case VEC2US: return NULL;
-	case VEC3US: return NULL;
-	case VEC4US: return NULL;
-	case VEC1I:	return "int";
-	case VEC2I:	return "int2";
-	case VEC3I:	return "int3";
-	case VEC4I:	return "int4";
-	case VEC1UI: return "uint";
-	case VEC2UI: return "uint2";
-	case VEC3UI: return "uint3";
-	case VEC4UI: return "uint4";
-	case VEC1F:	return "float";
-	case VEC2F:	return "float2";
-	case VEC3F:	return "float3";
-	case VEC4F: return "float4";
-	case VEC1D:	return NULL;
-	case VEC2D: return NULL;
-	case VEC3D:	return NULL;
-	case VEC4D:	return NULL;
-	case MAT4F: return "row_major matrix";
-	}
-	return "";
+#include "utils/str.h"
+
+void ashadergenerator_generate(AShaderDesc desc, Str* vert, Str* frag) {
+	str_add_char(vert, '\0');
+	printf("----------------------Vertex----------------------------\n");
+	str_print(vert);
+
+	str_add_char(frag, '\0');
+	printf("----------------------Fragment----------------------------\n");
+	str_print(frag);
 }
 
-static void add_cbuffer(char* src, int* n, ABufferDesc desc) {
-	appends(src, n, 3, "cbuffer ", desc.name, " : register (b");
-	append_i(src, n, desc.slot);
-	append(src, n, ") \n");
-	add_values_block(src, n, desc, 0);
-}
-
-static void add_texture_sampler_function(char* src, int* n, AType return_type, const char* textues_name, const char* samplers_name, uint textures_count) {
-	char* id = "id";
-	char* coords = "coords";
-
-	AValue args[] = {
-		{VEC1I, "id"},
-		{VEC2F, "coords"}
-	};
-
-	add_function_header(src, n, return_type, "sample_tex", args, sizeof(args));
-	append(src, n, " {\n	");
-	add_switch(src, n, id);
-	append(src, n, " {\n");
-	for (uint i = 0; i < textures_count; i++) {
-		append(src, n, "	");
-		add_case(src, n, i);
-		append(src, n, "return ");
-		add_array(src, n, textues_name, i);
-		append(src, n, ".Sample(");
-		add_array(src, n, samplers_name, i);
-		appends(src, n, 3, ", ", coords, ");\n");
-	}
-	appends(src, n, 3, "	}\n	return ", get_type_token(return_type), "(");
-	uint count = atype_components(return_type, 1);
-	for (uint i = 0; i < count; i++) {
-		append_i(src, n, 0);
-		if (i < count - 1) {
-			append(src, n, ",");
-		}
-	}
-
-	append(src, n, ");\n}\n");
-}
-
-static void add_texture_sampler(char* src, int* n, AType return_type, const char* textures, const char* samplers, uint count) {
-
-	add_array_declaration(src, n, "Texture2D", textures, count, get_type_token(return_type));
-	add_array_declaration(src, n, "SamplerState", samplers, count, NULL);
-
-	add_texture_sampler_function(src, n, return_type, textures, samplers, count);
-}
-
-static void generate_vertex_shader(AShaderDesc desc, char* src, const char* vert) {
-	int n = 0;
-
-	uint buffers_count = desc.buffers_size / sizeof(ABufferDesc);
-	for (uint i = 0; i < buffers_count; i++) {
-		switch (desc.buffers[i].type) {
-		case A_BFR_GLOBAL: add_cbuffer(src, &n, desc.buffers[i]); break;
-		case A_BFR_VS: add_cbuffer(src, &n, desc.buffers[i]); break;
-		case A_BFR_VERTEX: add_struct(src, &n, desc.buffers[i]); break;
-		case A_BFR_INSTANCE: add_struct(src, &n, desc.buffers[i]); break;
-		}
-	}
-
-	append(src, &n, vert);
-}
-
-static void add_ps_out(char* src, int* n, ABufferDesc desc) {
-	appends(src, n, 3, "struct ", desc.name, " ");
-	append(src, n, "{\n");
-	uint values_count = desc.values_size / sizeof(AValue);
-	for (uint i = 0; i < values_count; i++) {
-		append(src, n, "	");
-		add_type(src, n, desc.values[i].type);
-		appends(src, n, 3, " ", desc.values[i].name, " : SV_Target");
-		append_i(src, n, i);
-		append(src, n, ";\n");
-	}
-	append(src, n, "};\n");
-}
-
-static void generate_fragment_shader(AShaderDesc desc, char* src, const char* frag) {
-	int n = 0;
-
-	uint buffers_count = desc.buffers_size / sizeof(ABufferDesc);
-	for (uint i = 0; i < buffers_count; i++) {
-		switch (desc.buffers[i].type) {
-		case A_BFR_PS: add_cbuffer(src, &n, desc.buffers[i]); break;
-		case A_BFR_PS_OUT: add_ps_out(src, &n, desc.buffers[i]); break;
-		}
-	}
-
-	if (desc.textures_count > 0) {
-		add_texture_sampler(src, &n, desc.texture_type, "Textures", "Samplers", desc.textures_count);
-	}
-
-	append(src, &n, frag);
-}
-
-
-void ashadergenerator_generate(AShaderDesc desc, char* src_vert, char* src_frag, const char* vert, const char* frag) {
-	generate_vertex_shader(desc, src_vert, vert);
-	generate_fragment_shader(desc, src_frag, frag);
+const char* ashadergenerator_get_bnf() {
+	return
+		"<program>                ::= { <vs_in_struct> | <vs_out_struct> | <fs_in_struct> | <fs_out_struct> | <buffer_struct> | <function_definition> | <function_prototype> | <textures_declaration> }1\n"
+		"<textures_declaration>   ::= 'Texture2D<float4> ' <identifier> '[' <int> '];' <new_line> 'SamplerState Samplers[' <int> '];' <new_line>\n"
+		"<vs_in_struct>           ::= 'struct ' <identifier> ' {' <new_line> { <struct_mem_sem> }1 '};' <new_line>\n"
+		"<vs_out_struct>          ::= 'struct ' <identifier> ' {' <new_line> { <struct_mem_sem> }1 '};' <new_line>\n"
+		"<fs_in_struct>           ::= 'struct ' <identifier> ' {' <new_line> { <struct_mem_sem> }1 '};' <new_line>\n"
+		"<fs_out_struct>          ::= 'struct ' <identifier> ' {' <new_line> { <struct_mem_sem> }1 '};' <new_line>\n"
+		"<buffer_struct>          ::= 'cbuffer ' <identifier> ' : register (b' <int> ') {' <new_line> { <tab> <type> ' ' <identifier> ';' <new_line> } '};' <new_line>\n"
+		"<struct_mem_sem>         ::= <tab> <type> ' ' <identifier> ' : ' <semantic> ';' <new_line> | <tab> <type> ' ' <identifier> ';' <new_line>\n"
+		"<semantic>               ::= <identifier>\n"
+		"<type>$i                 ::= 'void' | 'bool' | 'bool'  | 'int'   | 'int'    | 'int' | 'uint' | 'float' | 'double' | 'int1'  | 'int2'  | 'int3'  | 'int4'  | 'int1'   | 'int2'   | 'int3'   | 'int4'   | 'int1'  | 'int2'  | 'int3'  | 'int4'  | 'int1'   | 'int2'   | 'int3'   | 'int4'   | 'int1'  | 'int2'  | 'int3'  | 'int4'  | 'uint1'  | 'uint2'  | 'uint3'  | 'uint4'  | 'float1' | 'float2' | 'float3' | 'float4' | 'double1' | 'double2' | 'double3' | 'double4' | 'row_major matrix'\n"
+		//	"<type>$i                 ::= 'void' | 'byte' | 'ubyte' | 'short' | 'ushort' | 'int' | 'uint' | 'float' | 'double' | 'vec1b' | 'vec2b' | 'vec3b' | 'vec4b' | 'vec1ub' | 'vec2ub' | 'vec3ub' | 'vec4ub' | 'vec1s' | 'vec2s' | 'vec3s' | 'vec4s' | 'vec1us' | 'vec2us' | 'vec3us' | 'vec4us' | 'vec1i' | 'vec2i' | 'vec3i' | 'vec4i' | 'vec1ui' | 'vec2ui' | 'vec3ui' | 'vec4ui' | 'vec1f'  | 'vec2f'  | 'vec3f'  | 'vec4f'  | 'vec1d'   | 'vec2d'   | 'vec3d'   | 'vec4d'   | 'mat4f'\n"
+		"<type_name>              ::= <type> | <identifier>\n"
+		"<function_prototype>     ::= <function_header> ';' <new_line>\n"
+		"<function_definition>    ::= <function_header> ' {' <new_line> { <tab> <compound> } '}' <new_line>\n"
+		"<function_header>        ::= <type_name> ' ' <identifier> '(' [ <parameters> ] ')'\n"
+		"<parameters>             ::= <parameter> ', ' <parameters> | <parameter>\n"
+		"<parameter>              ::= <type_name> ' ' <identifier>\n"
+		"<compound>               ::= <return_statement> | <if_statement> | <switch_statement> | <declaration_expression> | <assignment_expression> | <block> | <function_call>\n"
+		"<return_statement>       ::= 'return ' <expression> ';' <new_line>\n"
+		"<if_statement>           ::= 'if (' <expression> ') ' <block> ' else ' <if_statement> | 'if (' <expression> ') ' <block> ' else ' <compound> <new_line> | 'if (' <expression> ') ' <block> <new_line>\n"
+		"<block>                  ::= '{' <new_line> { <tab> <tab> <compound> } <tab> '}'\n"
+		"<switch_statement>       ::= 'switch (' <value> ') {' <new_line> { <tab> 'case ' <int> ': ' <compound> } <tab> '}' <new_line>\n"
+		"<declaration_expression> ::= <type_name> ' ' <identifier> [ <initialization> ] ';' <new_line>\n"
+		"<initialization>         ::= ' = ' <expression>\n"
+		"<assignment_expression>  ::= <lvalue> ' ' <assignment_operator> ' ' <expression> ';' <new_line>\n"
+		"<expression>             ::= <value> ' ' <expression_operator> ' ' <expression> | <paran_expression> ' ' <expression_operator> ' ' <expression> | <paran_expression> | <value>\n"
+		"<paran_expression>       ::= '(' <expression> ')'\n"
+		"<value>                  ::= <float> | <int> | <negative> | <lvalue> '++' | <lvalue> '--' | <function_call> '.' <value> | <array_access> '.' <value> | <identifier> '.' <value> | <function_call> | <array_access> | <identifier>\n"
+		"<array_access>           ::= <identifier> '[' <value> ']'\n"
+		"<negative>               ::= '-' <value>\n"
+		"<expression_operator>$v  ::= '+' | '-' | '*' | '/' | '<' | '>' | '==' | '>=' | '<='\n"
+		"<assignment_operator>$v  ::= '=' | '+=' | '-=' | '*=' | '/='\n"
+		"<lvalue>                 ::= <function_call> '.' <lvalue> | <array_access> '.' <lvalue>  | <identifier> '.' <lvalue> | <array_access> | <identifier>\n"
+		"<function_call>          ::= <mul_call> | <sample_call> | <discard_call> | <type> '(' [ <arguments> ] ')' | <identifier> '(' [ <arguments> ] ')'\n"
+		"<mul_call>               ::= 'mul(' <lexpression> ', ' <rexpression> ')'\n"
+		"<lexpression>            ::= <expression>\n"
+		"<rexpression>            ::= <expression>\n"
+		"<sample_call>            ::= <identifier> '[' <int> '].Sample(Samplers[' <int> '], ' <expression> ')'\n"
+		"<discard_call>           ::= 'discard;' <new_line>\n"
+		"<arguments>              ::= <expression> ', ' <arguments> | <expression>\n"
+		"\0";
 }

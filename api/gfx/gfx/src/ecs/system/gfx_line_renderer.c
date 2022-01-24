@@ -5,6 +5,8 @@
 #include "assets/gfx_shader.h"
 #include "assets/gfx_material.h"
 
+#include "gfx_shader_creator.h"
+
 #define MAX_LINES 200
 #define MAX_VERTICES MAX_LINES * 2
 
@@ -12,60 +14,33 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 	line_renderer->renderer = renderer;
 	line_renderer->transform = transform;
 
-#ifdef GAPI_NONE
-	const char* src_vert = "";
-	const char* src_frag = "";
-#elif GAPI_OPENGL
 	const char* src_vert =
-		"out Vertex {\n"
-		"	vec4 Color;\n"
-		"	flat int Entity;\n"
-		"} vs_out;\n"
-		"void main() {\n"
-		"	gl_Position = ViewProjection * Model * vec4(Position.xy, -Position.z, 1.0);\n"
-		"	vs_out.Color = Color;\n"
-		"	vs_out.Entity = Entity;\n"
-		"}\0";
+		"VSOutput vs_main(VSInput vs_input) {\n"
+		"	VSOutput vs_output;\n"
+		"	vs_output.SV_Position = mul(vec4f(vs_input.Position.x, vs_input.Position.y, -vs_input.Position.z, 1.0f), mul(Model, ViewProjection));\n"
+		"	vs_output.Color = vs_input.Color;\n"
+		"	vs_output.Entity = vs_input.Entity;\n"
+		"	return vs_output;\n"
+		"}\n"
+		"\0";
 
 	const char* src_frag =
-		"in Vertex {\n"
-		"	vec4 Color;\n"
-		"	flat int Entity;\n"
-		"} vs_in;\n"
-		"void main() {\n"
-		"	Color = vs_in.Color;\n"
-		"	EntityId = vs_in.Entity;\n"
-		"}\0";
-#elif GAPI_DX11
-	const char* src_vert =
-		"struct Output {\n"
-		"	float4 pos       : SV_Position;\n"
-		"	float4 color     : Color;\n"
-		"	int entity       : Entity;\n"
-		"};\n"
-		"Output main(Input input) {\n"
-		"	Output output;\n"
-		"	output.pos       = mul(float4(input.Position.x, input.Position.y, -input.Position.z, 1.0f), mul(Model, ViewProjection));\n"
-		"	output.color     = input.Color;\n"
-		"	output.entity    = input.Entity;\n"
-		"	return output;\n"
-		"}\0";
+		"FSOutput fs_main(VSOutput fs_input) {\n"
+		"	FSOutput fs_output;\n"
+		"	fs_output.FragColor = fs_input.Color;\n"
+		"	fs_output.EntityId = fs_input.Entity;\n"
+		"	return fs_output;\n"
+		"}\n"
+		"\0";
 
-	const char* src_frag =
-		"struct Input {\n"
-		"	float4 pos       : SV_Position;\n"
-		"	float4 color     : Color;\n"
-		"	int entity       : Entity;\n"
-		"};\n"
-		"Output main(Input input) {\n"
-		"	Output output;\n"
-		"	output.Color = input.color;\n"
-		"	output.EntityId = input.entity;\n"
-		"	return output;\n"
-		"}\0";
-#endif
-	AValue vertex[] = {
+	AValue vs_in[] = {
 		{VEC3F, "Position"},
+		{VEC4F, "Color"},
+		{VEC1I, "Entity"}
+	};
+
+	AValue vs_out[] = {
+		{VEC4F, "SV_Position"},
 		{VEC4F, "Color"},
 		{VEC1I, "Entity"}
 	};
@@ -79,22 +54,23 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 	};
 
 	AValue output[] = {
-		{VEC4F, "Color"},
+		{VEC4F, "FragColor"},
 		{VEC1I, "EntityId"}
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), MAX_VERTICES, "Input"},
+		{A_BFR_VS_IN0, 0, vs_in, sizeof(vs_in), MAX_VERTICES, "VSInput"},
+		{A_BFR_VS_OUT, 0, vs_out, sizeof(vs_out), MAX_VERTICES, "VSOutput"},
 		{A_BFR_GLOBAL, 0, global, sizeof(global), 0, "Camera"},
 		{A_BFR_VS, 1, vs, sizeof(vs), 0, "VSMaterial"},
-		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
+		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "FSOutput"}
 	};
 
 	AShaderDesc shader_desc = { 0 };
 	shader_desc.buffers = buffers;
 	shader_desc.buffers_size = sizeof(buffers);
 
-	if (shader_create(&line_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
+	if (gfx_sc_create_shader(&renderer->shader_creator, &line_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
 		log_msg(renderer->log, "Failed to create line shader");
 		return NULL;
 	}

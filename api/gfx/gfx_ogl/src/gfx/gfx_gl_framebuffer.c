@@ -90,7 +90,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), 0, "Input"},
+		{A_BFR_VS_IN0, 0, vertex, sizeof(vertex), 0, "Input"},
 		{A_BFR_INDEX, 0, index, sizeof(index), 0, ""},
 		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
 	};

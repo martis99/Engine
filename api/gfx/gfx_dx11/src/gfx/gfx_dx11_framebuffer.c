@@ -79,7 +79,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 		"	float4 pos         : SV_Position;\n"
 		"	float2 tex_coord   : TexCoord;\n"
 		"};\n"
-		"Output main(Input input) {\n"
+		"Output vs_main(Input input) {\n"
 		"	Output output;\n"
 		"	output.pos         = float4(input.pos, 1.0f);\n"
 		"	output.tex_coord   = input.tex_coord;\n"
@@ -93,7 +93,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 		"	float4 pos         : SV_Position;\n"
 		"	float2 tex_coord   : TexCoord;\n"
 		"};\n"
-		"float4 main(Input input) : SV_TARGET {\n"
+		"float4 fs_main(Input input) : SV_TARGET {\n"
 		"	return Texture.Sample(Sampler, input.tex_coord);\n"
 		"}\0";
 
@@ -115,7 +115,7 @@ AFramebuffer* aframebuffer_create(ARenderer* renderer, AAttachmentDesc* attachme
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), 0, "Input"},
+		{A_BFR_VS_IN0, 0, vertex, sizeof(vertex), 0, "Input"},
 		{A_BFR_INDEX, 0, index, sizeof(index), 0, ""},
 		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
 	};

@@ -1,5 +1,6 @@
 #pragma once
 #include "eng_common_types.h"
+#include "str_type.h"
 
 typedef struct Array {
 	size_t size;
@@ -22,13 +23,3 @@ typedef struct Stack {
 	size_t cap;
 	void* data;
 } Stack;
-
-typedef struct Str {
-	char* data;
-	uint count;
-} Str;
-
-typedef struct WStr {
-	wchar* data;
-	uint count;
-} WStr;

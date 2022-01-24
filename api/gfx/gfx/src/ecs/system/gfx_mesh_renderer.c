@@ -7,58 +7,36 @@
 #include "assets/gfx_material.h"
 #include "assets/gfx_shader.h"
 
+#include "gfx_shader_creator.h"
+
 MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* renderer) {
 	mesh_renderer->renderer = renderer;
 
-#ifdef GAPI_NONE
-	const char* src_vert = "";
-	const char* src_frag = "";
-#elif GAPI_OPENGL
 	const char* src_vert =
-		"out Vertex {\n"
-		"	vec2 TexCoord;\n"
-		"} vs_out;\n"
-		"void main() {\n"
-		"	gl_Position = ViewProjection * Model * vec4(Position.xy, -Position.z, 1.0);\n"
-		"	vs_out.TexCoord = TexCoord;\n"
-		"}\0";
+		"VSOutput vs_main(VSInput vs_input) {\n"
+		"	VSOutput vs_output;\n"
+		"	vs_output.SV_Position = mul(vec4f(vs_input.Position.x, vs_input.Position.y, -vs_input.Position.z, 1.0f), mul(Model, ViewProjection));\n"
+		"	vs_output.TexCoord = vs_input.TexCoord;\n"
+		"	return vs_output;\n"
+		"}\n"
+		"\0";
 
 	const char* src_frag =
-		"in Vertex {\n"
-		"	vec2 TexCoord;\n"
-		"} vs_in;\n"
-		"void main() {\n"
-		"	FragColor = sample_tex(0, vs_in.TexCoord) * Color;\n"
-		"	EntityId = Entity;\n"
-		"}\0";
-#elif GAPI_DX11
-	const char* src_vert =
-		"struct Output {\n"
-		"	float4 pos       : SV_Position;\n"
-		"	float2 tex_coord : TexCoord;\n"
-		"};\n"
-		"Output main(Input input) {\n"
-		"	Output output;\n"
-		"	output.pos       = mul(float4(input.Position.x, input.Position.y, -input.Position.z, 1.0f), mul(Model, ViewProjection));\n"
-		"	output.tex_coord = input.TexCoord;\n"
-		"	return output;\n"
-		"}\0";
+		"FSOutput fs_main(VSOutput fs_input) {\n"
+		"	FSOutput fs_output;\n"
+		"	fs_output.FragColor = Color * sample(Textures, 0, fs_input.TexCoord);\n"
+		"	fs_output.EntityId = Entity;\n"
+		"	return fs_output;\n"
+		"}\n"
+		"\0";
 
-	const char* src_frag =
-		"struct Input {\n"
-		"	float4 pos       : SV_Position;\n"
-		"	float2 tex_coord : TexCoord;\n"
-		"};\n"
-		"Output main(Input input) {\n"
-		"	Output output;\n"
-		"	output.FragColor = Color * sample_tex(0, input.tex_coord);\n"
-		"	output.EntityId = Entity;\n"
-		"	return output;\n"
-		"}\0";
-#endif
-
-	AValue vertex[] = {
+	AValue vs_in[] = {
 		{VEC3F, "Position"},
+		{VEC2F, "TexCoord"}
+	};
+
+	AValue vs_out[] = {
+		{VEC4F, "SV_Position"},
 		{VEC2F, "TexCoord"}
 	};
 
@@ -83,12 +61,13 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 	};
 
 	ABufferDesc buffers[] = {
-		{A_BFR_VERTEX, 0, vertex, sizeof(vertex), 0, "Input"},
+		{A_BFR_VS_IN0, 0, vs_in, sizeof(vs_in), 0, "VSInput"},
+		{A_BFR_VS_OUT, 0, vs_out, sizeof(vs_out), 0, "VSOutput"},
 		{A_BFR_INDEX, 0, index, sizeof(index), 0, ""},
 		{A_BFR_GLOBAL, 0, global, sizeof(global), 0, "Camera"},
 		{A_BFR_VS, 1, vs, sizeof(vs), 0, "VSMaterial"},
 		{A_BFR_PS, 2, ps, sizeof(ps), 0, "PSMaterial"},
-		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "Output"}
+		{A_BFR_PS_OUT, 0, output, sizeof(output), 0, "FSOutput"}
 	};
 
 	AShaderDesc shader_desc = { 0 };
@@ -97,7 +76,7 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 	shader_desc.textures_count = 2;
 	shader_desc.texture_type = VEC4F;
 
-	if (shader_create(&mesh_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
+	if (gfx_sc_create_shader(&renderer->shader_creator, &mesh_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
 		log_msg(renderer->log, "Failed to create mesh shader");
 		return NULL;
 	}
