@@ -1,13 +1,12 @@
 #include "api/ctx/gfx_api_context.h"
 
 #include "gfx_dx11_types.h"
+#include "dx11/dx11_error.h"
+
 #include <Windows.h>
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "dxguid.lib")
-
-#include "dxerr/dxerr.h"
-#include "dx11/dx11_error.h"
 
 typedef struct AWindow {
 	LPCWSTR class_name;

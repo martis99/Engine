@@ -1,7 +1,5 @@
 #include "gfx_types.h"
 
-#include "mem.h"
-
 #include <memory.h>
 
 ATypeType atype_type(AType type) {

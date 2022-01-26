@@ -11,8 +11,6 @@
 #include "assimp/postprocess.h"
 
 #include "math/maths.h"
-#include "utils/array.h"
-#include "log.h"
 
 #ifdef _DEBUG
 #pragma comment (lib, "assimp-vc143-mtd.lib")

@@ -1,5 +1,8 @@
 #include "gfx_buffer.h"
 
+#include <math.h>
+#include <memory.h>
+
 ABuffer* buffer_create(ABuffer* buffer, AValue* values, uint values_size, const void* data) {
 	buffer->count = values_size / sizeof(AValue);
 	buffer->offsets = m_malloc(buffer->count * sizeof(uint));

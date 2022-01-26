@@ -1,7 +1,8 @@
 #pragma once
 #include "eng_common_types.h"
-#include "utils/data_types.h"
 #include "math/math_types.h"
+
+#include "utils/stack.h"
 
 #define ENTITY_FLAG_ALIVE 1
 

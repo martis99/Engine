@@ -148,7 +148,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\api\wnd_api_cursor.h" />
-    <ClInclude Include="src\api\wnd_api_log.h" />
     <ClInclude Include="src\api\wnd_api_window.h" />
     <ClInclude Include="src\api\wnd_api_types.h" />
     <ClInclude Include="src\wnd_cursor.h" />

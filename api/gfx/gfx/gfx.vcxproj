@@ -162,7 +162,7 @@
     <ClInclude Include="src\gfx_types.h" />
     <ClInclude Include="src\api\gfx\gfx_api_renderer.h" />
     <ClInclude Include="src\api\gfx\gfx_api_shader.h" />
-    <ClInclude Include="src\api\gfx\gfx_api_shadergenerator.h" />
+    <ClInclude Include="src\api\gfx\gfx_api_shader_generator.h" />
     <ClInclude Include="src\api\gfx\gfx_api_texture.h" />
     <ClInclude Include="src\api\gfx\gfx_api_uniform_buffer.h" />
     <ClInclude Include="src\api\gfx\gfx_api_types.h" />

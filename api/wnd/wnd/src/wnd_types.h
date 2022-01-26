@@ -1,5 +1,4 @@
 #pragma once
-#include "eng_types.h"
 #include "api/wnd_api_types.h"
 
 typedef struct WindowSettings {

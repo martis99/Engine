@@ -1,7 +1,9 @@
 #include "gfx_shader_creator.h"
-#include "api/gfx/gfx_api_shadergenerator.h"
+#include "api/gfx/gfx_api_shader_generator.h"
 #include "assets/gfx_shader.h"
 
+#include "utils/ast.h"
+#include "utils/bnf.h"
 #include "utils/str.h"
 
 static Bnf* create_bnf(Bnf* bnf, const char* bnf_cstr) {
@@ -58,6 +60,11 @@ ShaderCreator* gfx_sc_create(ShaderCreator* shader_creator) {
 		"<arguments>              ::= <expression> ', ' <arguments> | <expression>\n"
 		"\0";
 
+	str_create(&shader_creator->vert, 1600);
+	str_create(&shader_creator->frag, 1600);
+	str_create(&shader_creator->str_vert, 1600);
+	str_create(&shader_creator->str_frag, 1600);
+
 	if (create_bnf(&shader_creator->from_bnf, from_bnf) == NULL) {
 		return NULL;
 	}
@@ -72,9 +79,14 @@ ShaderCreator* gfx_sc_create(ShaderCreator* shader_creator) {
 void gfx_sc_delete(ShaderCreator* shader_creator) {
 	bnf_delete(&shader_creator->from_bnf);
 	bnf_delete(&shader_creator->to_bnf);
+	str_delete(&shader_creator->vert);
+	str_delete(&shader_creator->frag);
+	str_delete(&shader_creator->str_vert);
+	str_delete(&shader_creator->str_frag);
 }
 
 static Str* parse(ShaderCreator* shader_creator, const char* src, Str* dst) {
+	str_clear(dst);
 	Ast ast;
 	int r = ast_parse(&ast, &shader_creator->from_bnf, src);
 	if (r != AST_SUCCESS) {
@@ -241,7 +253,7 @@ void fs_add_textures(Str* str, AShaderDesc sdesc) {
 }
 
 void vs_generate(Str* str, const char* vert, AShaderDesc desc) {
-	str_create(str, 1600);
+	str_clear(str);
 	vs_add_inputs(str, desc);
 	vs_add_buffers(str, desc);
 	vs_add_output(str, desc);
@@ -249,7 +261,7 @@ void vs_generate(Str* str, const char* vert, AShaderDesc desc) {
 }
 
 void fs_generate(Str* str, const char* frag, AShaderDesc desc) {
-	str_create(str, 1600);
+	str_clear(str);
 	fs_add_input(str, desc);
 	fs_add_buffers(str, desc);
 	fs_add_output(str, desc);
@@ -258,26 +270,16 @@ void fs_generate(Str* str, const char* frag, AShaderDesc desc) {
 }
 
 Shader* gfx_sc_create_shader(ShaderCreator* shader_creator, Shader* shader, Renderer* renderer, const char* vert_cstr, const char* frag_cstr, AShaderDesc desc) {
-	Str vert;
-	vs_generate(&vert, vert_cstr, desc);
-	Str frag;
-	fs_generate(&frag, frag_cstr, desc);
+	vs_generate(&shader_creator->vert, vert_cstr, desc);
+	fs_generate(&shader_creator->frag, frag_cstr, desc);
 
-	Str str_vert;
-	str_create(&str_vert, 1600);
-	Str str_frag;
-	str_create(&str_frag, 1600);
+	parse(shader_creator, shader_creator->vert.data, &shader_creator->str_vert);
+	parse(shader_creator, shader_creator->frag.data, &shader_creator->str_frag);
 
-	parse(shader_creator, vert.data, &str_vert);
-	parse(shader_creator, frag.data, &str_frag);
-
-	ashadergenerator_generate(desc, &str_vert, &str_frag);
-	if (shader_create(shader, renderer, str_vert.data, str_frag.data, desc) == NULL) {
+	ashadergenerator_generate(desc, &shader_creator->str_vert, &shader_creator->str_frag);
+	if (shader_create(shader, renderer, shader_creator->str_vert.data, shader_creator->str_frag.data, desc) == NULL) {
 		return NULL;
 	}
-
-	str_delete(&str_vert);
-	str_delete(&str_frag);
 
 	return shader;
 }

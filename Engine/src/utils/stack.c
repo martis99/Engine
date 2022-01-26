@@ -1,6 +1,9 @@
 #include "stack.h"
 
-#include "eng_types.h"
+#include "mem.h"
+
+#include <memory.h>
+#include <stdlib.h>
 
 #define INITIAL_CAPACITY 4
 

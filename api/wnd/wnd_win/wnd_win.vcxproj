@@ -148,7 +148,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\wnd_win_cursor.c" />
-    <ClCompile Include="src\wnd_win_log.c" />
     <ClCompile Include="src\wnd_win_window.c" />
   </ItemGroup>
   <ItemGroup>

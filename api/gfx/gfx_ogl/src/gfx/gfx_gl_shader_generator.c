@@ -1,4 +1,4 @@
-#include "api/gfx/gfx_api_shadergenerator.h"
+#include "api/gfx/gfx_api_shader_generator.h"
 
 #include "gfx_gl_types.h"
 

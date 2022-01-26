@@ -152,7 +152,7 @@
     <ClCompile Include="src\gfx\gfx_none_mesh.c" />
     <ClCompile Include="src\gfx\gfx_none_renderer.c" />
     <ClCompile Include="src\gfx\gfx_none_shader.c" />
-    <ClCompile Include="src\gfx\gfx_none_shadergenerator.c" />
+    <ClCompile Include="src\gfx\gfx_none_shader_generator.c" />
     <ClCompile Include="src\gfx\gfx_none_texture.c" />
     <ClCompile Include="src\gfx\gfx_none_uniform_buffer.c" />
     <ClCompile Include="src\ctx\gfx_none_context.c" />

@@ -157,7 +157,7 @@
     <ClCompile Include="src\gfx\gfx_gl_mesh.c" />
     <ClCompile Include="src\gfx\gfx_gl_renderer.c" />
     <ClCompile Include="src\gfx\gfx_gl_shader.c" />
-    <ClCompile Include="src\gfx\gfx_gl_shadergenerator.c" />
+    <ClCompile Include="src\gfx\gfx_gl_shader_generator.c" />
     <ClCompile Include="src\gfx\gfx_gl_texture.c" />
     <ClCompile Include="src\gfx\gfx_gl_attachment.c" />
     <ClCompile Include="src\gfx\gfx_gl_types.c" />

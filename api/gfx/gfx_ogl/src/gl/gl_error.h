@@ -1,6 +1,6 @@
 #pragma once
 #include "gl.h"
-#include "gfx_gl_types.h"
+#include "gl_types.h"
 
 GLError* gl_error_create(GLError* error, LogCallbacks* log);
 void gl_error_begin(GLError* error);

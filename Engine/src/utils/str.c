@@ -1,10 +1,14 @@
 #include "str.h"
 
+#include "mem.h"
+
 #include <stdarg.h>
 #include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
 
 void str_create(Str* str, uint count) {
-	str->data = malloc(count * sizeof(char));
+	str->data = m_malloc(count * sizeof(char));
 	str->count = count;
 	str->offset = 0;
 	str->view = 0;
@@ -41,7 +45,7 @@ void str_delete(Str* str) {
 		return;
 	}
 
-	free(str->data);
+	m_free(str->data, str->count * sizeof(char));
 }
 
 int str_off_set(Str* str, uint offset) {
@@ -144,11 +148,7 @@ Str str_read_float(Str* str) {
 	}
 	Str r = str_read_num(str);
 
-	str_create(&result, 32);
-	str_add_str(&result, &l);
-	str_add_char(&result, '.');
-	str_add_str(&result, &r);
-	result.offset = 0;
+	str_create_cstrn(&result, str_peek_at(str, offset), l.count + 1 + r.count);
 	return result;
 }
 
@@ -187,11 +187,13 @@ void str_ensure_count(Str* str, uint count) {
 		return;
 	}
 
+	int old_count = str->count;
+
 	while (str->count < str->offset + count + 1) {
 		str->count <<= 1;
 	}
 
-	char* data = realloc(str->data, str->count * sizeof(char));
+	char* data = m_realloc(str->data, str->count * sizeof(char), old_count * sizeof(char));
 	if (data != NULL) {
 		str->data = data;
 	}

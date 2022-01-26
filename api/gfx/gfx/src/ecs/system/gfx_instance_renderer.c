@@ -1,9 +1,7 @@
 #include "gfx_instance_renderer.h"
 
 #include "ecs/component/transform.h"
-#include "ecs/component/gfx_instance_component.h"
 
-#include "assets/gfx_assets.h"
 #include "assets/gfx_mesh.h"
 #include "assets/gfx_material.h"
 #include "assets/gfx_shader.h"

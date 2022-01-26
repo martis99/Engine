@@ -5,7 +5,7 @@
 #include "input/keyboard.h"
 #include "input/mouse.h"
 #include "scene/camera.h"
-#include "profiler.h"
+#include "utils_profiler.h"
 #include "assets/image.h"
 
 #include "ecs/ecs.h"
@@ -41,6 +41,8 @@
 
 #include "ecs/../gfx_shader_creator.h"
 
+#include <string.h>
+#include <stdlib.h>
 #include <time.h>
 
 #define C_TRANSFORM 0
@@ -325,10 +327,10 @@ static void scene_key_pressed(Scene* scene, byte key) {
 		break;
 	case 'P':
 		if (scene->profile == 0) {
-			profiler_start("profiler.json");
+			utils_profiler_start("profiler.json");
 			scene->profile = 1;
 		} else if (scene->profile == 1) {
-			profiler_end();
+			utils_profiler_end();
 			scene->profile = 0;
 		}
 		break;
@@ -663,7 +665,7 @@ int scene_run() {
 	size_t mem_usage = 0;
 	mem_init(&mem_usage);
 
-	if (profiler_create() == NULL) {
+	if (utils_profiler_create() == NULL) {
 		log_error("Failed to create profiler");
 		return EXIT_FAILURE;
 	}
@@ -677,7 +679,7 @@ int scene_run() {
 	scene_main_loop(scene, &mem_usage);
 
 	scene_delete(scene);
-	profiler_delete();
+	utils_profiler_delete();
 
 	printf("memory: %i\n", (int)mem_usage);
 

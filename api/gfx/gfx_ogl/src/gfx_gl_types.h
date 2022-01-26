@@ -1,6 +1,4 @@
 #pragma once
-#include "api/gfx/gfx_api_types.h"
-
 #include "gl/gl_types.h"
 
 #include <Windows.h>

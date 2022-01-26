@@ -8,8 +8,4 @@ typedef unsigned int uint;
 #define true 1
 
 #include <vcruntime.h>
-#include <memory.h>
-#include <math.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>

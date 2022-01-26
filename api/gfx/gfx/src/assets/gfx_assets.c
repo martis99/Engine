@@ -9,8 +9,6 @@
 #include "gfx_uniform_buffer.h"
 #include "gfx_model.h"
 
-#include "utils/dictionary.h"
-
 Assets* assets_create(Assets* assets, Renderer* renderer) {
 	assets->renderer = renderer;
 	assets->shaders = dic_create(20, sizeof(Shader));

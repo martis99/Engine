@@ -1,10 +1,10 @@
 #include "vec3.h"
 
+#include <math.h>
+
 static const vec3 right = { 1.0f, 0.0f, 0.0f };
 static const vec3 up = { 0.0f, 1.0f, 0.0f };
 static const vec3 front = { 0.0f, 0.0f, 1.0f };
-
-#include <math.h>
 
 vec3 vec3_mulf(vec3 value, float scalar) {
 	vec3 vec = { value.x * scalar, value.y * scalar, value.z * scalar };

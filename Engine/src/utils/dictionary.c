@@ -1,6 +1,9 @@
 #include "dictionary.h"
 
-#include "eng_types.h"
+#include "mem.h"
+
+#include <memory.h>
+#include <string.h>
 
 struct dic_entry {
 	char* key;

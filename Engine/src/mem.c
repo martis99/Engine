@@ -1,5 +1,8 @@
 #include "mem.h"
 
+#include <memory.h>
+#include <stdlib.h>
+
 static size_t* s_mem_usage;
 
 void mem_init(size_t* mem_usage) {

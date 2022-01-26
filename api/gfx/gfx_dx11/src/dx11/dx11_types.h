@@ -2,6 +2,8 @@
 #include "api/gfx/gfx_api_types.h"
 #include "d3d11.h"
 
+#include "utils/str.h"
+
 #include <dxgidebug.h>
 
 typedef struct DX11Error {

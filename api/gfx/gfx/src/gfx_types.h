@@ -1,11 +1,18 @@
 #pragma once
-#include "eng_types.h"
 #include "api/gfx/gfx_api_types.h"
+#include "assets/assets_types.h"
 
-#include "utils/ast.h"
+#include "utils/array.h"
+#include "utils/dictionary.h"
 #include "utils/bnf.h"
 
+#include "ecs/ecs_types.h"
+
 typedef struct ShaderCreator {
+	Str vert;
+	Str frag;
+	Str str_vert;
+	Str str_frag;
 	Bnf from_bnf;
 	Bnf to_bnf;
 } ShaderCreator;

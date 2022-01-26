@@ -1,7 +1,11 @@
-#include "assets/image.h"
+#include "gfx_font.h"
+
 #include "gfx_texture.h"
+#include "assets/image.h"
 
 #include "stb/stb_truetype.h"
+
+#include <math.h>
 
 static Font* load_data(Renderer* renderer, Font* font, const char* path, stbtt_fontinfo* info) {
 	FILE* file;

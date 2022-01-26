@@ -1,5 +1,7 @@
 #pragma once
-#include "eng_types.h"
+#include "eng_common_types.h"
+#include "log.h"
+#include "mem.h"
 
 #define A_FAIL 0
 #define A_SUCCESS 1

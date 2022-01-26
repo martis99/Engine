@@ -4,8 +4,6 @@
 #include "assets/image.h"
 #include "gfx_texture.h"
 
-#include "utils/str.h"
-
 Shader* shader_create(Shader* shader, Renderer* renderer, const char* vert, const char* frag, AShaderDesc desc) {
 	ashaderdesc_copy(&desc, &shader->desc);
 

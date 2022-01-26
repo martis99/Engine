@@ -1,9 +1,10 @@
 #include "ecs.h"
 
-#include "eng_types.h"
-#include "utils/stack.h"
+#include "mem.h"
 
 #include <stdarg.h>
+#include <memory.h>
+#include <stdlib.h>
 
 #define INITIAL_CAPACITY 2
 

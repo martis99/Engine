@@ -1,6 +1,4 @@
 #pragma once
-#include "api/gfx/gfx_api_types.h"
-
 #include "dx11/dx11_types.h"
 
 struct AContext {

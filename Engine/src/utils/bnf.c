@@ -1,6 +1,7 @@
 #include "bnf.h"
 
-#include "str.h"
+#include "mem.h"
+#include "bnf_ast_types.h"
 
 #define BNF_ERR_ALLOC 300
 #define BNF_ERR_TERM 301
@@ -250,15 +251,15 @@ static int bnf_assign_rules(Bnf* bnf) {
 int bnf_parse(Bnf* bnf, const char* src) {
 	str_create_cstr(&bnf->src, src, 0);
 
-	bnf->rules = calloc(BNF_MAX_RULES, sizeof(Rule));
+	bnf->rules = m_calloc(BNF_MAX_RULES, sizeof(Rule));
 	BNF_THROW_IF(bnf->rules == NULL, "Failed to allocate memory for rules");
 	bnf->rules_count = 0;
 
-	bnf->expressions = calloc(BNF_MAX_EXPRESSIONS, sizeof(Expression));
+	bnf->expressions = m_calloc(BNF_MAX_EXPRESSIONS, sizeof(Expression));
 	BNF_THROW_IF(bnf->expressions == NULL, "Failed to allocate memory for expressions");
 	bnf->expressions_count = 0;
 
-	bnf->terms = calloc(BNF_MAX_TERMS, sizeof(Term));
+	bnf->terms = m_calloc(BNF_MAX_TERMS, sizeof(Term));
 	BNF_THROW_IF(bnf->terms == NULL, "Failed to allocate memory for terms");
 	bnf->terms_count = 0;
 
@@ -268,9 +269,9 @@ int bnf_parse(Bnf* bnf, const char* src) {
 }
 
 void bnf_delete(Bnf* bnf) {
-	free(bnf->rules);
-	free(bnf->expressions);
-	free(bnf->terms);
+	m_free(bnf->rules, BNF_MAX_RULES * sizeof(Rule));
+	m_free(bnf->expressions, BNF_MAX_EXPRESSIONS * sizeof(Expression));
+	m_free(bnf->terms, BNF_MAX_TERMS * sizeof(Term));
 }
 
 Rule* bnf_get_rule(Bnf* bnf, Str* name) {

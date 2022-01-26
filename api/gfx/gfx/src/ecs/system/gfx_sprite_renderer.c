@@ -2,7 +2,7 @@
 
 #include "assets/gfx_shader.h"
 #include "assets/gfx_material.h"
-#include "ecs/system/gfx_batch_renderer.h"
+#include "gfx_batch_renderer.h"
 
 #include "math/maths.h"
 

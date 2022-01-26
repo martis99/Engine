@@ -1,8 +1,7 @@
 #include "gfx_text_renderer.h"
 
 #include "ecs/component/transform.h"
-#include "ecs/component/constraints.h"
-#include "ecs/system/gfx_batch_renderer.h"
+#include "gfx_batch_renderer.h"
 #include "assets/gfx_font.h"
 #include "assets/gfx_material.h"
 #include "assets/gfx_shader.h"
@@ -10,6 +9,8 @@
 #include "math/maths.h"
 
 #include "gfx_shader_creator.h"
+
+#include <string.h>
 
 #define MAX_QUADS 200
 #define MAX_VERTICES MAX_QUADS * 4

@@ -1,6 +1,5 @@
 #include "gfx_model_renderer.h"
 #include "ecs/component/transform.h"
-#include "ecs/component/gfx_mesh_component.h"
 
 #include "assets/gfx_shader.h"
 #include "assets/gfx_model.h"

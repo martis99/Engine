@@ -4,8 +4,6 @@
 #include "gfx_dx11_attachment.h"
 #include "dx11/dx11_error.h"
 
-#include "gfx_dx11_types.h"
-
 static ID3D11RenderTargetView* create_back_buffer_attachment(ARenderer* renderer, ID3D11RenderTargetView** view) {
 	ID3D11Resource* back_buffer = NULL;
 	if (DX11_FAILED(renderer->error, "Failed to get back buffer", renderer->acontext->swap_chain->lpVtbl->GetBuffer(renderer->acontext->swap_chain, 0, &IID_ID3D11Resource, (void**)(&back_buffer)))) {

@@ -1,6 +1,8 @@
 #pragma once
 #include "api/gfx/gfx_api_types.h"
 
+#include "utils/str.h"
+
 typedef unsigned int GLenum;
 typedef unsigned char GLboolean;
 typedef unsigned int GLbitfield;

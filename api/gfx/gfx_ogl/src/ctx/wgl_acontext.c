@@ -1,7 +1,6 @@
 #include "api/ctx/gfx_api_context.h"
 #include "gfx_gl_types.h"
 
-#include "gl/gl.h"
 #include "gl/gl_error.h"
 
 #include "wgl.h"

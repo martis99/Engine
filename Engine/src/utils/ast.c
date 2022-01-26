@@ -1,8 +1,28 @@
 #include "ast.h"
 
-#include "str.h"
+#include "mem.h"
 
-#include <ctype.h>
+#include "bnf_ast_types.h"
+#include "bnf.h"
+
+typedef enum AstNodeType {
+	ASTNODE_TYPE_PARENT,
+	ASTNODE_TYPE_LIST,
+	ASTNODE_TYPE_VARIABLE_V,
+	ASTNODE_TYPE_VARIABLE_I,
+	ASTNODE_TYPE_IDENTIFIER,
+	ASTNODE_TYPE_INT,
+	ASTNODE_TYPE_FLOAT
+} AstNodeType;
+
+struct AstNode {
+	AstNodeType type;
+	Str name;
+	Str text;
+	int i;
+	AstNode* next;
+	AstNode* child;
+};
 
 #define AST_ERROR(message) ast->error = message; return AST_FAILURE;
 #define AST_THROW(call) if (call == AST_FAILURE) { return AST_FAILURE; }
@@ -242,7 +262,7 @@ static int ast_parse_bnf(Ast* ast, AstNode* node, Bnf* bnf, Str* src) {
 int ast_parse(Ast* ast, Bnf* bnf, const char* src) {
 	str_create_cstr(&ast->src, src, 0);
 	ast->error = "";
-	ast->nodes = calloc(AST_MAX_NODES, sizeof(AstNode));
+	ast->nodes = m_calloc(AST_MAX_NODES, sizeof(AstNode));
 	AST_THROW_IF(ast->nodes == NULL, "Failed to allocate memory for nodes");
 	ast->nodes_count = 0;
 	ast->node = &ast->nodes[ast->nodes_count++];
@@ -252,7 +272,7 @@ int ast_parse(Ast* ast, Bnf* bnf, const char* src) {
 }
 
 void ast_delete(Ast* ast) {
-	free(ast->nodes);
+	m_free(ast->nodes, AST_MAX_NODES * sizeof(AstNode));
 }
 
 AstNode* ast_get_node(AstNode* node, Str* name, int one) {

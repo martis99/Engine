@@ -167,7 +167,7 @@
     <ClCompile Include="src\gfx\gfx_dx11_mesh.c" />
     <ClCompile Include="src\gfx\gfx_dx11_renderer.c" />
     <ClCompile Include="src\gfx\gfx_dx11_shader.c" />
-    <ClCompile Include="src\gfx\gfx_dx11_shadergenerator.c" />
+    <ClCompile Include="src\gfx\gfx_dx11_shader_generator.c" />
     <ClCompile Include="src\gfx\gfx_dx11_texture.c" />
     <ClCompile Include="src\gfx\gfx_dx11_attachment.c" />
     <ClCompile Include="src\gfx\gfx_dx11_types.c" />

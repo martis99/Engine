@@ -1,6 +1,5 @@
 #include "gfx_instance_component.h"
 
-#include "assets/gfx_mesh.h"
 #include "ecs/component/transform.h"
 
 InstanceComponent instance_component_create(Mesh* mesh, Material* material, uint transforms_count) {

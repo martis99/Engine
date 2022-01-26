@@ -1,5 +1,7 @@
 #pragma once
-#include "eng_types.h"
+#include "eng_common_types.h"
+#include "log.h"
+#include "mem.h"
 
 typedef struct AWindow AWindow;
 typedef struct ACursor ACursor;

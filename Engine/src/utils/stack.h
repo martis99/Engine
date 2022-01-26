@@ -1,5 +1,12 @@
 #pragma once
-#include "data_types.h"
+#include "eng_common_types.h"
+
+typedef struct Stack {
+	size_t size;
+	size_t count;
+	size_t cap;
+	void* data;
+} Stack;
 
 Stack* stack_create(size_t size);
 void stack_delete(Stack* stack);

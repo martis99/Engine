@@ -1,6 +1,6 @@
 #include "array.h"
 
-#include "eng_types.h"
+#include "mem.h"
 
 Array* arr_create(Array* arr, size_t size, uint cap) {
 	arr->size = size;

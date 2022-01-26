@@ -1,4 +1,5 @@
 #pragma once
+#include "eng_common_types.h"
 
 typedef struct vec2 {
 	float x, y;

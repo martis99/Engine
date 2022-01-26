@@ -1,8 +1,7 @@
-#include "profiler.h"
+#include "utils_profiler.h"
 
-#include "eng_types.h"
+#include "utils_win_types.h"
 
-#include <Windows.h>
 #include <DbgHelp.h>
 
 #pragma comment(lib, "dbghelp.lib")
@@ -19,7 +18,7 @@ typedef struct Profiler {
 
 static Profiler* s_profiler;
 
-void* profiler_create() {
+void* utils_profiler_create() {
 	Profiler* profiler = malloc(sizeof(Profiler));
 	if (profiler == NULL) {
 		return NULL;
@@ -47,7 +46,7 @@ void* profiler_create() {
 	return profiler;
 }
 
-void profiler_delete() {
+void utils_profiler_delete() {
 	free(s_profiler->fns);
 	free(s_profiler->info);
 	SymCleanup(s_profiler->process);
@@ -103,7 +102,7 @@ void exit_func(void* retAddress) {
 		"}", mic, s_profiler->info->Name, s_profiler->fns[s_profiler->fn_count]);
 }
 
-void profiler_start(const char* file) {
+void utils_profiler_start(const char* file) {
 	s_profiler->fn_count = 0;
 	s_profiler->first = 1;
 
@@ -115,7 +114,7 @@ void profiler_start(const char* file) {
 	printf("Started\n");
 }
 
-void profiler_end() {
+void utils_profiler_end() {
 	fprintf(s_profiler->file, "]\n");
 	fclose(s_profiler->file);
 	s_profiler->file = NULL;
