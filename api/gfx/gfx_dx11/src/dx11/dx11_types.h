@@ -18,3 +18,7 @@ typedef struct DX11Error {
 
 	LogCallbacks* log;
 } DX11Error;
+
+D3D11_FILTER dx11_afilter(AFilter filter);
+bool dx11_mipmap_afilter(AFilter filter);
+bool dx11_anisotropic_afilter(AFilter filter);

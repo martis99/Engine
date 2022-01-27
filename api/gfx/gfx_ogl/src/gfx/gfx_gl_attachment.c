@@ -8,7 +8,7 @@ GLAttachment* gl_attachment_create(ARenderer* renderer, AAttachmentDesc desc, GL
 
 	attachment->format = gl_atype_format(desc.type);
 	attachment->type = gl_atype_type(desc.type);
-	attachment->texture = gl_texture_create(renderer->error, gl_awrap(desc.wrap), gl_afilter(desc.filter), width, height, gl_atype_internal_format(desc.type), attachment->format, attachment->type, NULL, 1);
+	attachment->texture = gl_texture_create(renderer->error, gl_awrap(desc.wrap), desc.filter, width, height, gl_atype_internal_format(desc.type), attachment->format, attachment->type, NULL);
 	if (attachment->texture == 0) {
 		log_msg(renderer->log, "Failed to create texture");
 		return NULL;

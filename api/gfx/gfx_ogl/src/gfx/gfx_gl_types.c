@@ -29,14 +29,6 @@ GLint gl_awrap(AWrap wrap) {
 	return 0;
 }
 
-GLint gl_afilter(AFilter filter) {
-	switch (filter) {
-	case A_NEAREST: return GL_NEAREST;
-	case A_LINEAR: return GL_LINEAR;
-	}
-	return 0;
-}
-
 GLenum gl_afactor(AFactor factor) {
 	switch (factor) {
 	case A_ZERO: return GL_ZERO;

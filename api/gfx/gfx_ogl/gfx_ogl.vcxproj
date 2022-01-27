@@ -163,6 +163,7 @@
     <ClCompile Include="src\gfx\gfx_gl_types.c" />
     <ClCompile Include="src\gfx\gfx_gl_uniform_buffer.c" />
     <ClCompile Include="src\ctx\wgl_acontext.c" />
+    <ClCompile Include="src\gl\gl_types.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\gl\gl.h" />

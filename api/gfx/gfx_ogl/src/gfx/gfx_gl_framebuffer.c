@@ -9,7 +9,7 @@
 #include "gfx_gl_types.h"
 
 static GLuint create_depth_stencil_attachment(ARenderer* renderer, GLsizei width, GLsizei height) {
-	GLuint texture = gl_texture_create(renderer->error, 0, 0, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, 0);
+	GLuint texture = gl_texture_create(renderer->error, 0, 0, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 	if (texture == 0) {
 		log_msg(renderer->log, "Failed to create depth stencil texture");
 		return 0;

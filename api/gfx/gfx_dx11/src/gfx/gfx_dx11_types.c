@@ -17,14 +17,6 @@ D3D11_TEXTURE_ADDRESS_MODE dx11_awrap(AWrap wrap) {
 	return 0;
 }
 
-D3D11_FILTER dx11_afilter(AFilter filter) {
-	switch (filter) {
-	case A_NEAREST: return D3D11_FILTER_MIN_MAG_MIP_POINT;
-	case A_LINEAR: return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	}
-	return 0;
-}
-
 DXGI_FORMAT dx11_atype_format(AType type) {
 	switch (type) {
 	case VEC1B: return DXGI_FORMAT_R8_SINT;

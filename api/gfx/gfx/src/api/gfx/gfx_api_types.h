@@ -31,7 +31,11 @@ typedef enum AWrap {
 typedef enum AFilter {
 	A_FILTER_UNKNOWN,
 	A_NEAREST,
-	A_LINEAR
+	A_LINEAR,
+	A_MIPMAP_NEAREST,
+	A_MIPMAP_LINEAR,
+	A_ANISOTROPIC_NEAREST,
+	A_ANISOTROPIC_LINEAR
 } AFilter;
 
 typedef enum AFactor {

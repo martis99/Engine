@@ -163,6 +163,7 @@
     <ClCompile Include="src\dx11\dx11_renderer.c" />
     <ClCompile Include="src\dx11\dx11_shader.c" />
     <ClCompile Include="src\dx11\dx11_texture.c" />
+    <ClCompile Include="src\dx11\dx11_types.c" />
     <ClCompile Include="src\gfx\gfx_dx11_framebuffer.c" />
     <ClCompile Include="src\gfx\gfx_dx11_mesh.c" />
     <ClCompile Include="src\gfx\gfx_dx11_renderer.c" />

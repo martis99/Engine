@@ -88,5 +88,4 @@ struct AUniformBuffer {
 
 D3D11_PRIMITIVE_TOPOLOGY dx11_aprimitive(APrimitive primitive);
 D3D11_TEXTURE_ADDRESS_MODE dx11_awrap(AWrap wrap);
-D3D11_FILTER dx11_afilter(AFilter filter);
 DXGI_FORMAT dx11_atype_format(AType type);

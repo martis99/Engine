@@ -13,19 +13,27 @@ ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int w
 	case 4: format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
 	}
 
-	texture->texture = dx11_texture_create(renderer->error, renderer->device, width, height, format, 0, 1, 0, data, width * channels * sizeof(unsigned char));
+	texture->texture = dx11_texture_create(renderer->error, renderer->device, filter, width, height, format, 0, 1, 0, data, width * channels * sizeof(unsigned char));
 	if (texture->texture == NULL) {
 		log_msg(renderer->log, "Failed to create texture");
 		return NULL;
 	}
 
-	texture->srv = dx11_srv_create(renderer->error, renderer->device, format, texture->texture);
+	if (dx11_mipmap_afilter(filter) == 1) {
+		dx11_texture_update_subresource(renderer->context, texture->texture, data, width * channels * sizeof(unsigned char), height);
+	}
+
+	texture->srv = dx11_srv_create(renderer->error, renderer->device, filter, format, texture->texture);
 	if (texture->srv == NULL) {
 		log_msg(renderer->log, "Failed to create shader resource view");
 		return NULL;
 	}
 
-	texture->ss = dx11_ss_create(renderer->error, renderer->device, dx11_afilter(filter), dx11_awrap(wrap));
+	if (dx11_mipmap_afilter(filter) == 1) {
+		dx11_srv_generate_mips(texture->srv, renderer->context);
+	}
+
+	texture->ss = dx11_ss_create(renderer->error, renderer->device, filter, dx11_awrap(wrap));
 	if (texture->ss == NULL) {
 		log_msg(renderer->log, "Failed to create sampler state");
 		return NULL;

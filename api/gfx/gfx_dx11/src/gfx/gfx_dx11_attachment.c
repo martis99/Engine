@@ -7,7 +7,7 @@ DX11Attachment* dx11_attachment_create(ARenderer* renderer, AAttachmentDesc desc
 
 	DXGI_FORMAT format = dx11_atype_format(desc.type);
 
-	attachment->texture = dx11_texture_create(renderer->error, renderer->device, width, height, format, 1, 1, 0, NULL, 0);
+	attachment->texture = dx11_texture_create(renderer->error, renderer->device, 0, width, height, format, 1, 1, 0, NULL, 0);
 	if (attachment->texture == NULL) {
 		log_msg(renderer->log, "Failed to create texture");
 		return NULL;
@@ -19,13 +19,13 @@ DX11Attachment* dx11_attachment_create(ARenderer* renderer, AAttachmentDesc desc
 		return NULL;
 	}
 
-	attachment->srv = dx11_srv_create(renderer->error, renderer->device, format, attachment->texture);
+	attachment->srv = dx11_srv_create(renderer->error, renderer->device, 0, format, attachment->texture);
 	if (attachment->srv == NULL) {
 		log_msg(renderer->log, "Failed to create shader resource view");
 		return NULL;
 	}
 
-	attachment->ss = dx11_ss_create(renderer->error, renderer->device, dx11_afilter(desc.filter), dx11_awrap(desc.wrap));
+	attachment->ss = dx11_ss_create(renderer->error, renderer->device, desc.filter, dx11_awrap(desc.wrap));
 	if (attachment->ss == NULL) {
 		log_msg(renderer->log, "Failed to create sampler state");
 		return NULL;
@@ -34,7 +34,7 @@ DX11Attachment* dx11_attachment_create(ARenderer* renderer, AAttachmentDesc desc
 	if (desc.readable == 0) {
 		attachment->st = NULL;
 	} else {
-		attachment->st = dx11_texture_create(renderer->error, renderer->device, width, height, format, 0, 0, 1, NULL, 0);
+		attachment->st = dx11_texture_create(renderer->error, renderer->device, 0, width, height, format, 0, 0, 1, NULL, 0);
 		if (attachment->st == NULL) {
 			log_msg(renderer->log, "Failed to create attachment");
 			return NULL;
