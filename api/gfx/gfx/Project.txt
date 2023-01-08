@@ -1,0 +1,6 @@
+NAME: gfx
+TYPE: LIB
+SOURCE: src
+INCLUDE: src
+DEPENDS: Engine, stb, assimp
+INCLUDES: Engine, stb, assimp

@@ -1,0 +1,7 @@
+NAME: Test
+TYPE: EXE
+SOURCE: src
+INCLUDE: src
+DEPENDS: Engine, gfx_dx11, wnd_win, utils_win
+INCLUDES: Engine, gfx, wnd, utils
+WDIR: Test

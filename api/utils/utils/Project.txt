@@ -1,0 +1,6 @@
+NAME: utils
+TYPE: LIB
+SOURCE: src
+INCLUDE: src
+DEPENDS: Engine
+INCLUDES: Engine

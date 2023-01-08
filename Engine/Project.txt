@@ -1,0 +1,7 @@
+NAME: Engine
+TYPE: LIB
+SOURCE: src
+INCLUDE: src
+DEPENDS: stb
+INCLUDES: stb
+DEFINES: LHC

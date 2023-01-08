@@ -1,0 +1,6 @@
+NAME: wnd_none
+TYPE: LIB
+SOURCE: src
+INCLUDE: src
+DEPENDS: Engine, wnd
+INCLUDES: Engine, wnd

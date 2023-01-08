@@ -1,0 +1,5 @@
+NAME: assimp
+TYPE: EXT
+SOURCE: include
+INCLUDE: include
+LIBDIRS: lib\$(CONFIG)-$(PLATFORM)
