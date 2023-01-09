@@ -19,3 +19,7 @@ vec2 vec3_to_vec2(vec3 value) {
 vec4 vec3_to_vec4(vec3 value, float w) {
 	return (vec4) { value.x, value.y, value.z, w };
 }
+
+float degtorad() {
+	return 3.14159265359f / 180.0f;
+}

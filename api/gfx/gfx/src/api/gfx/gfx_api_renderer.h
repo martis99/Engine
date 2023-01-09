@@ -3,7 +3,7 @@
 
 #include "math/math_types.h"
 
-ARenderer* arenderer_create(AContext* context, LogCallbacks* log);
+ARenderer* arenderer_create(AContext* context, LogCallbacks* log, int lhc);
 void arenderer_delete(ARenderer* renderer);
 
 void arenderer_depth_stencil_set(ARenderer* renderer, bool depth_enabled, bool stencil_enabled);

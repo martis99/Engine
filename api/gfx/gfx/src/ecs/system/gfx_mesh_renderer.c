@@ -13,7 +13,7 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 	const char* src_vert =
 		"VSOutput vs_main(VSInput vs_input) {\n"
 		"	VSOutput vs_output;\n"
-		"	vs_output.SV_Position = mul(vec4f(vs_input.Position.x, vs_input.Position.y, -vs_input.Position.z, 1.0f), mul(Model, ViewProjection));\n"
+		"	vs_output.SV_Position = mul(vec4f(vs_input.Position, 1.0f), mul(Model, ViewProjection));\n"
 		"	vs_output.TexCoord = vs_input.TexCoord;\n"
 		"	return vs_output;\n"
 		"}\n"
@@ -30,7 +30,9 @@ MeshRenderer* mesh_renderer_create(MeshRenderer* mesh_renderer, Renderer* render
 
 	AValue vs_in[] = {
 		{VEC3F, "Position"},
-		{VEC2F, "TexCoord"}
+		{VEC3F, "Normal"},
+		{VEC2F, "TexCoord"},
+		{VEC3F, "Color"}
 	};
 
 	AValue vs_out[] = {

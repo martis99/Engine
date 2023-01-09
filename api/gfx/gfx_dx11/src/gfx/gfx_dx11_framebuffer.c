@@ -191,7 +191,7 @@ void aframebuffer_clear_attachment(AFramebuffer* framebuffer, ARenderer* rendere
 }
 
 void aframebuffer_clear_depth_attachment(AFramebuffer* framebuffer, ARenderer* renderer, const void* value) {
-	renderer->context->lpVtbl->ClearDepthStencilView(renderer->context, framebuffer->dsv, D3D11_CLEAR_DEPTH, *(const FLOAT*)value, 0);
+	renderer->context->lpVtbl->ClearDepthStencilView(renderer->context, framebuffer->dsv, D3D11_CLEAR_DEPTH, renderer->lhc == 1 ? 1.0f : 0.0f, 0);
 }
 
 void aframebuffer_read_pixel(AFramebuffer* framebuffer, ARenderer* renderer, uint id, int x, int y, void* pixel) {
@@ -203,8 +203,8 @@ void aframebuffer_draw(AFramebuffer* framebuffer, ARenderer* renderer, uint id) 
 
 	FLOAT color[] = { 1, 0, 0, 0 };
 	renderer->context->lpVtbl->ClearRenderTargetView(renderer->context, framebuffer->rtv, color);
-	FLOAT depth = 1.0f;
-	renderer->context->lpVtbl->ClearDepthStencilView(renderer->context, framebuffer->dsv, D3D11_CLEAR_DEPTH, depth, 0);
+	FLOAT depth = 0.0f;
+	renderer->context->lpVtbl->ClearDepthStencilView(renderer->context, framebuffer->dsv, D3D11_CLEAR_DEPTH, renderer->lhc == 1 ? 1.0f : 0.0f, 0);
 
 	ashader_bind(framebuffer->shader, renderer);
 	dx11_attachment_srv_bind(framebuffer->attachments[id], renderer->context, 0);

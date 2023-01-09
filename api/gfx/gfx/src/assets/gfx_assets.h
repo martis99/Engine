@@ -23,6 +23,3 @@ Texture* assets_texture_get(Assets* assets, const char* name);
 
 Font* assets_font_load(Assets* assets, const char* name, const char* path, int size);
 Font* assets_font_get(Assets* assets, const char* name);
-
-Model* assets_model_load(Assets* assets, const char* name, const char* path, const char* filename, Shader* shader, bool flipUVs, bool print);
-Model* assets_model_get(Assets* assets, const char* name);

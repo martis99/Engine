@@ -16,7 +16,7 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 	const char* src_vert =
 		"VSOutput vs_main(VSInput0 vs_input0, VSInput1 vs_input1) {\n"
 		"	VSOutput vs_output;\n"
-		"	vs_output.SV_Position = mul(vec4f(vs_input0.Position.x, vs_input0.Position.y, -vs_input0.Position.z, 1.0f), mul(vs_input1.Transform, mul(Model, ViewProjection)));\n"
+		"	vs_output.SV_Position = mul(vec4f(vs_input0.Position, 1.0f), mul(vs_input1.Transform, mul(Model, ViewProjection)));\n"
 		"	vs_output.TexCoord = vs_input0.TexCoord;\n"
 		"	return vs_output;\n"
 		"}\n"
@@ -33,7 +33,9 @@ InstanceRenderer* instance_renderer_create(InstanceRenderer* instance_renderer, 
 
 	AValue vs_in0[] = {
 		{VEC3F, "Position"},
-		{VEC2F, "TexCoord"}
+		{VEC3F, "Normal"},
+		{VEC2F, "TexCoord"},
+		{VEC3F, "Color"}
 	};
 
 	AValue vs_in1[] = {

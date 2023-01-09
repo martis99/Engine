@@ -27,9 +27,20 @@ typedef struct Camera {
 
 	mat4 view;
 	mat4 projection;
-	mat4 view_projection;
+	mat4 world_to_screen;
+	mat4 screen_to_world;
 } Camera;
 
-Camera* camera_create(Camera* camera, vec3 position, vec3 rotation, CameraSettings settings);
+Camera* camera_create(Camera* camera, vec3 position, vec3 rotation, CameraSettings settings, mat4 projection);
 void camera_mouse_wheel(Camera* camera, float delta);
 void camera_mouse_moved(Camera* camera, float x, float y);
+void camera_move_forwards(Camera* camera, float speed);
+void camera_move_backwards(Camera* camera, float speed);
+void camera_move_left(Camera* camera, float speed);
+void camera_move_right(Camera* camera, float speed);
+void camera_move_up(Camera* camera, float speed);
+void camera_move_down(Camera* camera, float speed);
+void camera_rotate_left(Camera* camera, float speed);
+void camera_rotate_right(Camera* camera, float speed);
+void camera_rotate_up(Camera* camera, float speed);
+void camera_rotate_down(Camera* camera, float speed);

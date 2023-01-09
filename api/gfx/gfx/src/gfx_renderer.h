@@ -1,7 +1,7 @@
 #pragma once
 #include "gfx_types.h"
 
-Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height, LogCallbacks* log);
+Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height, LogCallbacks* log, int lhc);
 void renderer_delete(Renderer* renderer);
 
 void renderer_depth_stencil_set(Renderer* renderer, bool depth_enabled, bool stencil_enabled);

@@ -7,7 +7,6 @@
 #include "gfx_texture.h"
 #include "gfx_font.h"
 #include "gfx_uniform_buffer.h"
-#include "gfx_model.h"
 
 Assets* assets_create(Assets* assets, Renderer* renderer) {
 	assets->renderer = renderer;
@@ -17,7 +16,6 @@ Assets* assets_create(Assets* assets, Renderer* renderer) {
 	assets->images = dic_create(20, sizeof(Image));
 	assets->textures = dic_create(20, sizeof(Texture));
 	assets->fonts = dic_create(5, sizeof(Font));
-	assets->models = dic_create(10, sizeof(Model));
 	return assets;
 }
 
@@ -28,7 +26,6 @@ void assets_delete(Assets* assets) {
 	dic_delete(assets->images, image_delete);
 	dic_delete_arg(assets->textures, texture_delete, assets->renderer);
 	dic_delete_arg(assets->fonts, font_delete, assets->renderer);
-	dic_delete_arg(assets->models, model_delete, assets->renderer);
 }
 
 Shader* assets_shader_create(Assets* assets, const char* name, const char* vertex_source, const char* fragment_source, AShaderDesc desc) {
@@ -85,12 +82,4 @@ Font* assets_font_load(Assets* assets, const char* name, const char* path, int s
 
 Font* assets_font_get(Assets* assets, const char* name) {
 	return dic_get(assets->fonts, name);
-}
-
-Model* assets_model_load(Assets* assets, const char* name, const char* path, const char* filename, Shader* shader, bool flipUVs, bool print) {
-	return model_load(dic_add(assets->models, name), assets->renderer, path, filename, shader, flipUVs, print);
-}
-
-Model* assets_model_get(Assets* assets, const char* name) {
-	return dic_get(assets->models, name);
 }

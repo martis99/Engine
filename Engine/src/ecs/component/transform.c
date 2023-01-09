@@ -7,7 +7,7 @@ Transform transform_create(vec3 position, vec3 rotation, vec3 scale) {
 }
 
 mat4 transform_to_mat4(Transform* transform) {
-	return  mat4_mul(mat4_scale(transform->scale), mat4_mul(quaternion_to_mat4(euler_to_quaternion(transform->rotation)), mat4_translation(vec3_mul(transform->position, (vec3) { 1, 1, -1 }))));
+	return  mat4_mul(mat4_mul(mat4_translation(transform->position), quaternion_to_mat4(euler_to_quaternion(transform->rotation))), mat4_scale(transform->scale));
 }
 
 vec3 transform_vec3(Transform* transform, vec3 v) {

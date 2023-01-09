@@ -17,11 +17,15 @@ typedef struct vec4 {
 	float x, y, z, w;
 } vec4;
 
-typedef struct mat4 {
-	float a11, a12, a13, a14;
-	float a21, a22, a23, a24;
-	float a31, a32, a33, a34;
-	float a41, a42, a43, a44;
+typedef union mat4 {
+	float m[4][4];
+	float a[16];
+	struct {
+		float a11, a12, a13, a14;
+		float a21, a22, a23, a24;
+		float a31, a32, a33, a34;
+		float a41, a42, a43, a44;
+	};
 } mat4;
 
 typedef struct quaternion {

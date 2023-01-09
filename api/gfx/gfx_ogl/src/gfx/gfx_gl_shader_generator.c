@@ -206,7 +206,7 @@ const char* ashadergenerator_get_bnf() {
 		"<assignment_operator>$v  ::= '=' | '+=' | '-=' | '*=' | '/='\n"
 		"<lvalue>                 ::= <function_call> '.' <lvalue> | <array_access> '.' <lvalue>  | <identifier> '.' <lvalue> | <array_access> | <identifier>\n"
 		"<function_call>          ::= <mul_call> | <sample_call> | <discard_call> | <type> '(' [ <arguments> ] ')' | <identifier> '(' [ <arguments> ] ')'\n"
-		"<mul_call>               ::= <rexpression> ' * ' <lexpression> \n"
+		"<mul_call>               ::= <lexpression> ' * ' <rexpression> \n"
 		"<lexpression>            ::= <expression>\n"
 		"<rexpression>            ::= <expression>\n"
 		"<sample_call>            ::= 'texture(' <identifier> '[' <int> '], ' <expression> ')'\n"

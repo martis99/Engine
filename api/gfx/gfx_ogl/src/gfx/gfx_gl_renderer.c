@@ -5,16 +5,23 @@
 
 #include "math/mat4.h"
 
-ARenderer* arenderer_create(AContext* context, LogCallbacks* log) {
+ARenderer* arenderer_create(AContext* context, LogCallbacks* log, int lhc) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));
 	renderer->error = &context->error;
 	renderer->log = log;
+	renderer->lhc = lhc;
 
 	gl_cull_face_back(renderer->error);
-	gl_front_face_cw(renderer->error);
-
 	gl_blend_func(renderer->error, gl_afactor(A_SRC_ALPHA), gl_afactor(A_ONE_MINUS_SRC_ALPHA));
 	gl_depth_func(renderer->error, gl_adepth_func(A_DEPTH_LEQUAL));
+
+	if (lhc == 1) {
+		gl_front_face_cw(renderer->error);
+		gl_depth_func(renderer->error, gl_adepth_func(A_DEPTH_GEQUAL));
+	} else {
+		gl_front_face_ccw(renderer->error);
+		gl_depth_func(renderer->error, gl_adepth_func(A_DEPTH_LEQUAL));
+	}
 
 	gl_unpack_alignment(renderer->error);
 	return renderer;
@@ -47,8 +54,7 @@ void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_bac
 
 	if (ccw == 0) {
 		gl_front_face_cw(renderer->error);
-	}
-	else {
+	} else {
 		gl_front_face_ccw(renderer->error);
 	}
 }
@@ -62,11 +68,11 @@ void arenderer_blend_set(ARenderer* renderer, bool enabled) {
 }
 
 mat4 arenderer_perspective(ARenderer* renderer, float fovy, float aspect, float zNear, float zFar) {
-	return mat4_perspective1(fovy, aspect, zNear, zFar);
+	return mat4_perspective1(fovy, aspect, zNear, zFar, renderer->lhc);
 }
 
 mat4 arenderer_ortho(ARenderer* renderer, float left, float right, float bottom, float top, float znear, float zfar) {
-	return mat4_ortho1(left, right, bottom, top, znear, zfar);
+	return mat4_ortho1(left, right, bottom, top, znear, zfar, renderer->lhc);
 }
 
 float arenderer_near(ARenderer* renderer) {

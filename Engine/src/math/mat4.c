@@ -5,6 +5,12 @@
 #include <math.h>
 #include <xmmintrin.h>
 
+#ifdef LHC
+static const int hc = -1;
+#else
+static const int hc = 1;
+#endif
+
 float deg2rad(float deg) {
 	return deg * 3.14159265f / 180.0f;
 }
@@ -19,66 +25,61 @@ mat4 mat4_identity() {
 }
 
 mat4 mat4_scalef(float value) {
-	mat4 mat = { 0 };
+	mat4 mat = mat4_identity();
 	mat.a11 = value;
 	mat.a22 = value;
 	mat.a33 = value;
-	mat.a44 = 1.0f;
 	return mat;
 }
 
 mat4 mat4_translation(vec3 value) {
 	mat4 mat = mat4_identity();
-	mat.a41 = value.x;
-	mat.a42 = value.y;
-	mat.a43 = value.z;
-	mat.a44 = 1.0f;
+	mat.a14 = value.x;
+	mat.a24 = value.y;
+	mat.a34 = value.z;
 	return mat;
+}
+
+mat4 mat4_rotation(vec3 value) {
+	return mat4_mul(mat4_rotation_x(value.x), mat4_mul(mat4_rotation_y(value.y), mat4_rotation_z(value.z)));
 }
 
 mat4 mat4_rotation_x(float value) {
 	mat4 mat = mat4_identity();
-
 	mat.a22 = cosf(value);
-	mat.a23 = sinf(value);
-	mat.a32 = -sinf(value);
+	mat.a23 = hc * -sinf(value);
+	mat.a32 = hc * sinf(value);
 	mat.a33 = cosf(value);
-
 	return mat;
 }
 
 mat4 mat4_rotation_y(float value) {
 	mat4 mat = mat4_identity();
-
 	mat.a11 = cosf(value);
-	mat.a13 = -sinf(value);
-	mat.a31 = sinf(value);
+	mat.a13 = hc * sinf(value);
+	mat.a31 = hc * -sinf(value);
 	mat.a33 = cosf(value);
-
 	return mat;
 }
 
 mat4 mat4_rotation_z(float value) {
 	mat4 mat = mat4_identity();
-
 	mat.a11 = cosf(value);
-	mat.a12 = sinf(value);
-	mat.a21 = -sinf(value);
+	mat.a12 = -sinf(value);
+	mat.a21 = sinf(value);
 	mat.a22 = cosf(value);
-
 	return mat;
 }
 
 mat4 mat4_scale(vec3 value) {
-	mat4 mat = { 0 };
+	mat4 mat = mat4_identity();
 	mat.a11 = value.x;
 	mat.a22 = value.y;
 	mat.a33 = value.z;
-	mat.a44 = 1.0f;
 	return mat;
 }
 
-mat4 mat4_invert(mat4 m) {
+mat4 mat4_transpose(mat4 m) {
 	mat4 mat = { 0 };
 
 	mat.a11 = m.a11;
@@ -104,21 +105,160 @@ mat4 mat4_invert(mat4 m) {
 	return mat;
 }
 
+mat4 mat4_invert(mat4 m) {
+	mat4 mat;
+
+	mat.a[0] = m.a[5]  * m.a[10] * m.a[15] -
+		m.a[5]  * m.a[11] * m.a[14] -
+		m.a[9]  * m.a[6]  * m.a[15] +
+		m.a[9]  * m.a[7]  * m.a[14] +
+		m.a[13] * m.a[6]  * m.a[11] -
+		m.a[13] * m.a[7]  * m.a[10];
+
+	mat.a[4] =
+		-m.a[4]  * m.a[10] * m.a[15] +
+		 m.a[4]  * m.a[11] * m.a[14] +
+		 m.a[8]  * m.a[6]  * m.a[15] -
+		 m.a[8]  * m.a[7]  * m.a[14] -
+		 m.a[12] * m.a[6]  * m.a[11] +
+		 m.a[12] * m.a[7]  * m.a[10];
+
+	mat.a[8] =
+		m.a[4]  * m.a[9]  * m.a[15] -
+		m.a[4]  * m.a[11] * m.a[13] -
+		m.a[8]  * m.a[5]  * m.a[15] +
+		m.a[8]  * m.a[7]  * m.a[13] +
+		m.a[12] * m.a[5]  * m.a[11] -
+		m.a[12] * m.a[7]  * m.a[9];
+
+	mat.a[12] =
+		-m.a[4]  * m.a[9]  * m.a[14] +
+		 m.a[4]  * m.a[10] * m.a[13] +
+		 m.a[8]  * m.a[5]  * m.a[14] -
+		 m.a[8]  * m.a[6]  * m.a[13] -
+		 m.a[12] * m.a[5]  * m.a[10] +
+		 m.a[12] * m.a[6]  * m.a[9];
+
+	mat.a[1] =
+		-m.a[1]  * m.a[10] * m.a[15] +
+		 m.a[1]  * m.a[11] * m.a[14] +
+		 m.a[9]  * m.a[2]  * m.a[15] -
+		 m.a[9]  * m.a[3]  * m.a[14] -
+		 m.a[13] * m.a[2]  * m.a[11] +
+		 m.a[13] * m.a[3]  * m.a[10];
+
+	mat.a[5] =
+		m.a[0]  * m.a[10] * m.a[15] -
+		m.a[0]  * m.a[11] * m.a[14] -
+		m.a[8]  * m.a[2]  * m.a[15] +
+		m.a[8]  * m.a[3]  * m.a[14] +
+		m.a[12] * m.a[2]  * m.a[11] -
+		m.a[12] * m.a[3]  * m.a[10];
+
+	mat.a[9] =
+		-m.a[0]  * m.a[9]  * m.a[15] +
+		 m.a[0]  * m.a[11] * m.a[13] +
+		 m.a[8]  * m.a[1]  * m.a[15] -
+		 m.a[8]  * m.a[3]  * m.a[13] -
+		 m.a[12] * m.a[1]  * m.a[11] +
+		 m.a[12] * m.a[3]  * m.a[9];
+
+	mat.a[13] =
+		m.a[0]  * m.a[9]  * m.a[14] -
+		m.a[0]  * m.a[10] * m.a[13] -
+		m.a[8]  * m.a[1]  * m.a[14] +
+		m.a[8]  * m.a[2]  * m.a[13] +
+		m.a[12] * m.a[1]  * m.a[10] -
+		m.a[12] * m.a[2]  * m.a[9];
+
+	mat.a[2] =
+		m.a[1]  * m.a[6] * m.a[15] -
+		m.a[1]  * m.a[7] * m.a[14] -
+		m.a[5]  * m.a[2] * m.a[15] +
+		m.a[5]  * m.a[3] * m.a[14] +
+		m.a[13] * m.a[2] * m.a[7] -
+		m.a[13] * m.a[3] * m.a[6];
+
+	mat.a[6] =
+		-m.a[0]  * m.a[6] * m.a[15] +
+		 m.a[0]  * m.a[7] * m.a[14] +
+		 m.a[4]  * m.a[2] * m.a[15] -
+		 m.a[4]  * m.a[3] * m.a[14] -
+		 m.a[12] * m.a[2] * m.a[7] +
+		 m.a[12] * m.a[3] * m.a[6];
+
+	mat.a[10] =
+		m.a[0]  * m.a[5] * m.a[15] -
+		m.a[0]  * m.a[7] * m.a[13] -
+		m.a[4]  * m.a[1] * m.a[15] +
+		m.a[4]  * m.a[3] * m.a[13] +
+		m.a[12] * m.a[1] * m.a[7] -
+		m.a[12] * m.a[3] * m.a[5];
+
+	mat.a[14] =
+		-m.a[0]  * m.a[5] * m.a[14] +
+		 m.a[0]  * m.a[6] * m.a[13] +
+		 m.a[4]  * m.a[1] * m.a[14] -
+		 m.a[4]  * m.a[2] * m.a[13] -
+		 m.a[12] * m.a[1] * m.a[6] +
+		 m.a[12] * m.a[2] * m.a[5];
+
+	mat.a[3] =
+		-m.a[1] * m.a[6] * m.a[11] +
+		 m.a[1] * m.a[7] * m.a[10] +
+		 m.a[5] * m.a[2] * m.a[11] -
+		 m.a[5] * m.a[3] * m.a[10] -
+		 m.a[9] * m.a[2] * m.a[7] +
+		 m.a[9] * m.a[3] * m.a[6];
+
+	mat.a[7] =
+		m.a[0] * m.a[6] * m.a[11] -
+		m.a[0] * m.a[7] * m.a[10] -
+		m.a[4] * m.a[2] * m.a[11] +
+		m.a[4] * m.a[3] * m.a[10] +
+		m.a[8] * m.a[2] * m.a[7] -
+		m.a[8] * m.a[3] * m.a[6];
+
+	mat.a[11] =
+		-m.a[0] * m.a[5] * m.a[11] +
+		 m.a[0] * m.a[7] * m.a[9] +
+		 m.a[4] * m.a[1] * m.a[11] -
+		 m.a[4] * m.a[3] * m.a[9] -
+		 m.a[8] * m.a[1] * m.a[7] +
+		 m.a[8] * m.a[3] * m.a[5];
+
+	mat.a[15] =
+		m.a[0] * m.a[5] * m.a[10] -
+		m.a[0] * m.a[6] * m.a[9] -
+		m.a[4] * m.a[1] * m.a[10] +
+		m.a[4] * m.a[2] * m.a[9] +
+		m.a[8] * m.a[1] * m.a[6] -
+		m.a[8] * m.a[2] * m.a[5];
+
+	float det = m.a[0] * mat.a[0] + m.a[1] * mat.a[4] + m.a[2] * mat.a[8] + m.a[3] * mat.a[12];
+
+	if (det == 0)
+		return mat4_identity();
+
+	det = 1.0f / det;
+
+	for (int i = 0; i < 16; i++)
+		mat.a[i] = mat.a[i] * det;
+
+	return mat;
+}
+
 mat4 mat4_mul(mat4 l, mat4 r) {
 	mat4 mat = { 0 };
-
-	float* A = (float*)&l;
-	float* C = (float*)&mat;
-
 	__m128 row1 = _mm_load_ps(&r.a11);
 	__m128 row2 = _mm_load_ps(&r.a21);
 	__m128 row3 = _mm_load_ps(&r.a31);
 	__m128 row4 = _mm_load_ps(&r.a41);
 	for (int i = 0; i < 4; i++) {
-		__m128 brod1 = _mm_set1_ps(A[4 * i + 0]);
-		__m128 brod2 = _mm_set1_ps(A[4 * i + 1]);
-		__m128 brod3 = _mm_set1_ps(A[4 * i + 2]);
-		__m128 brod4 = _mm_set1_ps(A[4 * i + 3]);
+		__m128 brod1 = _mm_set1_ps(l.a[4 * i + 0]);
+		__m128 brod2 = _mm_set1_ps(l.a[4 * i + 1]);
+		__m128 brod3 = _mm_set1_ps(l.a[4 * i + 2]);
+		__m128 brod4 = _mm_set1_ps(l.a[4 * i + 3]);
 		__m128 row = _mm_add_ps(
 			_mm_add_ps(
 				_mm_mul_ps(brod1, row1),
@@ -126,72 +266,55 @@ mat4 mat4_mul(mat4 l, mat4 r) {
 			_mm_add_ps(
 				_mm_mul_ps(brod3, row3),
 				_mm_mul_ps(brod4, row4)));
-		_mm_store_ps(&C[4 * i], row);
+		_mm_store_ps(&mat.a[4 * i], row);
 	}
 	return mat;
 }
 
 vec3 mat4_mul_vec3(mat4 m, vec3 v) {
 	vec4 vec = mat4_mul_vec4(m, (vec4) { v.x, v.y, v.z, 1.0f });
-	return (vec3) { vec.x, vec.y, vec.z };
+	return (vec3) { vec.x / vec.w, vec.y / vec.w, vec.z / vec.w };
 }
 
 vec4 mat4_mul_vec4(mat4 m, vec4 v) {
-	__m128 x = _mm_set1_ps(v.x);
-	__m128 y = _mm_set1_ps(v.y);
-	__m128 z = _mm_set1_ps(v.z);
-	__m128 w = _mm_set1_ps(v.w);
+	__m128 x = _mm_set_ps1(v.x);
+	__m128 y = _mm_set_ps1(v.y);
+	__m128 z = _mm_set_ps1(v.z);
+	__m128 w = _mm_set_ps1(v.w);
 
-	__m128 row1 = _mm_load_ps(&m.a11);
-	__m128 row2 = _mm_load_ps(&m.a21);
-	__m128 row3 = _mm_load_ps(&m.a31);
-	__m128 row4 = _mm_load_ps(&m.a41);
+	__m128 xs = _mm_set_ps(m.a41, m.a31, m.a21, m.a11);
+	__m128 ys = _mm_set_ps(m.a42, m.a32, m.a22, m.a12);
+	__m128 zs = _mm_set_ps(m.a43, m.a33, m.a23, m.a13);
+	__m128 ws = _mm_set_ps(m.a44, m.a34, m.a24, m.a14);
 
-	__m128 p1 = _mm_mul_ps(x, row1);
-	__m128 p2 = _mm_mul_ps(y, row2);
-	__m128 p3 = _mm_mul_ps(z, row3);
-	__m128 p4 = _mm_mul_ps(w, row4);
+	xs = _mm_mul_ps(x, xs);
+	ys = _mm_mul_ps(y, ys);
+	zs = _mm_mul_ps(z, zs);
+	ws = _mm_mul_ps(w, ws);
 
 	vec4 vec;
-	_mm_store_ps((float*)&vec, _mm_add_ps(_mm_add_ps(p1, p2), _mm_add_ps(p3, p4)));
+	_mm_store_ps((float*)&vec, _mm_add_ps(_mm_add_ps(xs, ys), _mm_add_ps(zs, ws)));
 	return vec;
 }
 
-mat4 mat4_perspective(float fovy, float aspect, float zNear, float zFar) {
-	mat4 mat = mat4_identity();
-
-	float tanHalfFovy = tanf(fovy / 2.0f);
-
-	mat.a11 = 1.0f / (aspect * tanHalfFovy);
-	mat.a22 = 1 / tanHalfFovy;
-	mat.a33 = -(zFar + zNear) / (zFar - zNear);
-	mat.a34 = -1.0f;
-	mat.a42 = -(2.0f * zFar * zNear) / (zFar - zNear);
-
-	return mat;
-}
-
-mat4 mat4_ortho(float left, float right, float bottom, float top, float near, float far) {
-	mat4 mat = mat4_identity();
-	mat.a11 = 2.0f / (right - left);
-	mat.a22 = 2.0f / (top - bottom);
-	mat.a33 = -2.0f / (far - near);
-	mat.a41 = -(right + left) / (right - left);
-	mat.a42 = -(top + bottom) / (top - bottom);
-	mat.a43 = -(far + near) / (far - near);
-	return mat;
-}
-
-mat4 mat4_perspective0(float fov, float a, float n, float f) {
+mat4 mat4_perspective0(float fov, float a, float n, float f, int lhc) {
 	float thf = tanf((fov / 2.0f) * (3.14159265359f / 180.0f));
 	float A, B, C, D, E;
 	a = 1 / a;
 
-	A = a * 1.0f / thf;
-	B = 1 / thf;
-	C = f / (f - n);
-	D = 1;
-	E = -n * f / (f - n);
+	if (lhc == 1) {
+		A = a * 1.0f / thf;
+		B = 1 / thf;
+		C = f / (f - n);
+		D = 1;
+		E = -n * f / (f - n);
+	} else {
+		A = a * 1.0f / thf;
+		B = 1 / thf;
+		C = f / (f - n);
+		D = -1;
+		E = n * f / (f - n);
+	}
 
 	return (mat4) {
 		A, 0, 0, 0,
@@ -201,16 +324,24 @@ mat4 mat4_perspective0(float fov, float a, float n, float f) {
 	};
 }
 
-mat4 mat4_perspective1(float fov, float a, float n, float f) {
+mat4 mat4_perspective1(float fov, float a, float n, float f, int lhc) {
 	float thf = tanf((fov / 2.0f) * (3.14159265359f / 180.0f));
 	float A, B, C, D, E;
 	a = 1 / a;
 
-	A = a * 1.0f / thf;
-	B = 1 / thf;
-	C = -(f + n) / (f - n);
-	D = 1;
-	E = 2 * f * n / (f - n);
+	if (lhc == 1) {
+		A = a * 1.0f / thf;
+		B = 1 / thf;
+		C = -(f + n) / (f - n);
+		D = 1;
+		E = 2 * f * n / (f - n);
+	} else {
+		A = a * 1.0f / thf;
+		B = 1 / thf;
+		C = -(f + n) / (f - n);
+		D = -1;
+		E = -2 * f * n / (f - n);
+	}
 
 	return (mat4) {
 		A, 0, 0, 0,
@@ -220,25 +351,35 @@ mat4 mat4_perspective1(float fov, float a, float n, float f) {
 	};
 }
 
-mat4 mat4_ortho0(float left, float right, float bottom, float top, float near, float far) {
+mat4 mat4_ortho0(float left, float right, float bottom, float top, float near, float far, int lhc) {
 	mat4 mat = mat4_identity();
 	mat.a11 = 2.0f / (right - left);
 	mat.a22 = 2.0f / (top - bottom);
 	mat.a14 = -(right + left) / (right - left);
 	mat.a24 = -(top + bottom) / (top - bottom);
 	mat.a34 = -(near) / (far - near);
-	mat.a33 = 1.0f / (far - near);
+
+	if (lhc == 1) {
+		mat.a33 = 1.0f / (far - near);
+	} else {
+		mat.a33 = -1.0f / (far - near);
+	}
 	return mat;
 }
 
-mat4 mat4_ortho1(float left, float right, float bottom, float top, float near, float far) {
+mat4 mat4_ortho1(float left, float right, float bottom, float top, float near, float far, int lhc) {
 	mat4 mat = mat4_identity();
 	mat.a11 = 2.0f / (right - left);
 	mat.a22 = 2.0f / (top - bottom);
 	mat.a14 = -(right + left) / (right - left);
 	mat.a24 = -(top + bottom) / (top - bottom);
 	mat.a34 = -(far + near) / (far - near);
-	mat.a33 = -2.0f / (far - near);
+
+	if (lhc == 1) {
+		mat.a33 = -2.0f / (far - near);
+	} else {
+		mat.a33 = 2.0f / (far - near);
+	}
 	return mat;
 }
 

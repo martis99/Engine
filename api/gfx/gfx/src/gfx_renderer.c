@@ -1,9 +1,11 @@
 #include "gfx_renderer.h"
 #include "api/gfx/gfx_api_renderer.h"
 
-Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height, LogCallbacks* log) {
-	renderer->renderer = arenderer_create(context->context, log);
+Renderer* renderer_create(Renderer* renderer, Context* context, int width, int height, LogCallbacks* log, int lhc) {
+	renderer->renderer = arenderer_create(context->context, log, lhc);
 	renderer->log = log;
+	renderer->lhc = lhc;
+
 	if (renderer->renderer == NULL) {
 		return NULL;
 	}

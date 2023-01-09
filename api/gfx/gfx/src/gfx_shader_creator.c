@@ -257,6 +257,7 @@ void vs_generate(Str* str, const char* vert, AShaderDesc desc) {
 	vs_add_inputs(str, desc);
 	vs_add_buffers(str, desc);
 	vs_add_output(str, desc);
+	fs_add_textures(str, desc);
 	str_add_cstr(str, vert, 0);
 }
 

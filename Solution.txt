@@ -1,7 +1,7 @@
 NAME: Engine
 LANGS: C, ASM
-DIRS: api, Engine, lib, Test
-STARTUP: Test
+DIRS: api, Engine, lib, pkg, Test
+STARTUP: Sandbox
 CONFIGS: Debug, Release
 PLATFORMS: x64, x86
 OUTDIR: $(SLN_DIR)\bin\$(PROJ_NAME)\$(CONFIG)-$(PLATFORM)\

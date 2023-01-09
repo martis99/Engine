@@ -48,6 +48,7 @@ typedef struct Renderer {
 	Shader shader;
 	Mesh mesh;
 	LogCallbacks* log;
+	int lhc;
 	int cull_back;
 	int draw_calls;
 } Renderer;
@@ -105,22 +106,31 @@ typedef struct Assets {
 	Dictionary* models;
 } Assets;
 
-typedef struct ModelMesh {
+typedef struct ObjectMesh {
+	Str name;
 	Mesh mesh;
-	uint material;
-} ModelMesh;
+	unsigned int material;
+} ObjectMesh;
 
-typedef struct ModelNode {
-	Array meshes;
-	Array nodes;
+typedef struct ModelObject ModelObject;
+struct ModelObject {
+	Str name;
 	mat4 transformation;
-} ModelNode;
+	unsigned char type;
+	ObjectMesh mesh;
+	ModelObject* child;
+	ModelObject* next;
+};
 
 typedef struct Model {
-	ModelNode node;
-	Array materials;
-	Array images;
-	Array textures;
+	int objects_count;
+	ModelObject* objects;
+	int materials_count;
+	Material* materials;
+	int images_count;
+	Image* images;
+	int textures_count;
+	Texture* textures;
 } Model;
 
 typedef struct InstanceComponent {

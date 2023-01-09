@@ -54,6 +54,7 @@ struct AMesh {
 struct ARenderer {
 	GLError* error;
 	LogCallbacks* log;
+	int lhc;
 };
 
 struct AShader {

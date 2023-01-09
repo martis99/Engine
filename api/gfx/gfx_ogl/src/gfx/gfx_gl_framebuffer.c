@@ -5,6 +5,7 @@
 #include "gl/gl_defines.h"
 #include "gl/gl_buffer.h"
 #include "gl/gl_texture.h"
+#include "gl/gl_renderer.h"
 
 #include "gfx_gl_types.h"
 
@@ -165,7 +166,7 @@ void aframebuffer_clear_attachment(AFramebuffer* framebuffer, ARenderer* rendere
 }
 
 void aframebuffer_clear_depth_attachment(AFramebuffer* framebuffer, ARenderer* renderer, const void* value) {
-	gl_dsb_clear(renderer->error, 1, 0);
+	gl_dsb_clear(renderer->error, renderer->lhc == 1 ? 0 : 1, 0);
 }
 
 void aframebuffer_read_pixel(AFramebuffer* framebuffer, ARenderer* renderer, uint id, int x, int y, void* pixel) {
@@ -175,12 +176,10 @@ void aframebuffer_read_pixel(AFramebuffer* framebuffer, ARenderer* renderer, uin
 void aframebuffer_draw(AFramebuffer* framebuffer, ARenderer* renderer, uint id) {
 	gl_fb_bind(renderer->error, 0);
 
-	gl_clear(renderer->error, 0, 0, 0, 1, 1);
-
+	gl_clear(renderer->error, 0, 0, 0, 1, renderer->lhc == 1 ? 0 : 1);
 	ashader_bind(framebuffer->shader, renderer);
 	gl_attachment_bind(renderer, framebuffer->attachments[id], 0);
 	amesh_draw(framebuffer->mesh, renderer, 0xFFFFFFFF);
 	gl_attachment_unbind(renderer, framebuffer->attachments[id], 0);
-
 	gl_fb_bind(renderer->error, framebuffer->fb);
 }

@@ -25,7 +25,7 @@
 #include "ecs/system/gfx_text_renderer.h"
 #include "ecs/system/gfx_line_renderer.h"
 #include "ecs/system/gfx_instance_renderer.h"
-#include "ecs/system/gfx_model_renderer.h"
+#include "model_renderer.h"
 
 #include "ecs/component/gfx_mesh_component.h"
 #include "ecs/component/gfx_instance_component.h"
@@ -36,7 +36,7 @@
 #include "assets/gfx_font.h"
 #include "assets/gfx_framebuffer.h"
 #include "assets/gfx_material.h"
-#include "assets/gfx_model.h"
+#include "model.h"
 #include "assets/gfx_uniform_buffer.h"
 
 #include "ecs/../gfx_shader_creator.h"
@@ -76,6 +76,7 @@ typedef struct Scene {
 	UniformBuffer u_camera;
 	bool profile;
 	LogCallbacks log;
+	Model models[10];
 } Scene;
 
 static Scene* create_systems(Scene* scene) {
@@ -155,9 +156,9 @@ static Scene* create_assets(Scene* scene) {
 	Mesh* mesh_cube = assets_mesh_create_cube(&scene->assets, "cube", &scene->mesh_renderer.shader); S_ASSERT(mesh_cube);
 	Mesh* mesh_cube_inst = assets_mesh_create_cube(&scene->assets, "cube_inst", &scene->instance_renderer.shader); S_ASSERT(mesh_cube_inst);
 
-	Model* container = assets_model_load(&scene->assets, "container", "res/models/container/", "container.dae", &scene->model_renderer.shader, 0, 0); S_ASSERT(container);
-	Model* backpack = assets_model_load(&scene->assets, "backpack", "res/models/backpack/", "backpack.obj", &scene->model_renderer.shader, 1, 0); S_ASSERT(backpack);
-	Model* nanosuit = assets_model_load(&scene->assets, "nonosuit", "res/models/nano_textured/", "nanosuit.obj", &scene->model_renderer.shader, 0, 1); S_ASSERT(nanosuit);
+	Model* container = model_load(&scene->models[0], &scene->renderer, "res/models/container/", "container.mdl", &scene->model_renderer.shader, 0, 1); S_ASSERT(container);
+	Model* backpack = model_load(&scene->models[1], &scene->renderer, "res/models/backpack/", "backpack.mdl", &scene->model_renderer.shader, 0, 1); S_ASSERT(backpack);
+	Model* nanosuit = model_load(&scene->models[2], &scene->renderer, "res/models/nano_textured/", "nanosuit.mdl", &scene->model_renderer.shader, 0, 1); S_ASSERT(nanosuit);
 	return scene;
 }
 
@@ -221,27 +222,27 @@ static void create_entities3d(Scene* scene) {
 	Mesh* mesh_cube = assets_mesh_get(&scene->assets, "cube");
 	Mesh* mesh_cube_inst = assets_mesh_get(&scene->assets, "cube_inst");
 
-	Model* container = assets_model_get(&scene->assets, "container");
-	Model* backpack = assets_model_get(&scene->assets, "backpack");
-	Model* nanosuit = assets_model_get(&scene->assets, "nonosuit");
+	Model* container = &scene->models[0];
+	Model* backpack = &scene->models[1];
+	Model* nanosuit = &scene->models[2];
 
 	{
 		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+		Transform transform = transform_create((vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, entity.id, C_MODEL, container);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create((vec3) { -5.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 3.14f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+		Transform transform = transform_create((vec3) { -5.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, entity.id, C_MODEL, backpack);
 	}
 	{
 		Entity entity = ecs_entity(&scene->ecs);
-		Transform transform = transform_create((vec3) { 10.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 3.14f, 0.0f }, (vec3) { 0.4f, 0.4f, 0.4f });
+		Transform transform = transform_create((vec3) { 10.0f, 0.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.4f, 0.4f, 0.4f });
 
 		ecs_add(&scene->ecs, entity.id, C_TRANSFORM, &transform);
 		ecs_add(&scene->ecs, entity.id, C_MODEL, nanosuit);
@@ -249,7 +250,7 @@ static void create_entities3d(Scene* scene) {
 
 	{
 		Entity cube = ecs_entity(&scene->ecs);
-		Transform transform = transform_create((vec3) { 1.0f, 1.0f, 1.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+		Transform transform = transform_create((vec3) { 1.0f, 1.0f, 1.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.5f, 0.5f, 0.5f });
 		MeshComponent mesh = mesh_component_create(mesh_cube, material_orange);
 
 		ecs_add(&scene->ecs, cube.id, C_TRANSFORM, &transform);
@@ -258,7 +259,7 @@ static void create_entities3d(Scene* scene) {
 	{
 		Entity cube = ecs_entity(&scene->ecs);
 		scene->cube = cube;
-		Transform transform = transform_create((vec3) { 2.0f, 2.0f, 2.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+		Transform transform = transform_create((vec3) { 2.0f, 2.0f, 2.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.5f, 0.5f, 0.5f });
 		MeshComponent mesh = mesh_component_create(mesh_cube, material_container);
 
 		ecs_add(&scene->ecs, cube.id, C_TRANSFORM, &transform);
@@ -270,7 +271,7 @@ static void create_entities3d(Scene* scene) {
 		InstanceComponent instance = instance_component_create(mesh_cube_inst, material_orange_inst, 10 * 10);
 		for (int x = 0; x < 10; x++) {
 			for (int y = 0; y < 10; y++) {
-				Transform transform = transform_create((vec3) { x * 3.0f, y * 3.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 1.0f, 1.0f, 1.0f });
+				Transform transform = transform_create((vec3) { x * 3.0f, y * 3.0f, 0.0f }, (vec3) { 0.0f, 0.0f, 0.0f }, (vec3) { 0.5f, 0.5f, 0.5f });
 				instance_component_add(&instance, &transform);
 			}
 		}
@@ -291,14 +292,16 @@ static void create_camera(Scene* scene, float width, float height) {
 	camera_settings.width = width;
 	camera_settings.height = height;
 	camera_settings.fov = 45.0f;
-	camera_settings.z_near = 0.001f;
+	camera_settings.z_near = 1.0f;
 	camera_settings.z_far = 1000.0f;
 
-	const vec3 camera_position = { -3.0f, -4.0f, -20.0f };
+	const vec3 camera_position = { 3.0f, 4.0f, -20.0f };
 	const vec3 camera_rotation = { 0.0f, 0.0f, 0.0f };
-	camera_create(&scene->camera, camera_position, camera_rotation, camera_settings);
 
-	scene->projection = mat4_ortho(0.0f, 1600.0f, 900.0f, 0.0f, 1000.0, -1);
+	mat4 projection = renderer_perspective(&scene->renderer, camera_settings.fov, camera_settings.width / camera_settings.height, camera_settings.z_near, camera_settings.z_far);
+	camera_create(&scene->camera, camera_position, camera_rotation, camera_settings, projection);
+
+	scene->projection = renderer_ortho(&scene->renderer, 0.0f, 1600.0f, 900.0f, 0.0f, 1000.0f, -1);
 }
 
 static void on_msg(void* arg, const char* text) {
@@ -407,7 +410,7 @@ static Scene* scene_create(int width, int height) {
 		return NULL;
 	}
 
-	if (renderer_create(&scene->renderer, &scene->context, width, height, &scene->log) == NULL) {
+	if (renderer_create(&scene->renderer, &scene->context, width, height, &scene->log, 1) == NULL) {
 		log_error("Failed to create renderer");
 		return NULL;
 	}
@@ -568,7 +571,7 @@ static void render_sprites(SpriteRenderer* sprite_renderer, Ecs* ecs) {
 }
 
 static void scene_render(Scene* scene) {
-	renderer_rasterizer_set(&scene->renderer, scene->wireframe, scene->cull_back, 0);
+	renderer_rasterizer_set(&scene->renderer, scene->wireframe, scene->cull_back, scene->renderer.lhc == 1 ? 0 : 1);
 
 	uint targets[] = { 0, 1 };
 	framebuffer_set_render_targets(&scene->framebuffer, &scene->renderer, targets, sizeof(targets));
@@ -581,7 +584,7 @@ static void scene_render(Scene* scene) {
 
 	uniformbuffer_bind_vs(&scene->u_camera, &scene->renderer);
 
-	uniformbuffer_set_value(&scene->u_camera, 0, &scene->camera.view_projection);
+	uniformbuffer_set_value(&scene->u_camera, 0, &scene->camera.world_to_screen);
 	uniformbuffer_upload(&scene->u_camera, &scene->renderer);
 
 	render_meshes(&scene->mesh_renderer, &scene->ecs);
@@ -653,6 +656,9 @@ static void scene_delete(Scene* scene) {
 	model_renderer_delete(&scene->model_renderer);
 	ecs_delete(&scene->ecs);
 	assets_delete(&scene->assets);
+	model_delete(&scene->models[0], &scene->renderer);
+	model_delete(&scene->models[1], &scene->renderer);
+	model_delete(&scene->models[2], &scene->renderer);
 	framebuffer_delete(&scene->framebuffer, &scene->renderer);
 	gfx_sc_delete(&scene->renderer.shader_creator);
 	renderer_delete(&scene->renderer);

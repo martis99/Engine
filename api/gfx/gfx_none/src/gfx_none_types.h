@@ -21,7 +21,7 @@ struct AMesh {
 };
 
 struct ARenderer {
-	byte id;
+	int lhc;
 };
 
 struct AShader {

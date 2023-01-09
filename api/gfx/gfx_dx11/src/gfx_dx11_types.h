@@ -31,6 +31,7 @@ struct ARenderer {
 	RasterizerStates raster_states;
 	DX11Error* error;
 	LogCallbacks* log;
+	int lhc;
 	int cull_back;
 };
 

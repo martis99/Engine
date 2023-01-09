@@ -7,7 +7,7 @@
 
 #include "gfx_shader_creator.h"
 
-#define MAX_LINES 200
+#define MAX_LINES 200000
 #define MAX_VERTICES MAX_LINES * 2
 
 LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* renderer, Transform transform) {
@@ -17,7 +17,7 @@ LineRenderer* line_renderer_create(LineRenderer* line_renderer, Renderer* render
 	const char* src_vert =
 		"VSOutput vs_main(VSInput vs_input) {\n"
 		"	VSOutput vs_output;\n"
-		"	vs_output.SV_Position = mul(vec4f(vs_input.Position.x, vs_input.Position.y, -vs_input.Position.z, 1.0f), mul(Model, ViewProjection));\n"
+		"	vs_output.SV_Position = mul(vec4f(vs_input.Position, 1.0f), mul(Model, ViewProjection));\n"
 		"	vs_output.Color = vs_input.Color;\n"
 		"	vs_output.Entity = vs_input.Entity;\n"
 		"	return vs_output;\n"
@@ -97,6 +97,10 @@ void line_renderer_delete(LineRenderer* line_renderer) {
 	material_delete(&line_renderer->material, line_renderer->renderer);
 	mesh_delete(&line_renderer->mesh, line_renderer->renderer);
 	shader_delete(&line_renderer->shader, line_renderer->renderer);
+}
+
+void line_renderer_clear(LineRenderer* line_renderer) {
+	line_renderer->vertices_count = 0;
 }
 
 void line_renderer_add(LineRenderer* line_renderer, vec3 start, vec3 end, vec4 color, int entity) {

@@ -6,13 +6,14 @@
 
 #include <math/mat4.h>
 
-ARenderer* arenderer_create(AContext* context, LogCallbacks* log) {
+ARenderer* arenderer_create(AContext* context, LogCallbacks* log, int lhc) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));
 	renderer->device = context->device;
 	renderer->context = context->context;
 	renderer->acontext = context;
 	renderer->error = &context->error;
 	renderer->log = log;
+	renderer->lhc = lhc;
 
 	D3D11_VIEWPORT vp;
 	vp.Width = 1600;
@@ -23,7 +24,7 @@ ARenderer* arenderer_create(AContext* context, LogCallbacks* log) {
 	vp.TopLeftY = 0;
 	renderer->context->lpVtbl->RSSetViewports(renderer->context, 1, &vp);
 
-	D3D11_COMPARISON_FUNC depth = dx11_adepth_func(A_DEPTH_LEQUAL);
+	D3D11_COMPARISON_FUNC depth = dx11_adepth_func(lhc == 1 ? A_DEPTH_LEQUAL : A_DEPTH_GEQUAL);
 	renderer->depth_stencil = dx11_depth_stencil_create(&context->error, renderer->device, FALSE, FALSE, depth);
 	if (renderer->depth_stencil == NULL) {
 		log_msg(renderer->log, "Failed to create depth stencil");
@@ -138,7 +139,7 @@ void arenderer_blend_set(ARenderer* renderer, bool enabled) {
 }
 
 mat4 arenderer_perspective(ARenderer* renderer, float fovy, float aspect, float zNear, float zFar) {
-	return mat4_perspective0(fovy, aspect, zNear, zFar);
+	return mat4_perspective0(fovy, aspect, zNear, zFar, renderer->lhc);
 }
 
 mat4 arenderer_ortho(ARenderer* renderer, float left, float right, float bottom, float top, float znear, float zfar) {

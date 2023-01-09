@@ -1,6 +1,10 @@
 #include "gfx_mesh.h"
 #include "api/gfx/gfx_api_mesh.h"
 
+#include "math/maths.h"
+
+#include <float.h>
+
 Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshData data, APrimitive primitive) {
 	mesh->mesh = amesh_create(renderer->renderer, shader->shader, shader->desc, data, primitive);
 	if (mesh->mesh == NULL) {
@@ -31,51 +35,73 @@ void mesh_draw(Mesh* mesh, Renderer* renderer, uint indices) {
 }
 
 Mesh* mesh_create_cube(Mesh* mesh, Renderer* renderer, Shader* shader) {
+	float F = -1;
+	float B = 1;
+	float L = -1;
+	float R = 1;
+	float U = 1;
+	float D = -1;
+
+	float TL = 0;
+	float TR = 1;
+	float TU = 1;
+	float TD = 0;
+
+	float CR = 1.0f;
+	float CG = 0.5f;
+	float CB = 0.2f;
+	float CA = 1.0f;
+
 	float vertices[] = {
-		-0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		L, D, F,  0, 0, F,  TL, TD,  CR, CG, CB,
+		L, U, F,  0, 0, F,  TL, TU,  CR, CG, CB,
+		R, U, F,  0, 0, F,  TR, TU,  CR, CG, CB,
+		R, D, F,  0, 0, F,  TR, TD,  CR, CG, CB,
 
-		 0.5f,  0.5f, 0.5f,  0.0f, 1.0f,
-		-0.5f,  0.5f, 0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, 0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
+		R, D, B,  0, 0, B,  TL, TD,  CR, CG, CB,
+		R, U, B,  0, 0, B,  TL, TU,  CR, CG, CB,
+		L, U, B,  0, 0, B,  TR, TU,  CR, CG, CB,
+		L, D, B,  0, 0, B,  TR, TD,  CR, CG, CB,
 
-		-0.5f,  0.5f,  0.5f, 0.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
+		L, D, B,  L, 0, 0,  TL, TD,  CR, CG, CB,
+		L, U, B,  L, 0, 0,  TL, TU,  CR, CG, CB,
+		L, U, F,  L, 0, 0,  TR, TU,  CR, CG, CB,
+		L, D, F,  L, 0, 0,  TR, TD,  CR, CG, CB,
 
-		 0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		R, D, F,  R, 0, 0,  TL, TD,  CR, CG, CB,
+		R, U, F,  R, 0, 0,  TL, TU,  CR, CG, CB,
+		R, U, B,  R, 0, 0,  TR, TU,  CR, CG, CB,
+		R, D, B,  R, 0, 0,  TR, TD,  CR, CG, CB,
 
-		-0.5f,  0.5f,  0.5f, 0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f, 1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f, 0.0f, 0.0f,
+		L, U, F,  0, U, 0,  TL, TD,  CR, CG, CB,
+		L, U, B,  0, U, 0,  TL, TU,  CR, CG, CB,
+		R, U, B,  0, U, 0,  TR, TU,  CR, CG, CB,
+		R, U, F,  0, U, 0,  TR, TD,  CR, CG, CB,
 
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
+		L, D, B,  0, D, 0,  TL, TD,  CR, CG, CB,
+		L, D, F,  0, D, 0,  TL, TU,  CR, CG, CB,
+		R, D, F,  0, D, 0,  TR, TU,  CR, CG, CB,
+		R, D, B,  0, D, 0,  TR, TD,  CR, CG, CB,
 	};
 
 	uint indices[] = {
-		 0,  1,  3,
-		 3,  1,  2,
-		 4,  5,  7,
-		 7,  5,  6,
-		 8,  9, 11,
-		11,  9, 10,
-		12, 13, 15,
-		15, 13, 14,
-		16, 17, 19,
-		19, 17, 18,
-		20, 21, 23,
-		23, 21, 22
+		 0,  1,  2,
+		 0,  2,  3,
+
+		 4,  5,  6,
+		 4,  6,  7,
+
+		 8,  9, 10,
+		 8, 10, 11,
+
+		12, 13, 14,
+		12, 14, 15,
+
+		16, 17, 18,
+		16, 18, 19,
+
+		20, 21, 22,
+		20, 22, 23,
 	};
 
 	AMeshData md = { 0 };
