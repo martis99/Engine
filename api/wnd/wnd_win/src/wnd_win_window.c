@@ -173,13 +173,13 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 	window->cursor = cursor;
 	window->log = log;
 
-	WNDCLASS wc = { 0 };
+	WNDCLASSW wc = { 0 };
 	wc.lpfnWndProc = wnd_proc;
 	wc.hInstance = window->module;
 	wc.lpszClassName = s_ClassName;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.style = CS_OWNDC;
-	if (!RegisterClass(&wc)) {
+	if (!RegisterClassW(&wc)) {
 		log_msg(window->log, "Failed to register class");
 		return NULL;
 	}
@@ -204,6 +204,11 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 		window->module,
 		window
 	);
+
+	if (window->window == NULL) {
+		log_msg(window->log, "Failed to create window");
+		return NULL;
+	}
 
 	ShowWindow(window->window, SW_SHOW);
 
