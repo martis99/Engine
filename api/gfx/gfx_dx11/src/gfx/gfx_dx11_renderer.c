@@ -4,6 +4,8 @@
 
 #include "gfx_dx11_types.h"
 
+#include <math/mat4.h>
+
 ARenderer* arenderer_create(AContext* context, LogCallbacks* log) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));
 	renderer->device = context->device;
@@ -133,4 +135,20 @@ void arenderer_blend_set(ARenderer* renderer, bool enabled) {
 	} else {
 		dx11_blend_bind(renderer->blend_enabled, renderer->context);
 	}
+}
+
+mat4 arenderer_perspective(ARenderer* renderer, float fovy, float aspect, float zNear, float zFar) {
+	return mat4_perspective0(fovy, aspect, zNear, zFar);
+}
+
+mat4 arenderer_ortho(ARenderer* renderer, float left, float right, float bottom, float top, float znear, float zfar) {
+	return mat4_ortho0(left, right, bottom, top, znear, zfar);
+}
+
+float arenderer_near(ARenderer* renderer) {
+	return 0;
+}
+
+float arenderer_far(ARenderer* renderer) {
+	return 1;
 }

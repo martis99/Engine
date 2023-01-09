@@ -182,6 +182,66 @@ mat4 mat4_ortho(float left, float right, float bottom, float top, float near, fl
 	return mat;
 }
 
+mat4 mat4_perspective0(float fov, float a, float n, float f) {
+	float thf = tanf((fov / 2.0f) * (3.14159265359f / 180.0f));
+	float A, B, C, D, E;
+	a = 1 / a;
+
+	A = a * 1.0f / thf;
+	B = 1 / thf;
+	C = f / (f - n);
+	D = 1;
+	E = -n * f / (f - n);
+
+	return (mat4) {
+		A, 0, 0, 0,
+		0, B, 0, 0,
+		0, 0, C, E,
+		0, 0, D, 0
+	};
+}
+
+mat4 mat4_perspective1(float fov, float a, float n, float f) {
+	float thf = tanf((fov / 2.0f) * (3.14159265359f / 180.0f));
+	float A, B, C, D, E;
+	a = 1 / a;
+
+	A = a * 1.0f / thf;
+	B = 1 / thf;
+	C = -(f + n) / (f - n);
+	D = 1;
+	E = 2 * f * n / (f - n);
+
+	return (mat4) {
+		A, 0, 0, 0,
+		0, B, 0, 0,
+		0, 0, C, E,
+		0, 0, D, 0
+	};
+}
+
+mat4 mat4_ortho0(float left, float right, float bottom, float top, float near, float far) {
+	mat4 mat = mat4_identity();
+	mat.a11 = 2.0f / (right - left);
+	mat.a22 = 2.0f / (top - bottom);
+	mat.a14 = -(right + left) / (right - left);
+	mat.a24 = -(top + bottom) / (top - bottom);
+	mat.a34 = -(near) / (far - near);
+	mat.a33 = 1.0f / (far - near);
+	return mat;
+}
+
+mat4 mat4_ortho1(float left, float right, float bottom, float top, float near, float far) {
+	mat4 mat = mat4_identity();
+	mat.a11 = 2.0f / (right - left);
+	mat.a22 = 2.0f / (top - bottom);
+	mat.a14 = -(right + left) / (right - left);
+	mat.a24 = -(top + bottom) / (top - bottom);
+	mat.a34 = -(far + near) / (far - near);
+	mat.a33 = -2.0f / (far - near);
+	return mat;
+}
+
 void swap(float* l, float* r) {
 	float t = *l;
 	*l = *r;

@@ -3,6 +3,8 @@
 
 #include "gfx_gl_types.h"
 
+#include "math/mat4.h"
+
 ARenderer* arenderer_create(AContext* context, LogCallbacks* log) {
 	ARenderer* renderer = m_malloc(sizeof(ARenderer));
 	renderer->error = &context->error;
@@ -57,4 +59,20 @@ void arenderer_blend_set(ARenderer* renderer, bool enabled) {
 	} else {
 		gl_blend_enable(renderer->error);
 	}
+}
+
+mat4 arenderer_perspective(ARenderer* renderer, float fovy, float aspect, float zNear, float zFar) {
+	return mat4_perspective1(fovy, aspect, zNear, zFar);
+}
+
+mat4 arenderer_ortho(ARenderer* renderer, float left, float right, float bottom, float top, float znear, float zfar) {
+	return mat4_ortho1(left, right, bottom, top, znear, zfar);
+}
+
+float arenderer_near(ARenderer* renderer) {
+	return -1;
+}
+
+float arenderer_far(ARenderer* renderer) {
+	return 1;
 }

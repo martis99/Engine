@@ -29,3 +29,19 @@ void renderer_rasterizer_set(Renderer* renderer, bool wireframe, bool cull_back,
 void renderer_blend_set(Renderer* renderer, bool enabled) {
 	arenderer_blend_set(renderer->renderer, enabled);
 }
+
+mat4 renderer_perspective(Renderer* renderer, float fovy, float aspect, float zNear, float zFar) {
+	return arenderer_perspective(renderer->renderer, fovy, aspect, zNear, zFar);
+}
+
+mat4 renderer_ortho(Renderer* renderer, float left, float right, float bottom, float top, float near, float far) {
+	return arenderer_ortho(renderer->renderer, left, right, bottom, top, near, far);
+}
+
+float renderer_near(Renderer* renderer) {
+	return arenderer_near(renderer->renderer);
+}
+
+float renderer_far(Renderer* renderer) {
+	return arenderer_far(renderer->renderer);
+}
