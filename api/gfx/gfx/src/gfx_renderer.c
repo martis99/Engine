@@ -21,8 +21,9 @@ void renderer_depth_stencil_set(Renderer* renderer, bool depth_enabled, bool ste
 	arenderer_depth_stencil_set(renderer->renderer, depth_enabled, stencil_enabled);
 }
 
-void renderer_rasterizer_set(Renderer* renderer, bool wireframe, bool cull_back) {
-	arenderer_rasterizer_set(renderer->renderer, wireframe, cull_back);
+void renderer_rasterizer_set(Renderer* renderer, bool wireframe, bool cull_back, bool ccw) {
+	renderer->cull_back = cull_back;
+	arenderer_rasterizer_set(renderer->renderer, wireframe, cull_back, ccw);
 }
 
 void renderer_blend_set(Renderer* renderer, bool enabled) {

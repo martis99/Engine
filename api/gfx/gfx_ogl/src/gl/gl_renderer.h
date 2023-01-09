@@ -12,6 +12,7 @@ void gl_polygon_mode_line(GLError* error);
 
 void gl_cull_face_back(GLError* error);
 void gl_front_face_cw(GLError* error);
+void gl_front_face_ccw(GLError* error);
 
 void gl_unpack_alignment(GLError* error);
 

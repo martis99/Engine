@@ -48,6 +48,7 @@ typedef struct Renderer {
 	Shader shader;
 	Mesh mesh;
 	LogCallbacks* log;
+	int cull_back;
 	int draw_calls;
 } Renderer;
 

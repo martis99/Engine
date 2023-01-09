@@ -30,7 +30,7 @@ void arenderer_depth_stencil_set(ARenderer* renderer, bool depth_enabled, bool s
 	}
 }
 
-void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_back) {
+void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_back, bool ccw) {
 	if (wireframe == 0) {
 		gl_polygon_mode_fill(renderer->error);
 	} else {
@@ -41,6 +41,13 @@ void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_bac
 		gl_cull_face_disable(renderer->error);
 	} else {
 		gl_cull_face_enable(renderer->error);
+	}
+
+	if (ccw == 0) {
+		gl_front_face_cw(renderer->error);
+	}
+	else {
+		gl_front_face_ccw(renderer->error);
 	}
 }
 

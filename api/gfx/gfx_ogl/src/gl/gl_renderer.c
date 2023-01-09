@@ -33,6 +33,10 @@ void gl_front_face_cw(GLError* error) {
 	GL_ASSERT(error, glFrontFace(GL_CW));
 }
 
+void gl_front_face_ccw(GLError* error) {
+	GL_ASSERT(error, glFrontFace(GL_CCW));
+}
+
 void gl_unpack_alignment(GLError* error) {
 	GL_ASSERT(error, glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 }

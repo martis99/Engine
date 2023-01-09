@@ -568,7 +568,7 @@ static void render_sprites(SpriteRenderer* sprite_renderer, Ecs* ecs) {
 }
 
 static void scene_render(Scene* scene) {
-	renderer_rasterizer_set(&scene->renderer, scene->wireframe, scene->cull_back);
+	renderer_rasterizer_set(&scene->renderer, scene->wireframe, scene->cull_back, 0);
 
 	uint targets[] = { 0, 1 };
 	framebuffer_set_render_targets(&scene->framebuffer, &scene->renderer, targets, sizeof(targets));
@@ -590,6 +590,7 @@ static void scene_render(Scene* scene) {
 	line_renderer_render(&scene->line_renderer);
 
 	framebuffer_clear_depth_attachment(&scene->framebuffer, &scene->renderer, &depth);
+	renderer_rasterizer_set(&scene->renderer, scene->wireframe, scene->cull_back, 0);
 
 	uniformbuffer_set_value(&scene->u_camera, 0, &scene->projection);
 	uniformbuffer_upload(&scene->u_camera, &scene->renderer);
@@ -597,7 +598,7 @@ static void scene_render(Scene* scene) {
 	render_texts(&scene->text_renderer, &scene->ecs);
 	render_sprites(&scene->sprite_renderer, &scene->ecs);
 
-	renderer_rasterizer_set(&scene->renderer, 0, 1);
+	renderer_rasterizer_set(&scene->renderer, 0, 1, 0);
 	framebuffer_draw(&scene->framebuffer, &scene->renderer, 0);
 
 	context_swap_buffers(&scene->context);

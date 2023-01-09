@@ -29,13 +29,13 @@ void dx11_blend_delete(ID3D11BlendState* blend) {
 	blend->lpVtbl->Release(blend);
 }
 
-ID3D11RasterizerState* dx11_resterizer_create(DX11Error* error, ID3D11Device* device, D3D11_FILL_MODE fill_mode, D3D11_CULL_MODE cull_mode) {
+ID3D11RasterizerState* dx11_resterizer_create(DX11Error* error, ID3D11Device* device, D3D11_FILL_MODE fill_mode, D3D11_CULL_MODE cull_mode, BOOL ccw) {
 	ID3D11RasterizerState* rasterizer = NULL;
 
 	D3D11_RASTERIZER_DESC desc = { 0 };
 	desc.FillMode = fill_mode;
 	desc.CullMode = cull_mode;
-	desc.FrontCounterClockwise = 0;
+	desc.FrontCounterClockwise = ccw;
 
 	if (DX11_FAILED(error, "Failed to create resterizer state", device->lpVtbl->CreateRasterizerState(device, &desc, &rasterizer))) {
 		return NULL;

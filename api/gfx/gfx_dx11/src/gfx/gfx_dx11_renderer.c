@@ -46,28 +46,15 @@ ARenderer* arenderer_create(AContext* context, LogCallbacks* log) {
 		return NULL;
 	}
 
-	renderer->rasterizer_solid_none = dx11_resterizer_create(&context->error, renderer->device, D3D11_FILL_SOLID, D3D11_CULL_NONE);
-	if (renderer->rasterizer_solid_none == NULL) {
-		log_msg(renderer->log, "Failed to create rasterizer solid none");
-		return NULL;
-	}
-
-	renderer->rasterizer_solid_back = dx11_resterizer_create(&context->error, renderer->device, D3D11_FILL_SOLID, D3D11_CULL_BACK);
-	if (renderer->rasterizer_solid_back == NULL) {
-		log_msg(renderer->log, "Failed to create rasterizer solid back");
-		return NULL;
-	}
-
-	renderer->rasterizer_wireframe_none = dx11_resterizer_create(&context->error, renderer->device, D3D11_FILL_WIREFRAME, D3D11_CULL_NONE);
-	if (renderer->rasterizer_wireframe_none == NULL) {
-		log_msg(renderer->log, "Failed to create rasterizer wireframe none");
-		return NULL;
-	}
-
-	renderer->rasterizer_wireframe_back = dx11_resterizer_create(&context->error, renderer->device, D3D11_FILL_WIREFRAME, D3D11_CULL_BACK);
-	if (renderer->rasterizer_wireframe_back == NULL) {
-		log_msg(renderer->log, "Failed to create rasterizer wireframe back");
-		return NULL;
+	for (int i = 0; i < 8; i++) {
+		BOOL ccw = i / 4 % 2;
+		D3D11_FILL_MODE fill = i / 2 % 2 == 0 ? D3D11_FILL_SOLID : D3D11_FILL_WIREFRAME;
+		D3D11_CULL_MODE cull = i % 2 == 0 ? D3D11_CULL_NONE : D3D11_CULL_BACK;
+		renderer->raster_states.states[i] = dx11_resterizer_create(&context->error, renderer->device, fill, cull, ccw);
+		if (renderer->raster_states.cw_solid == NULL) {
+			log_msg(renderer->log, "Failed to create rasterizer");
+			return NULL;
+		}
 	}
 
 	renderer->blend_enabled = dx11_blend_create(&context->error, renderer->device, TRUE);
@@ -102,25 +89,11 @@ void arenderer_delete(ARenderer* renderer) {
 		dx11_depth_stencil_delete(renderer->depth_stencil_depth_stencil);
 		renderer->depth_stencil_depth_stencil = NULL;
 	}
-	if (renderer->rasterizer_solid_none != NULL) {
-		dx11_rasterizer_delete(renderer->rasterizer_solid_none);
-		renderer->rasterizer_solid_none = NULL;
-	}
-	if (renderer->rasterizer_solid_back != NULL) {
-		dx11_rasterizer_delete(renderer->rasterizer_solid_back);
-		renderer->rasterizer_solid_back = NULL;
-	}
-	if (renderer->rasterizer_wireframe_none != NULL) {
-		dx11_rasterizer_delete(renderer->rasterizer_wireframe_none);
-		renderer->rasterizer_wireframe_none = NULL;
-	}
-	if (renderer->rasterizer_wireframe_back != NULL) {
-		dx11_rasterizer_delete(renderer->rasterizer_wireframe_back);
-		renderer->rasterizer_wireframe_back = NULL;
-	}
-	if (renderer->rasterizer_wireframe_back != NULL) {
-		dx11_rasterizer_delete(renderer->rasterizer_wireframe_back);
-		renderer->rasterizer_wireframe_back = NULL;
+	for (int i = 0; i < 8; i++) {
+		if (renderer->raster_states.states[i] != NULL) {
+			dx11_rasterizer_delete(renderer->raster_states.states[i]);
+			renderer->raster_states.states[i] = NULL;
+		}
 	}
 	if (renderer->blend_enabled != NULL) {
 		dx11_blend_delete(renderer->blend_enabled);
@@ -149,20 +122,9 @@ void arenderer_depth_stencil_set(ARenderer* renderer, bool depth_enabled, bool s
 	}
 }
 
-void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_back) {
-	if (wireframe == 0) {
-		if (cull_back == 0) {
-			dx11_rasterizer_bind(renderer->rasterizer_solid_none, renderer->context);
-		} else {
-			dx11_rasterizer_bind(renderer->rasterizer_solid_back, renderer->context);
-		}
-	} else {
-		if (cull_back == 0) {
-			dx11_rasterizer_bind(renderer->rasterizer_wireframe_none, renderer->context);
-		} else {
-			dx11_rasterizer_bind(renderer->rasterizer_wireframe_back, renderer->context);
-		}
-	}
+void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_back, bool ccw) {
+	renderer->cull_back = cull_back;
+	dx11_rasterizer_bind(renderer->raster_states.states[ccw * 4 + wireframe * 2 + cull_back], renderer->context);
 }
 
 void arenderer_blend_set(ARenderer* renderer, bool enabled) {

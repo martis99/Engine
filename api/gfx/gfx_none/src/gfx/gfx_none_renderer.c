@@ -15,7 +15,7 @@ void arenderer_depth_stencil_set(ARenderer* renderer, bool depth_enabled, bool s
 
 }
 
-void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_back) {
+void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_back, bool ccw) {
 
 }
 

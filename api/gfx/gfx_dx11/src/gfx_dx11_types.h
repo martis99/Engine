@@ -9,6 +9,15 @@ struct AContext {
 	DX11Error error;
 };
 
+typedef union RasterizerStates {
+	ID3D11RasterizerState* states[8];
+	struct {
+		ID3D11RasterizerState* cw_solid, * cw_solid_cull, * cw_wire, * cw_wire_cull;
+		ID3D11RasterizerState* ccw_solid, * ccw_solid_cull, * ccw_wire, * ccw_wire_cull;
+	};
+
+} RasterizerStates;
+
 struct ARenderer {
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
@@ -17,14 +26,12 @@ struct ARenderer {
 	ID3D11DepthStencilState* depth_stencil_depth;
 	ID3D11DepthStencilState* depth_stencil_stencil;
 	ID3D11DepthStencilState* depth_stencil_depth_stencil;
-	ID3D11RasterizerState* rasterizer_solid_none;
-	ID3D11RasterizerState* rasterizer_solid_back;
-	ID3D11RasterizerState* rasterizer_wireframe_none;
-	ID3D11RasterizerState* rasterizer_wireframe_back;
 	ID3D11BlendState* blend_enabled;
 	ID3D11BlendState* blend_disabled;
+	RasterizerStates raster_states;
 	DX11Error* error;
 	LogCallbacks* log;
+	int cull_back;
 };
 
 struct AShader {
