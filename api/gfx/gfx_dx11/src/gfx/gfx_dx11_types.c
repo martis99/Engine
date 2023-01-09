@@ -17,6 +17,20 @@ D3D11_TEXTURE_ADDRESS_MODE dx11_awrap(AWrap wrap) {
 	return 0;
 }
 
+D3D11_COMPARISON_FUNC dx11_adepth_func(ADepthFunc func) {
+	switch (func) {
+	case A_DEPTH_NEVER: return D3D11_COMPARISON_NEVER;
+	case A_DEPTH_LESS: return D3D11_COMPARISON_LESS;
+	case A_DEPTH_EQUAL: return D3D11_COMPARISON_EQUAL;
+	case A_DEPTH_LEQUAL: return D3D11_COMPARISON_LESS_EQUAL;
+	case A_DEPTH_GRATER: return D3D11_COMPARISON_GREATER;
+	case A_DEPTH_NOTEQUAL: return D3D11_COMPARISON_NOT_EQUAL;
+	case A_DEPTH_GEQUAL: return D3D11_COMPARISON_GREATER_EQUAL;
+	case A_DEPTH_ALWAYS: return D3D11_COMPARISON_ALWAYS;
+	}
+	return 0;
+}
+
 DXGI_FORMAT dx11_atype_format(AType type) {
 	switch (type) {
 	case VEC1B: return DXGI_FORMAT_R8_SINT;

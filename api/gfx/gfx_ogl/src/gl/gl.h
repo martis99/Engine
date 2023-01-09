@@ -111,5 +111,6 @@ void WINAPI glTexParameteri(GLenum target, GLenum pname, GLint param);
 void WINAPI glTexParameterf(GLenum target, GLenum pname, GLfloat param);
 void WINAPI glDeleteTextures(GLsizei n, const GLuint* textures);
 void WINAPI glBlendFunc(GLenum sfactor, GLenum dfactor);
+void WINAPI glDepthFunc(GLenum func);
 void WINAPI glPixelStorei(GLenum pname, GLint param);
 void WINAPI glBindTextureUnit(GLuint unit, GLuint texture);

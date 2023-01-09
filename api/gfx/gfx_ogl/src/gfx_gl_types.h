@@ -76,6 +76,7 @@ GLenum gl_aprimitive(APrimitive primitive);
 GLenum gl_ashadertype(AShaderType type);
 GLint gl_awrap(AWrap wrap);
 GLenum gl_afactor(AFactor factor);
+GLenum gl_adepth_func(ADepthFunc func);
 GLenum gl_atype_type(AType type);
 GLint gl_atype_internal_format(AType type);
 GLenum gl_atype_format(AType type);

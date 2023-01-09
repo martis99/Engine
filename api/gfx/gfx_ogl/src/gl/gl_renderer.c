@@ -48,3 +48,7 @@ void gl_blend_disable(GLError* error) {
 void gl_blend_func(GLError* error, GLenum sfactor, GLenum dfactor) {
 	GL_ASSERT(error, glBlendFunc(sfactor, dfactor));
 }
+
+void gl_depth_func(GLError* error, GLenum func) {
+	GL_ASSERT(error, glDepthFunc(func));
+}

@@ -52,6 +52,18 @@ typedef enum AFactor {
 	A_ONE_MINUS_DST_ALPHA
 } AFactor;
 
+typedef enum ADepthFunc {
+	A_DEPTH_FUN_UNKNOWN,
+	A_DEPTH_NEVER,
+	A_DEPTH_LESS,
+	A_DEPTH_EQUAL,
+	A_DEPTH_LEQUAL,
+	A_DEPTH_GRATER,
+	A_DEPTH_NOTEQUAL,
+	A_DEPTH_GEQUAL,
+	A_DEPTH_ALWAYS
+} ADepthFunc;
+
 typedef enum AType {
 	A_TYPE_UNKOWN,
 	VEC1B,

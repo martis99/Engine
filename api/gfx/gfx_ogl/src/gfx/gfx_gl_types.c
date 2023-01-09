@@ -45,6 +45,19 @@ GLenum gl_afactor(AFactor factor) {
 	return 0;
 }
 
+GLenum gl_adepth_func(ADepthFunc func) {
+	switch (func) {
+	case A_DEPTH_NEVER: return GL_NEVER;
+	case A_DEPTH_LESS: return GL_LESS;
+	case A_DEPTH_EQUAL: return GL_EQUAL;
+	case A_DEPTH_LEQUAL: return GL_LEQUAL;
+	case A_DEPTH_GRATER: return GL_GREATER;
+	case A_DEPTH_NOTEQUAL: return GL_NOTEQUAL;
+	case A_DEPTH_GEQUAL: return GL_GEQUAL;
+	case A_DEPTH_ALWAYS: return GL_ALWAYS;
+	}
+}
+
 GLenum gl_atype_type(AType type) {
 	switch (atype_type(type)) {
 	case A_B: return GL_BYTE;

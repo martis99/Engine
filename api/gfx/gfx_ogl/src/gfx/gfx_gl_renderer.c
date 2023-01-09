@@ -12,6 +12,7 @@ ARenderer* arenderer_create(AContext* context, LogCallbacks* log) {
 	gl_front_face_cw(renderer->error);
 
 	gl_blend_func(renderer->error, gl_afactor(A_SRC_ALPHA), gl_afactor(A_ONE_MINUS_SRC_ALPHA));
+	gl_depth_func(renderer->error, gl_adepth_func(A_DEPTH_LEQUAL));
 
 	gl_unpack_alignment(renderer->error);
 	return renderer;

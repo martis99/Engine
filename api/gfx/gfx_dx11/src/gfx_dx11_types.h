@@ -88,4 +88,5 @@ struct AUniformBuffer {
 
 D3D11_PRIMITIVE_TOPOLOGY dx11_aprimitive(APrimitive primitive);
 D3D11_TEXTURE_ADDRESS_MODE dx11_awrap(AWrap wrap);
+D3D11_COMPARISON_FUNC dx11_adepth_func(ADepthFunc func);
 DXGI_FORMAT dx11_atype_format(AType type);

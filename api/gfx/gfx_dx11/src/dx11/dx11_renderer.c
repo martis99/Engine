@@ -51,13 +51,13 @@ void dx11_rasterizer_delete(ID3D11RasterizerState* rasterizer) {
 	rasterizer->lpVtbl->Release(rasterizer);
 }
 
-ID3D11DepthStencilState* dx11_depth_stencil_create(DX11Error* error, ID3D11Device* device, BOOL depth_enable, BOOL stencil_enable) {
+ID3D11DepthStencilState* dx11_depth_stencil_create(DX11Error* error, ID3D11Device* device, BOOL depth_enable, BOOL stencil_enable, D3D11_COMPARISON_FUNC depth_func) {
 	ID3D11DepthStencilState* depth_stencil = NULL;
 
 	D3D11_DEPTH_STENCIL_DESC desc = { 0 };
 	desc.DepthEnable = depth_enable;
 	desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	desc.DepthFunc = D3D11_COMPARISON_LESS;
+	desc.DepthFunc = depth_func;
 
 	desc.StencilEnable = stencil_enable;
 	desc.StencilReadMask = 0xFF;

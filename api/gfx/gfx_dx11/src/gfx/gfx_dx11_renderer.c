@@ -21,25 +21,26 @@ ARenderer* arenderer_create(AContext* context, LogCallbacks* log) {
 	vp.TopLeftY = 0;
 	renderer->context->lpVtbl->RSSetViewports(renderer->context, 1, &vp);
 
-	renderer->depth_stencil = dx11_depth_stencil_create(&context->error, renderer->device, FALSE, FALSE);
+	D3D11_COMPARISON_FUNC depth = dx11_adepth_func(A_DEPTH_LEQUAL);
+	renderer->depth_stencil = dx11_depth_stencil_create(&context->error, renderer->device, FALSE, FALSE, depth);
 	if (renderer->depth_stencil == NULL) {
 		log_msg(renderer->log, "Failed to create depth stencil");
 		return NULL;
 	}
 
-	renderer->depth_stencil_depth = dx11_depth_stencil_create(&context->error, renderer->device, TRUE, FALSE);
+	renderer->depth_stencil_depth = dx11_depth_stencil_create(&context->error, renderer->device, TRUE, FALSE, depth);
 	if (renderer->depth_stencil_depth == NULL) {
 		log_msg(renderer->log, "Failed to create depth stencil depth");
 		return NULL;
 	}
 
-	renderer->depth_stencil_stencil = dx11_depth_stencil_create(&context->error, renderer->device, FALSE, TRUE);
+	renderer->depth_stencil_stencil = dx11_depth_stencil_create(&context->error, renderer->device, FALSE, TRUE, depth);
 	if (renderer->depth_stencil_stencil == NULL) {
 		log_msg(renderer->log, "Failed to create depth stencil stencil");
 		return NULL;
 	}
 
-	renderer->depth_stencil_depth_stencil = dx11_depth_stencil_create(&context->error, renderer->device, TRUE, TRUE);
+	renderer->depth_stencil_depth_stencil = dx11_depth_stencil_create(&context->error, renderer->device, TRUE, TRUE, depth);
 	if (renderer->depth_stencil_depth_stencil == NULL) {
 		log_msg(renderer->log, "Failed to create depth stencil depth stencil");
 		return NULL;
