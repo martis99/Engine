@@ -3,8 +3,9 @@
 
 #include "gfx_dx11_types.h"
 
-ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void* data) {
-	ATexture* texture = m_malloc(sizeof(ATexture));
+ATexture *atexture_create(ARenderer *renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void *data)
+{
+	ATexture *texture = m_malloc(sizeof(ATexture));
 
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	switch (channels) {
@@ -13,14 +14,14 @@ ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int w
 	case 4: format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
 	}
 
-	texture->texture = dx11_texture_create(renderer->error, renderer->device, filter, width, height, format, 0, 1, 0, data, width * channels * sizeof(unsigned char));
+	texture->texture = dx11_texture_create(renderer->error, renderer->device, filter, width, height, format, 0, 1, 0, data, (unsigned long long)width * channels * sizeof(unsigned char));
 	if (texture->texture == NULL) {
 		log_msg(renderer->log, "Failed to create texture");
 		return NULL;
 	}
 
 	if (dx11_mipmap_afilter(filter) == 1) {
-		dx11_texture_update_subresource(renderer->context, texture->texture, data, width * channels * sizeof(unsigned char), height);
+		dx11_texture_update_subresource(renderer->context, texture->texture, data, (unsigned long long)width * channels * sizeof(unsigned char), height);
 	}
 
 	texture->srv = dx11_srv_create(renderer->error, renderer->device, filter, format, texture->texture);
@@ -42,12 +43,14 @@ ATexture* atexture_create(ARenderer* renderer, AWrap wrap, AFilter filter, int w
 	return texture;
 }
 
-void atexture_bind(ATexture* texture, ARenderer* renderer, uint slot) {
+void atexture_bind(ATexture *texture, ARenderer *renderer, uint slot)
+{
 	dx11_srv_bind(texture->srv, renderer->context, slot);
 	dx11_ss_bind(texture->ss, renderer->context, slot);
 }
 
-void atexture_delete(ATexture* texture, ARenderer* renderer) {
+void atexture_delete(ATexture *texture, ARenderer *renderer)
+{
 	if (texture->texture != NULL) {
 		dx11_texture_delete(texture->texture);
 		texture->texture = NULL;

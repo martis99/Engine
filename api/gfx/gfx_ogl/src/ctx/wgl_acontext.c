@@ -7,9 +7,10 @@
 
 #include <Windows.h>
 
-#pragma comment (lib, "opengl32.lib")
+#pragma comment(lib, "opengl32.lib")
 
-static PROC load_function(HMODULE library, const char* name) {
+static PROC load_function(HMODULE library, const char *name)
+{
 	PROC p = wglGetProcAddress(name);
 	if (p != 0) {
 		return p;
@@ -19,7 +20,9 @@ static PROC load_function(HMODULE library, const char* name) {
 
 #define LOAD_OPENGL_FUNCTION(name) (name = (name##Fn)load_function(library, #name))
 
-static int load_functions(HMODULE library) {
+static int load_functions(HMODULE library)
+{
+	// clang-format off
 	return
 		LOAD_OPENGL_FUNCTION(wglChoosePixelFormatARB) &&
 		LOAD_OPENGL_FUNCTION(wglCreateContextAttribsARB) &&
@@ -108,12 +111,15 @@ static int load_functions(HMODULE library) {
 
 		LOAD_OPENGL_FUNCTION(glDrawArraysInstanced) &&
 		LOAD_OPENGL_FUNCTION(glDrawElementsInstanced);
+	// clang-format on
 }
 
-static HMODULE load_opengl_functions(HMODULE module, LPCWSTR class_name) {
+static HMODULE load_opengl_functions(HMODULE module, LPCWSTR class_name)
+{
 	HWND window = CreateWindowExW(WS_EX_APPWINDOW, class_name, L"", WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, NULL, NULL, module, NULL);
-	HDC device = GetDC(window);
+	HDC device  = GetDC(window);
 
+	// clang-format off
 	PIXELFORMATDESCRIPTOR pfd = {
 		sizeof(PIXELFORMATDESCRIPTOR),
 		1,
@@ -130,8 +136,9 @@ static HMODULE load_opengl_functions(HMODULE module, LPCWSTR class_name) {
 		0,
 		PFD_MAIN_PLANE,
 		0,
-		0, 0, 0
+		0, 0, 0,
 	};
+	// clang-format off
 
 	int kFormatIndex = ChoosePixelFormat(device, &pfd);
 	SetPixelFormat(device, kFormatIndex, &pfd);
@@ -150,6 +157,7 @@ static HMODULE load_opengl_functions(HMODULE module, LPCWSTR class_name) {
 
 static HGLRC create_context(HDC device) {
 	{
+		// clang-format off
 		int attribs[] =
 		{
 			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -159,21 +167,22 @@ static HGLRC create_context(HDC device) {
 			WGL_COLOR_BITS_ARB, 32,
 			WGL_DEPTH_BITS_ARB, 24,
 			WGL_STENCIL_BITS_ARB, 8,
-			0
+			0,
 		};
+		// clang-format on
 
 		int format;
 		UINT num_formats;
 
 		wglChoosePixelFormatARB(device, attribs, NULL, 1, &format, &num_formats);
 
-#pragma warning( push )
-#pragma warning( disable : 6387 )
+#pragma warning(push)
+#pragma warning(disable : 6387)
 		SetPixelFormat(device, format, 0);
-#pragma warning( pop ) 
-
+#pragma warning(pop)
 	}
 	{
+		// clang-format off
 		int attribs[] =
 		{
 			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
@@ -181,8 +190,9 @@ static HGLRC create_context(HDC device) {
 #ifdef _DEBUG
 			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
 #endif
-			0
+			0,
 		};
+		// clang-format on
 		return wglCreateContextAttribsARB(device, NULL, attribs);
 	}
 }
@@ -193,13 +203,14 @@ typedef struct AWindow {
 	HWND window;
 } AWindow;
 
-AContext* acontext_create(void* window, LogCallbacks* log) {
-	AWindow* awindow = window;
-	AContext* context = m_malloc(sizeof(AContext));
-	context->window = awindow->window;
-	context->library = load_opengl_functions(awindow->module, awindow->class_name);
-	context->device = GetDC(context->window);
-	context->context = create_context(context->device);
+AContext *acontext_create(void *window, LogCallbacks *log)
+{
+	AWindow *awindow  = window;
+	AContext *context = m_malloc(sizeof(AContext));
+	context->window	  = awindow->window;
+	context->library  = load_opengl_functions(awindow->module, awindow->class_name);
+	context->device	  = GetDC(context->window);
+	context->context  = create_context(context->device);
 	wglMakeCurrent(context->device, context->context);
 	if (gl_error_create(&context->error, log) == NULL) {
 		return NULL;
@@ -207,7 +218,8 @@ AContext* acontext_create(void* window, LogCallbacks* log) {
 	return context;
 }
 
-void acontext_delete(AContext* context) {
+void acontext_delete(AContext *context)
+{
 	gl_error_delete(&context->error);
 	FreeLibrary(context->library);
 	ReleaseDC(context->window, context->device);
@@ -215,6 +227,7 @@ void acontext_delete(AContext* context) {
 	m_free(context, sizeof(AContext));
 }
 
-void acontext_swap_buffers(AContext* context) {
+void acontext_swap_buffers(AContext *context)
+{
 	wglSwapLayerBuffers(context->device, WGL_SWAP_MAIN_PLANE);
 }

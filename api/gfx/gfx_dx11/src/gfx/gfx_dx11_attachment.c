@@ -1,9 +1,10 @@
 #include "gfx_dx11_attachment.h"
 #include "dx11/dx11_texture.h"
 
-DX11Attachment* dx11_attachment_create(ARenderer* renderer, AAttachmentDesc desc, UINT width, UINT height) {
-	DX11Attachment* attachment = m_malloc(sizeof(DX11Attachment));
-	attachment->type = desc.type;
+DX11Attachment *dx11_attachment_create(ARenderer *renderer, AAttachmentDesc desc, UINT width, UINT height)
+{
+	DX11Attachment *attachment = m_malloc(sizeof(DX11Attachment));
+	attachment->type	   = desc.type;
 
 	DXGI_FORMAT format = dx11_atype_format(desc.type);
 
@@ -46,7 +47,8 @@ DX11Attachment* dx11_attachment_create(ARenderer* renderer, AAttachmentDesc desc
 	return attachment;
 }
 
-void dx11_attachment_delete(DX11Attachment* attachment) {
+void dx11_attachment_delete(DX11Attachment *attachment)
+{
 	if (attachment->texture != NULL) {
 		dx11_texture_delete(attachment->texture);
 		attachment->texture = NULL;
@@ -70,23 +72,27 @@ void dx11_attachment_delete(DX11Attachment* attachment) {
 	m_free(attachment, sizeof(DX11Attachment));
 }
 
-void dx11_attachment_srv_bind(DX11Attachment* attachment, ID3D11DeviceContext* context, UINT slot) {
+void dx11_attachment_srv_bind(DX11Attachment *attachment, ID3D11DeviceContext *context, UINT slot)
+{
 	dx11_srv_bind(attachment->srv, context, slot);
 	dx11_ss_bind(attachment->ss, context, slot);
 }
 
-void dx11_attachment_srv_unbind(DX11Attachment* attachment, ID3D11DeviceContext* context, UINT slot) {
+void dx11_attachment_srv_unbind(DX11Attachment *attachment, ID3D11DeviceContext *context, UINT slot)
+{
 	dx11_srv_bind(NULL, context, slot);
 	dx11_ss_bind(NULL, context, slot);
 }
 
-void dx11_attachment_clear(DX11Attachment* attachment, ID3D11DeviceContext* context, const void* value) {
+void dx11_attachment_clear(DX11Attachment *attachment, ID3D11DeviceContext *context, const void *value)
+{
 	float fvalue[4] = { 0 };
 	atype_convert(fvalue, value, attachment->type);
 	context->lpVtbl->ClearRenderTargetView(context, attachment->rtv, fvalue);
 }
 
-void dx11_attachment_read_pixel(ARenderer* renderer, DX11Attachment* attachment, ID3D11DeviceContext* context, int x, int y, void* pixel) {
-	context->lpVtbl->CopyResource(context, (ID3D11Resource*)attachment->st, (ID3D11Resource*)attachment->texture);
+void dx11_attachment_read_pixel(ARenderer *renderer, DX11Attachment *attachment, ID3D11DeviceContext *context, int x, int y, void *pixel)
+{
+	context->lpVtbl->CopyResource(context, (ID3D11Resource *)attachment->st, (ID3D11Resource *)attachment->texture);
 	dx11_texture_read_pixel(renderer->error, attachment->st, context, x, y, attachment->pixel_size, pixel);
 }

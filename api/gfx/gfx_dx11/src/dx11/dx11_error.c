@@ -3,16 +3,17 @@
 
 #include "utils/str.h"
 
-DX11Error* dx11_error_create(DX11Error* error, LogCallbacks* log) {
+DX11Error *dx11_error_create(DX11Error *error, LogCallbacks *log)
+{
 	error->library = LoadLibraryA("dxgidebug.dll");
-	error->log = log;
+	error->log     = log;
 
 	if (error->library == NULL) {
 		log_err(error->log, "Failed to load library", "Error");
 		return NULL;
 	}
 
-	typedef HRESULT(WINAPI* DXGIGetDebugInterface)(REFIID, void**);
+	typedef HRESULT(WINAPI * DXGIGetDebugInterface)(REFIID, void **);
 	DXGIGetDebugInterface debug_interface = (DXGIGetDebugInterface)GetProcAddress(error->library, "DXGIGetDebugInterface");
 	if (debug_interface == NULL) {
 		log_err(error->log, "Failed to get process address", "Error");
@@ -29,11 +30,13 @@ DX11Error* dx11_error_create(DX11Error* error, LogCallbacks* log) {
 	return error;
 }
 
-void dx11_error_begin(DX11Error* error) {
+void dx11_error_begin(DX11Error *error)
+{
 	error->begin = error->info_queue->lpVtbl->GetNumStoredMessages(error->info_queue, DXGI_DEBUG_ALL);
 }
 
-static const char* get_severity(DXGI_INFO_QUEUE_MESSAGE_SEVERITY severity) {
+static const char *get_severity(DXGI_INFO_QUEUE_MESSAGE_SEVERITY severity)
+{
 	switch (severity) {
 	case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION: return "CORRUPTION";
 	case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR: return "ERROR";
@@ -44,7 +47,8 @@ static const char* get_severity(DXGI_INFO_QUEUE_MESSAGE_SEVERITY severity) {
 	return "";
 }
 
-static const char* get_category(DXGI_INFO_QUEUE_MESSAGE_CATEGORY category) {
+static const char *get_category(DXGI_INFO_QUEUE_MESSAGE_CATEGORY category)
+{
 	switch (category) {
 	case DXGI_INFO_QUEUE_MESSAGE_CATEGORY_UNKNOWN: return "UNKNOWN";
 	case DXGI_INFO_QUEUE_MESSAGE_CATEGORY_MISCELLANEOUS: return "MISCELLANEOUS";
@@ -61,7 +65,8 @@ static const char* get_category(DXGI_INFO_QUEUE_MESSAGE_CATEGORY category) {
 	return "";
 }
 
-static char* get_info(DX11Error* error) {
+static char *get_info(DX11Error *error)
+{
 	str_clear(&error->info);
 
 	UINT64 end = error->info_queue->lpVtbl->GetNumStoredMessages(error->info_queue, DXGI_DEBUG_ALL);
@@ -73,39 +78,40 @@ static char* get_info(DX11Error* error) {
 			return NULL;
 		}
 
-		DXGI_INFO_QUEUE_MESSAGE* msg = m_malloc(messageLength);
-		hr = error->info_queue->lpVtbl->GetMessageW(error->info_queue, DXGI_DEBUG_ALL, i, msg, &messageLength);
+		DXGI_INFO_QUEUE_MESSAGE *msg = m_malloc(messageLength);
+		hr			     = error->info_queue->lpVtbl->GetMessageW(error->info_queue, DXGI_DEBUG_ALL, i, msg, &messageLength);
 		if (FAILED(hr)) {
 			log_err(error->log, "Failed to get message", "Error");
 			return NULL;
 		}
 
 		str_add_cstrf(&error->info, "%s %s #%i: ", get_category(msg->Category), get_severity(msg->Severity), msg->ID);
-		str_add_cstr(&error->info, msg->pDescription, (uint)msg->DescriptionByteLength - 1);
+		str_add_cstr(&error->info, msg->pDescription, (size_t)msg->DescriptionByteLength - 1);
 		str_add_nl(&error->info);
 		m_free(msg, messageLength);
 	}
 	return error->info.data;
 }
 
-bool dx11_error_failed(DX11Error* error, const char* msg, HRESULT hr, const char* fn, const char* file, int line) {
+bool dx11_error_failed(DX11Error *error, const char *msg, HRESULT hr, const char *fn, const char *file, int line)
+{
 	if (FAILED(hr)) {
 		wstr_zero(&error->text);
 		DXGetErrorDescriptionW(hr, error->desc.data, error->desc.count);
 
 #ifdef _DEBUG
 		wstr_catf(&error->text,
-			L"%ls (0x%X (%lu))\n"
-			L"%hs\n\n"
-			L"DESC:\n%ls\n"
-			L"INFO:\n%hs\n"
-			L"%hs: %i\n",
-			DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, fn, error->desc.data, get_info(error), file, line);
+			  L"%ls (0x%X (%lu))\n"
+			  L"%hs\n\n"
+			  L"DESC:\n%ls\n"
+			  L"INFO:\n%hs\n"
+			  L"%hs: %i\n",
+			  DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, fn, error->desc.data, get_info(error), file, line);
 #elif NDEBUG
 		wstr_catf(&error->text,
-			L"%ls (0x%X (%lu))\n\n"
-			L"DESC:\n%ls\n",
-			DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, error->desc.data);
+			  L"%ls (0x%X (%lu))\n\n"
+			  L"DESC:\n%ls\n",
+			  DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, error->desc.data);
 #endif
 
 		wstr_zero(&error->caption);
@@ -117,24 +123,25 @@ bool dx11_error_failed(DX11Error* error, const char* msg, HRESULT hr, const char
 	return 1;
 }
 
-bool dx11_error_assert(DX11Error* error, HRESULT hr, const char* fn, const char* file, int line) {
+bool dx11_error_assert(DX11Error *error, HRESULT hr, const char *fn, const char *file, int line)
+{
 	if (FAILED(hr)) {
 		wstr_zero(&error->text);
 		DXGetErrorDescriptionW(hr, error->desc.data, error->desc.count);
 
 #ifdef _DEBUG
 		wstr_catf(&error->text,
-			L"%ls (0x%X (%lu))\n"
-			L"%hs\n\n"
-			L"DESC:\n%ls\n"
-			L"INFO:\n%hs\n"
-			L"%hs: %i\n",
-			DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, fn, error->desc.data, get_info(error), file, line);
+			  L"%ls (0x%X (%lu))\n"
+			  L"%hs\n\n"
+			  L"DESC:\n%ls\n"
+			  L"INFO:\n%hs\n"
+			  L"%hs: %i\n",
+			  DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, fn, error->desc.data, get_info(error), file, line);
 #elif NDEBUG
 		wstr_catf(&error->text,
-			L"%ls (0x%X (%lu))\n\n"
-			L"DESC:\n%ls\n",
-			DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, error->desc.data);
+			  L"%ls (0x%X (%lu))\n\n"
+			  L"DESC:\n%ls\n",
+			  DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, error->desc.data);
 #endif
 
 		wstr_zero(&error->caption);
@@ -145,7 +152,8 @@ bool dx11_error_assert(DX11Error* error, HRESULT hr, const char* fn, const char*
 	return 1;
 }
 
-void dx11_error_delete(DX11Error* error) {
+void dx11_error_delete(DX11Error *error)
+{
 	wstr_delete(&error->caption);
 	wstr_delete(&error->text);
 	wstr_delete(&error->desc);

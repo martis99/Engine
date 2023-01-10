@@ -8,7 +8,7 @@
 
 typedef struct DX11Error {
 	HMODULE library;
-	IDXGIInfoQueue* info_queue;
+	IDXGIInfoQueue *info_queue;
 	UINT64 begin;
 
 	WStr caption;
@@ -16,7 +16,7 @@ typedef struct DX11Error {
 	WStr desc;
 	Str info;
 
-	LogCallbacks* log;
+	LogCallbacks *log;
 } DX11Error;
 
 D3D11_FILTER dx11_afilter(AFilter filter);

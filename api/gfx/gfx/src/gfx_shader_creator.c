@@ -6,7 +6,8 @@
 #include "utils/bnf.h"
 #include "utils/str.h"
 
-static Bnf* create_bnf(Bnf* bnf, const char* bnf_cstr) {
+static Bnf *create_bnf(Bnf *bnf, const char *bnf_cstr)
+{
 	int r = bnf_parse(bnf, bnf_cstr);
 
 	if (r != BNF_SUCCESS) {
@@ -17,8 +18,9 @@ static Bnf* create_bnf(Bnf* bnf, const char* bnf_cstr) {
 	return bnf;
 }
 
-ShaderCreator* gfx_sc_create(ShaderCreator* shader_creator) {
-	const char* from_bnf =
+ShaderCreator *gfx_sc_create(ShaderCreator *shader_creator)
+{
+	const char *from_bnf =
 		"<program>                ::= { <vs_in_struct> | <vs_out_struct> | <fs_in_struct> | <fs_out_struct> | <buffer_struct> | <function_definition> | <function_prototype> | <textures_declaration> }1\n"
 		"<textures_declaration>   ::= 'textures ' <identifier> '[' <int> '];' <new_line> \n"
 		"<vs_in_struct>           ::= 'vs_in' <int> ' ' <identifier> ' {' <new_line> { <struct_mem_sem> }1 '}' <new_line>\n"
@@ -76,7 +78,8 @@ ShaderCreator* gfx_sc_create(ShaderCreator* shader_creator) {
 	return shader_creator;
 }
 
-void gfx_sc_delete(ShaderCreator* shader_creator) {
+void gfx_sc_delete(ShaderCreator *shader_creator)
+{
 	bnf_delete(&shader_creator->from_bnf);
 	bnf_delete(&shader_creator->to_bnf);
 	str_delete(&shader_creator->vert);
@@ -85,7 +88,8 @@ void gfx_sc_delete(ShaderCreator* shader_creator) {
 	str_delete(&shader_creator->str_frag);
 }
 
-static Str* parse(ShaderCreator* shader_creator, const char* src, Str* dst) {
+static Str *parse(ShaderCreator *shader_creator, const char *src, Str *dst)
+{
 	str_clear(dst);
 	Ast ast;
 	int r = ast_parse(&ast, &shader_creator->from_bnf, src);
@@ -105,47 +109,49 @@ static Str* parse(ShaderCreator* shader_creator, const char* src, Str* dst) {
 	return dst;
 }
 
-static const char* get_type_token(AType type) {
+static const char *get_type_token(AType type)
+{
 	switch (type) {
-	case VEC1B:	return "vec1b";
-	case VEC2B:	return "vec2b";
-	case VEC3B:	return "vec3b";
-	case VEC4B:	return "vec4b";
+	case VEC1B: return "vec1b";
+	case VEC2B: return "vec2b";
+	case VEC3B: return "vec3b";
+	case VEC4B: return "vec4b";
 	case VEC1UB: return "vec1ub";
 	case VEC2UB: return "vec2ub";
 	case VEC3UB: return "vec3ub";
 	case VEC4UB: return "vec4ub";
-	case VEC1S:	return "vec1s";
-	case VEC2S:	return "vec2s";
-	case VEC3S:	return "vec3s";
-	case VEC4S:	return "vec4s";
+	case VEC1S: return "vec1s";
+	case VEC2S: return "vec2s";
+	case VEC3S: return "vec3s";
+	case VEC4S: return "vec4s";
 	case VEC1US: return "vec1us";
 	case VEC2US: return "vec2us";
 	case VEC3US: return "vec3us";
 	case VEC4US: return "vec4us";
-	case VEC1I:	return "vec1i";
-	case VEC2I:	return "vec2i";
-	case VEC3I:	return "vec3i";
-	case VEC4I:	return "vec4i";
+	case VEC1I: return "vec1i";
+	case VEC2I: return "vec2i";
+	case VEC3I: return "vec3i";
+	case VEC4I: return "vec4i";
 	case VEC1UI: return "vec1ui";
 	case VEC2UI: return "vec2ui";
 	case VEC3UI: return "vec3ui";
 	case VEC4UI: return "vec4ui";
-	case VEC1F:	return "vec1f";
-	case VEC2F:	return "vec2f";
-	case VEC3F:	return "vec3f";
+	case VEC1F: return "vec1f";
+	case VEC2F: return "vec2f";
+	case VEC3F: return "vec3f";
 	case VEC4F: return "vec4f";
-	case VEC1D:	return "vec1d";
+	case VEC1D: return "vec1d";
 	case VEC2D: return "vec2d";
-	case VEC3D:	return "vec3d";
-	case VEC4D:	return "vec4d";
+	case VEC3D: return "vec3d";
+	case VEC4D: return "vec4d";
 	case MAT4F: return "mat4f";
 	}
 	return "";
 }
 
-void vs_add_inputs(Str* str, AShaderDesc sdesc) {
-	int n = 0;
+void vs_add_inputs(Str *str, AShaderDesc sdesc)
+{
+	int n		   = 0;
 	uint buffers_count = sdesc.buffers_size / sizeof(ABufferDesc);
 	for (uint i = 0; i < buffers_count; i++) {
 		ABufferDesc bdesc = sdesc.buffers[i];
@@ -161,7 +167,8 @@ void vs_add_inputs(Str* str, AShaderDesc sdesc) {
 	}
 }
 
-void vs_add_buffers(Str* str, AShaderDesc sdesc) {
+void vs_add_buffers(Str *str, AShaderDesc sdesc)
+{
 	uint buffers_count = sdesc.buffers_size / sizeof(ABufferDesc);
 	for (uint i = 0; i < buffers_count; i++) {
 		ABufferDesc bdesc = sdesc.buffers[i];
@@ -176,7 +183,8 @@ void vs_add_buffers(Str* str, AShaderDesc sdesc) {
 	}
 }
 
-void vs_add_output(Str* str, AShaderDesc sdesc) {
+void vs_add_output(Str *str, AShaderDesc sdesc)
+{
 	uint buffers_count = sdesc.buffers_size / sizeof(ABufferDesc);
 	for (uint i = 0; i < buffers_count; i++) {
 		ABufferDesc bdesc = sdesc.buffers[i];
@@ -191,7 +199,8 @@ void vs_add_output(Str* str, AShaderDesc sdesc) {
 	}
 }
 
-void fs_add_input(Str* str, AShaderDesc sdesc) {
+void fs_add_input(Str *str, AShaderDesc sdesc)
+{
 	uint buffers_count = sdesc.buffers_size / sizeof(ABufferDesc);
 	for (uint i = 0; i < buffers_count; i++) {
 		ABufferDesc bdesc = sdesc.buffers[i];
@@ -206,7 +215,8 @@ void fs_add_input(Str* str, AShaderDesc sdesc) {
 	}
 }
 
-void fs_add_buffers(Str* str, AShaderDesc sdesc) {
+void fs_add_buffers(Str *str, AShaderDesc sdesc)
+{
 	uint buffers_count = sdesc.buffers_size / sizeof(ABufferDesc);
 	for (uint i = 0; i < buffers_count; i++) {
 		ABufferDesc bdesc = sdesc.buffers[i];
@@ -221,7 +231,8 @@ void fs_add_buffers(Str* str, AShaderDesc sdesc) {
 	}
 }
 
-void fs_add_output(Str* str, AShaderDesc sdesc) {
+void fs_add_output(Str *str, AShaderDesc sdesc)
+{
 	uint buffers_count = sdesc.buffers_size / sizeof(ABufferDesc);
 	for (uint i = 0; i < buffers_count; i++) {
 		ABufferDesc bdesc = sdesc.buffers[i];
@@ -236,7 +247,8 @@ void fs_add_output(Str* str, AShaderDesc sdesc) {
 	}
 }
 
-void fs_add_textures(Str* str, AShaderDesc sdesc) {
+void fs_add_textures(Str *str, AShaderDesc sdesc)
+{
 	if (sdesc.textures_count == 0) {
 		return;
 	}
@@ -244,7 +256,7 @@ void fs_add_textures(Str* str, AShaderDesc sdesc) {
 	str_add_cstrf(str, "textures Textures[%i];\n", sdesc.textures_count);
 	str_add_cstr(str, "vec4f sample_tex(int id, vec2f coords) {\n", 0);
 	str_add_cstr(str, "	switch (id) {\n", 0);
-	for (int i = 0; i < sdesc.textures_count; i++) {
+	for (unsigned int i = 0; i < sdesc.textures_count; i++) {
 		str_add_cstrf(str, "	case %i: return sample(Textures, %i, coords);\n", i, i);
 	}
 	str_add_cstr(str, "	}\n", 0);
@@ -252,7 +264,8 @@ void fs_add_textures(Str* str, AShaderDesc sdesc) {
 	str_add_cstr(str, "}\n", 0);
 }
 
-void vs_generate(Str* str, const char* vert, AShaderDesc desc) {
+void vs_generate(Str *str, const char *vert, AShaderDesc desc)
+{
 	str_clear(str);
 	vs_add_inputs(str, desc);
 	vs_add_buffers(str, desc);
@@ -261,7 +274,8 @@ void vs_generate(Str* str, const char* vert, AShaderDesc desc) {
 	str_add_cstr(str, vert, 0);
 }
 
-void fs_generate(Str* str, const char* frag, AShaderDesc desc) {
+void fs_generate(Str *str, const char *frag, AShaderDesc desc)
+{
 	str_clear(str);
 	fs_add_input(str, desc);
 	fs_add_buffers(str, desc);
@@ -270,7 +284,8 @@ void fs_generate(Str* str, const char* frag, AShaderDesc desc) {
 	str_add_cstr(str, frag, 0);
 }
 
-Shader* gfx_sc_create_shader(ShaderCreator* shader_creator, Shader* shader, Renderer* renderer, const char* vert_cstr, const char* frag_cstr, AShaderDesc desc) {
+Shader *gfx_sc_create_shader(ShaderCreator *shader_creator, Shader *shader, Renderer *renderer, const char *vert_cstr, const char *frag_cstr, AShaderDesc desc)
+{
 	vs_generate(&shader_creator->vert, vert_cstr, desc);
 	fs_generate(&shader_creator->frag, frag_cstr, desc);
 

@@ -5,7 +5,8 @@
 
 #include <float.h>
 
-Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshData data, APrimitive primitive) {
+Mesh *mesh_create(Mesh *mesh, Renderer *renderer, Shader *shader, AMeshData data, APrimitive primitive)
+{
 	mesh->mesh = amesh_create(renderer->renderer, shader->shader, shader->desc, data, primitive);
 	if (mesh->mesh == NULL) {
 		return NULL;
@@ -13,28 +14,34 @@ Mesh* mesh_create(Mesh* mesh, Renderer* renderer, Shader* shader, AMeshData data
 	return mesh;
 }
 
-void mesh_delete(Mesh* mesh, Renderer* renderer) {
+void mesh_delete(Mesh *mesh, Renderer *renderer)
+{
 	amesh_delete(mesh->mesh, renderer->renderer);
 }
 
-void mesh_set_vertices(Mesh* mesh, Renderer* renderer, const void* vertices, uint vertices_size) {
+void mesh_set_vertices(Mesh *mesh, Renderer *renderer, const void *vertices, uint vertices_size)
+{
 	amesh_set_vertices(mesh->mesh, renderer->renderer, vertices, vertices_size);
 }
 
-void mesh_set_instances(Mesh* mesh, Renderer* renderer, const void* instances, uint instances_size) {
+void mesh_set_instances(Mesh *mesh, Renderer *renderer, const void *instances, uint instances_size)
+{
 	amesh_set_instances(mesh->mesh, renderer->renderer, instances, instances_size);
 }
 
-void mesh_set_indices(Mesh* mesh, Renderer* renderer, const void* indices, uint indices_size) {
+void mesh_set_indices(Mesh *mesh, Renderer *renderer, const void *indices, uint indices_size)
+{
 	amesh_set_indices(mesh->mesh, renderer->renderer, indices, indices_size);
 }
 
-void mesh_draw(Mesh* mesh, Renderer* renderer, uint indices) {
+void mesh_draw(Mesh *mesh, Renderer *renderer, uint indices)
+{
 	amesh_draw(mesh->mesh, renderer->renderer, indices);
 	renderer->draw_calls++;
 }
 
-Mesh* mesh_create_cube(Mesh* mesh, Renderer* renderer, Shader* shader) {
+Mesh *mesh_create_cube(Mesh *mesh, Renderer *renderer, Shader *shader)
+{
 	float F = -1;
 	float B = 1;
 	float L = -1;
@@ -52,6 +59,7 @@ Mesh* mesh_create_cube(Mesh* mesh, Renderer* renderer, Shader* shader) {
 	float CB = 0.2f;
 	float CA = 1.0f;
 
+	// clang-format off
 	float vertices[] = {
 		L, D, F,  0, 0, F,  TL, TD,  CR, CG, CB,
 		L, U, F,  0, 0, F,  TL, TU,  CR, CG, CB,
@@ -103,11 +111,13 @@ Mesh* mesh_create_cube(Mesh* mesh, Renderer* renderer, Shader* shader) {
 		20, 21, 22,
 		20, 22, 23,
 	};
+	// clang-format on
 
-	AMeshData md = { 0 };
-	md.vertices.data = vertices;
-	md.vertices.size = sizeof(vertices);
-	md.indices.data = indices;
-	md.indices.size = sizeof(indices);
+	AMeshData md = {
+		.vertices.data = vertices,
+		.vertices.size = sizeof(vertices),
+		.indices.data  = indices,
+		.indices.size  = sizeof(indices),
+	};
 	return mesh_create(mesh, renderer, shader, md, A_TRIANGLES);
 }

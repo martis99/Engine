@@ -4,10 +4,10 @@
 #include <Windows.h>
 
 struct ACursor {
-	AWindow* window;
+	AWindow *window;
 	bool enabled;
 	bool in_window;
-	LogCallbacks* log;
+	LogCallbacks *log;
 };
 
 struct AWindow {
@@ -15,6 +15,6 @@ struct AWindow {
 	HMODULE module;
 	HWND window;
 	AWindowCallbacks callbacks;
-	ACursor* cursor;
-	LogCallbacks* log;
+	ACursor *cursor;
+	LogCallbacks *log;
 };

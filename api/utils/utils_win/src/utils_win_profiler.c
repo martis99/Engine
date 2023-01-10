@@ -9,17 +9,18 @@
 typedef struct Profiler {
 	HANDLE process;
 	PSYMBOL_INFO info;
-	LONGLONG* fns;
+	LONGLONG *fns;
 	int fn_count;
 	LONGLONG frequency;
-	FILE* file;
+	FILE *file;
 	int first;
 } Profiler;
 
-static Profiler* s_profiler;
+static Profiler *s_profiler;
 
-void* utils_profiler_create() {
-	Profiler* profiler = malloc(sizeof(Profiler));
+void *utils_profiler_create()
+{
+	Profiler *profiler = malloc(sizeof(Profiler));
 	if (profiler == NULL) {
 		return NULL;
 	}
@@ -30,23 +31,24 @@ void* utils_profiler_create() {
 	if (profiler->info == NULL) {
 		return NULL;
 	}
-	profiler->info->MaxNameLen = MAX_SYM_NAME;
+	profiler->info->MaxNameLen   = MAX_SYM_NAME;
 	profiler->info->SizeOfStruct = sizeof(SYMBOL_INFO);
 
-	profiler->fns = malloc(sizeof(LONGLONG) * 40);
+	profiler->fns	   = malloc(sizeof(LONGLONG) * 40);
 	profiler->fn_count = 0;
 
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
 	profiler->frequency = freq.QuadPart;
 
-	profiler->file = NULL;
+	profiler->file	= NULL;
 	profiler->first = 1;
-	s_profiler = profiler;
+	s_profiler	= profiler;
 	return profiler;
 }
 
-void utils_profiler_delete() {
+void utils_profiler_delete()
+{
 	free(s_profiler->fns);
 	free(s_profiler->info);
 	SymCleanup(s_profiler->process);
@@ -54,14 +56,15 @@ void utils_profiler_delete() {
 	s_profiler = NULL;
 }
 
-void enter_func(void* retAddress) {
+void enter_func(void *retAddress)
+{
 	if (s_profiler == NULL || s_profiler->file == NULL) {
 		return;
 	}
 
 	LARGE_INTEGER time;
 	QueryPerformanceCounter(&time);
-	
+
 	s_profiler->fns[s_profiler->fn_count] = (time.QuadPart * 1000000) / s_profiler->frequency;
 	if (s_profiler->fn_count > 0 && s_profiler->fns[s_profiler->fn_count] <= s_profiler->fns[s_profiler->fn_count - 1]) {
 		s_profiler->fns[s_profiler->fn_count] = s_profiler->fns[s_profiler->fn_count - 1] + 1;
@@ -69,7 +72,8 @@ void enter_func(void* retAddress) {
 	s_profiler->fn_count++;
 }
 
-void exit_func(void* retAddress) {
+void exit_func(void *retAddress)
+{
 	if (s_profiler == NULL || s_profiler->file == NULL || s_profiler->fn_count == 0) {
 		return;
 	}
@@ -79,7 +83,7 @@ void exit_func(void* retAddress) {
 
 	LARGE_INTEGER time;
 	QueryPerformanceCounter(&time);
-	
+
 	s_profiler->fn_count--;
 
 	LONGLONG end = (time.QuadPart * 1000000) / s_profiler->frequency;
@@ -89,9 +93,9 @@ void exit_func(void* retAddress) {
 		fprintf(s_profiler->file, ",\n");
 	}
 	s_profiler->first = 0;
-	
 
-	fprintf(s_profiler->file, "{"
+	fprintf(s_profiler->file,
+		"{"
 		"\"cat\":\"function\","
 		"\"dur\":%llu,"
 		"\"name\":\"%s\","
@@ -99,12 +103,14 @@ void exit_func(void* retAddress) {
 		"\"pid\":0,"
 		"\"tid\":0,"
 		"\"ts\":%llu"
-		"}", mic, s_profiler->info->Name, s_profiler->fns[s_profiler->fn_count]);
+		"}",
+		mic, s_profiler->info->Name, s_profiler->fns[s_profiler->fn_count]);
 }
 
-void utils_profiler_start(const char* file) {
+void utils_profiler_start(const char *file)
+{
 	s_profiler->fn_count = 0;
-	s_profiler->first = 1;
+	s_profiler->first    = 1;
 
 	fopen_s(&s_profiler->file, file, "w");
 	if (s_profiler->file == NULL) {
@@ -114,7 +120,8 @@ void utils_profiler_start(const char* file) {
 	printf("Started\n");
 }
 
-void utils_profiler_end() {
+void utils_profiler_end()
+{
 	fprintf(s_profiler->file, "]\n");
 	fclose(s_profiler->file);
 	s_profiler->file = NULL;

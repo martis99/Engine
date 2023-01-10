@@ -3,11 +3,12 @@
 
 #include "gfx_texture.h"
 
-Material* material_create(Material* material, Renderer* renderer, Shader* shader) {
+Material *material_create(Material *material, Renderer *renderer, Shader *shader)
+{
 	material->shader = shader;
 
-	ABufferDesc* vs_desc = ashaderdesc_get_bufferdesc(shader->desc, A_BFR_VS);
-	ABufferDesc* ps_desc = ashaderdesc_get_bufferdesc(shader->desc, A_BFR_PS);
+	ABufferDesc *vs_desc = ashaderdesc_get_bufferdesc(shader->desc, A_BFR_VS);
+	ABufferDesc *ps_desc = ashaderdesc_get_bufferdesc(shader->desc, A_BFR_PS);
 
 	if (vs_desc != NULL) {
 		material->vs = 1;
@@ -26,7 +27,7 @@ Material* material_create(Material* material, Renderer* renderer, Shader* shader
 
 	material->textures_cap = shader->desc.textures_count;
 	if (material->textures_cap > 0) {
-		material->textures = m_malloc(material->textures_cap * sizeof(Texture*));
+		material->textures = m_malloc(material->textures_cap * sizeof(Texture *));
 	}
 	material->textures_count = 0;
 
@@ -37,7 +38,8 @@ Material* material_create(Material* material, Renderer* renderer, Shader* shader
 	return material;
 }
 
-void material_delete(Material* material, Renderer* renderer) {
+void material_delete(Material *material, Renderer *renderer)
+{
 	if (material->vs == 1) {
 		uniformbuffer_delete(&material->vs_buffer, renderer);
 	}
@@ -45,25 +47,28 @@ void material_delete(Material* material, Renderer* renderer) {
 		uniformbuffer_delete(&material->ps_buffer, renderer);
 	}
 	if (material->textures_cap > 0) {
-		m_free(material->textures, material->textures_cap * sizeof(Texture*));
+		m_free(material->textures, material->textures_cap * sizeof(Texture *));
 	}
 }
 
-void material_set_vs_value(Material* material, uint index, const void* value) {
+void material_set_vs_value(Material *material, uint index, const void *value)
+{
 	if (material->vs == 0) {
 		return;
 	}
 	uniformbuffer_set_value(&material->vs_buffer, index, value);
 }
 
-void material_set_ps_value(Material* material, uint index, const void* value) {
+void material_set_ps_value(Material *material, uint index, const void *value)
+{
 	if (material->ps == 0) {
 		return;
 	}
 	uniformbuffer_set_value(&material->ps_buffer, index, value);
 }
 
-void material_upload(Material* material, Renderer* renderer) {
+void material_upload(Material *material, Renderer *renderer)
+{
 	if (material->vs == 1) {
 		uniformbuffer_upload(&material->vs_buffer, renderer);
 	}
@@ -72,7 +77,8 @@ void material_upload(Material* material, Renderer* renderer) {
 	}
 }
 
-uint material_add_texture(Material* material, Texture* texture) {
+uint material_add_texture(Material *material, Texture *texture)
+{
 	for (uint i = 0; i < material->textures_count; i++) {
 		if (material->textures[i] == texture) {
 			return i;
@@ -85,7 +91,8 @@ uint material_add_texture(Material* material, Texture* texture) {
 	return material->textures_count - 1;
 }
 
-void material_bind(Material* material, Renderer* renderer) {
+void material_bind(Material *material, Renderer *renderer)
+{
 	if (material->vs == 1) {
 		uniformbuffer_bind_vs(&material->vs_buffer, renderer);
 	}

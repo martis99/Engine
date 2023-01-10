@@ -23,13 +23,13 @@ struct AFramebuffer {
 	int height;
 
 	GLuint fb;
-	GLAttachment** attachments;
+	GLAttachment **attachments;
 	uint attachments_count;
 
 	GLuint depth_stencil;
 
-	AShader* shader;
-	AMesh* mesh;
+	AShader *shader;
+	AMesh *mesh;
 };
 
 struct AMesh {
@@ -52,8 +52,8 @@ struct AMesh {
 };
 
 struct ARenderer {
-	GLError* error;
-	LogCallbacks* log;
+	GLError *error;
+	LogCallbacks *log;
 	int lhc;
 };
 
@@ -61,7 +61,7 @@ struct AShader {
 	GLuint program;
 	GLint textures_location;
 	GLuint num_textures;
-	GLint* textures;
+	GLint *textures;
 };
 
 struct ATexture {

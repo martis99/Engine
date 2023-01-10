@@ -6,10 +6,11 @@ typedef struct Profiler {
 	int temp;
 } Profiler;
 
-static Profiler* s_profiler;
+static Profiler *s_profiler;
 
-void* utils_profiler_create() {
-	Profiler* profiler = malloc(sizeof(Profiler));
+void *utils_profiler_create()
+{
+	Profiler *profiler = malloc(sizeof(Profiler));
 	if (profiler == NULL) {
 		return NULL;
 	}
@@ -18,23 +19,26 @@ void* utils_profiler_create() {
 	return profiler;
 }
 
-void utils_profiler_delete() {
+void utils_profiler_delete()
+{
 	free(s_profiler);
 	s_profiler = NULL;
 }
 
-void enter_func(void* retAddress) {
-
+void enter_func(void *retAddress)
+{
 }
 
-void exit_func(void* retAddress) {
-
+void exit_func(void *retAddress)
+{
 }
 
-void utils_profiler_start(const char* file) {
+void utils_profiler_start(const char *file)
+{
 	printf("Started\n");
 }
 
-void utils_profiler_end() {
+void utils_profiler_end()
+{
 	printf("Ended\n");
 }

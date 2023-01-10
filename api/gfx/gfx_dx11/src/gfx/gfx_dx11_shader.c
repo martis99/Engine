@@ -3,9 +3,10 @@
 
 #include "gfx_dx11_types.h"
 
-AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* src_frag, const char* textures, uint num_textures) {
-	AShader* shader = m_malloc(sizeof(AShader));
-	shader->vs = dx11_vs_create(renderer->error, renderer->device, src_vert, &shader->vs_blob);
+AShader *ashader_create(ARenderer *renderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures)
+{
+	AShader *shader = m_malloc(sizeof(AShader));
+	shader->vs	= dx11_vs_create(renderer->error, renderer->device, src_vert, &shader->vs_blob);
 	if (shader->vs == NULL) {
 		log_msg(renderer->log, "Failed to create vertex shader");
 		return NULL;
@@ -19,21 +20,23 @@ AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* s
 	return shader;
 }
 
-void ashader_delete(AShader* shader, ARenderer* renderer) {
+void ashader_delete(AShader *shader, ARenderer *renderer)
+{
 	if (shader->vs != NULL && shader->vs_blob != NULL) {
 		dx11_vs_delete(shader->vs, shader->vs_blob);
-		shader->vs = NULL;
+		shader->vs	= NULL;
 		shader->vs_blob = NULL;
 	}
 	if (shader->ps != NULL && shader->ps_blob != NULL) {
 		dx11_ps_delete(shader->ps, shader->ps_blob);
-		shader->ps = NULL;
+		shader->ps	= NULL;
 		shader->ps_blob = NULL;
 	}
 	m_free(shader, sizeof(AShader));
 }
 
-void ashader_bind(AShader* shader, ARenderer* renderer) {
+void ashader_bind(AShader *shader, ARenderer *renderer)
+{
 	dx11_vs_bind(shader->vs, renderer->context);
 	dx11_ps_bind(shader->ps, renderer->context);
 }

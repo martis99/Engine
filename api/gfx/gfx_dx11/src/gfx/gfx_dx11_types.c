@@ -1,6 +1,7 @@
 #include "gfx_dx11_types.h"
 
-D3D11_PRIMITIVE_TOPOLOGY dx11_aprimitive(APrimitive primitive) {
+D3D11_PRIMITIVE_TOPOLOGY dx11_aprimitive(APrimitive primitive)
+{
 	switch (primitive) {
 	case A_POINTS: return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
 	case A_LINES: return D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
@@ -9,7 +10,8 @@ D3D11_PRIMITIVE_TOPOLOGY dx11_aprimitive(APrimitive primitive) {
 	return 0;
 }
 
-D3D11_TEXTURE_ADDRESS_MODE dx11_awrap(AWrap wrap) {
+D3D11_TEXTURE_ADDRESS_MODE dx11_awrap(AWrap wrap)
+{
 	switch (wrap) {
 	case A_REPEAT: return D3D11_TEXTURE_ADDRESS_WRAP;
 	case A_CLAMP_TO_EDGE: return D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -17,7 +19,8 @@ D3D11_TEXTURE_ADDRESS_MODE dx11_awrap(AWrap wrap) {
 	return 0;
 }
 
-D3D11_COMPARISON_FUNC dx11_adepth_func(ADepthFunc func) {
+D3D11_COMPARISON_FUNC dx11_adepth_func(ADepthFunc func)
+{
 	switch (func) {
 	case A_DEPTH_NEVER: return D3D11_COMPARISON_NEVER;
 	case A_DEPTH_LESS: return D3D11_COMPARISON_LESS;
@@ -31,7 +34,8 @@ D3D11_COMPARISON_FUNC dx11_adepth_func(ADepthFunc func) {
 	return 0;
 }
 
-DXGI_FORMAT dx11_atype_format(AType type) {
+DXGI_FORMAT dx11_atype_format(AType type)
+{
 	switch (type) {
 	case VEC1B: return DXGI_FORMAT_R8_SINT;
 	case VEC2B: return DXGI_FORMAT_R8G8_SINT;

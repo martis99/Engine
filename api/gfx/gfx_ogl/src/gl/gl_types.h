@@ -26,17 +26,17 @@ typedef unsigned int GLintptr;
 typedef struct GLError {
 	GLint max_len;
 	GLint max_count;
-	GLenum* sources;
-	GLenum* types;
-	GLuint* ids;
-	GLenum* severities;
-	GLsizei* lengths;
+	GLenum *sources;
+	GLenum *types;
+	GLuint *ids;
+	GLenum *severities;
+	GLsizei *lengths;
 
 	Str msgs;
 	Str text;
 	Str info;
 
-	LogCallbacks* log;
+	LogCallbacks *log;
 } GLError;
 
 GLint gl_min_afilter(AFilter filter);

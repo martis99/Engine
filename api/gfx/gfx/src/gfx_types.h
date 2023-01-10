@@ -3,8 +3,8 @@
 #include "assets/assets_types.h"
 
 #include "utils/array.h"
-#include "utils/dictionary.h"
 #include "utils/bnf.h"
+#include "utils/dictionary.h"
 
 #include "ecs/ecs_types.h"
 
@@ -18,15 +18,15 @@ typedef struct ShaderCreator {
 } ShaderCreator;
 
 typedef struct Mesh {
-	AMesh* mesh;
+	AMesh *mesh;
 } Mesh;
 
 typedef struct Framebuffer {
-	AFramebuffer* framebuffer;
+	AFramebuffer *framebuffer;
 } Framebuffer;
 
 typedef struct Texture {
-	ATexture* texture;
+	ATexture *texture;
 	int width;
 	int height;
 	int channels;
@@ -34,7 +34,7 @@ typedef struct Texture {
 
 typedef struct Shader {
 	AShaderDesc desc;
-	AShader* shader;
+	AShader *shader;
 	Image default_image;
 	Texture default_texture;
 } Shader;
@@ -42,33 +42,33 @@ typedef struct Shader {
 typedef struct Renderer {
 	int width;
 	int height;
-	ARenderer* renderer;
+	ARenderer *renderer;
 	ShaderCreator shader_creator;
 	Framebuffer framebuffer;
 	Shader shader;
 	Mesh mesh;
-	LogCallbacks* log;
+	LogCallbacks *log;
 	int lhc;
 	int cull_back;
 	int draw_calls;
 } Renderer;
 
 typedef struct Context {
-	AContext* context;
+	AContext *context;
 } Context;
 
 typedef struct UniformBuffer {
 	ABuffer values;
-	AUniformBuffer* buffer;
+	AUniformBuffer *buffer;
 } UniformBuffer;
 
 typedef struct Material {
-	Shader* shader;
+	Shader *shader;
 	bool vs;
 	UniformBuffer vs_buffer;
 	bool ps;
 	UniformBuffer ps_buffer;
-	Texture** textures;
+	Texture **textures;
 	uint textures_count;
 	uint textures_cap;
 } Material;
@@ -81,29 +81,29 @@ typedef struct FontCharacter {
 	vec2i offset;
 } FontCharacter;
 
-#define FIRST_CHARACTER 32
-#define LAST_CHARACTER 127
+#define FIRST_CHARACTER	 32
+#define LAST_CHARACTER	 127
 #define CHARACTERS_COUNT LAST_CHARACTER - FIRST_CHARACTER
 
 typedef struct Font {
-	unsigned char* data;
+	unsigned char *data;
 	size_t data_size;
 	FontCharacter characters[CHARACTERS_COUNT];
-	Texture* texture;
+	Texture *texture;
 	int ascent;
 	int descent;
 	int line_height;
 } Font;
 
 typedef struct Assets {
-	Renderer* renderer;
-	Dictionary* shaders;
-	Dictionary* meshes;
-	Dictionary* materials;
-	Dictionary* images;
-	Dictionary* textures;
-	Dictionary* fonts;
-	Dictionary* models;
+	Renderer *renderer;
+	Dictionary *shaders;
+	Dictionary *meshes;
+	Dictionary *materials;
+	Dictionary *images;
+	Dictionary *textures;
+	Dictionary *fonts;
+	Dictionary *models;
 } Assets;
 
 typedef struct ObjectMesh {
@@ -118,36 +118,36 @@ struct ModelObject {
 	mat4 transformation;
 	unsigned char type;
 	ObjectMesh mesh;
-	ModelObject* child;
-	ModelObject* next;
+	ModelObject *child;
+	ModelObject *next;
 };
 
 typedef struct Model {
 	int objects_count;
-	ModelObject* objects;
+	ModelObject *objects;
 	int materials_count;
-	Material* materials;
+	Material *materials;
 	int images_count;
-	Image* images;
+	Image *images;
 	int textures_count;
-	Texture* textures;
+	Texture *textures;
 } Model;
 
 typedef struct InstanceComponent {
-	Mesh* mesh;
-	Material* material;
-	mat4* transforms;
+	Mesh *mesh;
+	Material *material;
+	mat4 *transforms;
 	uint transforms_size;
 	uint transforms_count;
 } InstanceComponent;
 
 typedef struct MeshComponent {
-	Mesh* mesh;
-	Material* material;
+	Mesh *mesh;
+	Material *material;
 } MeshComponent;
 
 typedef struct Sprite {
-	Texture* texture;
+	Texture *texture;
 	vec4 color;
 	int sub;
 	vec2i pos;
@@ -156,24 +156,24 @@ typedef struct Sprite {
 } Sprite;
 
 typedef struct Text {
-	const char* text;
-	Font* font;
+	const char *text;
+	Font *font;
 	vec4 color;
 } Text;
 
 typedef struct BatchRenderer {
-	Renderer* renderer;
-	Shader* shader;
-	Material* material;
+	Renderer *renderer;
+	Shader *shader;
+	Material *material;
 	Mesh mesh;
 	uint vertex_size;
-	void* vertices;
+	void *vertices;
 	uint vertices_count;
 	uint indices_count;
 } BatchRenderer;
 
 typedef struct InstanceRenderer {
-	Renderer* renderer;
+	Renderer *renderer;
 	Shader shader;
 } InstanceRenderer;
 
@@ -184,22 +184,22 @@ typedef struct LineVertex {
 } LineVertex;
 
 typedef struct LineRenderer {
-	Renderer* renderer;
+	Renderer *renderer;
 	Transform transform;
 	Shader shader;
 	Material material;
 	Mesh mesh;
-	LineVertex* vertices;
+	LineVertex *vertices;
 	uint vertices_count;
 } LineRenderer;
 
 typedef struct MeshRenderer {
-	Renderer* renderer;
+	Renderer *renderer;
 	Shader shader;
 } MeshRenderer;
 
 typedef struct ModelRenderer {
-	Renderer* renderer;
+	Renderer *renderer;
 	Shader shader;
 } ModelRenderer;
 

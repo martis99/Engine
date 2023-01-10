@@ -1,14 +1,15 @@
 #include "gfx_font.h"
 
-#include "gfx_texture.h"
 #include "assets/image.h"
+#include "gfx_texture.h"
 
 #include "stb/stb_truetype.h"
 
 #include <math.h>
 
-static Font* load_data(Renderer* renderer, Font* font, const char* path, stbtt_fontinfo* info) {
-	FILE* file;
+static Font *load_data(Renderer *renderer, Font *font, const char *path, stbtt_fontinfo *info)
+{
+	FILE *file;
 	fopen_s(&file, path, "rb");
 
 	if (file == NULL) {
@@ -38,7 +39,8 @@ static Font* load_data(Renderer* renderer, Font* font, const char* path, stbtt_f
 	return font;
 }
 
-static void load_characters(Font* font, float scale, int* area, stbtt_fontinfo* info) {
+static void load_characters(Font *font, float scale, int *area, stbtt_fontinfo *info)
+{
 	*area = 0;
 
 	int i = 0;
@@ -47,22 +49,24 @@ static void load_characters(Font* font, float scale, int* area, stbtt_fontinfo* 
 		stbtt_GetCodepointHMetrics(info, c, &advance, &lsb);
 		int x0, y0, x1, y1;
 		stbtt_GetCodepointBitmapBox(info, c, scale, scale, &x0, &y0, &x1, &y1);
-		int width = x1 - x0;
+		int width  = x1 - x0;
 		int height = y1 - y0;
 
 		*area += (width * height);
 
-		font->characters[i].c = c;
-		font->characters[i].size = (vec2i){ width, height };
+		font->characters[i].c	    = c;
+		font->characters[i].size    = (vec2i){ width, height };
 		font->characters[i].advance = (int)(advance * scale);
-		font->characters[i].offset = (vec2i){ x0, y0 };
+		font->characters[i].offset  = (vec2i){ x0, y0 };
 		i++;
 	}
 }
 
-static void sort_characters(Font* font, int* map) {
+static void sort_characters(Font *font, int *map)
+{
 	int n = 0;
-	bool visited[CHARACTERS_COUNT];
+
+	bool visited[CHARACTERS_COUNT] = { 0 };
 	for (int i = 0; i < CHARACTERS_COUNT; i++) {
 		visited[i] = 0;
 	}
@@ -79,14 +83,15 @@ static void sort_characters(Font* font, int* map) {
 		for (int i = 0; i < CHARACTERS_COUNT; i++) {
 			if (font->characters[i].size.y == max) {
 				visited[i] = 1;
-				map[n] = i;
+				map[n]	   = i;
 				n++;
 			}
 		}
 	}
 }
 
-static Texture* create_texture(Font* font, Renderer* renderer, float scale, int area, stbtt_fontinfo* info) {
+static Texture *create_texture(Font *font, Renderer *renderer, float scale, int area, stbtt_fontinfo *info)
+{
 	int map[CHARACTERS_COUNT];
 	sort_characters(font, map);
 
@@ -100,7 +105,7 @@ static Texture* create_texture(Font* font, Renderer* renderer, float scale, int 
 	Image img;
 	image_create(&img, w, h, 1);
 	for (int i = 0; i < CHARACTERS_COUNT; i++) {
-		FontCharacter* fc = &font->characters[map[i]];
+		FontCharacter *fc = &font->characters[map[i]];
 
 		if (x + fc->size.x > w) {
 			x = 0;
@@ -114,13 +119,14 @@ static Texture* create_texture(Font* font, Renderer* renderer, float scale, int 
 		x += fc->size.x;
 	}
 
-	font->texture = m_malloc(sizeof(Texture));
-	Texture* texture = texture_create(font->texture, renderer, &img, A_CLAMP_TO_EDGE, A_NEAREST);
+	font->texture	 = m_malloc(sizeof(Texture));
+	Texture *texture = texture_create(font->texture, renderer, &img, A_CLAMP_TO_EDGE, A_NEAREST);
 	image_delete(&img);
 	return texture;
 }
 
-Font* font_load(Font* font, Renderer* renderer, const char* path, int size) {
+Font *font_load(Font *font, Renderer *renderer, const char *path, int size)
+{
 	stbtt_fontinfo info;
 	if (load_data(renderer, font, path, &info) == NULL) {
 		log_msg(renderer->log, "Failed to load font");
@@ -132,8 +138,8 @@ Font* font_load(Font* font, Renderer* renderer, const char* path, int size) {
 	int ascent, descent, lineGap;
 	stbtt_GetFontVMetrics(&info, &ascent, &descent, &lineGap);
 
-	font->ascent = (int)(ascent * scale);
-	font->descent = (int)(descent * scale);
+	font->ascent	  = (int)(ascent * scale);
+	font->descent	  = (int)(descent * scale);
 	font->line_height = (int)((abs(ascent) + abs(descent)) * scale);
 
 	int area;
@@ -142,11 +148,13 @@ Font* font_load(Font* font, Renderer* renderer, const char* path, int size) {
 	return font;
 }
 
-FontCharacter font_get_char(Font* font, char c) {
+FontCharacter font_get_char(Font *font, char c)
+{
 	return font->characters[c - FIRST_CHARACTER];
 }
 
-void font_delete(Font* font, Renderer* renderer) {
+void font_delete(Font *font, Renderer *renderer)
+{
 	texture_delete(font->texture, renderer);
 	m_free(font->texture, sizeof(Texture));
 	m_free(font->data, font->data_size);

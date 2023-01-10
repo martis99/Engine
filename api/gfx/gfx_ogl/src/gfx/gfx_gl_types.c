@@ -1,7 +1,8 @@
 #include "gfx_gl_types.h"
 #include "gl/gl_defines.h"
 
-GLenum gl_aprimitive(APrimitive primitive) {
+GLenum gl_aprimitive(APrimitive primitive)
+{
 	switch (primitive) {
 	case A_POINTS: return GL_POINTS;
 	case A_LINES: return GL_LINES;
@@ -11,7 +12,8 @@ GLenum gl_aprimitive(APrimitive primitive) {
 	return 0;
 }
 
-GLenum gl_ashadertype(AShaderType type) {
+GLenum gl_ashadertype(AShaderType type)
+{
 	switch (type) {
 	case A_FRAGMENT: return GL_FRAGMENT_SHADER;
 	case A_VERTEX: return GL_VERTEX_SHADER;
@@ -21,7 +23,8 @@ GLenum gl_ashadertype(AShaderType type) {
 	return 0;
 }
 
-GLint gl_awrap(AWrap wrap) {
+GLint gl_awrap(AWrap wrap)
+{
 	switch (wrap) {
 	case A_REPEAT: return GL_REPEAT;
 	case A_CLAMP_TO_EDGE: return GL_CLAMP_TO_EDGE;
@@ -29,7 +32,8 @@ GLint gl_awrap(AWrap wrap) {
 	return 0;
 }
 
-GLenum gl_afactor(AFactor factor) {
+GLenum gl_afactor(AFactor factor)
+{
 	switch (factor) {
 	case A_ZERO: return GL_ZERO;
 	case A_ONE: return GL_ONE;
@@ -37,7 +41,7 @@ GLenum gl_afactor(AFactor factor) {
 	case A_ONE_MINUS_SRC_COLOR: return GL_ONE_MINUS_SRC_COLOR;
 	case A_SRC_ALPHA: return GL_SRC_ALPHA;
 	case A_ONE_MINUS_SRC_ALPHA: return GL_ONE_MINUS_SRC_ALPHA;
-	case A_DST_ALPHA: return  GL_DST_ALPHA;
+	case A_DST_ALPHA: return GL_DST_ALPHA;
 	case A_ONE_MINUS_DST_ALPHA: return GL_ONE_MINUS_DST_ALPHA;
 	case A_DST_COLOR: return GL_DST_COLOR;
 	case A_ONE_MINUS_DST_COLOR: return GL_ONE_MINUS_DST_COLOR;
@@ -45,7 +49,8 @@ GLenum gl_afactor(AFactor factor) {
 	return 0;
 }
 
-GLenum gl_adepth_func(ADepthFunc func) {
+GLenum gl_adepth_func(ADepthFunc func)
+{
 	switch (func) {
 	case A_DEPTH_NEVER: return GL_NEVER;
 	case A_DEPTH_LESS: return GL_LESS;
@@ -56,9 +61,11 @@ GLenum gl_adepth_func(ADepthFunc func) {
 	case A_DEPTH_GEQUAL: return GL_GEQUAL;
 	case A_DEPTH_ALWAYS: return GL_ALWAYS;
 	}
+	return 0;
 }
 
-GLenum gl_atype_type(AType type) {
+GLenum gl_atype_type(AType type)
+{
 	switch (atype_type(type)) {
 	case A_B: return GL_BYTE;
 	case A_UB: return GL_UNSIGNED_BYTE;
@@ -72,7 +79,8 @@ GLenum gl_atype_type(AType type) {
 	return 0;
 }
 
-GLint gl_atype_internal_format(AType type) {
+GLint gl_atype_internal_format(AType type)
+{
 	switch (type) {
 	case VEC1B: return GL_R8I;
 	case VEC2B: return GL_RG8I;
@@ -106,52 +114,43 @@ GLint gl_atype_internal_format(AType type) {
 	case VEC2D:
 	case VEC3D:
 	case VEC4D:
-	case MAT4F:
-		return 0;
+	case MAT4F: return 0;
 	}
 	return 0;
 }
 
-GLenum gl_atype_format(AType type) {
+GLenum gl_atype_format(AType type)
+{
 	switch (type) {
 	case VEC1B:
 	case VEC1UB:
 	case VEC1S:
 	case VEC1US:
-	case VEC1I:
-		return GL_RED_INTEGER;
+	case VEC1I: return GL_RED_INTEGER;
 	case VEC2B:
 	case VEC2UB:
 	case VEC2S:
 	case VEC2US:
-	case VEC2I:
-		return GL_RG_INTEGER;
+	case VEC2I: return GL_RG_INTEGER;
 	case VEC3B:
 	case VEC3UB:
 	case VEC3S:
 	case VEC3US:
-	case VEC3I:
-		return GL_RGB_INTEGER;
+	case VEC3I: return GL_RGB_INTEGER;
 	case VEC4B:
 	case VEC4UB:
 	case VEC4S:
 	case VEC4US:
-	case VEC4I:
-		return GL_RGBA_INTEGER;
+	case VEC4I: return GL_RGBA_INTEGER;
 	case VEC1F:
-	case VEC1D:
-		return GL_RED;
+	case VEC1D: return GL_RED;
 	case VEC2F:
-	case VEC2D:
-		return GL_RG;
+	case VEC2D: return GL_RG;
 	case VEC3F:
-	case VEC3D:
-		return GL_RGB;
+	case VEC3D: return GL_RGB;
 	case VEC4F:
-	case VEC4D:
-		return GL_RGBA;
-	case MAT4F:
-		return 0;
+	case VEC4D: return GL_RGBA;
+	case MAT4F: return 0;
 	}
 	return 0;
 }

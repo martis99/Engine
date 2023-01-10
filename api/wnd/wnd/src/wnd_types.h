@@ -7,10 +7,10 @@ typedef struct WindowSettings {
 } WindowSettings;
 
 typedef struct Window {
-	AWindow* window;
+	AWindow *window;
 	WindowSettings settings;
 } Window;
 
 typedef struct Cursor {
-	ACursor* cursor;
+	ACursor *cursor;
 } Cursor;

@@ -15,21 +15,21 @@ typedef struct Entity {
 typedef struct QueryResult {
 	size_t count;
 	size_t cap;
-	Id* list;
+	Id *list;
 } QueryResult;
 
 typedef struct ComponentStore {
 	size_t type_count;
 	size_t cap;
 	size_t size;
-	size_t* data_size_array;
-	size_t* data_offset_array;
-	void* data;
+	size_t *data_size_array;
+	size_t *data_offset_array;
+	void *data;
 } ComponentStore;
 
 typedef struct EntityStore {
-	Id* mask_array;
-	Id* flag_array;
+	Id *mask_array;
+	Id *flag_array;
 	size_t count;
 	size_t cap;
 } EntityStore;
@@ -38,7 +38,7 @@ typedef struct Ecs {
 	ComponentStore component_store;
 	EntityStore entity_store;
 	QueryResult query_result;
-	Stack* entity_pool;
+	Stack *entity_pool;
 } Ecs;
 
 typedef struct Constraint {

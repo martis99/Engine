@@ -2,6 +2,6 @@ NAME: Test
 TYPE: EXE
 SOURCE: src
 INCLUDE: src
-DEPENDS: Engine, gfx_ogl, wnd_win, utils_win, mdl
+DEPENDS: Engine, gfx_dx11, wnd_win, utils_win, mdl
 INCLUDES: Engine, gfx, wnd, utils, mdl
 WDIR: Test

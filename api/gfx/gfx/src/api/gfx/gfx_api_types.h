@@ -3,7 +3,7 @@
 #include "log.h"
 #include "mem.h"
 
-#define A_FAIL 0
+#define A_FAIL	  0
 #define A_SUCCESS 1
 
 typedef enum APrimitive {
@@ -11,21 +11,21 @@ typedef enum APrimitive {
 	A_POINTS,
 	A_LINES,
 	A_TRIANGLES,
-	A_QUADS
+	A_QUADS,
 } APrimitive;
 
 typedef enum AShaderType {
-	A_SHADER_TYOE_UNKNOWN,
+	A_SHADER_TYPE_UNKNOWN,
 	A_FRAGMENT,
 	A_VERTEX,
 	A_GEOMETRY,
-	A_COMPUTE
+	A_COMPUTE,
 } AShaderType;
 
 typedef enum AWrap {
 	A_WRAP_UNKNOWN,
 	A_REPEAT,
-	A_CLAMP_TO_EDGE
+	A_CLAMP_TO_EDGE,
 } AWrap;
 
 typedef enum AFilter {
@@ -35,7 +35,7 @@ typedef enum AFilter {
 	A_MIPMAP_NEAREST,
 	A_MIPMAP_LINEAR,
 	A_ANISOTROPIC_NEAREST,
-	A_ANISOTROPIC_LINEAR
+	A_ANISOTROPIC_LINEAR,
 } AFilter;
 
 typedef enum AFactor {
@@ -49,7 +49,7 @@ typedef enum AFactor {
 	A_SRC_ALPHA,
 	A_ONE_MINUS_SRC_ALPHA,
 	A_DST_ALPHA,
-	A_ONE_MINUS_DST_ALPHA
+	A_ONE_MINUS_DST_ALPHA,
 } AFactor;
 
 typedef enum ADepthFunc {
@@ -61,7 +61,7 @@ typedef enum ADepthFunc {
 	A_DEPTH_GRATER,
 	A_DEPTH_NOTEQUAL,
 	A_DEPTH_GEQUAL,
-	A_DEPTH_ALWAYS
+	A_DEPTH_ALWAYS,
 } ADepthFunc;
 
 typedef enum AType {
@@ -98,7 +98,7 @@ typedef enum AType {
 	VEC2D,
 	VEC3D,
 	VEC4D,
-	MAT4F
+	MAT4F,
 } AType;
 
 typedef enum ATypeType {
@@ -110,7 +110,7 @@ typedef enum ATypeType {
 	A_I,
 	A_UI,
 	A_F,
-	A_D
+	A_D,
 } ATypeType;
 
 typedef struct AContext AContext;
@@ -122,11 +122,11 @@ typedef struct AMesh AMesh;
 typedef struct AFramebuffer AFramebuffer;
 
 typedef struct ABuffer {
-	uint* offsets;
-	uint* sizes;
+	uint *offsets;
+	uint *sizes;
 	uint size;
 	uint count;
-	void* data;
+	void *data;
 } ABuffer;
 
 typedef struct AValue {
@@ -143,27 +143,27 @@ typedef enum ABufferType {
 	A_BFR_GLOBAL,
 	A_BFR_VS,
 	A_BFR_PS,
-	A_BFR_PS_OUT
+	A_BFR_PS_OUT,
 } ABufferType;
 
 typedef struct ABufferDesc {
 	ABufferType type;
 	uint slot;
-	AValue* values;
+	AValue *values;
 	uint values_size;
 	uint max_count;
 	char name[20];
 } ABufferDesc;
 
 typedef struct AShaderDesc {
-	ABufferDesc* buffers;
+	ABufferDesc *buffers;
 	uint buffers_size;
 	uint textures_count;
 	AType texture_type;
 } AShaderDesc;
 
 typedef struct ABufferData {
-	void* data;
+	void *data;
 	uint size;
 } ABufferData;
 
@@ -185,13 +185,13 @@ uint atype_components(AType type, bool mat_support);
 uint atype_component_size(AType type);
 uint atype_size(AType type);
 uint atype_count(AType type, bool mat_support);
-void atype_convert(float* dst, const void* src, AType type);
+void atype_convert(float *dst, const void *src, AType type);
 
-uint abufferdesc_size(ABufferDesc* desc);
-uint abufferdesc_count(ABufferDesc* desc, bool mat_support);
-void abufferdesc_copy(ABufferDesc* src, ABufferDesc* dst);
-void abufferdesc_delete(ABufferDesc* desc);
+uint abufferdesc_size(ABufferDesc *desc);
+uint abufferdesc_count(ABufferDesc *desc, bool mat_support);
+void abufferdesc_copy(ABufferDesc *src, ABufferDesc *dst);
+void abufferdesc_delete(ABufferDesc *desc);
 
-void ashaderdesc_copy(AShaderDesc* src, AShaderDesc* dst);
-void ashaderdesc_delete(AShaderDesc* desc);
-ABufferDesc* ashaderdesc_get_bufferdesc(AShaderDesc desc, ABufferType type);
+void ashaderdesc_copy(AShaderDesc *src, AShaderDesc *dst);
+void ashaderdesc_delete(AShaderDesc *desc);
+ABufferDesc *ashaderdesc_get_bufferdesc(AShaderDesc desc, ABufferType type);

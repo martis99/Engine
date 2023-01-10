@@ -6,5 +6,5 @@ typedef struct Image {
 	int height;
 	int channels;
 	bool from_file;
-	unsigned char* data;
+	unsigned char *data;
 } Image;

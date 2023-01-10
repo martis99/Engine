@@ -5,11 +5,12 @@
 
 #include "math/mat4.h"
 
-ARenderer* arenderer_create(AContext* context, LogCallbacks* log, int lhc) {
-	ARenderer* renderer = m_malloc(sizeof(ARenderer));
-	renderer->error = &context->error;
-	renderer->log = log;
-	renderer->lhc = lhc;
+ARenderer *arenderer_create(AContext *context, LogCallbacks *log, int lhc)
+{
+	ARenderer *renderer = m_malloc(sizeof(ARenderer));
+	renderer->error	    = &context->error;
+	renderer->log	    = log;
+	renderer->lhc	    = lhc;
 
 	gl_cull_face_back(renderer->error);
 	gl_blend_func(renderer->error, gl_afactor(A_SRC_ALPHA), gl_afactor(A_ONE_MINUS_SRC_ALPHA));
@@ -27,11 +28,13 @@ ARenderer* arenderer_create(AContext* context, LogCallbacks* log, int lhc) {
 	return renderer;
 }
 
-void arenderer_delete(ARenderer* renderer) {
+void arenderer_delete(ARenderer *renderer)
+{
 	m_free(renderer, sizeof(ARenderer));
 }
 
-void arenderer_depth_stencil_set(ARenderer* renderer, bool depth_enabled, bool stencil_enabled) {
+void arenderer_depth_stencil_set(ARenderer *renderer, bool depth_enabled, bool stencil_enabled)
+{
 	if (depth_enabled == 0) {
 		gl_depth_test_disable(renderer->error);
 	} else {
@@ -39,7 +42,8 @@ void arenderer_depth_stencil_set(ARenderer* renderer, bool depth_enabled, bool s
 	}
 }
 
-void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_back, bool ccw) {
+void arenderer_rasterizer_set(ARenderer *renderer, bool wireframe, bool cull_back, bool ccw)
+{
 	if (wireframe == 0) {
 		gl_polygon_mode_fill(renderer->error);
 	} else {
@@ -59,7 +63,8 @@ void arenderer_rasterizer_set(ARenderer* renderer, bool wireframe, bool cull_bac
 	}
 }
 
-void arenderer_blend_set(ARenderer* renderer, bool enabled) {
+void arenderer_blend_set(ARenderer *renderer, bool enabled)
+{
 	if (enabled == 0) {
 		gl_blend_disable(renderer->error);
 	} else {
@@ -67,18 +72,22 @@ void arenderer_blend_set(ARenderer* renderer, bool enabled) {
 	}
 }
 
-mat4 arenderer_perspective(ARenderer* renderer, float fovy, float aspect, float zNear, float zFar) {
+mat4 arenderer_perspective(ARenderer *renderer, float fovy, float aspect, float zNear, float zFar)
+{
 	return mat4_perspective1(fovy, aspect, zNear, zFar, renderer->lhc);
 }
 
-mat4 arenderer_ortho(ARenderer* renderer, float left, float right, float bottom, float top, float znear, float zfar) {
+mat4 arenderer_ortho(ARenderer *renderer, float left, float right, float bottom, float top, float znear, float zfar)
+{
 	return mat4_ortho1(left, right, bottom, top, znear, zfar, renderer->lhc);
 }
 
-float arenderer_near(ARenderer* renderer) {
+float arenderer_near(ARenderer *renderer)
+{
 	return -1;
 }
 
-float arenderer_far(ARenderer* renderer) {
+float arenderer_far(ARenderer *renderer)
+{
 	return 1;
 }

@@ -1,7 +1,8 @@
 #include "gl_texture.h"
 #include "gl_error.h"
 
-GLuint gl_texture_create(GLError* error, GLint wrap, AFilter filter, GLint width, GLint height, GLint internal_format, GLenum format, GLenum type, const GLvoid* data) {
+GLuint gl_texture_create(GLError *error, GLint wrap, AFilter filter, GLint width, GLint height, GLint internal_format, GLenum format, GLenum type, const GLvoid *data)
+{
 	GLuint texture = 0;
 	if (GL_FAILED(error, "Failed to generate texture", glGenTextures(1, &texture))) {
 		return 0;
@@ -47,11 +48,13 @@ GLuint gl_texture_create(GLError* error, GLint wrap, AFilter filter, GLint width
 	return texture;
 }
 
-void gl_texture_bind(GLError* error, GLuint texture, GLuint slot) {
+void gl_texture_bind(GLError *error, GLuint texture, GLuint slot)
+{
 	GL_ASSERT(error, glActiveTexture(GL_TEXTURE0 + slot));
 	GL_ASSERT(error, glBindTexture(GL_TEXTURE_2D, texture));
 }
 
-void gl_texture_delete(GLError* error, GLuint texture) {
+void gl_texture_delete(GLError *error, GLuint texture)
+{
 	GL_ASSERT(error, glDeleteTextures(1, &texture));
 }

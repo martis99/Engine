@@ -2,7 +2,8 @@
 
 #include "utils/str.h"
 
-GLError* gl_error_create(GLError* error, LogCallbacks* log) {
+GLError *gl_error_create(GLError *error, LogCallbacks *log)
+{
 	error->log = log;
 #ifdef _DEBUG
 	GLint flags;
@@ -18,11 +19,11 @@ GLError* gl_error_create(GLError* error, LogCallbacks* log) {
 	error->max_count = 0;
 	glGetIntegerv(GL_MAX_DEBUG_LOGGED_MESSAGES, &error->max_count);
 
-	error->sources = m_malloc(error->max_count * sizeof(GLenum));
-	error->types = m_malloc(error->max_count * sizeof(GLenum));
-	error->ids = m_malloc(error->max_count * sizeof(GLuint));
+	error->sources	  = m_malloc(error->max_count * sizeof(GLenum));
+	error->types	  = m_malloc(error->max_count * sizeof(GLenum));
+	error->ids	  = m_malloc(error->max_count * sizeof(GLuint));
 	error->severities = m_malloc(error->max_count * sizeof(GLenum));
-	error->lengths = m_malloc(error->max_count * sizeof(GLsizei));
+	error->lengths	  = m_malloc(error->max_count * sizeof(GLsizei));
 
 	str_create(&error->msgs, error->max_count * error->max_len);
 	str_create(&error->text, 2048);
@@ -31,11 +32,12 @@ GLError* gl_error_create(GLError* error, LogCallbacks* log) {
 	return error;
 }
 
-void gl_error_begin(GLError* error) {
-
+void gl_error_begin(GLError *error)
+{
 }
 
-static const char* get_severity(GLenum severity) {
+static const char *get_severity(GLenum severity)
+{
 	switch (severity) {
 	case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
 	case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
@@ -45,7 +47,8 @@ static const char* get_severity(GLenum severity) {
 	return "";
 }
 
-static const char* get_type(GLenum type) {
+static const char *get_type(GLenum type)
+{
 	switch (type) {
 	case GL_DEBUG_TYPE_ERROR: return "ERROR";
 	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED BEHAVIOR";
@@ -60,7 +63,8 @@ static const char* get_type(GLenum type) {
 	return "";
 }
 
-static char* get_info(GLError* error, GLuint num_msgs) {
+static char *get_info(GLError *error, GLuint num_msgs)
+{
 	str_clear(&error->info);
 	str_off_reset(&error->msgs);
 	for (GLuint i = 0; i < num_msgs; i++) {
@@ -74,16 +78,18 @@ static char* get_info(GLError* error, GLuint num_msgs) {
 	return error->info.data;
 }
 
-bool gl_error_failed(GLError* error, const char* msg, const char* fn, const char* file, int line) {
-	GLuint num_msgs = glGetDebugMessageLog(error->max_count, error->msgs.count, error->sources, error->types, error->ids, error->severities, error->lengths, error->msgs.data);
+bool gl_error_failed(GLError *error, const char *msg, const char *fn, const char *file, int line)
+{
+	GLuint num_msgs =
+		glGetDebugMessageLog(error->max_count, error->msgs.count, error->sources, error->types, error->ids, error->severities, error->lengths, error->msgs.data);
 	if (num_msgs > 0) {
 		str_clear(&error->text);
 
 		str_add_cstrf(&error->text,
-			"%s\n"
-			"INFO:\n%s\n"
-			"%s: %i\n",
-			fn, get_info(error, num_msgs), file, line);
+			      "%s\n"
+			      "INFO:\n%s\n"
+			      "%s: %i\n",
+			      fn, get_info(error, num_msgs), file, line);
 
 		log_err(error->log, error->text.data, msg);
 		return 0;
@@ -91,16 +97,18 @@ bool gl_error_failed(GLError* error, const char* msg, const char* fn, const char
 	return 1;
 }
 
-bool gl_error_assert(GLError* error, const char* fn, const char* file, int line) {
-	GLuint num_msgs = glGetDebugMessageLog(error->max_count, error->msgs.count, error->sources, error->types, error->ids, error->severities, error->lengths, error->msgs.data);
+bool gl_error_assert(GLError *error, const char *fn, const char *file, int line)
+{
+	GLuint num_msgs =
+		glGetDebugMessageLog(error->max_count, error->msgs.count, error->sources, error->types, error->ids, error->severities, error->lengths, error->msgs.data);
 	if (num_msgs > 0) {
 		str_clear(&error->text);
 
 		str_add_cstrf(&error->text,
-			"%s\n"
-			"INFO:\n%s\n"
-			"%s: %i\n",
-			fn, get_info(error, num_msgs), file, line);
+			      "%s\n"
+			      "INFO:\n%s\n"
+			      "%s: %i\n",
+			      fn, get_info(error, num_msgs), file, line);
 
 		log_err(error->log, error->text.data, "Error");
 		return 0;
@@ -108,7 +116,8 @@ bool gl_error_assert(GLError* error, const char* fn, const char* file, int line)
 	return 1;
 }
 
-void gl_error_delete(GLError* error) {
+void gl_error_delete(GLError *error)
+{
 	m_free(error->sources, error->max_count * sizeof(GLenum));
 	m_free(error->types, error->max_count * sizeof(GLenum));
 	m_free(error->ids, error->max_count * sizeof(GLuint));

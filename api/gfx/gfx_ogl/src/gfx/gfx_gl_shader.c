@@ -3,7 +3,8 @@
 
 #include "gfx_gl_types.h"
 
-static GLuint create_program(ARenderer* renderer, GLuint vert, GLuint frag) {
+static GLuint create_program(ARenderer *renderer, GLuint vert, GLuint frag)
+{
 	GLuint program = gl_program_create(renderer->error);
 	if (program == 0) {
 		return 0;
@@ -24,7 +25,7 @@ static GLuint create_program(ARenderer* renderer, GLuint vert, GLuint frag) {
 	if (!status) {
 		int length = 0;
 		gl_program_info_length(renderer->error, program, &length);
-		char* info = m_malloc(length);
+		char *info = m_malloc(length);
 		gl_program_info(renderer->error, program, length, info);
 		log_msg(renderer->log, info);
 		m_free(info, length);
@@ -34,7 +35,8 @@ static GLuint create_program(ARenderer* renderer, GLuint vert, GLuint frag) {
 	return program;
 }
 
-static GLuint compile_shader(ARenderer* renderer, GLenum type, const char* source) {
+static GLuint compile_shader(ARenderer *renderer, GLenum type, const char *source)
+{
 	int status;
 	GLuint shader = gl_shader_create(renderer->error, type, source, &status);
 	if (shader == 0) {
@@ -44,7 +46,7 @@ static GLuint compile_shader(ARenderer* renderer, GLenum type, const char* sourc
 	if (!status) {
 		int length;
 		gl_shader_info_length(renderer->error, shader, &length);
-		char* info = m_malloc(length);
+		char *info = m_malloc(length);
 		gl_shader_info(renderer->error, shader, length, info);
 		log_msg(renderer->log, info);
 		m_free(info, length);
@@ -54,8 +56,9 @@ static GLuint compile_shader(ARenderer* renderer, GLenum type, const char* sourc
 	return shader;
 }
 
-AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* src_frag, const char* textures, uint num_textures) {
-	AShader* shader = m_malloc(sizeof(AShader));
+AShader *ashader_create(ARenderer *renderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures)
+{
+	AShader *shader = m_malloc(sizeof(AShader));
 
 	GLuint vert = compile_shader(renderer, gl_ashadertype(A_VERTEX), src_vert);
 	if (vert == 0) {
@@ -93,7 +96,8 @@ AShader* ashader_create(ARenderer* renderer, const char* src_vert, const char* s
 	return shader;
 }
 
-void ashader_delete(AShader* shader, ARenderer* renderer) {
+void ashader_delete(AShader *shader, ARenderer *renderer)
+{
 	if (shader->num_textures > 0) {
 		m_free(shader->textures, shader->num_textures * sizeof(GLint));
 	}
@@ -104,7 +108,8 @@ void ashader_delete(AShader* shader, ARenderer* renderer) {
 	m_free(shader, sizeof(AShader));
 }
 
-void ashader_bind(AShader* shader, ARenderer* renderer) {
+void ashader_bind(AShader *shader, ARenderer *renderer)
+{
 	gl_program_use(renderer->error, shader->program);
 	if (shader->num_textures > 0) {
 		gl_uniform_vec1i(renderer->error, shader->textures_location, shader->num_textures, shader->textures);

@@ -1,45 +1,38 @@
-#include "api/wnd_api_window.h"
 #include "api/wnd_api_cursor.h"
+#include "api/wnd_api_window.h"
 
-#include  "wnd_win_types.h"
+#include "wnd_win_types.h"
 
-#pragma comment (lib, "user32.lib")
-#pragma comment (lib, "gdi32.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "gdi32.lib")
 
-static const LPCWSTR s_ClassName = L"EngineClass";
+static const LPCWSTR s_ClassName  = L"EngineClass";
 static const LPCWSTR s_WindowName = L"Engine";
-static const DWORD s_ExStyle = 0;
-static const DWORD s_Style = WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+static const DWORD s_ExStyle	  = 0;
+static const DWORD s_Style	  = WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
 
-static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM param_l) {
-
+static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM param_l)
+{
 	if (message == WM_CREATE) {
-		CREATESTRUCT* create = (CREATESTRUCT*)param_l;
-		AWindow* data = (AWindow*)(create->lpCreateParams);
+		CREATESTRUCT *create = (CREATESTRUCT *)param_l;
+		AWindow *data	     = (AWindow *)(create->lpCreateParams);
 		SetWindowLongPtr(wnd, GWLP_USERDATA, (LONG_PTR)data);
 	}
 
-	AWindow* window = (AWindow*)GetWindowLongPtr(wnd, GWLP_USERDATA);
+	AWindow *window = (AWindow *)GetWindowLongPtr(wnd, GWLP_USERDATA);
 	if (window == NULL) {
 		return DefWindowProc(wnd, message, param_w, param_l);
 	}
 
-	ACursor* cursor = window->cursor;
-	byte cursor_enbled = acursor_get_enabled(window->cursor);
+	ACursor *cursor	      = window->cursor;
+	byte cursor_enbled    = acursor_get_enabled(window->cursor);
 	byte cursor_in_window = acursor_get_in_window(window->cursor);
 
 	switch (message) {
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		break;
-	case WM_KEYDOWN:
-		window->callbacks.key_pressed(window->callbacks.arg, (byte)param_w);
-		break;
-	case WM_KEYUP:
-		window->callbacks.key_released(window->callbacks.arg, (byte)param_w);
-		break;
-	case WM_ACTIVATE:
-	{
+	case WM_CLOSE: PostQuitMessage(0); break;
+	case WM_KEYDOWN: window->callbacks.key_pressed(window->callbacks.arg, (byte)param_w); break;
+	case WM_KEYUP: window->callbacks.key_released(window->callbacks.arg, (byte)param_w); break;
+	case WM_ACTIVATE: {
 		if (cursor_enbled == 0) {
 			if (param_w & WA_ACTIVE) {
 				acursor_confine(cursor);
@@ -51,8 +44,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 		}
 		break;
 	}
-	case WM_MOUSEMOVE:
-	{
+	case WM_MOUSEMOVE: {
 		POINTS pt = MAKEPOINTS(param_l);
 		if (cursor_enbled == 0) {
 			if (cursor_in_window == 0) {
@@ -79,8 +71,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 		break;
 	}
 
-	case WM_LBUTTONDOWN:
-	{
+	case WM_LBUTTONDOWN: {
 		SetForegroundWindow(wnd);
 		if (cursor_enbled == 0) {
 			acursor_confine(cursor);
@@ -106,8 +97,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 		window->callbacks.mouse_pressed(window->callbacks.arg, 2);
 		break;
 
-	case WM_LBUTTONUP:
-	{
+	case WM_LBUTTONUP: {
 		POINTS pt = MAKEPOINTS(param_l);
 		if (pt.x < 0 || pt.x >= 1600 || pt.y < 0 || pt.y >= 900) {
 			ReleaseCapture();
@@ -117,8 +107,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 		break;
 	}
 
-	case WM_RBUTTONUP:
-	{
+	case WM_RBUTTONUP: {
 		POINTS pt = MAKEPOINTS(param_l);
 		if (pt.x < 0 || pt.x >= 1600 || pt.y < 0 || pt.y >= 900) {
 			ReleaseCapture();
@@ -127,8 +116,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 		window->callbacks.mouse_released(window->callbacks.arg, 1);
 		break;
 	}
-	case WM_MBUTTONUP:
-	{
+	case WM_MBUTTONUP: {
 		POINTS pt = MAKEPOINTS(param_l);
 		if (pt.x < 0 || pt.x >= 1600 || pt.y < 0 || pt.y >= 900) {
 			ReleaseCapture();
@@ -138,23 +126,21 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 		break;
 	}
 
-	case WM_MOUSEWHEEL:
-	{
+	case WM_MOUSEWHEEL: {
 		short delta = GET_WHEEL_DELTA_WPARAM(param_w);
 		window->callbacks.mouse_wheel(window->callbacks.arg, (float)delta);
 		break;
 	}
-	case WM_INPUT:
-	{
+	case WM_INPUT: {
 		UINT size = 0;
 		if (GetRawInputData((HRAWINPUT)param_l, RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER)) == (UINT)-1) {
 			break;
 		}
-		BYTE* data = (BYTE*)m_malloc(size);
+		BYTE *data = (BYTE *)m_malloc(size);
 		if (GetRawInputData((HRAWINPUT)param_l, RID_INPUT, data, &size, sizeof(RAWINPUTHEADER)) != size) {
 			break;
 		}
-		RAWINPUT* ri = (RAWINPUT*)data;
+		RAWINPUT *ri = (RAWINPUT *)data;
 		if (ri->header.dwType == RIM_TYPEMOUSE && (ri->data.mouse.lLastX != 0 || ri->data.mouse.lLastY != 0)) {
 			window->callbacks.mouse_moved_delta(window->callbacks.arg, (float)ri->data.mouse.lLastX, (float)ri->data.mouse.lLastY);
 		}
@@ -165,20 +151,23 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 	return DefWindowProc(wnd, message, param_w, param_l);
 }
 
-AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width, int height, LogCallbacks* log) {
-	AWindow* window = m_malloc(sizeof(AWindow));
+AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width, int height, LogCallbacks *log)
+{
+	AWindow *window	   = m_malloc(sizeof(AWindow));
 	window->class_name = s_ClassName;
-	window->module = GetModuleHandleW(0);
-	window->callbacks = *callbacks;
-	window->cursor = cursor;
-	window->log = log;
+	window->module	   = GetModuleHandleW(0);
+	window->callbacks  = *callbacks;
+	window->cursor	   = cursor;
+	window->log	   = log;
 
-	WNDCLASSW wc = { 0 };
-	wc.lpfnWndProc = wnd_proc;
-	wc.hInstance = window->module;
-	wc.lpszClassName = s_ClassName;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.style = CS_OWNDC;
+	WNDCLASSW wc = {
+		.lpfnWndProc   = wnd_proc,
+		.hInstance     = window->module,
+		.lpszClassName = s_ClassName,
+		.hCursor       = LoadCursor(NULL, IDC_ARROW),
+		.style	       = CS_OWNDC,
+	};
+
 	if (!RegisterClassW(&wc)) {
 		log_msg(window->log, "Failed to register class");
 		return NULL;
@@ -190,6 +179,7 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 	int screen_w = GetSystemMetrics(SM_CXSCREEN);
 	int screen_h = GetSystemMetrics(SM_CYSCREEN);
 
+	// clang-format off
 	window->window = CreateWindowExW(
 		s_ExStyle,
 		wc.lpszClassName,
@@ -204,6 +194,7 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 		window->module,
 		window
 	);
+	// clang-format on
 
 	if (window->window == NULL) {
 		log_msg(window->log, "Failed to create window");
@@ -212,11 +203,13 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 
 	ShowWindow(window->window, SW_SHOW);
 
-	RAWINPUTDEVICE rid;
-	rid.usUsagePage = 0x01;
-	rid.usUsage = 0x02;
-	rid.dwFlags = 0;
-	rid.hwndTarget = NULL;
+	RAWINPUTDEVICE rid = {
+		.usUsagePage = 0x01,
+		.usUsage     = 0x02,
+		.dwFlags     = 0,
+		.hwndTarget  = NULL,
+	};
+
 	if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE) {
 		log_msg(window->log, "Failed to register raw input device");
 		return NULL;
@@ -225,23 +218,27 @@ AWindow* awindow_create(AWindowCallbacks* callbacks, ACursor* cursor, int width,
 	return window;
 }
 
-void awindow_delete(AWindow* window) {
+void awindow_delete(AWindow *window)
+{
 	DestroyWindow(window->window);
 	UnregisterClassW(s_ClassName, window->module);
 	m_free(window, sizeof(AWindow));
 }
 
-void* awindow_get_window(AWindow* window) {
+void *awindow_get_window(AWindow *window)
+{
 	return window->window;
 }
 
-void awindow_set_title(AWindow* window, const char* title) {
+void awindow_set_title(AWindow *window, const char *title)
+{
 	if (SetWindowTextA(window->window, title) == 0) {
 		log_msg(window->log, "Failed to set title");
 	}
 }
 
-int awindow_poll_events(AWindow* window) {
+int awindow_poll_events(AWindow *window)
+{
 	MSG msg = { 0 };
 	while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) {
 		if (msg.message == WM_QUIT) {
@@ -254,14 +251,17 @@ int awindow_poll_events(AWindow* window) {
 	return 1;
 }
 
-void awindow_message_box(AWindow* window, const char* text, const char* caption) {
+void awindow_message_box(AWindow *window, const char *text, const char *caption)
+{
 	MessageBoxA(window->window, text, caption, MB_ICONERROR);
 }
 
-void awindow_message_boxw(AWindow* window, const wchar* text, const wchar* caption) {
+void awindow_message_boxw(AWindow *window, const wchar *text, const wchar *caption)
+{
 	MessageBoxW(window->window, text, caption, MB_ICONERROR);
 }
 
-void awindow_close(AWindow* window) {
+void awindow_close(AWindow *window)
+{
 	PostQuitMessage(0);
 }

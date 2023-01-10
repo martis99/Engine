@@ -2,6 +2,7 @@
 
 #include "utils_win_types.h"
 
-void utils_break() {
+void utils_break()
+{
 	DebugBreak();
 }
