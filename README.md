@@ -7,27 +7,26 @@ Engine - 3D graphics and physics engine
 ## The Plan
 The plan for this engine is to create a multi-platform fast 3D graphics and physics engine.
 
-### Supported graphics APIs:
-- OpenGL
-- Direct3D
+### Graphics APIs:
+- [X] OpenGL
+- [x] Direct3D
+- [ ] OpenGL ES
+- [ ] Vulkan
+- [ ] Metal
 
-### Supported platforms:
-- Windows
+### Platforms:
+- [x] Windows
+- [ ] Linux
+- [ ] Android
 
 ### Features:
-- Text Rendering
-- Instancing
-- Batch Rendering
-- Models Rendering
+- [x] Text
+- [x] Instancing
+- [x] Batch Rendering
+- [x] Models
+- [ ] Audio
+- [ ] Terrain
 
 ***
-### Main features to come:
-- Vulkan support
-- Metal support
-- OpenGL ES support
-- Linux support
-- Audio system
-- Terrain rendering
-
 ### Gallery
 ![screenshot](/gallery/screenshot.png?raw=true)
