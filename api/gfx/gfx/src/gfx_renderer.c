@@ -1,6 +1,8 @@
 #include "gfx_renderer.h"
 #include "api/gfx/gfx_api_renderer.h"
 
+#include "gfx_shader_creator.h"
+
 Renderer *renderer_create(Renderer *renderer, Context *context, int width, int height, LogCallbacks *log, int lhc)
 {
 	renderer->renderer = arenderer_create(context->context, log, lhc);
@@ -13,11 +15,18 @@ Renderer *renderer_create(Renderer *renderer, Context *context, int width, int h
 	renderer->width	     = width;
 	renderer->height     = height;
 	renderer->draw_calls = 0;
+
+	if (gfx_sc_create(&renderer->shader_creator) == NULL) {
+		log_error("Failed to create shader creator");
+		return NULL;
+	}
+
 	return renderer;
 }
 
 void renderer_delete(Renderer *renderer)
 {
+	gfx_sc_delete(&renderer->shader_creator);
 	arenderer_delete(renderer->renderer);
 }
 

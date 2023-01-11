@@ -39,8 +39,6 @@
 #include "assets/gfx_uniform_buffer.h"
 #include "model.h"
 
-#include "ecs/../gfx_shader_creator.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -452,17 +450,15 @@ static Scene *scene_create(int width, int height)
 		return NULL;
 	}
 
-	if (gfx_sc_create(&scene->renderer.shader_creator) == NULL) {
-		log_error("Failed to create shader creator");
-		return NULL;
-	}
-
 	renderer_depth_stencil_set(&scene->renderer, 1, 1);
 
 	scene->wireframe = 0;
 	scene->cull_back = 1;
 
-	AAttachmentDesc attachments[] = { { VEC4F, 0, A_LINEAR, A_REPEAT }, { VEC1I, 1, A_LINEAR, A_REPEAT } };
+	AAttachmentDesc attachments[] = {
+		{ VEC4F, 0, A_LINEAR, A_REPEAT },
+		{ VEC1I, 1, A_LINEAR, A_REPEAT },
+	};
 
 	if (framebuffer_create(&scene->framebuffer, &scene->renderer, attachments, sizeof(attachments), width, height) == NULL) {
 		log_error("Failed to create framebuffer");
@@ -488,7 +484,9 @@ static Scene *scene_create(int width, int height)
 
 	create_camera(scene, (float)width, (float)height);
 
-	AValue uniforms[] = { { MAT4F, "ViewProjection" } };
+	AValue uniforms[] = {
+		{ MAT4F, "ViewProjection" },
+	};
 
 	ABufferDesc desc = {
 		.values	     = uniforms,
@@ -706,7 +704,6 @@ static void scene_delete(Scene *scene)
 	model_delete(&scene->models[1], &scene->renderer);
 	model_delete(&scene->models[2], &scene->renderer);
 	framebuffer_delete(&scene->framebuffer, &scene->renderer);
-	gfx_sc_delete(&scene->renderer.shader_creator);
 	renderer_delete(&scene->renderer);
 	context_delete(&scene->context);
 	window_delete(&scene->window);
