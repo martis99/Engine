@@ -1,5 +1,4 @@
 #include "gfx_shader.h"
-#include "api/gfx/gfx_api_shader.h"
 
 #include "assets/image.h"
 #include "gfx_texture.h"
@@ -8,7 +7,7 @@ Shader *shader_create(Shader *shader, Renderer *renderer, const char *vert, cons
 {
 	ashaderdesc_copy(&desc, &shader->desc);
 
-	shader->shader = ashader_create(renderer->renderer, vert, frag, "Textures", desc.textures_count);
+	shader->shader = renderer->driver->shader_create(renderer->renderer, vert, frag, "Textures", desc.textures_count);
 	if (shader->shader == NULL) {
 		return NULL;
 	}
@@ -28,10 +27,10 @@ void shader_delete(Shader *shader, Renderer *renderer)
 	ashaderdesc_delete(&shader->desc);
 	image_delete(&shader->default_image);
 	texture_delete(&shader->default_texture, renderer);
-	ashader_delete(shader->shader, renderer->renderer);
+	renderer->driver->shader_delete(shader->shader, renderer->renderer);
 }
 
 void shader_bind(Shader *shader, Renderer *renderer)
 {
-	ashader_bind(shader->shader, renderer->renderer);
+	renderer->driver->shader_bind(shader->shader, renderer->renderer);
 }

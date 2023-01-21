@@ -5,7 +5,7 @@
 #include "assets/gfx_shader.h"
 #include "ecs/component/transform.h"
 
-#include "gfx_shader_creator.h"
+#include "gfx/gfx_shader_creator.h"
 
 #define MAX_LINES    200000
 #define MAX_VERTICES MAX_LINES * 2

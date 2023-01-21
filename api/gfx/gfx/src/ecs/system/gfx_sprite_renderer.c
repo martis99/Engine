@@ -6,7 +6,7 @@
 
 #include "math/maths.h"
 
-#include "gfx_shader_creator.h"
+#include "gfx/gfx_shader_creator.h"
 
 #define MAX_QUADS    200
 #define MAX_VERTICES MAX_QUADS * 4

@@ -1,5 +1,5 @@
 #pragma once
-#include "gfx_types.h"
+#include "gfx/gfx_types.h"
 
 Model *model_create(Model *model);
 void model_delete(Model *model, Renderer *renderer);

@@ -1,11 +1,10 @@
 #include "gfx_uniform_buffer.h"
-#include "api/gfx/gfx_api_uniform_buffer.h"
 #include "gfx_buffer.h"
 
 UniformBuffer *uniformbuffer_create_static(UniformBuffer *uniform_buffer, Renderer *renderer, ABufferDesc *desc, const void *data)
 {
 	buffer_create(&uniform_buffer->values, desc->values, desc->values_size, data);
-	uniform_buffer->buffer = auniformbuffer_create_static(renderer->renderer, desc->slot, uniform_buffer->values.size, uniform_buffer->values.data);
+	uniform_buffer->buffer = renderer->driver->ub_create_static(renderer->renderer, desc->slot, uniform_buffer->values.size, uniform_buffer->values.data);
 	if (uniform_buffer->buffer == NULL) {
 		return NULL;
 	}
@@ -15,7 +14,7 @@ UniformBuffer *uniformbuffer_create_static(UniformBuffer *uniform_buffer, Render
 UniformBuffer *uniformbuffer_create_dynamic(UniformBuffer *uniform_buffer, Renderer *renderer, ABufferDesc *desc)
 {
 	buffer_create(&uniform_buffer->values, desc->values, desc->values_size, NULL);
-	uniform_buffer->buffer = auniformbuffer_create_dynamic(renderer->renderer, desc->slot, uniform_buffer->values.size);
+	uniform_buffer->buffer = renderer->driver->ub_create_dynamic(renderer->renderer, desc->slot, uniform_buffer->values.size);
 	if (uniform_buffer->buffer == NULL) {
 		return NULL;
 	}
@@ -25,7 +24,7 @@ UniformBuffer *uniformbuffer_create_dynamic(UniformBuffer *uniform_buffer, Rende
 void uniformbuffer_delete(UniformBuffer *uniform_buffer, Renderer *renderer)
 {
 	buffer_delete(&uniform_buffer->values);
-	auniformbuffer_delete(uniform_buffer->buffer, renderer->renderer);
+	renderer->driver->ub_delete(uniform_buffer->buffer, renderer->renderer);
 }
 
 void uniformbuffer_set_value(UniformBuffer *uniform_buffer, uint index, const void *value)
@@ -35,15 +34,15 @@ void uniformbuffer_set_value(UniformBuffer *uniform_buffer, uint index, const vo
 
 void uniformbuffer_upload(UniformBuffer *uniform_buffer, Renderer *renderer)
 {
-	auniformbuffer_upload(uniform_buffer->buffer, renderer->renderer, uniform_buffer->values.data, uniform_buffer->values.size);
+	renderer->driver->ub_upload(uniform_buffer->buffer, renderer->renderer, uniform_buffer->values.data, uniform_buffer->values.size);
 }
 
 void uniformbuffer_bind_vs(UniformBuffer *uniform_buffer, Renderer *renderer)
 {
-	auniformbuffer_bind_vs(uniform_buffer->buffer, renderer->renderer);
+	renderer->driver->ub_bind_vs(uniform_buffer->buffer, renderer->renderer);
 }
 
 void uniformbuffer_bind_ps(UniformBuffer *uniform_buffer, Renderer *renderer)
 {
-	auniformbuffer_bind_ps(uniform_buffer->buffer, renderer->renderer);
+	renderer->driver->ub_bind_ps(uniform_buffer->buffer, renderer->renderer);
 }

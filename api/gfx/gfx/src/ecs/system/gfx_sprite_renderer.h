@@ -1,5 +1,5 @@
 #pragma once
-#include "gfx_types.h"
+#include "gfx/gfx_types.h"
 
 SpriteRenderer *sprite_renderer_create(SpriteRenderer *sprite_renderer, Renderer *renderer, Transform transform);
 void sprite_renderer_delete(SpriteRenderer *sprite_renderer);

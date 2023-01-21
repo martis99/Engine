@@ -5,6 +5,7 @@
 
 DX11Error *dx11_error_create(DX11Error *error, LogCallbacks *log)
 {
+#ifdef _DEBUG
 	error->library = LoadLibraryA("dxgidebug.dll");
 	error->log     = log;
 
@@ -27,14 +28,18 @@ DX11Error *dx11_error_create(DX11Error *error, LogCallbacks *log)
 	wstr_create(&error->desc, 2048);
 	str_create(&error->info, 2048);
 
+#endif
 	return error;
 }
 
 void dx11_error_begin(DX11Error *error)
 {
+#ifdef _DEBUG
 	error->begin = error->info_queue->lpVtbl->GetNumStoredMessages(error->info_queue, DXGI_DEBUG_ALL);
+#endif
 }
 
+#ifdef _DEBUG
 static const char *get_severity(DXGI_INFO_QUEUE_MESSAGE_SEVERITY severity)
 {
 	switch (severity) {
@@ -92,14 +97,15 @@ static char *get_info(DX11Error *error)
 	}
 	return error->info.data;
 }
+#endif
 
 bool dx11_error_failed(DX11Error *error, const char *msg, HRESULT hr, const char *fn, const char *file, int line)
 {
+#ifdef _DEBUG
 	if (FAILED(hr)) {
 		wstr_zero(&error->text);
 		DXGetErrorDescriptionW(hr, error->desc.data, error->desc.count);
 
-#ifdef _DEBUG
 		wstr_catf(&error->text,
 			  L"%ls (0x%X (%lu))\n"
 			  L"%hs\n\n"
@@ -107,29 +113,23 @@ bool dx11_error_failed(DX11Error *error, const char *msg, HRESULT hr, const char
 			  L"INFO:\n%hs\n"
 			  L"%hs: %i\n",
 			  DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, fn, error->desc.data, get_info(error), file, line);
-#elif NDEBUG
-		wstr_catf(&error->text,
-			  L"%ls (0x%X (%lu))\n\n"
-			  L"DESC:\n%ls\n",
-			  DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, error->desc.data);
-#endif
 
 		wstr_zero(&error->caption);
 		wstr_catf(&error->caption, L"%hs", msg);
 		log_errw(error->log, error->text.data, error->caption.data);
 		return 0;
 	}
-
+#endif
 	return 1;
 }
 
 bool dx11_error_assert(DX11Error *error, HRESULT hr, const char *fn, const char *file, int line)
 {
+#ifdef _DEBUG
 	if (FAILED(hr)) {
 		wstr_zero(&error->text);
 		DXGetErrorDescriptionW(hr, error->desc.data, error->desc.count);
 
-#ifdef _DEBUG
 		wstr_catf(&error->text,
 			  L"%ls (0x%X (%lu))\n"
 			  L"%hs\n\n"
@@ -137,23 +137,18 @@ bool dx11_error_assert(DX11Error *error, HRESULT hr, const char *fn, const char 
 			  L"INFO:\n%hs\n"
 			  L"%hs: %i\n",
 			  DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, fn, error->desc.data, get_info(error), file, line);
-#elif NDEBUG
-		wstr_catf(&error->text,
-			  L"%ls (0x%X (%lu))\n\n"
-			  L"DESC:\n%ls\n",
-			  DXGetErrorStringW(hr), (unsigned long)hr, (unsigned long)hr, error->desc.data);
-#endif
 
 		wstr_zero(&error->caption);
 		log_errw(error->log, error->text.data, L"Error");
 		return 0;
 	}
-
+#endif
 	return 1;
 }
 
 void dx11_error_delete(DX11Error *error)
 {
+#ifdef _DEBUG
 	wstr_delete(&error->caption);
 	wstr_delete(&error->text);
 	wstr_delete(&error->desc);
@@ -163,4 +158,5 @@ void dx11_error_delete(DX11Error *error)
 		error->info_queue->lpVtbl->Release(error->info_queue);
 	}
 	FreeLibrary(error->library);
+#endif
 }

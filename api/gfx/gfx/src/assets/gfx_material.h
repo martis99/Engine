@@ -1,5 +1,5 @@
 #pragma once
-#include "gfx_types.h"
+#include "gfx/gfx_types.h"
 
 Material *material_create(Material *material, Renderer *renderer, Shader *shader);
 void material_delete(Material *material, Renderer *renderer);

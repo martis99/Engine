@@ -1,5 +1,4 @@
 #include "gfx_mesh.h"
-#include "api/gfx/gfx_api_mesh.h"
 
 #include "math/maths.h"
 
@@ -7,7 +6,7 @@
 
 Mesh *mesh_create(Mesh *mesh, Renderer *renderer, Shader *shader, AMeshData data, APrimitive primitive)
 {
-	mesh->mesh = amesh_create(renderer->renderer, shader->shader, shader->desc, data, primitive);
+	mesh->mesh = renderer->driver->mesh_create(renderer->renderer, shader->shader, shader->desc, data, primitive);
 	if (mesh->mesh == NULL) {
 		return NULL;
 	}
@@ -16,27 +15,27 @@ Mesh *mesh_create(Mesh *mesh, Renderer *renderer, Shader *shader, AMeshData data
 
 void mesh_delete(Mesh *mesh, Renderer *renderer)
 {
-	amesh_delete(mesh->mesh, renderer->renderer);
+	renderer->driver->mesh_delete(mesh->mesh, renderer->renderer);
 }
 
 void mesh_set_vertices(Mesh *mesh, Renderer *renderer, const void *vertices, uint vertices_size)
 {
-	amesh_set_vertices(mesh->mesh, renderer->renderer, vertices, vertices_size);
+	renderer->driver->mesh_set_vertices(mesh->mesh, renderer->renderer, vertices, vertices_size);
 }
 
 void mesh_set_instances(Mesh *mesh, Renderer *renderer, const void *instances, uint instances_size)
 {
-	amesh_set_instances(mesh->mesh, renderer->renderer, instances, instances_size);
+	renderer->driver->mesh_set_instances(mesh->mesh, renderer->renderer, instances, instances_size);
 }
 
 void mesh_set_indices(Mesh *mesh, Renderer *renderer, const void *indices, uint indices_size)
 {
-	amesh_set_indices(mesh->mesh, renderer->renderer, indices, indices_size);
+	renderer->driver->mesh_set_indices(mesh->mesh, renderer->renderer, indices, indices_size);
 }
 
 void mesh_draw(Mesh *mesh, Renderer *renderer, uint indices)
 {
-	amesh_draw(mesh->mesh, renderer->renderer, indices);
+	renderer->driver->mesh_draw(mesh->mesh, renderer->renderer, indices);
 	renderer->draw_calls++;
 }
 

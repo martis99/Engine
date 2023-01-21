@@ -1,5 +1,5 @@
 #pragma once
-#include "gfx_types.h"
+#include "gfx/gfx_types.h"
 
 Assets *assets_create(Assets *assets, Renderer *renderer);
 void assets_delete(Assets *assets);

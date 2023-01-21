@@ -4,7 +4,7 @@
 #include "assets/gfx_shader.h"
 #include "model.h"
 
-#include "gfx_shader_creator.h"
+#include "gfx/gfx_shader_creator.h"
 
 ModelRenderer *model_renderer_create(ModelRenderer *model_renderer, Renderer *renderer)
 {

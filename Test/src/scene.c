@@ -17,8 +17,9 @@
 #include "wnd_log.h"
 #include "wnd_window.h"
 
-#include "gfx_context.h"
-#include "gfx_renderer.h"
+#include "ctx/ctx_driver.h"
+#include "ctx/gfx_context.h"
+#include "gfx/gfx_renderer.h"
 
 #include "ecs/system/gfx_instance_renderer.h"
 #include "ecs/system/gfx_line_renderer.h"
@@ -75,6 +76,9 @@ typedef struct Scene {
 	bool profile;
 	LogCallbacks log;
 	Model models[10];
+	int width;
+	int height;
+	const char *gfx_driver;
 } Scene;
 
 static Scene *create_systems(Scene *scene)
@@ -310,7 +314,7 @@ static void create_entities3d(Scene *scene)
 	line_renderer_add(&scene->line_renderer, (vec3){ 0.0f, 0.0f, 0.0f }, (vec3){ 0.0f, 0.0f, 1.0f }, (vec4){ 0.0f, 0.0f, 1.0f, 1.0f }, -2);
 }
 
-static void create_camera(Scene *scene, float width, float height)
+static void create_camera(Scene *scene, float width, float height, vec3 position, vec3 rotation)
 {
 	CameraSettings camera_settings = {
 		.move_speed   = 0.01f,
@@ -322,12 +326,9 @@ static void create_camera(Scene *scene, float width, float height)
 		.z_far	      = 1000.0f,
 	};
 
-	const vec3 camera_position = { 3.0f, 4.0f, -20.0f };
-	const vec3 camera_rotation = { 0.0f, 0.0f, 0.0f };
-
 	mat4 projection = renderer_perspective(&scene->renderer, camera_settings.fov, camera_settings.width / camera_settings.height, camera_settings.z_near,
 					       camera_settings.z_far);
-	camera_create(&scene->camera, camera_position, camera_rotation, camera_settings, projection);
+	camera_create(&scene->camera, position, rotation, camera_settings, projection);
 
 	scene->projection = renderer_ortho(&scene->renderer, 0.0f, 1600.0f, 900.0f, 0.0f, 1000.0f, -1);
 }
@@ -347,12 +348,104 @@ static void on_errw(void *arg, const wchar *text, const wchar *caption)
 	show_errorw(arg, text, caption);
 }
 
+static int create_graphics(Scene *scene, vec3 camera_position, vec3 camera_rotation)
+{
+	if (context_create(&scene->context, scene->window.window, &scene->log, scene->gfx_driver) == NULL) {
+		log_error("Failed to create context");
+		return 1;
+	}
+
+	if (renderer_create(&scene->renderer, &scene->context, scene->width, scene->height, &scene->log, 1) == NULL) {
+		log_error("Failed to create renderer");
+		return 1;
+	}
+
+	renderer_depth_stencil_set(&scene->renderer, 1, 1);
+
+	AAttachmentDesc attachments[] = {
+		{ VEC4F, 0, A_LINEAR, A_REPEAT },
+		{ VEC1I, 1, A_LINEAR, A_REPEAT },
+	};
+
+	if (framebuffer_create(&scene->framebuffer, &scene->renderer, attachments, sizeof(attachments), scene->width, scene->height) == NULL) {
+		log_error("Failed to create framebuffer");
+		return 1;
+	}
+
+	if (ecs_create(&scene->ecs, 7, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints), sizeof(InstanceComponent),
+		       sizeof(Model)) == NULL) {
+		log_error("Failed to create ecs");
+		return 1;
+	}
+	if (create_systems(scene) == NULL) {
+		log_error("Failed to create systems");
+		return 1;
+	}
+	if (create_assets(scene) == NULL) {
+		log_error("Failed to create assets");
+		return 1;
+	}
+
+	create_entities2d(scene);
+	create_entities3d(scene);
+
+	create_camera(scene, (float)scene->width, (float)scene->height, camera_position, camera_rotation);
+
+	AValue uniforms[] = {
+		{ MAT4F, "ViewProjection" },
+	};
+
+	ABufferDesc desc = {
+		.values	     = uniforms,
+		.values_size = sizeof(uniforms),
+		.slot	     = 0,
+	};
+
+	if (uniformbuffer_create_dynamic(&scene->u_camera, &scene->renderer, &desc) == NULL) {
+		log_error("Failed to create camera buffer");
+		return 1;
+	}
+
+	scene->profile = 0;
+
+	return 0;
+}
+
+static void delete_graphics(Scene *scene)
+{
+	uniformbuffer_delete(&scene->u_camera, &scene->renderer);
+
+	mesh_renderer_delete(&scene->mesh_renderer);
+	sprite_renderer_delete(&scene->sprite_renderer);
+	text_renderer_delete(&scene->text_renderer);
+	line_renderer_delete(&scene->line_renderer);
+	QueryResult *qr = ecs_query(&scene->ecs, 1, C_INSTANCE);
+	for (uint i = 0; i < qr->count; ++i) {
+		instance_component_delete(ecs_get(&scene->ecs, qr->list[i], C_INSTANCE));
+	}
+	instance_renderer_delete(&scene->instance_renderer);
+	model_renderer_delete(&scene->model_renderer);
+	ecs_delete(&scene->ecs);
+	assets_delete(&scene->assets);
+	model_delete(&scene->models[0], &scene->renderer);
+	model_delete(&scene->models[1], &scene->renderer);
+	model_delete(&scene->models[2], &scene->renderer);
+	framebuffer_delete(&scene->framebuffer, &scene->renderer);
+	renderer_delete(&scene->renderer);
+	context_delete(&scene->context);
+}
+
 static void scene_key_pressed(Scene *scene, byte key)
 {
 	kb_key_pressed(key);
 	switch (key) {
 	case K_ESCAPE: window_close(&scene->window); break;
 	case K_TAB: scene->wireframe = 1 - scene->wireframe; break;
+	case K_F1:
+		delete_graphics(scene);
+		scene->gfx_driver = ctx_driver_get_name((ctx_driver_get_id(scene->gfx_driver) + 1) % ctx_driver_get_count());
+		create_graphics(scene, scene->camera.position, scene->camera.rotation);
+		break;
 	case 'C': scene->cull_back = 1 - scene->cull_back; break;
 	case 'P':
 		if (scene->profile == 0) {
@@ -414,15 +507,9 @@ static Scene *scene_create(int width, int height)
 	scene->log.on_errw = on_errw;
 	scene->log.arg	   = &scene->window;
 
-	if (cursor_create(&scene->cursor, &scene->window, 1, &scene->log) == NULL) {
-		log_error("Failed to create cursor");
-		return NULL;
-	}
-
-	WindowSettings window_settings = {
-		.width	= width,
-		.height = height,
-	};
+	scene->width	  = width;
+	scene->height	  = height;
+	scene->gfx_driver = "DX11";
 
 	AWindowCallbacks callbacks = {
 		.key_pressed	   = scene_key_pressed,
@@ -435,71 +522,31 @@ static Scene *scene_create(int width, int height)
 		.arg		   = scene,
 	};
 
+	WindowSettings window_settings = {
+		.width	= scene->width,
+		.height = scene->height,
+	};
+
+	if (cursor_create(&scene->cursor, &scene->window, 1, &scene->log) == NULL) {
+		log_error("Failed to create cursor");
+		return NULL;
+	}
+
 	if (window_create(&scene->window, window_settings, &callbacks, &scene->cursor, &scene->log) == NULL) {
 		log_error("Failed to create window");
 		return NULL;
 	}
 
-	if (context_create(&scene->context, scene->window.window, &scene->log) == NULL) {
-		log_error("Failed to create context");
-		return NULL;
-	}
-
-	if (renderer_create(&scene->renderer, &scene->context, width, height, &scene->log, 1) == NULL) {
-		log_error("Failed to create renderer");
-		return NULL;
-	}
-
-	renderer_depth_stencil_set(&scene->renderer, 1, 1);
+	const vec3 camera_position = { 3.0f, 4.0f, -20.0f };
+	const vec3 camera_rotation = { 0.0f, 0.0f, 0.0f };
 
 	scene->wireframe = 0;
 	scene->cull_back = 1;
 
-	AAttachmentDesc attachments[] = {
-		{ VEC4F, 0, A_LINEAR, A_REPEAT },
-		{ VEC1I, 1, A_LINEAR, A_REPEAT },
-	};
-
-	if (framebuffer_create(&scene->framebuffer, &scene->renderer, attachments, sizeof(attachments), width, height) == NULL) {
-		log_error("Failed to create framebuffer");
+	if (create_graphics(scene, camera_position, camera_rotation)) {
+		log_error("Failed to create graphics");
 		return NULL;
 	}
-
-	if (ecs_create(&scene->ecs, 7, sizeof(Transform), sizeof(MeshComponent), sizeof(Sprite), sizeof(Text), sizeof(Constraints), sizeof(InstanceComponent),
-		       sizeof(Model)) == NULL) {
-		log_error("Failed to create ecs");
-		return NULL;
-	}
-	if (create_systems(scene) == NULL) {
-		log_error("Failed to create systems");
-		return NULL;
-	}
-	if (create_assets(scene) == NULL) {
-		log_error("Failed to create assets");
-		return NULL;
-	}
-
-	create_entities2d(scene);
-	create_entities3d(scene);
-
-	create_camera(scene, (float)width, (float)height);
-
-	AValue uniforms[] = {
-		{ MAT4F, "ViewProjection" },
-	};
-
-	ABufferDesc desc = {
-		.values	     = uniforms,
-		.values_size = sizeof(uniforms),
-		.slot	     = 0,
-	};
-
-	if (uniformbuffer_create_dynamic(&scene->u_camera, &scene->renderer, &desc) == NULL) {
-		log_error("Failed to create camera buffer");
-		return NULL;
-	}
-
-	scene->profile = 0;
 
 	return scene;
 }
@@ -615,7 +662,7 @@ static void scene_render(Scene *scene)
 	renderer_rasterizer_set(&scene->renderer, scene->wireframe, scene->cull_back, scene->renderer.lhc == 1 ? 0 : 1);
 
 	uint targets[] = { 0, 1 };
-	framebuffer_set_render_targets(&scene->framebuffer, &scene->renderer, targets, sizeof(targets));
+	framebuffer_bind_render_targets(&scene->framebuffer, &scene->renderer, targets, sizeof(targets));
 	float color[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	framebuffer_clear_attachment(&scene->framebuffer, &scene->renderer, 0, color);
 	int entity = -1;
@@ -644,6 +691,7 @@ static void scene_render(Scene *scene)
 
 	renderer_rasterizer_set(&scene->renderer, 0, 1, 0);
 	framebuffer_draw(&scene->framebuffer, &scene->renderer, 0);
+	framebuffer_unbind_render_targets(&scene->framebuffer, &scene->renderer, targets, sizeof(targets));
 
 	context_swap_buffers(&scene->context);
 }
@@ -669,7 +717,7 @@ static void scene_main_loop(Scene *scene, size_t *mem_usage)
 		if (elapsed > CLOCKS_PER_SEC) {
 			char title[100];
 			float ms = elapsed / (float)frames;
-			sprintf_s(title, 100, "Engine %u FPS %.2f ms, mem: %u, dc: %i", frames, ms, (uint)*mem_usage, scene->renderer.draw_calls);
+			sprintf_s(title, 100, "Engine %s %u FPS %.2f ms, mem: %u, dc: %i", scene->gfx_driver, frames, ms, (uint)*mem_usage, scene->renderer.draw_calls);
 			window_set_title(&scene->window, title);
 
 			last   = current;
@@ -686,26 +734,7 @@ static void scene_main_loop(Scene *scene, size_t *mem_usage)
 
 static void scene_delete(Scene *scene)
 {
-	uniformbuffer_delete(&scene->u_camera, &scene->renderer);
-
-	mesh_renderer_delete(&scene->mesh_renderer);
-	sprite_renderer_delete(&scene->sprite_renderer);
-	text_renderer_delete(&scene->text_renderer);
-	line_renderer_delete(&scene->line_renderer);
-	QueryResult *qr = ecs_query(&scene->ecs, 1, C_INSTANCE);
-	for (uint i = 0; i < qr->count; ++i) {
-		instance_component_delete(ecs_get(&scene->ecs, qr->list[i], C_INSTANCE));
-	}
-	instance_renderer_delete(&scene->instance_renderer);
-	model_renderer_delete(&scene->model_renderer);
-	ecs_delete(&scene->ecs);
-	assets_delete(&scene->assets);
-	model_delete(&scene->models[0], &scene->renderer);
-	model_delete(&scene->models[1], &scene->renderer);
-	model_delete(&scene->models[2], &scene->renderer);
-	framebuffer_delete(&scene->framebuffer, &scene->renderer);
-	renderer_delete(&scene->renderer);
-	context_delete(&scene->context);
+	delete_graphics(scene);
 	window_delete(&scene->window);
 	cursor_delete(&scene->cursor);
 	m_free(scene, sizeof(Scene));

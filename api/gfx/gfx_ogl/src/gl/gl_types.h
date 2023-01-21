@@ -1,5 +1,5 @@
 #pragma once
-#include "api/gfx/gfx_api_types.h"
+#include "api/gfx_api_types.h"
 
 #include "utils/str.h"
 
