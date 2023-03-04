@@ -1,6 +1,8 @@
 #pragma once
 #include "eng_common_types.h"
 
+#include <wchar.h>
+
 typedef struct Str {
 	union {
 		const char *cdata;
@@ -12,7 +14,7 @@ typedef struct Str {
 } Str;
 
 typedef struct WStr {
-	wchar *data;
+	wchar_t *data;
 	uint count;
 } WStr;
 
@@ -87,12 +89,12 @@ void wstr_resize(WStr *str, uint new_count);
 void wstr_increase(WStr *str, uint count);
 void wstr_zero(WStr *str);
 void wstr_nl(WStr *str);
-void wstr_catf(WStr *str, const wchar *format, ...);
-void wstr_cat(WStr *str, const wchar *data);
-void wstr_catch(WStr *str, wchar data);
-void wstr_catc(WStr *str, const wchar *data, uint count);
+void wstr_catf(WStr *str, const wchar_t *format, ...);
+void wstr_cat(WStr *str, const wchar_t *data);
+void wstr_catch(WStr *str, wchar_t data);
+void wstr_catc(WStr *str, const wchar_t *data, uint count);
 void wstr_catws(WStr *str, WStr src);
 void wstr_cati(WStr *str, int data);
-void wstr_cpy(WStr *str, wchar *dst);
-int wstr_cmp(WStr *str, const wchar *data);
+void wstr_cpy(WStr *str, wchar_t *dst);
+int wstr_cmp(WStr *str, const wchar_t *data);
 WStr wstr_view(WStr *str, uint start, uint length);

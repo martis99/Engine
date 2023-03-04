@@ -1,11 +1,14 @@
 #include "str.h"
 
+#include "cstr.h"
 #include "mem.h"
+#include "print.h"
 
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 void str_create(Str *str, uint count)
 {
@@ -17,7 +20,7 @@ void str_create(Str *str, uint count)
 
 void str_create_cstrn(Str *str, const char *cstr, uint count)
 {
-	str->cdata   = cstr;
+	str->cdata  = cstr;
 	str->count  = count;
 	str->offset = 0;
 	str->view   = 1;
@@ -252,10 +255,10 @@ void str_add_cstrf(Str *str, const char *format, ...)
 		return;
 	}
 
-	static char buffer[2048];
+	static char buffer[2048] = { 0 };
 	va_list args;
 	va_start(args, format);
-	int count = vsprintf_s(buffer, sizeof(buffer) / sizeof(char), format, args);
+	int count = p_vsprintf(buffer, sizeof(buffer) / sizeof(char), format, args);
 	va_end(args);
 	str_add_cstr(str, buffer, count);
 }
@@ -276,9 +279,7 @@ void str_add_int(Str *str, int val)
 		return;
 	}
 
-	char buffer[12];
-	_itoa_s(val, buffer, sizeof(buffer) / sizeof(char), 10);
-	str_add_cstr(str, buffer, 0);
+	str_add_cstrf(str, "%d", val);
 }
 
 void str_add_nl(Str *str)
@@ -344,7 +345,7 @@ int str_eos(Str *str)
 
 int str_len(Str *str)
 {
-	return (int)strnlen_s(str_peek(str), (size_t)(str->count - str->offset));
+	return (int)cstrn_len(str_peek(str), (size_t)(str->count - str->offset));
 }
 
 void str_print(Str *str)
@@ -389,29 +390,29 @@ void wstr_nl(WStr *str)
 	wstr_cat(str, L"\n");
 }
 
-void wstr_catf(WStr *str, const wchar *format, ...)
+void wstr_catf(WStr *str, const wchar_t *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	vswprintf_s(str->data + wcslen(str->data), str->count - wcslen(str->data), format, args);
+	p_vswprintf(str->data + wcslen(str->data), str->count - wcslen(str->data), format, args);
 	va_end(args);
 }
 
-void wstr_cat(WStr *str, const wchar *data)
+void wstr_cat(WStr *str, const wchar_t *data)
 {
 	wstr_catc(str, data, (uint)wcslen(data));
 }
 
-void wstr_catch(WStr *str, wchar data)
+void wstr_catch(WStr *str, wchar_t data)
 {
 	wstr_increase(str, 1);
 	str->data[wcslen(str->data)] = data;
 }
 
-void wstr_catc(WStr *str, const wchar *data, uint count)
+void wstr_catc(WStr *str, const wchar_t *data, uint count)
 {
 	wstr_increase(str, count);
-	wcsncat_s(str->data, str->count, data, count);
+	wcstrn_cat(str->data, str->count, data, count);
 }
 
 void wstr_catws(WStr *str, WStr src)
@@ -421,17 +422,17 @@ void wstr_catws(WStr *str, WStr src)
 
 void wstr_cati(WStr *str, int value)
 {
-	wchar str_val[10] = { 0 };
-	_itow_s(value, str_val, 10, 10);
+	wchar_t str_val[10] = { 0 };
+	p_swprintf(str_val, sizeof(str_val) / sizeof(wchar_t), L"%d", value);
 	wstr_cat(str, str_val);
 }
 
-void wstr_cpy(WStr *str, wchar *dst)
+void wstr_cpy(WStr *str, wchar_t *dst)
 {
-	memcpy(dst, str->data, str->count * sizeof(wchar));
+	memcpy(dst, str->data, str->count * sizeof(wchar_t));
 }
 
-int wstr_cmp(WStr *str, const wchar *data)
+int wstr_cmp(WStr *str, const wchar_t *data)
 {
 	return wcscmp(str->data, data);
 }

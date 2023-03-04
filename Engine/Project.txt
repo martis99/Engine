@@ -2,6 +2,6 @@ NAME: Engine
 TYPE: LIB
 SOURCE: src
 INCLUDE: src
-DEPENDS: stb
-INCLUDES: stb
+DEPENDS: cutils, stb
+INCLUDES: cutils, stb
 DEFINES: LHC

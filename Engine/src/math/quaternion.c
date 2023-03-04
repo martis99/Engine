@@ -3,6 +3,7 @@
 #include "vec3.h"
 
 #include <math.h>
+#include <stdlib.h>
 
 quaternion quaternion_zero()
 {

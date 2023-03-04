@@ -7,6 +7,7 @@
 #include "mem.h"
 
 #include <memory.h>
+#include <math.h>
 
 Image *image_create(Image *image, int width, int height, int channels)
 {
@@ -42,6 +43,8 @@ void image_set_color(Image *image, int color)
 	}
 }
 
+#define MIN(a, b) (a) < (b) ? (a) : (b)
+
 void image_set_pixels(Image *image, int x, int y, int width, int height, unsigned char *pixels)
 {
 	for (int py = 0; py < height; py++) {
@@ -52,7 +55,7 @@ void image_set_pixels(Image *image, int x, int y, int width, int height, unsigne
 			int p_id = py * width + px;
 			int d_id = dy * image->width + dx;
 
-			image->data[d_id] = min(image->data[d_id] + pixels[p_id], 255);
+			image->data[d_id] = MIN(image->data[d_id] + pixels[p_id], 255);
 		}
 	}
 }
