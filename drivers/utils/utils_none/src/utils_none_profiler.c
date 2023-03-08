@@ -2,6 +2,8 @@
 
 #include "utils_none_types.h"
 
+#include "mem.h"
+
 typedef struct Profiler {
 	int temp;
 } Profiler;
@@ -10,7 +12,7 @@ static Profiler *s_profiler;
 
 void *utils_profiler_create()
 {
-	Profiler *profiler = malloc(sizeof(Profiler));
+	Profiler *profiler = m_malloc(sizeof(Profiler));
 	if (profiler == NULL) {
 		return NULL;
 	}
@@ -21,7 +23,7 @@ void *utils_profiler_create()
 
 void utils_profiler_delete()
 {
-	free(s_profiler);
+	m_free(s_profiler, sizeof(Profiler));
 	s_profiler = NULL;
 }
 

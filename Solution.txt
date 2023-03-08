@@ -1,9 +1,10 @@
 NAME: Engine
 LANGS: C, ASM
 DIRS: Engine, drivers, libs, packages, Test
-STARTUP: Sandbox
+STARTUP: Test
 CONFIGS: Debug, Release
 PLATFORMS: x64, x86
+CFLAGS: STD_C99
 OUTDIR: $(SLN_DIR)\bin\$(PROJ_NAME)\$(CONFIG)-$(PLATFORM)\
 INTDIR: $(SLN_DIR)\bin\$(PROJ_NAME)\$(CONFIG)-$(PLATFORM)\int\
 CHARSET: Unicode

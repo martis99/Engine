@@ -2,5 +2,6 @@ NAME: gfx_none
 TYPE: LIB
 SOURCE: src
 INCLUDE: src
-DEPENDS: Engine, gfx
+DEPENDS: Engine
+DEPEND: gfx
 INCLUDES: Engine, gfx

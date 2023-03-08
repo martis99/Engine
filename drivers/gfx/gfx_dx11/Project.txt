@@ -2,5 +2,6 @@ NAME: gfx_dx11
 TYPE: LIB
 SOURCE: src
 INCLUDE: src
-DEPENDS: Engine, gfx, dxerr
+DEPENDS: Engine, dxerr
+DEPEND: gfx
 INCLUDES: Engine, gfx, dxerr

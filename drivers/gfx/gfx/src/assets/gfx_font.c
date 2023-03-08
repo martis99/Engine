@@ -5,12 +5,14 @@
 
 #include "stb/stb_truetype.h"
 
+#include "file.h"
+
 #include <math.h>
+#include <stdlib.h>
 
 static Font *load_data(Renderer *renderer, Font *font, const char *path, stbtt_fontinfo *info)
 {
-	FILE *file;
-	fopen_s(&file, path, "rb");
+	FILE *file = file_open(path, "rb", 1);
 
 	if (file == NULL) {
 		log_msg(renderer->log, "Failed to open font file");

@@ -40,6 +40,8 @@
 #include "assets/gfx_uniform_buffer.h"
 #include "model.h"
 
+#include "print.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -435,8 +437,9 @@ static void delete_graphics(Scene *scene)
 	context_delete(&scene->context);
 }
 
-static void scene_key_pressed(Scene *scene, byte key)
+static void scene_key_pressed(void *priv, byte key)
 {
+	Scene *scene = priv;
 	kb_key_pressed(key);
 	switch (key) {
 	case K_ESCAPE: window_close(&scene->window); break;
@@ -459,13 +462,14 @@ static void scene_key_pressed(Scene *scene, byte key)
 	}
 }
 
-static void scene_key_released(Scene *scene, byte key)
+static void scene_key_released(void *priv, byte key)
 {
 	kb_key_released(key);
 }
 
-static void scene_mouse_pressed(Scene *scene, byte button)
+static void scene_mouse_pressed(void *priv, byte button)
 {
+	Scene *scene = priv;
 	ms_button_pressed(button);
 	if (button == 0) {
 		int x	   = (int)get_mouse_x();
@@ -476,24 +480,26 @@ static void scene_mouse_pressed(Scene *scene, byte button)
 	}
 }
 
-static void scene_mouse_released(Scene *scene, byte button)
+static void scene_mouse_released(void *priv, byte button)
 {
 	ms_button_released(button);
 }
 
-static void scene_mouse_moved(Scene *scene, float x, float y)
+static void scene_mouse_moved(void *priv, float x, float y)
 {
 	ms_moved(x, y);
 }
 
-static void scene_mouse_moved_delta(Scene *scene, float dx, float dy)
+static void scene_mouse_moved_delta(void *priv, float dx, float dy)
 {
+	Scene *scene = priv;
 	ms_moved_delta(dx, dy);
 	camera_mouse_moved(&scene->camera, dx, dy);
 }
 
-static void scene_mouse_wheel(Scene *scene, float delta)
+static void scene_mouse_wheel(void *priv, float delta)
 {
+	Scene *scene = priv;
 	ms_mouse_wheel(delta);
 	camera_mouse_wheel(&scene->camera, delta);
 }
@@ -509,7 +515,7 @@ static Scene *scene_create(int width, int height)
 
 	scene->width	  = width;
 	scene->height	  = height;
-	scene->gfx_driver = "DX11";
+	scene->gfx_driver = ctx_driver_get_name(0);
 
 	AWindowCallbacks callbacks = {
 		.key_pressed	   = scene_key_pressed,
@@ -519,7 +525,7 @@ static Scene *scene_create(int width, int height)
 		.mouse_moved	   = scene_mouse_moved,
 		.mouse_moved_delta = scene_mouse_moved_delta,
 		.mouse_wheel	   = scene_mouse_wheel,
-		.arg		   = scene,
+		.priv		   = scene,
 	};
 
 	WindowSettings window_settings = {
@@ -704,7 +710,7 @@ static void loop(Scene *scene, float dt)
 	scene_render(scene);
 }
 
-static void scene_main_loop(Scene *scene, size_t *mem_usage)
+static void scene_main_loop(Scene *scene, mem_stats_t *mem_stats)
 {
 	clock_t last	 = clock();
 	clock_t previous = last;
@@ -717,7 +723,8 @@ static void scene_main_loop(Scene *scene, size_t *mem_usage)
 		if (elapsed > CLOCKS_PER_SEC) {
 			char title[100];
 			float ms = elapsed / (float)frames;
-			sprintf_s(title, 100, "Engine %s %u FPS %.2f ms, mem: %u, dc: %i", scene->gfx_driver, frames, ms, (uint)*mem_usage, scene->renderer.draw_calls);
+			p_sprintf(title, sizeof(title) / sizeof(char), "Engine %s %u FPS %.2f ms, mem: %zd, dc: %i", scene->gfx_driver, frames, ms, mem_stats->mem,
+				  scene->renderer.draw_calls);
 			window_set_title(&scene->window, title);
 
 			last   = current;
@@ -742,8 +749,8 @@ static void scene_delete(Scene *scene)
 
 int scene_run()
 {
-	size_t mem_usage = 0;
-	mem_init(&mem_usage);
+	mem_stats_t mem_stats = { 0 };
+	mem_init(&mem_stats);
 
 	if (utils_profiler_create() == NULL) {
 		log_error("Failed to create profiler");
@@ -756,12 +763,14 @@ int scene_run()
 		return EXIT_FAILURE;
 	}
 
-	scene_main_loop(scene, &mem_usage);
+	scene_main_loop(scene, &mem_stats);
 
 	scene_delete(scene);
 	utils_profiler_delete();
 
-	printf("memory: %i\n", (int)mem_usage);
+	printf("mem: %zd\n", mem_stats.mem);
+	printf("max mem: %zd\n", mem_stats.max_mem);
+	printf("reallocs: %d\n", mem_stats.reallocs);
 
 	return EXIT_SUCCESS;
 }

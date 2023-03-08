@@ -8,6 +8,8 @@
 
 #include "math/maths.h"
 
+#include "file.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -56,14 +58,14 @@ unsigned char read_byte(BData *data)
 static int read_int(BData *data)
 {
 	int value = *(int *)data->cur;
-	(unsigned char *)data->cur += sizeof(int);
+	data->cur += sizeof(int);
 	return value;
 }
 
 static float read_float(BData *data)
 {
 	float value = *(float *)data->cur;
-	(unsigned char *)data->cur += sizeof(float);
+	data->cur += sizeof(float);
 	return value;
 }
 
@@ -216,8 +218,7 @@ Model *model_load(Model *model, Renderer *renderer, const char *path, const char
 	str_add_cstr(&file_path, path, 0);
 	str_add_cstr(&file_path, filename, 0);
 
-	FILE *file = NULL;
-	int error  = fopen_s(&file, file_path.data, "rb");
+	FILE *file = file_open(file_path.data, "rb", 1);
 	if (file == NULL) {
 		return 0;
 	}

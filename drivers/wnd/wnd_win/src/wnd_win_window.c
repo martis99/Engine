@@ -30,8 +30,8 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 
 	switch (message) {
 	case WM_CLOSE: PostQuitMessage(0); break;
-	case WM_KEYDOWN: window->callbacks.key_pressed(window->callbacks.arg, (byte)param_w); break;
-	case WM_KEYUP: window->callbacks.key_released(window->callbacks.arg, (byte)param_w); break;
+	case WM_KEYDOWN: window->callbacks.key_pressed(window->callbacks.priv, (byte)param_w); break;
+	case WM_KEYUP: window->callbacks.key_released(window->callbacks.priv, (byte)param_w); break;
 	case WM_ACTIVATE: {
 		if (cursor_enbled == 0) {
 			if (param_w & WA_ACTIVE) {
@@ -55,14 +55,14 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			break;
 		}
 		if (pt.x >= 0 && pt.x < 1600 && pt.y >= 0 && pt.y < 900) {
-			window->callbacks.mouse_moved(window->callbacks.arg, (float)pt.x, (float)pt.y);
+			window->callbacks.mouse_moved(window->callbacks.priv, (float)pt.x, (float)pt.y);
 			if (cursor_in_window == 0) {
 				SetCapture(wnd);
 				acursor_set_in_window(cursor, 1);
 			}
 		} else {
 			if (param_w & (MK_LBUTTON | MK_RBUTTON | MK_MBUTTON)) {
-				window->callbacks.mouse_moved(window->callbacks.arg, (float)pt.x, (float)pt.y);
+				window->callbacks.mouse_moved(window->callbacks.priv, (float)pt.x, (float)pt.y);
 			} else {
 				ReleaseCapture();
 				acursor_set_in_window(cursor, 0);
@@ -77,7 +77,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			acursor_confine(cursor);
 			acursor_hide(cursor);
 		}
-		window->callbacks.mouse_pressed(window->callbacks.arg, 0);
+		window->callbacks.mouse_pressed(window->callbacks.priv, 0);
 		break;
 	}
 	case WM_RBUTTONDOWN:
@@ -86,7 +86,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			acursor_confine(cursor);
 			acursor_hide(cursor);
 		}
-		window->callbacks.mouse_pressed(window->callbacks.arg, 1);
+		window->callbacks.mouse_pressed(window->callbacks.priv, 1);
 		break;
 	case WM_MBUTTONDOWN:
 		SetForegroundWindow(wnd);
@@ -94,7 +94,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			acursor_confine(cursor);
 			acursor_hide(cursor);
 		}
-		window->callbacks.mouse_pressed(window->callbacks.arg, 2);
+		window->callbacks.mouse_pressed(window->callbacks.priv, 2);
 		break;
 
 	case WM_LBUTTONUP: {
@@ -103,7 +103,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			ReleaseCapture();
 			acursor_set_in_window(cursor, 0);
 		}
-		window->callbacks.mouse_released(window->callbacks.arg, 0);
+		window->callbacks.mouse_released(window->callbacks.priv, 0);
 		break;
 	}
 
@@ -113,7 +113,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			ReleaseCapture();
 			acursor_set_in_window(cursor, 0);
 		}
-		window->callbacks.mouse_released(window->callbacks.arg, 1);
+		window->callbacks.mouse_released(window->callbacks.priv, 1);
 		break;
 	}
 	case WM_MBUTTONUP: {
@@ -122,13 +122,13 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			ReleaseCapture();
 			acursor_set_in_window(cursor, 0);
 		}
-		window->callbacks.mouse_released(window->callbacks.arg, 2);
+		window->callbacks.mouse_released(window->callbacks.priv, 2);
 		break;
 	}
 
 	case WM_MOUSEWHEEL: {
 		short delta = GET_WHEEL_DELTA_WPARAM(param_w);
-		window->callbacks.mouse_wheel(window->callbacks.arg, (float)delta);
+		window->callbacks.mouse_wheel(window->callbacks.priv, (float)delta);
 		break;
 	}
 	case WM_INPUT: {
@@ -142,7 +142,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 		}
 		RAWINPUT *ri = (RAWINPUT *)data;
 		if (ri->header.dwType == RIM_TYPEMOUSE && (ri->data.mouse.lLastX != 0 || ri->data.mouse.lLastY != 0)) {
-			window->callbacks.mouse_moved_delta(window->callbacks.arg, (float)ri->data.mouse.lLastX, (float)ri->data.mouse.lLastY);
+			window->callbacks.mouse_moved_delta(window->callbacks.priv, (float)ri->data.mouse.lLastX, (float)ri->data.mouse.lLastY);
 		}
 		m_free(data, size);
 		break;

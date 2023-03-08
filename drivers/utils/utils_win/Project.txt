@@ -2,5 +2,6 @@ NAME: utils_win
 TYPE: LIB
 SOURCE: src
 INCLUDE: src
-DEPENDS: Engine, utils
+DEPENDS: Engine
+DEPEND: utils
 INCLUDES: Engine, utils

@@ -2,5 +2,6 @@ NAME: wnd_none
 TYPE: LIB
 SOURCE: src
 INCLUDE: src
-DEPENDS: Engine, wnd
+DEPENDS: Engine
+DEPEND: wnd
 INCLUDES: Engine, wnd

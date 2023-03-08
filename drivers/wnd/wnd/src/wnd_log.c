@@ -1,6 +1,8 @@
 #include "wnd_log.h"
 #include "wnd_window.h"
 
+#include <wchar.h>
+
 void show_error(Window *window, const char *text, const char *caption)
 {
 	printf("%s\n", caption);

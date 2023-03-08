@@ -343,9 +343,11 @@ int str_eos(Str *str)
 	return str->offset >= str->count || str_get_char(str) == '\0';
 }
 
+#define MIN(a, b) (a) < (b) ? (a) : (b)
+
 int str_len(Str *str)
 {
-	return (int)cstrn_len(str_peek(str), (size_t)(str->count - str->offset));
+	return (int)MIN(cstr_len(str_peek(str)), str->count - str->offset);
 }
 
 void str_print(Str *str)

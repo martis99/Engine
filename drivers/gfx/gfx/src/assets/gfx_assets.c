@@ -20,14 +20,44 @@ Assets *assets_create(Assets *assets, Renderer *renderer)
 	return assets;
 }
 
+static void delete_shader(void *shader, void *renderer)
+{
+	shader_delete(shader, renderer);
+}
+
+static void delete_mesh(void *mesh, void *renderer)
+{
+	mesh_delete(mesh, renderer);
+}
+
+static void delete_material(void *material, void *renderer)
+{
+	material_delete(material, renderer);
+}
+
+static void delete_image(void *image)
+{
+	image_delete(image);
+}
+
+static void delete_texture(void *texture, void *renderer)
+{
+	texture_delete(texture, renderer);
+}
+
+static void delete_font(void *font, void *renderer)
+{
+	font_delete(font, renderer);
+}
+
 void assets_delete(Assets *assets)
 {
-	dic_delete_arg(assets->shaders, shader_delete, assets->renderer);
-	dic_delete_arg(assets->meshes, mesh_delete, assets->renderer);
-	dic_delete_arg(assets->materials, material_delete, assets->renderer);
-	dic_delete(assets->images, image_delete);
-	dic_delete_arg(assets->textures, texture_delete, assets->renderer);
-	dic_delete_arg(assets->fonts, font_delete, assets->renderer);
+	dic_delete_arg(assets->shaders, delete_shader, assets->renderer);
+	dic_delete_arg(assets->meshes, delete_mesh, assets->renderer);
+	dic_delete_arg(assets->materials, delete_material, assets->renderer);
+	dic_delete(assets->images, delete_image);
+	dic_delete_arg(assets->textures, delete_texture, assets->renderer);
+	dic_delete_arg(assets->fonts, delete_font, assets->renderer);
 }
 
 Shader *assets_shader_create(Assets *assets, const char *name, const char *vertex_source, const char *fragment_source, AShaderDesc desc)
