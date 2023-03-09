@@ -5,4 +5,4 @@ INCLUDE: src
 DEPENDS: Engine, win:gfx_dx11, win:gfx_ogl, gfx_none, win:wnd_win, linux:wnd_none, win:utils_win, linux:utils_none, mdl
 INCLUDES: Engine, gfx, wnd, utils, mdl
 WDIR: Test
-LDFLAGS: NONE, WHOLEARCHIVE, MATH
+LDFLAGS: NONE, WHOLEARCHIVE, MATH, X11, GL
