@@ -1,0 +1,7 @@
+NAME: gfx_gl
+TYPE: LIB
+SOURCE: src
+INCLUDE: src
+DEPENDS: win:ctx_wgl, Engine
+DEPEND: gfx
+INCLUDES: win:ctx_wgl, Engine, gfx

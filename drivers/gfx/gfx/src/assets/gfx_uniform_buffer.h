@@ -1,5 +1,5 @@
 #pragma once
-#include "gfx/gfx_types.h"
+#include "gfx_types.h"
 
 UniformBuffer *uniformbuffer_create_static(UniformBuffer *uniform_buffer, Renderer *renderer, ABufferDesc *desc, const void *data);
 UniformBuffer *uniformbuffer_create_dynamic(UniformBuffer *uniform_buffer, Renderer *renderer, ABufferDesc *desc);

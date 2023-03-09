@@ -1,5 +1,5 @@
 #include "dx11_buffer.h"
-#include "dx11_error.h"
+#include "dx11_ctx/dx11_error.h"
 
 ID3D11BlendState *dx11_blend_create(DX11Error *error, ID3D11Device *device, BOOL enabled)
 {

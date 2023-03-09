@@ -1,5 +1,5 @@
 #pragma once
-#include "gfx/gfx_types.h"
+#include "gfx_types.h"
 
 LineRenderer *line_renderer_create(LineRenderer *line_renderer, Renderer *renderer, Transform transform);
 void line_renderer_delete(LineRenderer *line_renderer);

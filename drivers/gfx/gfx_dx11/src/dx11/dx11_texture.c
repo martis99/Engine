@@ -1,5 +1,5 @@
 #include "dx11_texture.h"
-#include "dx11_error.h"
+#include "dx11_ctx/dx11_error.h"
 
 ID3D11Texture2D *dx11_texture_create(DX11Error *error, ID3D11Device *device, AFilter filter, UINT width, UINT height, DXGI_FORMAT format, bool render_target,
 				     bool shader_resource, bool readable, const void *data, UINT row_size)

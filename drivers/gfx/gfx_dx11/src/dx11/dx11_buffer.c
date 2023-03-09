@@ -1,5 +1,5 @@
 #include "dx11_buffer.h"
-#include "dx11_error.h"
+#include "dx11_ctx/dx11_error.h"
 
 static ID3D11Buffer *buffer_create_static(DX11Error *error, ID3D11Device *device, const void *data, UINT data_size, UINT element_size, D3D11_BIND_FLAG bindFlags)
 {

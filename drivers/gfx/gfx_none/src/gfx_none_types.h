@@ -2,6 +2,4 @@
 
 #include "none/none_types.h"
 
-struct AContext {
-	byte id;
-};
+#include "ctx_none_types.h"

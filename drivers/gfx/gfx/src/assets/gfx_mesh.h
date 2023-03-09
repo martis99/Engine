@@ -1,5 +1,5 @@
 #pragma once
-#include "gfx/gfx_types.h"
+#include "gfx_types.h"
 
 Mesh *mesh_create(Mesh *mesh, Renderer *renderer, Shader *shader, AMeshData data, APrimitive primitive);
 void mesh_delete(Mesh *mesh, Renderer *renderer);

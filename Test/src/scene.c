@@ -17,9 +17,9 @@
 #include "wnd_log.h"
 #include "wnd_window.h"
 
-#include "ctx/ctx_driver.h"
-#include "ctx/gfx_context.h"
-#include "gfx/gfx_renderer.h"
+#include "ctx_context.h"
+#include "ctx_driver.h"
+#include "gfx_renderer.h"
 
 #include "ecs/system/gfx_instance_renderer.h"
 #include "ecs/system/gfx_line_renderer.h"

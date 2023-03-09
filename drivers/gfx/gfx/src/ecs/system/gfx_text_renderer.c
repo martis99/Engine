@@ -8,7 +8,7 @@
 
 #include "math/maths.h"
 
-#include "gfx/gfx_shader_creator.h"
+#include "gfx_shader_creator.h"
 
 #include <string.h>
 

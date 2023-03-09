@@ -1,4 +1,4 @@
 #pragma once
-#include "eng_common_types.h"
-#include "log.h"
-#include "mem.h"
+#include "api/gfx_api_types.h"
+
+#include "none_ctx/none_ctx_types.h"

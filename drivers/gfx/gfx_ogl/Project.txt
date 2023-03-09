@@ -1,7 +1,0 @@
-NAME: gfx_ogl
-TYPE: LIB
-SOURCE: src
-INCLUDE: src
-DEPENDS: Engine
-DEPEND: gfx
-INCLUDES: Engine, gfx

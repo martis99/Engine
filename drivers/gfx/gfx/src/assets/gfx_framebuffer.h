@@ -1,5 +1,5 @@
 #pragma once
-#include "gfx/gfx_types.h"
+#include "gfx_types.h"
 
 Framebuffer *framebuffer_create(Framebuffer *framebuffer, Renderer *renderer, AAttachmentDesc *attachments, uint attachments_size, int width, int height);
 void framebuffer_delete(Framebuffer *framebuffer, Renderer *renderer);

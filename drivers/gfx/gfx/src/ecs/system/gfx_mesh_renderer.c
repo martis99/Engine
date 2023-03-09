@@ -5,7 +5,7 @@
 #include "assets/gfx_mesh.h"
 #include "assets/gfx_shader.h"
 
-#include "gfx/gfx_shader_creator.h"
+#include "gfx_shader_creator.h"
 
 MeshRenderer *mesh_renderer_create(MeshRenderer *mesh_renderer, Renderer *renderer)
 {

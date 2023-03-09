@@ -6,7 +6,7 @@
 #include "assets/gfx_mesh.h"
 #include "assets/gfx_shader.h"
 
-#include "gfx/gfx_shader_creator.h"
+#include "gfx_shader_creator.h"
 
 #define MAX_INSTANCES 200
 

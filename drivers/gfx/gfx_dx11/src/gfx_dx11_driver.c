@@ -1,12 +1,12 @@
-#include "gfx/gfx_driver.h"
+#include "gfx_driver.h"
 
 #include "gfx_dx11_types.h"
 
 #include "dx11/dx11_buffer.h"
-#include "dx11/dx11_error.h"
 #include "dx11/dx11_renderer.h"
 #include "dx11/dx11_shader.h"
 #include "dx11/dx11_texture.h"
+#include "dx11_ctx/dx11_error.h"
 
 #include "math/mat4.h"
 #include "utils/str.h"

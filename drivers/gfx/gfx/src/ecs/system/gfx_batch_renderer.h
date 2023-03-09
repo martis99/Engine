@@ -1,5 +1,5 @@
 #pragma once
-#include "gfx/gfx_types.h"
+#include "gfx_types.h"
 
 BatchRenderer *batch_renderer_create(BatchRenderer *batch_renderer, Renderer *renderer, Material *material);
 void batch_renderer_delete(BatchRenderer *batch_renderer);
