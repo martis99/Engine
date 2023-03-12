@@ -4,5 +4,4 @@ SOURCE: src
 INCLUDE: src
 DEPENDS: Engine, win:gfx_dx11, gfx_gl, gfx_none, win:wnd_win, linux:wnd_linux, win:utils_win, linux:utils_none, mdl
 INCLUDES: Engine, gfx, wnd, utils, mdl
-WDIR: Test
 LDFLAGS: NONE, WHOLEARCHIVE, ALLOWMULTIPLEDEFINITION, MATH, X11, GLX
