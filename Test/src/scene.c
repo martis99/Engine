@@ -45,6 +45,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#define __USE_POSIX199309
 #include <time.h>
 
 #define C_TRANSFORM   0
@@ -713,15 +714,20 @@ static void loop(Scene *scene, float dt)
 
 static void scene_main_loop(Scene *scene, mem_stats_t *mem_stats)
 {
-	clock_t last	 = clock();
-	clock_t previous = last;
-	uint frames	 = 0;
+	struct timespec last;
+
+	clock_gettime(CLOCK_REALTIME, &last);
+
+	struct timespec previous = last;
+	struct timespec current;
+	uint frames = 0;
 
 	while (window_poll_events(&scene->window)) {
-		clock_t current = clock();
-		clock_t elapsed = current - last;
+		clock_gettime(CLOCK_REALTIME, &current);
 
-		if (elapsed > CLOCKS_PER_SEC) {
+		double elapsed = ((current.tv_sec - last.tv_sec) * 1e6 + (current.tv_nsec - last.tv_nsec) / 1e3) / 1000000;
+
+		if (elapsed > 1) {
 			char title[100];
 			float ms = elapsed / (float)frames;
 			p_sprintf(title, sizeof(title) / sizeof(char), "Engine %s %u FPS %.2f ms, mem: %zd, dc: %i", scene->gfx_driver, frames, ms, mem_stats->mem,
@@ -732,7 +738,7 @@ static void scene_main_loop(Scene *scene, mem_stats_t *mem_stats)
 			frames = 0;
 		}
 
-		float dt = (current - previous) / (float)CLOCKS_PER_SEC;
+		double dt = ((current.tv_sec - previous.tv_sec) * 1e6 + (current.tv_nsec - previous.tv_nsec) / 1e3) / 1000000;
 		loop(scene, dt);
 
 		previous = current;

@@ -37,9 +37,9 @@ AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width,
 
 	window->cmap = XCreateColormap(window->display, root, v, AllocNone);
 
-	XSetWindowAttributes swa = {0};
-	swa.colormap = window->cmap;
-	swa.event_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | PointerMotionHintMask | ResizeRedirectMask;
+	XSetWindowAttributes swa = { 0 };
+	swa.colormap		 = window->cmap;
+	swa.event_mask		 = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | PointerMotionHintMask | ResizeRedirectMask;
 
 	window->window = XCreateWindow(window->display, root, 0, 0, width, height, 0, depth, InputOutput, v, CWColormap | CWEventMask, &swa);
 
@@ -70,6 +70,7 @@ void *awindow_get_window(AWindow *window)
 
 void awindow_set_title(AWindow *window, const char *title)
 {
+	XStoreName(window->display, window->window, title);
 }
 
 // clang-format off
