@@ -16,7 +16,7 @@ Assets *assets_create(Assets *assets, Renderer *renderer)
 	assets->materials = dic_create(20, sizeof(Material));
 	assets->images	  = dic_create(20, sizeof(Image));
 	assets->textures  = dic_create(20, sizeof(Texture));
-	assets->fonts	  = dic_create(5, sizeof(Font));
+	assets->fonts	  = dic_create(5, sizeof(EFont));
 	return assets;
 }
 
@@ -120,12 +120,12 @@ Texture *assets_texture_get(Assets *assets, const char *name)
 	return dic_get(assets->textures, name);
 }
 
-Font *assets_font_load(Assets *assets, const char *name, const char *path, int size)
+EFont *assets_font_load(Assets *assets, const char *name, const char *path, int size)
 {
 	return font_load(dic_add(assets->fonts, name), assets->renderer, path, size);
 }
 
-Font *assets_font_get(Assets *assets, const char *name)
+EFont *assets_font_get(Assets *assets, const char *name)
 {
 	return dic_get(assets->fonts, name);
 }

@@ -1,0 +1,7 @@
+NAME: wnd_linux
+TYPE: LIB
+SOURCE: src
+INCLUDE: src
+DEPENDS: Engine
+DEPEND: wnd
+INCLUDES: Engine, wnd

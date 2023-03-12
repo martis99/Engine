@@ -35,13 +35,13 @@ LineRenderer *line_renderer_create(LineRenderer *line_renderer, Renderer *render
 	AValue vs_in[] = {
 		{ VEC3F, "Position" },
 		{ VEC4F, "Color" },
-		{ VEC1I, "Entity" },
+		{ VEC1F, "Entity" },
 	};
 
 	AValue vs_out[] = {
 		{ VEC4F, "SV_Position" },
 		{ VEC4F, "Color" },
-		{ VEC1I, "Entity" },
+		{ VEC1F, "Entity" },
 	};
 
 	AValue global[] = {
@@ -54,7 +54,7 @@ LineRenderer *line_renderer_create(LineRenderer *line_renderer, Renderer *render
 
 	AValue output[] = {
 		{ VEC4F, "FragColor" },
-		{ VEC1I, "EntityId" },
+		{ VEC1F, "EntityId" },
 	};
 
 	// clang-format off

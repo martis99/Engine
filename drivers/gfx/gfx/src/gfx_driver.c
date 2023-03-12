@@ -54,3 +54,11 @@ const char *gfx_driver_get_name(int id)
 	}
 	return s_names[id];
 }
+
+void gfx_driver_print()
+{
+	printf("gfx drivers:\n");
+	for (int i = 0; i < s_drivers_cnt; i++) {
+		printf("    %s\n", s_names[i]);
+	}
+}

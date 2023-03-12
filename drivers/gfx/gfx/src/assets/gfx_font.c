@@ -10,7 +10,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-static Font *load_data(Renderer *renderer, Font *font, const char *path, stbtt_fontinfo *info)
+static EFont *load_data(Renderer *renderer, EFont *font, const char *path, stbtt_fontinfo *info)
 {
 	FILE *file = file_open(path, "rb", 1);
 
@@ -41,7 +41,7 @@ static Font *load_data(Renderer *renderer, Font *font, const char *path, stbtt_f
 	return font;
 }
 
-static void load_characters(Font *font, float scale, int *area, stbtt_fontinfo *info)
+static void load_characters(EFont *font, float scale, int *area, stbtt_fontinfo *info)
 {
 	*area = 0;
 
@@ -64,7 +64,7 @@ static void load_characters(Font *font, float scale, int *area, stbtt_fontinfo *
 	}
 }
 
-static void sort_characters(Font *font, int *map)
+static void sort_characters(EFont *font, int *map)
 {
 	int n = 0;
 
@@ -92,7 +92,7 @@ static void sort_characters(Font *font, int *map)
 	}
 }
 
-static Texture *create_texture(Font *font, Renderer *renderer, float scale, int area, stbtt_fontinfo *info)
+static Texture *create_texture(EFont *font, Renderer *renderer, float scale, int area, stbtt_fontinfo *info)
 {
 	int map[CHARACTERS_COUNT];
 	sort_characters(font, map);
@@ -127,7 +127,7 @@ static Texture *create_texture(Font *font, Renderer *renderer, float scale, int 
 	return texture;
 }
 
-Font *font_load(Font *font, Renderer *renderer, const char *path, int size)
+EFont *font_load(EFont *font, Renderer *renderer, const char *path, int size)
 {
 	stbtt_fontinfo info;
 	if (load_data(renderer, font, path, &info) == NULL) {
@@ -150,12 +150,12 @@ Font *font_load(Font *font, Renderer *renderer, const char *path, int size)
 	return font;
 }
 
-FontCharacter font_get_char(Font *font, char c)
+FontCharacter font_get_char(EFont *font, char c)
 {
 	return font->characters[c - FIRST_CHARACTER];
 }
 
-void font_delete(Font *font, Renderer *renderer)
+void font_delete(EFont *font, Renderer *renderer)
 {
 	texture_delete(font->texture, renderer);
 	m_free(font->texture, sizeof(Texture));

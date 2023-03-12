@@ -57,12 +57,12 @@ ModelRenderer *model_renderer_create(ModelRenderer *model_renderer, Renderer *re
 	AValue ps[] = {
 		{ VEC4F, "Diffuse" },
 		{ VEC4F, "Specular" },
-		{ VEC1I, "Entity" },
+		{ VEC1F, "Entity" },
 	};
 
 	AValue output[] = {
 		{ VEC4F, "FragColor" },
-		{ VEC1I, "EntityId" },
+		{ VEC1F, "EntityId" },
 	};
 
 	ABufferDesc buffers[] = {

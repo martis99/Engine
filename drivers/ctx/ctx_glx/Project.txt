@@ -1,0 +1,7 @@
+NAME: ctx_glx
+TYPE: LIB
+SOURCE: src
+INCLUDE: src
+DEPENDS: Engine
+DEPEND: ctx
+INCLUDES: Engine, ctx

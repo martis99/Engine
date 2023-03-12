@@ -21,5 +21,5 @@ Image *assets_image_get(Assets *assets, const char *name);
 Texture *assets_texture_create(Assets *assets, const char *name, Image *image, AWrap wrap, AFilter filter);
 Texture *assets_texture_get(Assets *assets, const char *name);
 
-Font *assets_font_load(Assets *assets, const char *name, const char *path, int size);
-Font *assets_font_get(Assets *assets, const char *name);
+EFont *assets_font_load(Assets *assets, const char *name, const char *path, int size);
+EFont *assets_font_get(Assets *assets, const char *name);

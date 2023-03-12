@@ -1,4 +1,5 @@
 #include "mouse.h"
+#include "keys.h"
 
 bool left_is_pressed   = 0;
 bool right_is_pressed  = 0;
@@ -12,18 +13,18 @@ float wheel_delta      = 0;
 void ms_button_pressed(byte button)
 {
 	switch (button) {
-	case 0: left_is_pressed = 1; break;
-	case 1: right_is_pressed = 1; break;
-	case 2: middle_is_pressed = 1; break;
+	case K_MOUSEL: left_is_pressed = 1; break;
+	case K_MOUSER: right_is_pressed = 1; break;
+	case K_MOUSEM: middle_is_pressed = 1; break;
 	}
 }
 
 void ms_button_released(byte button)
 {
 	switch (button) {
-	case 0: left_is_pressed = 0; break;
-	case 1: right_is_pressed = 0; break;
-	case 2: middle_is_pressed = 0; break;
+	case K_MOUSEL: left_is_pressed = 0; break;
+	case K_MOUSER: right_is_pressed = 0; break;
+	case K_MOUSEM: middle_is_pressed = 0; break;
 	}
 }
 

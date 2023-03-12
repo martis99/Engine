@@ -60,12 +60,12 @@ InstanceRenderer *instance_renderer_create(InstanceRenderer *instance_renderer, 
 
 	AValue ps[] = {
 		{ VEC4F, "Color" },
-		{ VEC1I, "Entity" },
+		{ VEC1F, "Entity" },
 	};
 
 	AValue output[] = {
 		{ VEC4F, "FragColor" },
-		{ VEC1I, "EntityId" },
+		{ VEC1F, "EntityId" },
 	};
 
 	// clang-format off

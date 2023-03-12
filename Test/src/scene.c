@@ -19,6 +19,7 @@
 
 #include "ctx_context.h"
 #include "ctx_driver.h"
+#include "gfx_driver.h"
 #include "gfx_renderer.h"
 
 #include "ecs/system/gfx_instance_renderer.h"
@@ -139,7 +140,7 @@ static Scene *create_assets(Scene *scene)
 	Texture *texture_mountains = assets_texture_create(&scene->assets, "mountains", image_mountains, A_CLAMP_TO_EDGE, A_LINEAR);
 	S_ASSERT(texture_mountains);
 
-	Font *font = assets_font_load(&scene->assets, "font", "res/fonts/ProggyClean.ttf", 13);
+	EFont *font = assets_font_load(&scene->assets, "font", "res/fonts/ProggyClean.ttf", 13);
 	S_ASSERT(font);
 
 	Image *image_white = assets_image_create(&scene->assets, "white", 1, 1, 4);
@@ -194,7 +195,7 @@ static void create_entities2d(Scene *scene)
 	Texture *texture_gui	   = assets_texture_get(&scene->assets, "gui");
 	Texture *texture_mountains = assets_texture_get(&scene->assets, "mountains");
 
-	Font *font = assets_font_get(&scene->assets, "font");
+	EFont *font = assets_font_get(&scene->assets, "font");
 
 	Entity panel = ecs_entity(&scene->ecs);
 	scene->panel = panel;
@@ -366,7 +367,7 @@ static int create_graphics(Scene *scene, vec3 camera_position, vec3 camera_rotat
 
 	AAttachmentDesc attachments[] = {
 		{ VEC4F, 0, A_LINEAR, A_REPEAT },
-		{ VEC1I, 1, A_LINEAR, A_REPEAT },
+		{ VEC1F, 1, A_LINEAR, A_REPEAT },
 	};
 
 	if (framebuffer_create(&scene->framebuffer, &scene->renderer, attachments, sizeof(attachments), scene->width, scene->height) == NULL) {
@@ -471,7 +472,7 @@ static void scene_mouse_pressed(void *priv, byte button)
 {
 	Scene *scene = priv;
 	ms_button_pressed(button);
-	if (button == 0) {
+	if (button == K_MOUSEL) {
 		int x	   = (int)get_mouse_x();
 		int y	   = (int)get_mouse_y();
 		int entity = 0;
@@ -515,7 +516,7 @@ static Scene *scene_create(int width, int height)
 
 	scene->width	  = width;
 	scene->height	  = height;
-	scene->gfx_driver = ctx_driver_get_name(0);
+	scene->gfx_driver = ctx_driver_get_primary();
 
 	AWindowCallbacks callbacks = {
 		.key_pressed	   = scene_key_pressed,
@@ -756,6 +757,9 @@ int scene_run()
 		log_error("Failed to create profiler");
 		return EXIT_FAILURE;
 	}
+
+	ctx_driver_print();
+	gfx_driver_print();
 
 	Scene *scene = scene_create(1600, 900);
 	if (scene == NULL) {

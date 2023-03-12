@@ -253,12 +253,12 @@ void fs_add_textures(Str *str, AShaderDesc sdesc)
 	}
 
 	str_add_cstrf(str, "textures Textures[%i];\n", sdesc.textures_count);
-	str_add_cstr(str, "vec4f sample_tex(int id, vec2f coords) {\n", 0);
-	str_add_cstr(str, "	switch (id) {\n", 0);
+	str_add_cstr(str, "vec4f sample_tex(float id, vec2f coords) {\n", 0);
 	for (unsigned int i = 0; i < sdesc.textures_count; i++) {
-		str_add_cstrf(str, "	case %i: return sample(Textures, %i, coords);\n", i, i);
+		str_add_cstrf(str, "	if (id == %i) {\n", i);
+		str_add_cstrf(str, "		return sample(Textures, %i, coords);\n", i);
+		str_add_cstrf(str, "	}\n");
 	}
-	str_add_cstr(str, "	}\n", 0);
 	str_add_cstr(str, "	return vec4f(0, 0, 0, 0);\n", 0);
 	str_add_cstr(str, "}\n", 0);
 }

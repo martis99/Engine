@@ -28,4 +28,4 @@ static CtxDriver driver = {
 	.ctx_swap_buffers = ctx_swap_buffers,
 };
 
-CTX_DRIVER(NONE, driver)
+CTX_DRIVER(NONE, 0, driver)

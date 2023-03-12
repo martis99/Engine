@@ -53,12 +53,12 @@ MeshRenderer *mesh_renderer_create(MeshRenderer *mesh_renderer, Renderer *render
 
 	AValue ps[] = {
 		{ VEC4F, "Color" },
-		{ VEC1I, "Entity" },
+		{ VEC1F, "Entity" },
 	};
 
 	AValue output[] = {
 		{ VEC4F, "FragColor" },
-		{ VEC1I, "EntityId" },
+		{ VEC1F, "EntityId" },
 	};
 
 	ABufferDesc buffers[] = {

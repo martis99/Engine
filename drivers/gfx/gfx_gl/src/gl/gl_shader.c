@@ -14,7 +14,7 @@ GLuint gl_shader_create(GLError *error, GLenum type, const GLchar *source, GLint
 		return 0;
 	}
 	if (GL_FAILED(error, "Failed to compile shader", glCompileShader(shader))) {
-		printf(source);
+		printf("%s", source);
 		log_msg(error->log, source);
 		return 0;
 	}

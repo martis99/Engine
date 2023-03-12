@@ -16,13 +16,13 @@ The plan for this engine is to create a multi-platform fast 3D graphics and phys
 
 ### Platforms
 - [x] Windows
-- [ ] Linux
+- [x] Linux
 - [ ] Android
 - [ ] RaspberryPI
 
 ### Compilers
 - [x] MSVC
-- [ ] GCC
+- [x] GCC
 - [ ] MinGW
 - [ ] Clang
 

@@ -68,7 +68,7 @@ typedef struct FontCharacter {
 #define LAST_CHARACTER	 127
 #define CHARACTERS_COUNT LAST_CHARACTER - FIRST_CHARACTER
 
-typedef struct Font {
+typedef struct EFont {
 	unsigned char *data;
 	size_t data_size;
 	FontCharacter characters[CHARACTERS_COUNT];
@@ -76,7 +76,7 @@ typedef struct Font {
 	int ascent;
 	int descent;
 	int line_height;
-} Font;
+} EFont;
 
 typedef struct ObjectMesh {
 	Str name;
@@ -129,7 +129,7 @@ typedef struct Sprite {
 
 typedef struct Text {
 	const char *text;
-	Font *font;
+	EFont *font;
 	vec4 color;
 } Text;
 
