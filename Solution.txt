@@ -1,6 +1,6 @@
 NAME: Engine
 LANGS: C, ASM
-DIRS: Engine, drivers, libs, packages, Test
+DIRS: Engine, drivers, 3rdparty, packages, Test
 STARTUP: Test
 CONFIGS: Debug, Release
 PLATFORMS: x64, x86
