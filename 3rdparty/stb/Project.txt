@@ -1,4 +1,4 @@
 NAME: stb
 TYPE: LIB
-SOURCE: include
+SOURCE: src
 INCLUDE: include

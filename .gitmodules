@@ -1,3 +1,6 @@
 [submodule "packages/cutils"]
 	path = packages/cutils
 	url = https://github.com/martis99/cutils
+[submodule "3rdparty/stb/include/stb"]
+	path = 3rdparty/stb/include/stb
+	url = https://github.com/nothings/stb

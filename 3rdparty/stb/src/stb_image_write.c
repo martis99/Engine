@@ -1,5 +1,5 @@
 #pragma warning(push)
 #pragma warning(disable : 26451)
-#define STB_TRUETYPE_IMPLEMENTATION
-#include "stb_truetype.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb/stb_image_write.h"
 #pragma warning(pop)
