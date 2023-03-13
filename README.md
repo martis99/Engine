@@ -1,11 +1,8 @@
 # Engine
 
-Engine - 3D graphics and physics engine 
+Engine - cross-platform graphics and physics engine 
 
 ***
-
-## The Plan
-The plan for this engine is to create a multi-platform fast 3D graphics and physics engine.
 
 ### Graphics APIs
 - [X] OpenGL
@@ -33,6 +30,14 @@ The plan for this engine is to create a multi-platform fast 3D graphics and phys
 - [x] Models
 - [ ] Audio
 - [ ] Terrain
+
+## Build
+
+1. Clone repository:
+```
+git clone --recursive https://github.com/martis99/Engine.git
+```
+2. Refer to [build usage](https://github.com/martis99/build#usage).
 
 ***
 ### Gallery
