@@ -1,6 +1,6 @@
 #include "utils_tools.h"
 
-#include "utils_none_types.h"
+#include "utils_linux_types.h"
 
 void u_break()
 {
@@ -8,5 +8,5 @@ void u_break()
 
 int u_getrealtime(struct timespec *tv)
 {
-	return 0;
+	return clock_gettime(CLOCK_REALTIME, tv);
 }

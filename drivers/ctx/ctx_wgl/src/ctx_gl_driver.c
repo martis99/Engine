@@ -237,4 +237,4 @@ static CtxDriver driver = {
 	.ctx_swap_buffers = ctx_swap_buffers,
 };
 
-CTX_DRIVER(GL, driver)
+CTX_DRIVER(GL, 1, driver)

@@ -94,4 +94,4 @@ static CtxDriver driver = {
 	.ctx_swap_buffers = ctx_swap_buffers,
 };
 
-CTX_DRIVER(DX11, driver)
+CTX_DRIVER(DX11, 0, driver)

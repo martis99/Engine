@@ -3,6 +3,8 @@
 
 #include "wnd_win_types.h"
 
+#include "input/keys.h"
+
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
 
@@ -77,7 +79,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			acursor_confine(cursor);
 			acursor_hide(cursor);
 		}
-		window->callbacks.mouse_pressed(window->callbacks.priv, 0);
+		window->callbacks.mouse_pressed(window->callbacks.priv, K_MOUSEL);
 		break;
 	}
 	case WM_RBUTTONDOWN:
@@ -86,7 +88,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			acursor_confine(cursor);
 			acursor_hide(cursor);
 		}
-		window->callbacks.mouse_pressed(window->callbacks.priv, 1);
+		window->callbacks.mouse_pressed(window->callbacks.priv, K_MOUSER);
 		break;
 	case WM_MBUTTONDOWN:
 		SetForegroundWindow(wnd);
@@ -94,7 +96,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			acursor_confine(cursor);
 			acursor_hide(cursor);
 		}
-		window->callbacks.mouse_pressed(window->callbacks.priv, 2);
+		window->callbacks.mouse_pressed(window->callbacks.priv, K_MOUSEM);
 		break;
 
 	case WM_LBUTTONUP: {
@@ -103,7 +105,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			ReleaseCapture();
 			acursor_set_in_window(cursor, 0);
 		}
-		window->callbacks.mouse_released(window->callbacks.priv, 0);
+		window->callbacks.mouse_released(window->callbacks.priv, K_MOUSEL);
 		break;
 	}
 
@@ -113,7 +115,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			ReleaseCapture();
 			acursor_set_in_window(cursor, 0);
 		}
-		window->callbacks.mouse_released(window->callbacks.priv, 1);
+		window->callbacks.mouse_released(window->callbacks.priv, K_MOUSER);
 		break;
 	}
 	case WM_MBUTTONUP: {
@@ -122,7 +124,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 			ReleaseCapture();
 			acursor_set_in_window(cursor, 0);
 		}
-		window->callbacks.mouse_released(window->callbacks.priv, 2);
+		window->callbacks.mouse_released(window->callbacks.priv, K_MOUSEM);
 		break;
 	}
 

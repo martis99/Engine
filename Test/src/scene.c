@@ -7,6 +7,7 @@
 #include "math/maths.h"
 #include "scene/camera.h"
 #include "utils_profiler.h"
+#include "utils_tools.h"
 
 #include "ecs/component/constraints.h"
 #include "ecs/component/transform.h"
@@ -45,8 +46,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#define __USE_POSIX199309
-#include <time.h>
 
 #define C_TRANSFORM   0
 #define C_MESH	      1
@@ -712,24 +711,24 @@ static void loop(Scene *scene, float dt)
 	scene_render(scene);
 }
 
-static void scene_main_loop(Scene *scene, mem_stats_t *mem_stats)
+static void scene_main_loop(Scene *scene, m_stats_t *mem_stats)
 {
 	struct timespec last;
 
-	clock_gettime(CLOCK_REALTIME, &last);
+	u_getrealtime(&last);
 
 	struct timespec previous = last;
 	struct timespec current;
 	uint frames = 0;
 
 	while (window_poll_events(&scene->window)) {
-		clock_gettime(CLOCK_REALTIME, &current);
+		u_getrealtime(&current);
 
 		double elapsed = ((current.tv_sec - last.tv_sec) * 1e6 + (current.tv_nsec - last.tv_nsec) / 1e3) / 1000000;
 
 		if (elapsed > 1) {
 			char title[100];
-			float ms = elapsed / (float)frames;
+			float ms = (float)elapsed / (float)frames;
 			p_sprintf(title, sizeof(title) / sizeof(char), "Engine %s %u FPS %.2f ms, mem: %zd, dc: %i", scene->gfx_driver, frames, ms, mem_stats->mem,
 				  scene->renderer.draw_calls);
 			window_set_title(&scene->window, title);
@@ -739,7 +738,7 @@ static void scene_main_loop(Scene *scene, mem_stats_t *mem_stats)
 		}
 
 		double dt = ((current.tv_sec - previous.tv_sec) * 1e6 + (current.tv_nsec - previous.tv_nsec) / 1e3) / 1000000;
-		loop(scene, dt);
+		loop(scene, (float)dt);
 
 		previous = current;
 		frames++;
@@ -756,8 +755,8 @@ static void scene_delete(Scene *scene)
 
 int scene_run()
 {
-	mem_stats_t mem_stats = { 0 };
-	mem_init(&mem_stats);
+	m_stats_t m_stats = { 0 };
+	m_init(&m_stats);
 
 	if (utils_profiler_create() == NULL) {
 		log_error("Failed to create profiler");
@@ -773,14 +772,12 @@ int scene_run()
 		return EXIT_FAILURE;
 	}
 
-	scene_main_loop(scene, &mem_stats);
+	scene_main_loop(scene, &m_stats);
 
 	scene_delete(scene);
 	utils_profiler_delete();
 
-	printf("mem: %zd\n", mem_stats.mem);
-	printf("max mem: %zd\n", mem_stats.max_mem);
-	printf("reallocs: %d\n", mem_stats.reallocs);
+	m_print(stdout);
 
 	return EXIT_SUCCESS;
 }
