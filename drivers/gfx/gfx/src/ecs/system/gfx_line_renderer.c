@@ -111,10 +111,10 @@ void line_renderer_add(LineRenderer *line_renderer, vec3 start, vec3 end, vec4 c
 {
 	line_renderer->vertices[line_renderer->vertices_count + 0].position = start;
 	line_renderer->vertices[line_renderer->vertices_count + 0].color    = color;
-	line_renderer->vertices[line_renderer->vertices_count + 0].entity   = entity;
+	line_renderer->vertices[line_renderer->vertices_count + 0].entity   = (float)entity;
 	line_renderer->vertices[line_renderer->vertices_count + 1].position = end;
 	line_renderer->vertices[line_renderer->vertices_count + 1].color    = color;
-	line_renderer->vertices[line_renderer->vertices_count + 1].entity   = entity;
+	line_renderer->vertices[line_renderer->vertices_count + 1].entity   = (float)entity;
 
 	line_renderer->vertices_count += 2;
 }

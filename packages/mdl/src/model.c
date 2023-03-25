@@ -26,7 +26,8 @@ static void object_draw(Model *model, Renderer *renderer, Shader *shader, ModelO
 		ObjectMesh *mesh   = &next->mesh;
 		Material *material = &model->materials[mesh->material];
 		material_set_vs_value(material, 0, &trans);
-		material_set_ps_value(material, 2, &entity);
+		float entityf = (float)entity;
+		material_set_ps_value(material, 2, &entityf);
 		material_upload(material, renderer);
 		material_bind(material, renderer);
 		mesh_draw(&mesh->mesh, renderer, 0xFFFFFFFF);

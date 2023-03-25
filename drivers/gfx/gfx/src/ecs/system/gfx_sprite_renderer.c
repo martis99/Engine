@@ -16,10 +16,10 @@ typedef struct SpriteVertex {
 	vec4 color;
 	vec2 tex_coord;
 	vec2 tex_size;
-	int tex_index;
+	float tex_index;
 	vec2 spr_size;
 	vec4 spr_borders;
-	int entity;
+	float entity;
 } SpriteVertex;
 
 typedef struct SpriteVertexData {
@@ -27,7 +27,7 @@ typedef struct SpriteVertexData {
 	vec3 scale;
 	vec4 borders;
 	vec2 texsize;
-	int entity;
+	float entity;
 } SpriteVertexData;
 
 SpriteRenderer *sprite_renderer_create(SpriteRenderer *sprite_renderer, Renderer *renderer, Transform transform)
@@ -176,7 +176,7 @@ static void add_vertex(void *vvertex, vec3 position, vec2 tex_coord, int tex_ind
 	vertex->color	    = data->color;
 	vertex->tex_coord   = tex_coord;
 	vertex->tex_size    = data->texsize;
-	vertex->tex_index   = tex_index;
+	vertex->tex_index   = (float)tex_index;
 	vertex->spr_size    = vec3_to_vec2(data->scale);
 	vertex->spr_borders = data->borders;
 	vertex->entity	    = data->entity;
@@ -189,7 +189,7 @@ static void add_sprite(SpriteRenderer *sprite_renderer, Transform *transform, Sp
 		.scale	 = transform->scale,
 		.borders = sprite->borders,
 		.texsize = (vec2){ (float)sprite->texture->width, (float)sprite->texture->height },
-		.entity	 = entity,
+		.entity	 = (float)entity,
 	};
 
 	if (sprite->sub == 0) {

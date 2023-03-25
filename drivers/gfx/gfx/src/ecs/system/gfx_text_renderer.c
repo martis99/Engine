@@ -20,12 +20,12 @@ typedef struct TextVertex {
 	vec4 color;
 	vec2 tex_coord;
 	int tex_index;
-	int entity;
+	float entity;
 } TextVertex;
 
 typedef struct TextVertexData {
 	vec4 color;
-	int entity;
+	float entity;
 } TextVertexData;
 
 TextRenderer *text_renderer_create(TextRenderer *text_renderer, Renderer *renderer, Transform transform)
@@ -158,7 +158,7 @@ static void add_text(TextRenderer *text_renderer, Transform *transform, Text *te
 
 		TextVertexData data = {
 			.color	= text->color,
-			.entity = entity,
+			.entity = (float)entity,
 		};
 		batch_renderer_add_sub(&text_renderer->batch_renderer, &tr, text->font->texture, fc.pos, fc.size, &data, add_vertex);
 

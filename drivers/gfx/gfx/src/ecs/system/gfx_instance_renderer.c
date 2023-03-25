@@ -109,7 +109,8 @@ void instance_renderer_render(InstanceRenderer *instance_renderer, int id, Trans
 {
 	mat4 model = transform_to_mat4(transform);
 	material_set_vs_value(instance_component->material, 0, &model);
-	material_set_ps_value(instance_component->material, 1, &id);
+	float idf = (float)id;
+	material_set_ps_value(instance_component->material, 1, &idf);
 	material_upload(instance_component->material, instance_renderer->renderer);
 	material_bind(instance_component->material, instance_renderer->renderer);
 	mesh_set_instances(instance_component->mesh, instance_renderer->renderer, instance_component->transforms, instance_component->transforms_count * sizeof(mat4));

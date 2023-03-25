@@ -136,7 +136,7 @@ typedef struct Text {
 typedef struct LineVertex {
 	vec3 position;
 	vec4 color;
-	int entity;
+	float entity;
 } LineVertex;
 
 typedef struct GfxDriver {

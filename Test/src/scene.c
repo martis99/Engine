@@ -475,9 +475,9 @@ static void scene_mouse_pressed(void *priv, byte button)
 	if (button == K_MOUSEL) {
 		int x	   = (int)get_mouse_x();
 		int y	   = (int)get_mouse_y();
-		int entity = 0;
+		float entity = 0;
 		framebuffer_read_pixel(&scene->framebuffer, &scene->renderer, 1, x, y, &entity);
-		printf("%i\n", entity);
+		printf("%i\n", (int)entity);
 	}
 }
 
@@ -672,7 +672,7 @@ static void scene_render(Scene *scene)
 	framebuffer_bind_render_targets(&scene->framebuffer, &scene->renderer, targets, sizeof(targets));
 	float color[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	framebuffer_clear_attachment(&scene->framebuffer, &scene->renderer, 0, color);
-	int entity = -1;
+	float entity = -1;
 	framebuffer_clear_attachment(&scene->framebuffer, &scene->renderer, 1, &entity);
 	float depth = 1.0f;
 	framebuffer_clear_depth_attachment(&scene->framebuffer, &scene->renderer, &depth);

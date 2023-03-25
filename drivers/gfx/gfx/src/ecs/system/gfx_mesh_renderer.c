@@ -100,7 +100,8 @@ void mesh_renderer_render(MeshRenderer *mesh_renderer, int id, Transform *transf
 {
 	mat4 model = transform_to_mat4(transform);
 	material_set_vs_value(mesh_component->material, 0, &model);
-	material_set_ps_value(mesh_component->material, 1, &id);
+	float idf = (float)id;
+	material_set_ps_value(mesh_component->material, 1, &idf);
 	material_upload(mesh_component->material, mesh_renderer->renderer);
 	material_bind(mesh_component->material, mesh_renderer->renderer);
 	mesh_draw(mesh_component->mesh, mesh_renderer->renderer, 0xFFFFFFFF);
