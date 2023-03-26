@@ -473,8 +473,9 @@ static void scene_mouse_pressed(void *priv, byte button)
 	Scene *scene = priv;
 	ms_button_pressed(button);
 	if (button == K_MOUSEL) {
-		int x	   = (int)get_mouse_x();
-		int y	   = (int)get_mouse_y();
+		int x = (int)get_mouse_x();
+		int y = (int)get_mouse_y();
+
 		float entity = 0;
 		framebuffer_read_pixel(&scene->framebuffer, &scene->renderer, 1, x, y, &entity);
 		printf("%i\n", (int)entity);
@@ -729,8 +730,8 @@ static void scene_main_loop(Scene *scene, m_stats_t *mem_stats)
 		if (elapsed > 1) {
 			char title[100];
 			float ms = (float)elapsed / (float)frames;
-			p_sprintf(title, sizeof(title) / sizeof(char), "Engine %s %u FPS %.2f ms, mem: %zd, dc: %i", scene->gfx_driver, frames, ms, mem_stats->mem,
-				  scene->renderer.draw_calls);
+			p_sprintf(title, sizeof(title) / sizeof(char), "Engine %s %u FPS %.2f ms, mem: %zu KB (%zu B), dc: %i", scene->gfx_driver, frames, ms,
+				  mem_stats->mem / 1024, mem_stats->mem, scene->renderer.draw_calls);
 			window_set_title(&scene->window, title);
 
 			last   = current;

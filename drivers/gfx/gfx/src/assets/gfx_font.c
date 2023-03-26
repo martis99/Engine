@@ -12,7 +12,7 @@
 
 static EFont *load_data(Renderer *renderer, EFont *font, const char *path, stbtt_fontinfo *info)
 {
-	FILE *file = file_open(path, "rb", 1);
+	FILE *file = file_open(path, "rb");
 
 	if (file == NULL) {
 		log_msg(renderer->log, "Failed to open font file");

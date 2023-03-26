@@ -84,7 +84,7 @@ GLint gl_program_get_uniform_location(GLError *error, GLuint program, const GLch
 {
 	GLint location = -1;
 	if (GL_FAILED(error, "Failed to get uniform location", location = glGetUniformLocation(program, name))) {
-		return 0;
+		return -1;
 	}
 	return location;
 }

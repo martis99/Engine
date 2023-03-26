@@ -1,0 +1,5 @@
+NAME: mdl_print
+TYPE: EXE
+SOURCE: src
+DEPENDS: cutils
+INCLUDES: cutils

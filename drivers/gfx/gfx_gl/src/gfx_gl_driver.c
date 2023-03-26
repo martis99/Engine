@@ -361,7 +361,11 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 			log_msg(renderer->log, "Failed to add vertex layout");
 			return NULL;
 		}
+	} else {
+		mesh->vertices	     = 0;
+		mesh->vertices_count = 0;
 	}
+
 	if (instances_desc != NULL) {
 		if (create_instance_buffer(renderer, mesh, instances_desc, data.instances) == 0) {
 			log_msg(renderer->log, "Failed to create instance buffer");
@@ -371,12 +375,19 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 			log_msg(renderer->log, "Failed to add instance layout");
 			return NULL;
 		}
+	} else {
+		mesh->instances	      = 0;
+		mesh->instances_count = 0;
 	}
+
 	if (indices_desc != NULL) {
 		if (create_index_buffer(renderer, mesh, indices_desc, data.indices) == 0) {
 			log_msg(renderer->log, "Failed to create index buffer");
 			return NULL;
 		}
+	} else {
+		mesh->indices	    = 0;
+		mesh->indices_count = 0;
 	}
 
 	mesh->primitive = gl_aprimitive(primitive);
@@ -813,6 +824,8 @@ static AShader *shader_create(ARenderer *renderer, const char *src_vert, const c
 {
 	AShader *shader = m_malloc(sizeof(AShader));
 
+	shader->num_textures = num_textures;
+
 	GLuint vert = compile_shader(renderer, gl_ashadertype(A_VERTEX), src_vert);
 	if (vert == 0) {
 		log_msg(renderer->log, "Failed to compile vertex shader");
@@ -844,7 +857,8 @@ static AShader *shader_create(ARenderer *renderer, const char *src_vert, const c
 			log_msg(renderer->log, "Failed to get textures location");
 			return NULL;
 		}
-		shader->num_textures = num_textures;
+	} else {
+		shader->textures_location = -1;
 	}
 	return shader;
 }

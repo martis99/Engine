@@ -46,8 +46,43 @@ void model_draw(Model *model, Renderer *renderer, Shader *shader, mat4 transform
 
 typedef struct BData {
 	unsigned char *data;
-	unsigned char *cur;
+	const unsigned char *cur;
+	size_t size;
 } BData;
+
+static int read_data(const char *path, BData *data, Renderer *renderer)
+{
+	if (!file_exists(path)) {
+		log_msg(renderer->log, "File does not exists");
+		return 1;
+	}
+
+	FILE *file = file_open(path, "rb");
+	if (file == NULL) {
+		log_msg(renderer->log, "Failed to open file");
+		return 1;
+	}
+
+	data->size = file_size(file);
+	data->data = m_malloc(data->size);
+	data->cur  = data->data;
+
+	if (data->data == NULL) {
+		log_msg(renderer->log, "Failed to allocate memory for data");
+		file_close(file);
+		return 1;
+	}
+
+	if (file_read(file, data->size, data->data, data->size)) {
+		log_msg(renderer->log, "Failed to read file");
+		file_close(file);
+		return 1;
+	}
+
+	file_close(file);
+
+	return 0;
+}
 
 unsigned char read_byte(BData *data)
 {
@@ -219,25 +254,11 @@ Model *model_load(Model *model, Renderer *renderer, const char *path, const char
 	str_add_cstr(&file_path, path, 0);
 	str_add_cstr(&file_path, filename, 0);
 
-	FILE *file = file_open(file_path.data, "rb", 1);
-	if (file == NULL) {
-		return 0;
+	BData data = { 0 };
+	if (read_data(file_path.data, &data, renderer)) {
+		log_msg(renderer->log, "Failed to read data");
+		return NULL;
 	}
-	fseek(file, 0, SEEK_END);
-	long fsize = ftell(file);
-	fseek(file, 0, SEEK_SET);
-
-	BData data = {
-		.data = m_malloc(fsize),
-		.cur  = data.data,
-	};
-
-	if (data.data == NULL) {
-		return 0;
-	}
-
-	fread(data.data, fsize, 1, file);
-	fclose(file);
 
 	model->objects_count = read_int(&data);
 
@@ -273,7 +294,7 @@ Model *model_load(Model *model, Renderer *renderer, const char *path, const char
 			      renderer, shader);
 	}
 
-	m_free(data.data, fsize);
+	m_free(data.data, data.size);
 	str_delete(&file_path);
 	return model;
 }

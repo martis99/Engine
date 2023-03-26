@@ -388,6 +388,9 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 			return NULL;
 		}
 		add_layout(ied, vertices_desc, &index, 0, D3D11_INPUT_PER_VERTEX_DATA, 0);
+	} else {
+		mesh->vertices	     = NULL;
+		mesh->vertices_count = 0;
 	}
 
 	if (instances_desc != NULL) {
@@ -396,6 +399,9 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 			return NULL;
 		}
 		add_layout(ied, instances_desc, &index, 1, D3D11_INPUT_PER_INSTANCE_DATA, 1);
+	} else {
+		mesh->instances	      = NULL;
+		mesh->instances_count = 0;
 	}
 
 	if (indices_desc != NULL) {
@@ -403,6 +409,9 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 			log_msg(renderer->log, "Failed to create indices buffer");
 			return NULL;
 		}
+	} else {
+		mesh->indices	    = 0;
+		mesh->indices_count = 0;
 	}
 
 	mesh->layout = dx11_il_create(renderer->error, renderer->device, ied, num_elements, shader->vs_blob);
@@ -718,7 +727,8 @@ static const char *sg_get_bnf()
 static AShader *shader_create(ARenderer *renderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures)
 {
 	AShader *shader = m_malloc(sizeof(AShader));
-	shader->vs	= dx11_vs_create(renderer->error, renderer->device, src_vert, &shader->vs_blob);
+
+	shader->vs = dx11_vs_create(renderer->error, renderer->device, src_vert, &shader->vs_blob);
 	if (shader->vs == NULL) {
 		log_msg(renderer->log, "Failed to create vertex shader");
 		return NULL;
