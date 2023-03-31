@@ -1,8 +1,9 @@
 # Engine
-
-Engine - cross-platform graphics and physics engine 
+cross-platform graphics and physics engine 
 
 ***
+
+## Features
 
 ### Graphics APIs
 - [X] OpenGL
