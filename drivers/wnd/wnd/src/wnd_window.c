@@ -1,9 +1,9 @@
 #include "wnd_window.h"
 #include "api/wnd_api_window.h"
 
-Window *window_create(Window *window, WindowSettings settings, AWindowCallbacks *callbacks, Cursor *cursor, LogCallbacks *log)
+Window *window_create(Window *window, WindowSettings settings, AWindowCallbacks *callbacks, Cursor *cursor)
 {
-	window->window	 = awindow_create(callbacks, cursor->cursor, settings.width, settings.height, log);
+	window->window	 = awindow_create(callbacks, cursor->cursor, settings.width, settings.height);
 	window->settings = settings;
 	return window;
 }

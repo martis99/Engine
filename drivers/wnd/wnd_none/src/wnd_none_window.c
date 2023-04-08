@@ -3,12 +3,11 @@
 
 #include "wnd_none_types.h"
 
-AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width, int height, LogCallbacks *log)
+AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width, int height)
 {
 	AWindow *window	  = m_malloc(sizeof(AWindow));
 	window->callbacks = *callbacks;
 	window->cursor	  = cursor;
-	window->log	  = log;
 	return window;
 }
 

@@ -15,7 +15,7 @@ static EFont *load_data(Renderer *renderer, EFont *font, const char *path, stbtt
 	FILE *file = file_open(path, "rb");
 
 	if (file == NULL) {
-		log_msg(renderer->log, "Failed to open font file");
+		log_error("failed to open font file");
 		return NULL;
 	}
 
@@ -26,7 +26,7 @@ static EFont *load_data(Renderer *renderer, EFont *font, const char *path, stbtt
 	font->data = m_malloc(font->data_size);
 
 	if (font->data == 0) {
-		log_msg(renderer->log, "Failed to allocate memory");
+		log_error("failed to allocate memory");
 		return NULL;
 	}
 
@@ -34,7 +34,7 @@ static EFont *load_data(Renderer *renderer, EFont *font, const char *path, stbtt
 	fclose(file);
 
 	if (!stbtt_InitFont(info, font->data, 0)) {
-		log_msg(renderer->log, "Failed to init TrueType\n");
+		log_error("failed to init TrueType\n");
 		return NULL;
 	}
 
@@ -131,7 +131,7 @@ EFont *font_load(EFont *font, Renderer *renderer, const char *path, int size)
 {
 	stbtt_fontinfo info;
 	if (load_data(renderer, font, path, &info) == NULL) {
-		log_msg(renderer->log, "Failed to load font");
+		log_error("failed to load font");
 		return NULL;
 	}
 

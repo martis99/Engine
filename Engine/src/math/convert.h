@@ -1,5 +1,5 @@
 #pragma once
-#include "math_types.h"
+#include "c_math.h"
 
 vec2 vec2i_to_vec2(vec2i value);
 vec3 vec2i_to_vec3(vec2i value, float z);

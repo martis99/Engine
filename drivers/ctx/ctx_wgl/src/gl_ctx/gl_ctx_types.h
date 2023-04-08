@@ -35,6 +35,4 @@ typedef struct GLError {
 	Str msgs;
 	Str text;
 	Str info;
-
-	LogCallbacks *log;
 } GLError;

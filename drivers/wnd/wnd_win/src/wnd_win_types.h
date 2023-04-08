@@ -7,7 +7,6 @@ struct ACursor {
 	AWindow *window;
 	bool enabled;
 	bool in_window;
-	LogCallbacks *log;
 };
 
 struct AWindow {
@@ -16,5 +15,4 @@ struct AWindow {
 	HWND window;
 	AWindowCallbacks callbacks;
 	ACursor *cursor;
-	LogCallbacks *log;
 };

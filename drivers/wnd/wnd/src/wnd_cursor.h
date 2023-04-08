@@ -1,7 +1,7 @@
 #pragma once
 #include "wnd_types.h"
 
-Cursor *cursor_create(Cursor *cursor, Window *window, bool enabled, LogCallbacks *log);
+Cursor *cursor_create(Cursor *cursor, Window *window, bool enabled);
 void cursor_delete(Cursor *cursor);
 
 void cursor_confine(Cursor *cursor);

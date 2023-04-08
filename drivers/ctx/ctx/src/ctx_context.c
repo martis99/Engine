@@ -2,7 +2,7 @@
 
 #include "ctx_driver.h"
 
-Context *context_create(Context *context, void *window, LogCallbacks *log, const char *driver)
+Context *context_create(Context *context, void *window, const char *driver)
 {
 	context->driver = ctx_driver_get(driver);
 	if (context->driver == NULL) {
@@ -10,7 +10,7 @@ Context *context_create(Context *context, void *window, LogCallbacks *log, const
 		return NULL;
 	}
 
-	context->context    = context->driver->ctx_create(window, log);
+	context->context    = context->driver->ctx_create(window);
 	context->driver_str = driver;
 	return context;
 }

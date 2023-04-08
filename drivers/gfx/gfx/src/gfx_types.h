@@ -7,6 +7,8 @@
 #include "utils/bnf.h"
 #include "utils/dictionary.h"
 
+#include "str.h"
+
 #include "ecs/ecs_types.h"
 
 typedef struct ShaderCreator {
@@ -79,19 +81,21 @@ typedef struct EFont {
 } EFont;
 
 typedef struct ObjectMesh {
-	Str name;
+	str_t name;
 	Mesh mesh;
 	unsigned int material;
 } ObjectMesh;
 
 typedef struct ModelObject ModelObject;
 struct ModelObject {
-	Str name;
+	str_t name;
 	mat4 transformation;
 	unsigned char type;
 	ObjectMesh mesh;
 	ModelObject *child;
 	ModelObject *next;
+	void *vertices;
+	size_t vertices_size;
 };
 
 typedef struct Model {
@@ -103,6 +107,7 @@ typedef struct Model {
 	Image *images;
 	int textures_count;
 	Texture *textures;
+	void *priv;
 } Model;
 
 typedef struct InstanceComponent {
@@ -156,7 +161,7 @@ typedef struct GfxDriver {
 	void (*mesh_set_indices)(AMesh *mesh, ARenderer *renderer, const void *indices, uint indices_size);
 	void (*mesh_draw)(AMesh *mesh, ARenderer *renderer, uint indices);
 
-	ARenderer *(*renderer_create)(AContext *context, LogCallbacks *log, int lhc);
+	ARenderer *(*renderer_create)(AContext *context, int lhc);
 	void (*renderer_delete)(ARenderer *renderer);
 	void (*renderer_depth_stencil_set)(ARenderer *renderer, bool depth_enabled, bool stencil_enabled);
 	void (*renderer_rasterizer_set)(ARenderer *renderer, bool wireframe, bool cull_back, bool ccw);
@@ -194,7 +199,6 @@ typedef struct Renderer {
 	Framebuffer framebuffer;
 	Shader shader;
 	Mesh mesh;
-	LogCallbacks *log;
 	GfxDriver *driver;
 	int lhc;
 	int cull_back;

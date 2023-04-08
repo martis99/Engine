@@ -19,5 +19,4 @@ typedef struct DX11Error {
 	WStr desc;
 	Str info;
 #endif
-	LogCallbacks *log;
 } DX11Error;

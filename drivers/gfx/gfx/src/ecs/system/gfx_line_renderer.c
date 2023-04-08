@@ -73,12 +73,12 @@ LineRenderer *line_renderer_create(LineRenderer *line_renderer, Renderer *render
 	};
 
 	if (gfx_sc_create_shader(&renderer->shader_creator, &line_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_msg(renderer->log, "Failed to create line shader");
+		log_error("failed to create line shader");
 		return NULL;
 	}
 
 	if (material_create(&line_renderer->material, renderer, &line_renderer->shader) == NULL) {
-		log_msg(renderer->log, "Failed to create line material");
+		log_error("failed to create line material");
 		return NULL;
 	}
 
@@ -87,7 +87,7 @@ LineRenderer *line_renderer_create(LineRenderer *line_renderer, Renderer *render
 
 	AMeshData md = { 0 };
 	if (mesh_create(&line_renderer->mesh, renderer, &line_renderer->shader, md, A_LINES) == NULL) {
-		log_msg(renderer->log, "Failed to create line mesh");
+		log_error("failed to create line mesh");
 		return NULL;
 	}
 

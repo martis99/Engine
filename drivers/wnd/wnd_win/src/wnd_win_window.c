@@ -153,14 +153,13 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM param_w, LPARAM 
 	return DefWindowProc(wnd, message, param_w, param_l);
 }
 
-AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width, int height, LogCallbacks *log)
+AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width, int height)
 {
 	AWindow *window	   = m_malloc(sizeof(AWindow));
 	window->class_name = s_ClassName;
 	window->module	   = GetModuleHandleW(0);
 	window->callbacks  = *callbacks;
 	window->cursor	   = cursor;
-	window->log	   = log;
 
 	WNDCLASSW wc = {
 		.lpfnWndProc   = wnd_proc,
@@ -171,7 +170,7 @@ AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width,
 	};
 
 	if (!RegisterClassW(&wc)) {
-		log_msg(window->log, "Failed to register class");
+		log_error("failed to register class");
 		return NULL;
 	}
 
@@ -199,7 +198,7 @@ AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width,
 	// clang-format on
 
 	if (window->window == NULL) {
-		log_msg(window->log, "Failed to create window");
+		log_error("failed to create window");
 		return NULL;
 	}
 
@@ -213,7 +212,7 @@ AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width,
 	};
 
 	if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE) {
-		log_msg(window->log, "Failed to register raw input device");
+		log_error("failed to register raw input device");
 		return NULL;
 	}
 
@@ -235,7 +234,7 @@ void *awindow_get_window(AWindow *window)
 void awindow_set_title(AWindow *window, const char *title)
 {
 	if (SetWindowTextA(window->window, title) == 0) {
-		log_msg(window->log, "Failed to set title");
+		log_error("failed to set title");
 	}
 }
 

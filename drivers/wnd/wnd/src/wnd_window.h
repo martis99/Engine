@@ -1,7 +1,7 @@
 #pragma once
 #include "wnd_types.h"
 
-Window *window_create(Window *window, WindowSettings settings, AWindowCallbacks *callbacks, Cursor *cursor, LogCallbacks *log);
+Window *window_create(Window *window, WindowSettings settings, AWindowCallbacks *callbacks, Cursor *cursor);
 void window_delete(Window *window);
 
 void window_set_title(Window *window, const char *title);

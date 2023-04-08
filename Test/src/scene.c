@@ -77,7 +77,6 @@ typedef struct Scene {
 	mat4 projection;
 	UniformBuffer u_camera;
 	bool profile;
-	LogCallbacks log;
 	Model models[10];
 	int width;
 	int height;
@@ -336,29 +335,14 @@ static void create_camera(Scene *scene, float width, float height, vec3 position
 	scene->projection = renderer_ortho(&scene->renderer, 0.0f, 1600.0f, 900.0f, 0.0f, 1000.0f, -1);
 }
 
-static void on_msg(void *arg, const char *text)
-{
-	log_error(text);
-}
-
-static void on_err(void *arg, const char *text, const char *caption)
-{
-	show_error(arg, text, caption);
-}
-
-static void on_errw(void *arg, const wchar *text, const wchar *caption)
-{
-	show_errorw(arg, text, caption);
-}
-
 static int create_graphics(Scene *scene, vec3 camera_position, vec3 camera_rotation)
 {
-	if (context_create(&scene->context, scene->window.window, &scene->log, scene->gfx_driver) == NULL) {
+	if (context_create(&scene->context, scene->window.window, scene->gfx_driver) == NULL) {
 		log_error("Failed to create context");
 		return 1;
 	}
 
-	if (renderer_create(&scene->renderer, &scene->context, scene->width, scene->height, &scene->log, 1) == NULL) {
+	if (renderer_create(&scene->renderer, &scene->context, scene->width, scene->height, 1) == NULL) {
 		log_error("Failed to create renderer");
 		return 1;
 	}
@@ -510,11 +494,6 @@ static Scene *scene_create(int width, int height)
 {
 	Scene *scene = m_malloc(sizeof(Scene));
 
-	scene->log.on_msg  = on_msg;
-	scene->log.on_err  = on_err;
-	scene->log.on_errw = on_errw;
-	scene->log.arg	   = &scene->window;
-
 	scene->width	  = width;
 	scene->height	  = height;
 	scene->gfx_driver = ctx_driver_get_primary();
@@ -535,12 +514,12 @@ static Scene *scene_create(int width, int height)
 		.height = scene->height,
 	};
 
-	if (cursor_create(&scene->cursor, &scene->window, 1, &scene->log) == NULL) {
+	if (cursor_create(&scene->cursor, &scene->window, 1) == NULL) {
 		log_error("Failed to create cursor");
 		return NULL;
 	}
 
-	if (window_create(&scene->window, window_settings, &callbacks, &scene->cursor, &scene->log) == NULL) {
+	if (window_create(&scene->window, window_settings, &callbacks, &scene->cursor) == NULL) {
 		log_error("Failed to create window");
 		return NULL;
 	}
@@ -758,6 +737,9 @@ int scene_run()
 {
 	m_stats_t m_stats = { 0 };
 	m_init(&m_stats);
+
+	log_t log = { 0 };
+	log_init(&log);
 
 	if (utils_profiler_create() == NULL) {
 		log_error("Failed to create profiler");

@@ -1,5 +1,6 @@
 #include "stack.h"
 
+#include "log.h"
 #include "mem.h"
 
 #include <memory.h>
@@ -38,7 +39,7 @@ void stack_push(Stack *stack, void *data)
 	if (stack->count == stack->cap) {
 		void *data = m_realloc(stack->data, stack->cap * 2 * stack->size, stack->cap * stack->size);
 		if (NULL == data) {
-			printf("Failed to reallocate memory %s:%d\n", __FILE__, __LINE__);
+			log_error("failed to reallocate memory");
 			exit(1);
 		} else {
 			stack->data = data;

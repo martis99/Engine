@@ -106,17 +106,17 @@ TextRenderer *text_renderer_create(TextRenderer *text_renderer, Renderer *render
 	};
 
 	if (gfx_sc_create_shader(&renderer->shader_creator, &text_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_msg(renderer->log, "Failed to create text shader");
+		log_error("failed to create text shader");
 		return NULL;
 	}
 
 	if (material_create(&text_renderer->material, renderer, &text_renderer->shader) == NULL) {
-		log_msg(renderer->log, "Failed to create text material");
+		log_error("failed to create text material");
 		return NULL;
 	};
 
 	if (batch_renderer_create(&text_renderer->batch_renderer, renderer, &text_renderer->material) == NULL) {
-		log_msg(renderer->log, "Failed to create text batch renderer");
+		log_error("failed to create text batch renderer");
 		return NULL;
 	}
 

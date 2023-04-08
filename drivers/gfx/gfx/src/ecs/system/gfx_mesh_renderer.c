@@ -79,7 +79,7 @@ MeshRenderer *mesh_renderer_create(MeshRenderer *mesh_renderer, Renderer *render
 	};
 
 	if (gfx_sc_create_shader(&renderer->shader_creator, &mesh_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_msg(renderer->log, "Failed to create mesh shader");
+		log_error("failed to create mesh shader");
 		return NULL;
 	}
 

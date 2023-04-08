@@ -1,6 +1,6 @@
 NAME: mdl
 TYPE: LIB
 SOURCE: src
-INCLUDE: src
-DEPENDS: Engine, gfx
-INCLUDES: Engine, gfx
+INCLUDE: include
+DEPENDS: Engine, gfx, mdl_read
+INCLUDES: Engine, gfx, mdl_read

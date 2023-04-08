@@ -1,5 +1,6 @@
 #include "ecs.h"
 
+#include "log.h"
 #include "mem.h"
 
 #include <memory.h>
@@ -77,7 +78,7 @@ Entity ecs_entity(Ecs *ecs)
 							      ecs->component_store.cap * ecs->component_store.size);
 			Id *new_query_result_list = m_realloc(ecs->query_result.list, ecs->query_result.cap * 2 * sizeof(Id), ecs->query_result.cap * sizeof(Id));
 			if (NULL == new_flag_array || NULL == new_mask_array || NULL == new_data || NULL == new_query_result_list) {
-				printf("Realloc fail %s:%d\n", __FILE__, __LINE__);
+				log_error("failed to realloc");
 				exit(1);
 			} else {
 				ecs->entity_store.flag_array = new_flag_array;

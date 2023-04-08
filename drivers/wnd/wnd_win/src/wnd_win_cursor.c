@@ -3,12 +3,11 @@
 
 #include "wnd_win_types.h"
 
-ACursor *acursor_create(AWindow *window, byte enabled, LogCallbacks *log)
+ACursor *acursor_create(AWindow *window, byte enabled)
 {
 	ACursor *cursor = m_malloc(sizeof(ACursor));
 	cursor->window	= window;
 	cursor->enabled = enabled;
-	cursor->log	= log;
 	return cursor;
 }
 

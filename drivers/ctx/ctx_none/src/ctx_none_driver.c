@@ -6,7 +6,7 @@ typedef struct AWindow {
 	byte id;
 } AWindow;
 
-AContext *ctx_create(void *window, LogCallbacks *log)
+AContext *ctx_create(void *window)
 {
 	AWindow *awindow  = window;
 	AContext *context = m_malloc(sizeof(AContext));

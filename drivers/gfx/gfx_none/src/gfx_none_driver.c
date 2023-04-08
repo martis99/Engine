@@ -63,7 +63,7 @@ static void mesh_draw(AMesh *mesh, ARenderer *renderer, uint indices)
 {
 }
 
-static ARenderer *renderer_create(AContext *context, LogCallbacks *log, int lhc)
+static ARenderer *renderer_create(AContext *context, int lhc)
 {
 	ARenderer *renderer = m_malloc(sizeof(ARenderer));
 	renderer->lhc	    = lhc;

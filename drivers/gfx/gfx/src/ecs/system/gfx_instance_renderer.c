@@ -89,7 +89,7 @@ InstanceRenderer *instance_renderer_create(InstanceRenderer *instance_renderer, 
 	};
 
 	if (gfx_sc_create_shader(&renderer->shader_creator, &instance_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_msg(renderer->log, "Failed to create mesh shader");
+		log_error("failed to create mesh shader");
 		return NULL;
 	}
 	return instance_renderer;

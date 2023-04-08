@@ -44,7 +44,7 @@ BatchRenderer *batch_renderer_create(BatchRenderer *batch_renderer, Renderer *re
 	};
 
 	if (mesh_create(&batch_renderer->mesh, renderer, material->shader, md, A_TRIANGLES) == NULL) {
-		log_msg(renderer->log, "Failed to create batch renderer mesh");
+		log_error("failed to create batch renderer mesh");
 		return NULL;
 	}
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "math_types.h"
+#include "c_math.h"
 
 vec3 vec3_mulf(vec3 value, float scalar);
 vec3 vec3_sub(vec3 l, vec3 r);

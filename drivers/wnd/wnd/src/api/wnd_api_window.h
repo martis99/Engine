@@ -1,7 +1,7 @@
 #pragma once
 #include "wnd_api_types.h"
 
-AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width, int height, LogCallbacks *log);
+AWindow *awindow_create(AWindowCallbacks *callbacks, ACursor *cursor, int width, int height);
 void awindow_delete(AWindow *window);
 
 void *awindow_get_window(AWindow *window);

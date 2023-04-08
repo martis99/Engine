@@ -4,7 +4,7 @@
 
 #include "gfx_driver.h"
 
-Renderer *renderer_create(Renderer *renderer, Context *context, int width, int height, LogCallbacks *log, int lhc)
+Renderer *renderer_create(Renderer *renderer, Context *context, int width, int height, int lhc)
 {
 	renderer->driver = gfx_driver_get(context->driver_str);
 	if (renderer->driver == NULL) {
@@ -12,8 +12,7 @@ Renderer *renderer_create(Renderer *renderer, Context *context, int width, int h
 		return NULL;
 	}
 
-	renderer->renderer = renderer->driver->renderer_create(context->context, log, lhc);
-	renderer->log	   = log;
+	renderer->renderer = renderer->driver->renderer_create(context->context, lhc);
 	renderer->lhc	   = lhc;
 
 	if (renderer->renderer == NULL) {

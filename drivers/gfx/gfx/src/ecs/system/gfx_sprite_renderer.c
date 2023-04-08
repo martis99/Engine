@@ -143,17 +143,17 @@ SpriteRenderer *sprite_renderer_create(SpriteRenderer *sprite_renderer, Renderer
 	};
 
 	if (gfx_sc_create_shader(&renderer->shader_creator, &sprite_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_msg(renderer->log, "Failed to create sprite shader");
+		log_error("failed to create sprite shader");
 		return NULL;
 	}
 
 	if (material_create(&sprite_renderer->material, renderer, &sprite_renderer->shader) == NULL) {
-		log_msg(renderer->log, "Failed to create sprite material");
+		log_error("failed to create sprite material");
 		return NULL;
 	}
 
 	if (batch_renderer_create(&sprite_renderer->batch_renderer, renderer, &sprite_renderer->material) == NULL) {
-		log_msg(renderer->log, "Failed to create sprite batch renderer");
+		log_error("failed to create sprite batch renderer");
 		return NULL;
 	}
 

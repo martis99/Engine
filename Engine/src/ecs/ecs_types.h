@@ -1,6 +1,6 @@
 #pragma once
 #include "eng_common_types.h"
-#include "math/math_types.h"
+#include "c_math.h"
 
 #include "utils/stack.h"
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "math/math_types.h"
+#include "c_math.h"
 
 typedef struct CameraSettings {
 	float width;

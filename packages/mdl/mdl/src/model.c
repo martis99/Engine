@@ -6,6 +6,8 @@
 #include "assets/gfx_texture.h"
 #include "assets/image.h"
 
+#include "mdl.h"
+
 #include "math/maths.h"
 
 #include "file.h"
@@ -44,93 +46,6 @@ void model_draw(Model *model, Renderer *renderer, Shader *shader, mat4 transform
 	}
 }
 
-typedef struct BData {
-	unsigned char *data;
-	const unsigned char *cur;
-	size_t size;
-} BData;
-
-static int read_data(const char *path, BData *data, Renderer *renderer)
-{
-	if (!file_exists(path)) {
-		log_msg(renderer->log, "File does not exists");
-		return 1;
-	}
-
-	FILE *file = file_open(path, "rb");
-	if (file == NULL) {
-		log_msg(renderer->log, "Failed to open file");
-		return 1;
-	}
-
-	data->size = file_size(file);
-	data->data = m_malloc(data->size);
-	data->cur  = data->data;
-
-	if (data->data == NULL) {
-		log_msg(renderer->log, "Failed to allocate memory for data");
-		file_close(file);
-		return 1;
-	}
-
-	if (file_read(file, data->size, data->data, data->size)) {
-		log_msg(renderer->log, "Failed to read file");
-		file_close(file);
-		return 1;
-	}
-
-	file_close(file);
-
-	return 0;
-}
-
-unsigned char read_byte(BData *data)
-{
-	unsigned char value = *data->cur;
-	data->cur += sizeof(unsigned char);
-	return value;
-}
-
-static int read_int(BData *data)
-{
-	int value = *(int *)data->cur;
-	data->cur += sizeof(int);
-	return value;
-}
-
-static float read_float(BData *data)
-{
-	float value = *(float *)data->cur;
-	data->cur += sizeof(float);
-	return value;
-}
-
-static vec4 read_vec4(BData *data)
-{
-	return (vec4){
-		read_float(data),
-		read_float(data),
-		read_float(data),
-		read_float(data),
-	};
-}
-
-static void read_mat4(BData *data, mat4 *mat)
-{
-	for (int i = 0; i < 16; i++) {
-		mat->a[i] = read_float(data);
-	}
-}
-
-static Str read_str(BData *data)
-{
-	int length = read_int(data);
-	Str str;
-	str_create_cstrn(&str, data->cur, length);
-	data->cur += length;
-	return str;
-}
-
 static void add_child(ModelObject *parent, ModelObject *child)
 {
 	ModelObject **target = &parent->child;
@@ -140,49 +55,77 @@ static void add_child(ModelObject *parent, ModelObject *child)
 	*target = child;
 }
 
-static ModelObject *read_object(ModelObject *objects, ModelObject *object, BData *data, Renderer *renderer, Shader *shader)
+static ModelObject *load_object(ModelObject *objects, ModelObject *object, mdl_obj_t *obj, Renderer *renderer, Shader *shader)
 {
-	object->name = read_str(data);
-	int parent   = read_int(data);
-	if (parent != -1) {
-		add_child(&objects[parent + 1], object);
+	object->name = obj->name;
+	if (obj->parent != -1) {
+		add_child(&objects[obj->parent + 1], object);
 	} else {
 		add_child(&objects[0], object);
 	}
-	read_mat4(data, &object->transformation);
-	object->type = read_byte(data);
+	object->transformation = obj->transform;
+	object->type	       = obj->type;
+
 	if (object->type == 1) {
-		object->mesh.name     = read_str(data);
-		object->mesh.material = read_int(data);
-		int vertices_count    = read_int(data);
-		float *vertices	      = (float *)data->cur;
-		data->cur += vertices_count * sizeof(float) * 8;
-		int indices_count = read_int(data);
-		uint *indices	  = (uint *)data->cur;
-		data->cur += indices_count * sizeof(uint) * 3;
+		object->mesh.name     = obj->mesh.name;
+		object->mesh.material = obj->mesh.mat;
+
+		mdl_vertex_uv_t *vertices;
+		unsigned int vertices_cnt;
+		void *indices;
+		unsigned int indices_cnt;
+
+		if (obj->mesh.flags & MDL_OBJ_MESH_UV) {
+			vertices_cnt = obj->mesh.triangles * 3;
+			vertices     = m_malloc(sizeof(mdl_vertex_uv_t) * vertices_cnt);
+			indices	     = NULL;
+			indices_cnt  = 0;
+
+			object->vertices = vertices;
+			object->vertices_size = sizeof(mdl_vertex_uv_t) * vertices_cnt;
+
+			for (unsigned int i = 0; i < obj->mesh.triangles * 3; i++) {
+				mdl_vertex_t *v = &obj->mesh.vertices[obj->mesh.indices[i]];
+
+				vertices[i] = (mdl_vertex_uv_t){
+					.px = v->px,
+					.py = v->py,
+					.pz = v->pz,
+					.nx = v->nx,
+					.ny = v->ny,
+					.nz = v->nz,
+					.u  = obj->mesh.uvs[i].u,
+					.v  = obj->mesh.uvs[i].v,
+				};
+			}
+		} else {
+			vertices     = obj->mesh.vertices_uv;
+			vertices_cnt = obj->mesh.vertices_cnt;
+			indices	     = obj->mesh.indices;
+			indices_cnt  = obj->mesh.triangles * 3;
+		}
 
 		AMeshData md = {
 			.vertices.data = vertices,
-			.vertices.size = vertices_count * sizeof(float) * 8,
+			.vertices.size = vertices_cnt * sizeof(mdl_vertex_uv_t),
 			.indices.data  = indices,
-			.indices.size  = indices_count * sizeof(uint) * 3,
+			.indices.size  = indices_cnt * sizeof(uint),
 		};
 
 		if (mesh_create(&object->mesh.mesh, renderer, shader, md, A_TRIANGLES) == NULL) {
-			log_msg(renderer->log, "Failed to create model mesh");
-			return NULL;
+			log_error("failed to create model mesh");
 		}
 	}
 
 	return object;
 }
 
-static Texture *read_texture(Texture *texture, Image *image, Renderer *renderer, Str texture_name, const char *path, int type)
+static Texture *load_texture(Texture *texture, Image *image, Renderer *renderer, str_t *texture_name, const char *path, int type)
 {
-	if (texture_name.count == 0) {
+	if (texture_name->len == 0) {
 		image_create(image, 1, 1, 4);
 		if (image == NULL) {
-			log_msg(renderer->log, "Failed to create model image");
+			log_error("failed to create model image");
 			return NULL;
 		}
 		uint data;
@@ -196,14 +139,18 @@ static Texture *read_texture(Texture *texture, Image *image, Renderer *renderer,
 		image_set_data(image, (unsigned char *)&data);
 	} else {
 		Str file;
-		str_create(&file, (uint)strlen(path) + texture_name.count + 1);
+		str_create(&file, (uint)strlen(path) + texture_name->len + 1);
 		str_add_cstr(&file, path, 0);
-		str_add_str(&file, &texture_name);
+
+		Str name = {
+			.cdata = texture_name->data,
+			.count = texture_name->len,
+		};
+		str_add_str(&file, &name);
 
 		image_load(image, file.data);
 		if (image == NULL) {
-			log_msg(renderer->log, "Failed to load model image");
-			return NULL;
+			log_error("failed to load model image");
 		}
 
 		str_delete(&file);
@@ -211,90 +158,84 @@ static Texture *read_texture(Texture *texture, Image *image, Renderer *renderer,
 	return texture_create(texture, renderer, image, A_REPEAT, A_LINEAR);
 }
 
-static Material *read_material(BData *data, Material *material, Image *diff_image, Texture *diff_texture, Image *spec_image, Texture *spec_texture, const char *path,
+static Material *load_material(mdl_mat_t *mat, Material *material, Image *diff_image, Texture *diff_texture, Image *spec_image, Texture *spec_texture, const char *path,
 			       Renderer *renderer, Shader *shader)
 {
-	read_str(data);
-	vec4 diffuse	     = read_vec4(data);
-	Str diffuse_texture  = read_str(data);
-	vec4 specular	     = read_vec4(data);
-	Str specular_texture = read_str(data);
-	float roughness	     = read_float(data);
-	float metallic	     = read_float(data);
-
 	if (material_create(material, renderer, shader) == NULL) {
-		log_msg(renderer->log, "Failed to create model material");
-		return NULL;
+		log_error("failed to create model material");
+		return material;
 	}
 
-	diff_texture = read_texture(diff_texture, diff_image, renderer, diffuse_texture, path, 0);
+	diff_texture = load_texture(diff_texture, diff_image, renderer, &mat->diff_tex, path, 0);
 	if (diff_texture == NULL) {
-		log_msg(renderer->log, "Failed to create model texture");
-		return NULL;
+		log_error("failed to create model texture");
+		return material;
 	}
 	material_add_texture(material, diff_texture);
 
-	spec_texture = read_texture(spec_texture, spec_image, renderer, specular_texture, path, 1);
+	spec_texture = load_texture(spec_texture, spec_image, renderer, &mat->spec_tex, path, 1);
 	if (spec_texture == NULL) {
-		log_msg(renderer->log, "Failed to create model texture");
-		return NULL;
+		log_error("failed to create model texture");
+		return material;
 	}
 	material_add_texture(material, spec_texture);
 
-	material_set_ps_value(material, 0, &diffuse);
-	material_set_ps_value(material, 1, &specular);
+	material_set_ps_value(material, 0, &mat->diff);
+	material_set_ps_value(material, 1, &mat->spec);
 
 	return material;
 }
 
 Model *model_load(Model *model, Renderer *renderer, const char *path, const char *filename, Shader *shader, bool flipUVS, bool print)
 {
+	*model = (Model){ 0 };
+
 	Str file_path;
 	str_create(&file_path, (uint)(strlen(path) + strlen(filename) + 1));
 	str_add_cstr(&file_path, path, 0);
 	str_add_cstr(&file_path, filename, 0);
 
-	BData data = { 0 };
-	if (read_data(file_path.data, &data, renderer)) {
-		log_msg(renderer->log, "Failed to read data");
-		return NULL;
-	}
+	mdl_t *mdl = model->priv = m_malloc(sizeof(mdl_t));
 
-	model->objects_count = read_int(&data);
+	mdl_read(file_path.data, model->priv);
 
-	model->objects = m_calloc((size_t)model->objects_count + 1, sizeof(ModelObject));
+	model->objects_count = mdl->obj_cnt;
+	model->objects = m_calloc(((size_t)model->objects_count + 1), sizeof(ModelObject));
 	if (model->objects == NULL) {
-		return NULL;
+		log_error("failed to allocate memory for objects\n");
+		return model;
 	}
 
 	for (int i = 0; i < model->objects_count; i++) {
-		read_object(model->objects, &model->objects[i + 1], &data, renderer, shader);
+		load_object(model->objects, &model->objects[i + 1], &mdl->objs[i], renderer, shader);
 	}
 
-	model->materials_count = read_int(&data);
-	model->materials       = m_calloc(model->materials_count, sizeof(Material));
+	model->materials_count = mdl->mat_cnt;
+	model->materials       = m_malloc(model->materials_count * sizeof(Material));
 	if (model->materials == NULL) {
-		return NULL;
+		log_error("failed to allocate memory for materials\n");
+		return model;
 	}
 
 	model->images_count = model->materials_count * 2;
-	model->images	    = m_calloc(model->images_count, sizeof(Image));
+	model->images	    = m_malloc(model->images_count * sizeof(Image));
 	if (model->images == NULL) {
-		return NULL;
+		log_error("failed to allocate memory for images\n");
+		return model;
 	}
 
 	model->textures_count = model->images_count;
-	model->textures	      = m_calloc(model->textures_count, sizeof(Texture));
+	model->textures	      = m_malloc(model->textures_count * sizeof(Texture));
 	if (model->textures == NULL) {
-		return NULL;
+		log_error("failed to allocate memory for textures\n");
+		return model;
 	}
 
 	for (int i = 0; i < model->materials_count; i++) {
-		read_material(&data, &model->materials[i], &model->images[i * 2], &model->textures[i * 2], &model->images[i * 2 + 1], &model->textures[i * 2 + 1], path,
-			      renderer, shader);
+		load_material(&mdl->mats[i], &model->materials[i], &model->images[i * 2], &model->textures[i * 2], &model->images[i * 2 + 1], &model->textures[i * 2 + 1],
+			      path, renderer, shader);
 	}
 
-	m_free(data.data, data.size);
 	str_delete(&file_path);
 	return model;
 }
@@ -309,6 +250,9 @@ void model_delete(Model *model, Renderer *renderer)
 	for (int i = 0; i < model->objects_count + 1; i++) {
 		if (model->objects[i].type == 1) {
 			mesh_delete(&model->objects[i].mesh.mesh, renderer);
+			if (model->objects[i].vertices != NULL) {
+				m_free(model->objects[i].vertices, model->objects[i].vertices_size);
+			}
 		}
 	}
 	m_free(model->objects, ((size_t)model->objects_count + 1) * sizeof(ModelObject));
@@ -322,4 +266,8 @@ void model_delete(Model *model, Renderer *renderer)
 		image_delete(&model->images[i]);
 	}
 	m_free(model->images, model->images_count * sizeof(Image));
+
+	mdl_free(model->priv);
+
+	m_free(model->priv, sizeof(mdl_t));
 }

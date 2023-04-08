@@ -34,7 +34,6 @@ struct ARenderer {
 	ID3D11BlendState *blend_disabled;
 	RasterizerStates raster_states;
 	DX11Error *error;
-	LogCallbacks *log;
 	int lhc;
 	int cull_back;
 };
@@ -181,25 +180,25 @@ static DX11Attachment *dx11_attachment_create(ARenderer *renderer, AAttachmentDe
 
 	attachment->texture = dx11_texture_create(renderer->error, renderer->device, 0, width, height, format, 1, 1, 0, NULL, 0);
 	if (attachment->texture == NULL) {
-		log_msg(renderer->log, "Failed to create texture");
+		log_error("Failed to create texture");
 		return NULL;
 	}
 
 	attachment->rtv = dx11_rtv_create(renderer->error, renderer->device, format, attachment->texture);
 	if (attachment->rtv == NULL) {
-		log_msg(renderer->log, "Failed to create render target view");
+		log_error("failed to create render target view");
 		return NULL;
 	}
 
 	attachment->srv = dx11_srv_create(renderer->error, renderer->device, 0, format, attachment->texture);
 	if (attachment->srv == NULL) {
-		log_msg(renderer->log, "Failed to create shader resource view");
+		log_error("failed to create shader resource view");
 		return NULL;
 	}
 
 	attachment->ss = dx11_ss_create(renderer->error, renderer->device, desc.filter, dx11_awrap(desc.wrap));
 	if (attachment->ss == NULL) {
-		log_msg(renderer->log, "Failed to create sampler state");
+		log_error("failed to create sampler state");
 		return NULL;
 	}
 
@@ -208,7 +207,7 @@ static DX11Attachment *dx11_attachment_create(ARenderer *renderer, AAttachmentDe
 	} else {
 		attachment->st = dx11_texture_create(renderer->error, renderer->device, 0, width, height, format, 0, 0, 1, NULL, 0);
 		if (attachment->st == NULL) {
-			log_msg(renderer->log, "Failed to create attachment");
+			log_error("failed to create attachment");
 			return NULL;
 		}
 	}
@@ -384,7 +383,7 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 
 	if (vertices_desc != NULL) {
 		if (create_vertex_buffer(renderer, mesh, vertices_desc, data.vertices) == NULL) {
-			log_msg(renderer->log, "Failed to create vertex buffer");
+			log_error("failed to create vertex buffer");
 			return NULL;
 		}
 		add_layout(ied, vertices_desc, &index, 0, D3D11_INPUT_PER_VERTEX_DATA, 0);
@@ -395,7 +394,7 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 
 	if (instances_desc != NULL) {
 		if (create_instance_buffer(renderer, mesh, instances_desc, data.instances) == NULL) {
-			log_msg(renderer->log, "Failed to create instance buffer");
+			log_error("failed to create instance buffer");
 			return NULL;
 		}
 		add_layout(ied, instances_desc, &index, 1, D3D11_INPUT_PER_INSTANCE_DATA, 1);
@@ -404,9 +403,9 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 		mesh->instances_count = 0;
 	}
 
-	if (indices_desc != NULL) {
+	if (indices_desc != NULL && data.indices.size > 0) {
 		if (create_index_buffer(renderer, mesh, indices_desc, data.indices) == NULL) {
-			log_msg(renderer->log, "Failed to create indices buffer");
+			log_error("failed to create indices buffer");
 			return NULL;
 		}
 	} else {
@@ -416,7 +415,7 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 
 	mesh->layout = dx11_il_create(renderer->error, renderer->device, ied, num_elements, shader->vs_blob);
 	if (mesh->layout == NULL) {
-		log_msg(renderer->log, "Failed to create input layout");
+		log_error("failed to create input layout");
 		return NULL;
 	}
 	m_free(ied, num_elements * sizeof(D3D11_INPUT_ELEMENT_DESC));
@@ -509,14 +508,13 @@ static void mesh_draw(AMesh *mesh, ARenderer *renderer, uint indices)
 	}
 }
 
-static ARenderer *renderer_create(AContext *context, LogCallbacks *log, int lhc)
+static ARenderer *renderer_create(AContext *context, int lhc)
 {
 	ARenderer *renderer = m_malloc(sizeof(ARenderer));
 	renderer->device    = context->device;
 	renderer->context   = context->context;
 	renderer->acontext  = context;
 	renderer->error	    = &context->error;
-	renderer->log	    = log;
 	renderer->lhc	    = lhc;
 
 	D3D11_VIEWPORT vp = {
@@ -533,25 +531,25 @@ static ARenderer *renderer_create(AContext *context, LogCallbacks *log, int lhc)
 	D3D11_COMPARISON_FUNC depth = dx11_adepth_func(lhc == 1 ? A_DEPTH_LEQUAL : A_DEPTH_GEQUAL);
 	renderer->depth_stencil	    = dx11_depth_stencil_create(&context->error, renderer->device, FALSE, FALSE, depth);
 	if (renderer->depth_stencil == NULL) {
-		log_msg(renderer->log, "Failed to create depth stencil");
+		log_error("failed to create depth stencil");
 		return NULL;
 	}
 
 	renderer->depth_stencil_depth = dx11_depth_stencil_create(&context->error, renderer->device, TRUE, FALSE, depth);
 	if (renderer->depth_stencil_depth == NULL) {
-		log_msg(renderer->log, "Failed to create depth stencil depth");
+		log_error("failed to create depth stencil depth");
 		return NULL;
 	}
 
 	renderer->depth_stencil_stencil = dx11_depth_stencil_create(&context->error, renderer->device, FALSE, TRUE, depth);
 	if (renderer->depth_stencil_stencil == NULL) {
-		log_msg(renderer->log, "Failed to create depth stencil stencil");
+		log_error("failed to create depth stencil stencil");
 		return NULL;
 	}
 
 	renderer->depth_stencil_depth_stencil = dx11_depth_stencil_create(&context->error, renderer->device, TRUE, TRUE, depth);
 	if (renderer->depth_stencil_depth_stencil == NULL) {
-		log_msg(renderer->log, "Failed to create depth stencil depth stencil");
+		log_error("failed to create depth stencil depth stencil");
 		return NULL;
 	}
 
@@ -562,20 +560,20 @@ static ARenderer *renderer_create(AContext *context, LogCallbacks *log, int lhc)
 
 		renderer->raster_states.states[i] = dx11_resterizer_create(&context->error, renderer->device, fill, cull, ccw);
 		if (renderer->raster_states.cw_solid == NULL) {
-			log_msg(renderer->log, "Failed to create rasterizer");
+			log_error("failed to create rasterizer");
 			return NULL;
 		}
 	}
 
 	renderer->blend_enabled = dx11_blend_create(&context->error, renderer->device, TRUE);
 	if (renderer->blend_enabled == NULL) {
-		log_msg(renderer->log, "Failed to create blend enabled");
+		log_error("failed to create blend enabled");
 		return NULL;
 	}
 
 	renderer->blend_disabled = dx11_blend_create(&context->error, renderer->device, FALSE);
 	if (renderer->blend_disabled == NULL) {
-		log_msg(renderer->log, "Failed to create blend disabled");
+		log_error("failed to create blend disabled");
 		return NULL;
 	}
 
@@ -672,12 +670,8 @@ static float renderer_far(ARenderer *renderer)
 static void sg_generate(AShaderDesc desc, Str *vert, Str *frag)
 {
 	str_add_char(vert, '\0');
-	printf("----------------------Vertex----------------------------\n");
-	str_print(vert);
 
 	str_add_char(frag, '\0');
-	printf("----------------------Fragment----------------------------\n");
-	str_print(frag);
 }
 
 static const char *sg_get_bnf()
@@ -730,13 +724,13 @@ static AShader *shader_create(ARenderer *renderer, const char *src_vert, const c
 
 	shader->vs = dx11_vs_create(renderer->error, renderer->device, src_vert, &shader->vs_blob);
 	if (shader->vs == NULL) {
-		log_msg(renderer->log, "Failed to create vertex shader");
+		log_error("failed to create vertex shader");
 		return NULL;
 	}
 
 	shader->ps = dx11_ps_create(renderer->error, renderer->device, src_frag, &shader->ps_blob);
 	if (shader->ps == NULL) {
-		log_msg(renderer->log, "Failed to create pixel shader");
+		log_error("failed to create pixel shader");
 		return NULL;
 	}
 	return shader;
@@ -777,7 +771,7 @@ static ATexture *texture_create(ARenderer *renderer, AWrap wrap, AFilter filter,
 	texture->texture = dx11_texture_create(renderer->error, renderer->device, filter, width, height, format, 0, 1, 0, data,
 					       (unsigned long long)width * channels * sizeof(unsigned char));
 	if (texture->texture == NULL) {
-		log_msg(renderer->log, "Failed to create texture");
+		log_error("failed to create texture");
 		return NULL;
 	}
 
@@ -787,7 +781,7 @@ static ATexture *texture_create(ARenderer *renderer, AWrap wrap, AFilter filter,
 
 	texture->srv = dx11_srv_create(renderer->error, renderer->device, filter, format, texture->texture);
 	if (texture->srv == NULL) {
-		log_msg(renderer->log, "Failed to create shader resource view");
+		log_error("failed to create shader resource view");
 		return NULL;
 	}
 
@@ -797,7 +791,7 @@ static ATexture *texture_create(ARenderer *renderer, AWrap wrap, AFilter filter,
 
 	texture->ss = dx11_ss_create(renderer->error, renderer->device, filter, dx11_awrap(wrap));
 	if (texture->ss == NULL) {
-		log_msg(renderer->log, "Failed to create sampler state");
+		log_error("failed to create sampler state");
 		return NULL;
 	}
 
@@ -832,7 +826,7 @@ static AUniformBuffer *ub_create_static(ARenderer *renderer, uint slot, uint dat
 	AUniformBuffer *uniform_buffer = m_malloc(sizeof(AUniformBuffer));
 	uniform_buffer->buffer	       = dx11_cb_create_static(renderer->error, renderer->device, data, data_size);
 	if (uniform_buffer->buffer == NULL) {
-		log_msg(renderer->log, "Failed to create static constant buffer");
+		log_error("failed to create static constant buffer");
 		return NULL;
 	}
 	uniform_buffer->slot = slot;
@@ -844,7 +838,7 @@ static AUniformBuffer *ub_create_dynamic(ARenderer *renderer, uint slot, uint da
 	AUniformBuffer *uniform_buffer = m_malloc(sizeof(AUniformBuffer));
 	uniform_buffer->buffer	       = dx11_cb_create_dynamic(renderer->error, renderer->device, data_size);
 	if (uniform_buffer->buffer == NULL) {
-		log_msg(renderer->log, "Failed to create dynamic constant buffer");
+		log_error("failed to create dynamic constant buffer");
 		return NULL;
 	}
 	uniform_buffer->slot = slot;
@@ -880,7 +874,7 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 	AFramebuffer *framebuffer = m_malloc(sizeof(AFramebuffer));
 
 	if (create_back_buffer_attachment(renderer, &framebuffer->rtv) == NULL) {
-		log_msg(renderer->log, "Failed to create back buffer attachment");
+		log_error("failed to create back buffer attachment");
 		return NULL;
 	}
 
@@ -890,13 +884,13 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
 		framebuffer->attachments[i] = dx11_attachment_create(renderer, attachments[i], width, height);
 		if (framebuffer->attachments[i] == NULL) {
-			log_msg(renderer->log, "Failed to create attachment");
+			log_error("failed to create attachment");
 			return NULL;
 		}
 	}
 
 	if (create_depth_stencil_attachment(renderer, width, height, &framebuffer->dst, &framebuffer->dsv) == NULL) {
-		log_msg(renderer->log, "Failed to create depth stencil attachment");
+		log_error("failed to create depth stencil attachment");
 		return NULL;
 	}
 
@@ -927,7 +921,7 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 
 	framebuffer->shader = shader_create(renderer, src_vert, src_frag, "Texture", 1);
 	if (framebuffer->shader == NULL) {
-		log_msg(renderer->log, "Failed to create shader");
+		log_error("failed to create shader");
 		return NULL;
 	}
 
@@ -980,7 +974,7 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 
 	framebuffer->mesh = mesh_create(renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
 	if (framebuffer->mesh == NULL) {
-		log_msg(renderer->log, "Failed to create mesh");
+		log_error("failed to create mesh");
 		return NULL;
 	}
 

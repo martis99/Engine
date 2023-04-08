@@ -2,14 +2,13 @@
 
 #include "utils/str.h"
 
-GLError *gl_error_create(GLError *error, LogCallbacks *log)
+GLError *gl_error_create(GLError *error)
 {
-	error->log = log;
 #ifdef _DEBUG
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if ((flags & GL_CONTEXT_FLAG_DEBUG_BIT) == 0) {
-		log_err(error->log, "Debugging is disabled", "Error");
+		log_error("debugging is disabled");
 		return NULL;
 	}
 #endif
@@ -78,7 +77,7 @@ static char *get_info(GLError *error, GLuint num_msgs)
 	return error->info.data;
 }
 
-bool gl_error_failed(GLError *error, const char *msg, const char *fn, const char *file, int line)
+bool gl_error_failed(GLError *error, const char *msg, const char *fn, const char *func, int line)
 {
 	GLuint num_msgs =
 		glGetDebugMessageLog(error->max_count, error->msgs.count, error->sources, error->types, error->ids, error->severities, error->lengths, error->msgs.data);
@@ -87,17 +86,16 @@ bool gl_error_failed(GLError *error, const char *msg, const char *fn, const char
 
 		str_add_cstrf(&error->text,
 			      "%s\n"
-			      "INFO:\n%s\n"
-			      "%s: %i\n",
-			      fn, get_info(error, num_msgs), file, line);
+			      "INFO:\n%s\n",
+			      fn, get_info(error, num_msgs));
 
-		log_err(error->log, error->text.data, msg);
+		log_error("%s: %s", msg, error->text.data);
 		return 0;
 	}
 	return 1;
 }
 
-bool gl_error_assert(GLError *error, const char *fn, const char *file, int line)
+bool gl_error_assert(GLError *error, const char *fn, const char *func, int line)
 {
 	GLuint num_msgs =
 		glGetDebugMessageLog(error->max_count, error->msgs.count, error->sources, error->types, error->ids, error->severities, error->lengths, error->msgs.data);
@@ -106,11 +104,10 @@ bool gl_error_assert(GLError *error, const char *fn, const char *file, int line)
 
 		str_add_cstrf(&error->text,
 			      "%s\n"
-			      "INFO:\n%s\n"
-			      "%s: %i\n",
-			      fn, get_info(error, num_msgs), file, line);
+			      "INFO:\n%s\n",
+			      fn, get_info(error, num_msgs));
 
-		log_err(error->log, error->text.data, "Error");
+		log_error(error->text.data);
 		return 0;
 	}
 	return 1;

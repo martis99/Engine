@@ -53,7 +53,6 @@ struct AMesh {
 
 struct ARenderer {
 	GLError *error;
-	LogCallbacks *log;
 	int lhc;
 };
 
@@ -236,13 +235,13 @@ GLAttachment *gl_attachment_create(ARenderer *renderer, AAttachmentDesc desc, GL
 	attachment->texture = gl_texture_create(renderer->error, gl_awrap(desc.wrap), desc.filter, width, height, gl_atype_internal_format(desc.type), attachment->format,
 						attachment->type, NULL);
 	if (attachment->texture == 0) {
-		log_msg(renderer->log, "Failed to create texture");
+		log_error("failed to create texture");
 		return NULL;
 	}
 
 	attachment->target = GL_COLOR_ATTACHMENT0 + index;
 	if (gl_fb_attach_texture(renderer->error, attachment->target, attachment->texture) == A_FAIL) {
-		log_msg(renderer->log, "Failed to attach texture to framebuffer");
+		log_error("failed to attach texture to framebuffer");
 		return NULL;
 	}
 
@@ -354,11 +353,11 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 	uint index = 0;
 	if (vertices_desc != NULL) {
 		if (create_vertex_buffer(renderer, mesh, vertices_desc, data.vertices) == 0) {
-			log_msg(renderer->log, "Failed to create vertex buffer");
+			log_error("failed to create vertex buffer");
 			return NULL;
 		}
 		if (add_layout(renderer, vertices_desc, &index, 0) == A_FAIL) {
-			log_msg(renderer->log, "Failed to add vertex layout");
+			log_error("failed to add vertex layout");
 			return NULL;
 		}
 	} else {
@@ -368,11 +367,11 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 
 	if (instances_desc != NULL) {
 		if (create_instance_buffer(renderer, mesh, instances_desc, data.instances) == 0) {
-			log_msg(renderer->log, "Failed to create instance buffer");
+			log_error("failed to create instance buffer");
 			return NULL;
 		}
 		if (add_layout(renderer, instances_desc, &index, 1) == A_FAIL) {
-			log_msg(renderer->log, "Failed to add instance layout");
+			log_error("failed to add instance layout");
 			return NULL;
 		}
 	} else {
@@ -380,9 +379,9 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 		mesh->instances_count = 0;
 	}
 
-	if (indices_desc != NULL) {
+	if (indices_desc != NULL && data.indices.size > 0) {
 		if (create_index_buffer(renderer, mesh, indices_desc, data.indices) == 0) {
-			log_msg(renderer->log, "Failed to create index buffer");
+			log_error("failed to create index buffer");
 			return NULL;
 		}
 	} else {
@@ -454,11 +453,10 @@ static void mesh_draw(AMesh *mesh, ARenderer *renderer, uint indices)
 	}
 }
 
-static ARenderer *renderer_create(AContext *context, LogCallbacks *log, int lhc)
+static ARenderer *renderer_create(AContext *context, int lhc)
 {
 	ARenderer *renderer = m_malloc(sizeof(ARenderer));
 	renderer->error	    = &context->error;
-	renderer->log	    = log;
 	renderer->lhc	    = lhc;
 
 	gl_cull_face_back(renderer->error);
@@ -708,8 +706,6 @@ static void sg_generate(AShaderDesc desc, Str *vert, Str *frag)
 	vs_add_output_converters(desc, vert);
 	str_add_cstr(vert, "	gl_Position = g_out.SV_Position;\n}\n", 0);
 	str_add_char(vert, '\0');
-	printf("----------------------Vertex----------------------------\n");
-	str_print(vert);
 
 	fs_add_output(desc, frag);
 	str_add_cstr(frag, "void main() {\n", 0);
@@ -718,9 +714,6 @@ static void sg_generate(AShaderDesc desc, Str *vert, Str *frag)
 	fs_add_output_converters(desc, frag);
 	str_add_cstr(frag, "}\n", 0);
 	str_add_char(frag, '\0');
-
-	printf("----------------------Fragment----------------------------\n");
-	str_print(frag);
 }
 
 static const char *sg_get_bnf()
@@ -791,7 +784,7 @@ static GLuint create_program(ARenderer *renderer, GLuint vert, GLuint frag)
 		gl_program_info_length(renderer->error, program, &length);
 		char *info = m_malloc(length);
 		gl_program_info(renderer->error, program, length, info);
-		log_msg(renderer->log, info);
+		log_error(info);
 		m_free(info, length);
 		return 0;
 	}
@@ -812,7 +805,7 @@ static GLuint compile_shader(ARenderer *renderer, GLenum type, const char *sourc
 		gl_shader_info_length(renderer->error, shader, &length);
 		char *info = m_malloc(length);
 		gl_shader_info(renderer->error, shader, length, info);
-		log_msg(renderer->log, info);
+		log_error(info);
 		m_free(info, length);
 		gl_shader_delete(renderer->error, shader);
 		return 0;
@@ -828,19 +821,19 @@ static AShader *shader_create(ARenderer *renderer, const char *src_vert, const c
 
 	GLuint vert = compile_shader(renderer, gl_ashadertype(A_VERTEX), src_vert);
 	if (vert == 0) {
-		log_msg(renderer->log, "Failed to compile vertex shader");
+		log_error("failed to compile vertex shader");
 		return NULL;
 	}
 
 	GLuint frag = compile_shader(renderer, gl_ashadertype(A_FRAGMENT), src_frag);
 	if (frag == 0) {
-		log_msg(renderer->log, "Failed to compile fragment shader");
+		log_error("failed to compile fragment shader");
 		return NULL;
 	}
 
 	shader->program = create_program(renderer, vert, frag);
 	if (shader->program == 0) {
-		log_msg(renderer->log, "Failed to create shader program");
+		log_error("failed to create shader program");
 		return NULL;
 	}
 
@@ -854,7 +847,7 @@ static AShader *shader_create(ARenderer *renderer, const char *src_vert, const c
 		}
 		shader->textures_location = gl_program_get_uniform_location(renderer->error, shader->program, textures);
 		if (shader->textures_location == -1) {
-			log_msg(renderer->log, "Failed to get textures location");
+			log_error("failed to get textures location");
 			return NULL;
 		}
 	} else {
@@ -906,7 +899,7 @@ static ATexture *texture_create(ARenderer *renderer, AWrap wrap, AFilter filter,
 
 	texture->id = gl_texture_create(renderer->error, gl_awrap(wrap), filter, width, height, internal_format, format, type, data);
 	if (texture->id == 0) {
-		log_msg(renderer->log, "Failed to create texture");
+		log_error("failed to create texture");
 		return NULL;
 	}
 	return texture;
@@ -931,7 +924,7 @@ static AUniformBuffer *ub_create_static(ARenderer *renderer, uint slot, uint dat
 	AUniformBuffer *uniform_buffer = m_malloc(sizeof(AUniformBuffer));
 	uniform_buffer->buffer	       = gl_ub_create_static(renderer->error, data, data_size);
 	if (uniform_buffer->buffer == 0) {
-		log_msg(renderer->log, "Failed to create uniform buffer");
+		log_error("failed to create uniform buffer");
 		return NULL;
 	}
 	uniform_buffer->slot = slot;
@@ -943,7 +936,7 @@ static AUniformBuffer *ub_create_dynamic(ARenderer *renderer, uint slot, uint da
 	AUniformBuffer *uniform_buffer = m_malloc(sizeof(AUniformBuffer));
 	uniform_buffer->buffer	       = gl_ub_create_dynamic(renderer->error, data_size);
 	if (uniform_buffer->buffer == 0) {
-		log_msg(renderer->log, "Failed to create uniform buffer");
+		log_error("failed to create uniform buffer");
 		return NULL;
 	}
 	uniform_buffer->slot = slot;
@@ -978,11 +971,11 @@ static GLuint create_depth_stencil_attachment(ARenderer *renderer, GLsizei width
 {
 	GLuint texture = gl_texture_create(renderer->error, 0, 0, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 	if (texture == 0) {
-		log_msg(renderer->log, "Failed to create depth stencil texture");
+		log_error("failed to create depth stencil texture");
 		return 0;
 	}
 	if (gl_fb_attach_texture(renderer->error, GL_DEPTH_STENCIL_ATTACHMENT, texture) == A_FAIL) {
-		log_msg(renderer->log, "Failed to attach texture");
+		log_error("failed to attach texture");
 		return 0;
 	}
 	return texture;
@@ -995,7 +988,7 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 
 	framebuffer->fb = gl_fb_create(renderer->error);
 	if (framebuffer->fb == 0) {
-		log_msg(renderer->log, "Failed to create framebuffer");
+		log_error("failed to create framebuffer");
 		return NULL;
 	}
 
@@ -1005,19 +998,19 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
 		framebuffer->attachments[i] = gl_attachment_create(renderer, attachments[i], width, height, i);
 		if (framebuffer->attachments[i] == NULL) {
-			log_msg(renderer->log, "Failed to create attachment");
+			log_error("failed to create attachment");
 			return NULL;
 		}
 	}
 
 	framebuffer->depth_stencil = create_depth_stencil_attachment(renderer, width, height);
 	if (framebuffer->depth_stencil == 0) {
-		log_msg(renderer->log, "Failed to create depth stencil attachment");
+		log_error("failed to create depth stencil attachment");
 		return NULL;
 	}
 
 	if (gl_fb_check_status(renderer->error, framebuffer->fb) == 0) {
-		log_msg(renderer->log, "Framebuffer is not complete");
+		log_error("framebuffer is not complete");
 		return NULL;
 	}
 
@@ -1040,7 +1033,7 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 
 	framebuffer->shader = shader_create(renderer, src_vert, src_frag, "Texture", 1);
 	if (framebuffer->shader == NULL) {
-		log_msg(renderer->log, "Failed to create shader");
+		log_error("failed to create shader");
 		return NULL;
 	}
 
@@ -1093,7 +1086,7 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 
 	framebuffer->mesh = mesh_create(renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
 	if (framebuffer->mesh == NULL) {
-		log_msg(renderer->log, "Failed to create mesh");
+		log_error("failed to create mesh");
 		return NULL;
 	}
 

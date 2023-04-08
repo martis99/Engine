@@ -83,7 +83,7 @@ ModelRenderer *model_renderer_create(ModelRenderer *model_renderer, Renderer *re
 	};
 
 	if (gfx_sc_create_shader(&renderer->shader_creator, &model_renderer->shader, renderer, src_vert, src_frag, shader_desc) == NULL) {
-		log_msg(renderer->log, "Failed to create model shader");
+		log_error("failed to create model shader");
 		return NULL;
 	}
 

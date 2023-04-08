@@ -9,7 +9,6 @@ struct ACursor {
 	AWindow *window;
 	bool enabled;
 	bool in_window;
-	LogCallbacks *log;
 };
 
 struct AWindow {
@@ -17,7 +16,6 @@ struct AWindow {
 	Window window;
 	AWindowCallbacks callbacks;
 	ACursor *cursor;
-	LogCallbacks *log;
 	Colormap cmap;
 	XWindowAttributes att;
 	XButtonEvent pointer;

@@ -13,7 +13,7 @@ Material *material_create(Material *material, Renderer *renderer, Shader *shader
 	if (vs_desc != NULL) {
 		material->vs = 1;
 		if (uniformbuffer_create_dynamic(&material->vs_buffer, renderer, vs_desc) == NULL) {
-			log_msg(renderer->log, "Failed to create material vertex shader buffer");
+			log_error("failed to create material vertex shader buffer");
 			return NULL;
 		}
 	}
@@ -21,7 +21,7 @@ Material *material_create(Material *material, Renderer *renderer, Shader *shader
 	if (ps_desc != NULL) {
 		material->ps = 1;
 		if (uniformbuffer_create_dynamic(&material->ps_buffer, renderer, ps_desc) == NULL) {
-			log_msg(renderer->log, "Failed to create material pixel shader buffer");
+			log_error("failed to create material pixel shader buffer");
 		}
 	}
 

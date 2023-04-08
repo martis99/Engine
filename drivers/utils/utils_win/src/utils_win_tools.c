@@ -7,7 +7,7 @@ void u_break()
 	DebugBreak();
 }
 
-LARGE_INTEGER
+static LARGE_INTEGER
 getFILETIMEoffset()
 {
 	SYSTEMTIME s = { 0 };

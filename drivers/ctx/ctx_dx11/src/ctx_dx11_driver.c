@@ -12,7 +12,7 @@ typedef struct AWindow {
 	HWND window;
 } AWindow;
 
-static AContext *ctx_create(void *window, LogCallbacks *log)
+static AContext *ctx_create(void *window)
 {
 	AWindow *awindow  = window;
 	AContext *context = m_malloc(sizeof(AContext));
@@ -45,7 +45,7 @@ static AContext *ctx_create(void *window, LogCallbacks *log)
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	if (dx11_error_create(&context->error, log) == NULL) {
+	if (dx11_error_create(&context->error) == NULL) {
 		return NULL;
 	}
 

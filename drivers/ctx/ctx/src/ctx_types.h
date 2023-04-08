@@ -2,7 +2,7 @@
 #include "api/ctx_api_types.h"
 
 typedef struct CtxDriver {
-	AContext *(*ctx_create)(void *window, LogCallbacks *log);
+	AContext *(*ctx_create)(void *window);
 	void (*ctx_delete)(AContext *context);
 	void (*ctx_swap_buffers)(AContext *context);
 } CtxDriver;

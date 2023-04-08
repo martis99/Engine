@@ -202,7 +202,7 @@ typedef struct AWindow {
 	HWND window;
 } AWindow;
 
-static AContext *ctx_create(void *window, LogCallbacks *log)
+static AContext *ctx_create(void *window)
 {
 	AWindow *awindow  = window;
 	AContext *context = m_malloc(sizeof(AContext));
@@ -211,7 +211,7 @@ static AContext *ctx_create(void *window, LogCallbacks *log)
 	context->device	  = GetDC(context->window);
 	context->context  = create_context(context->device);
 	wglMakeCurrent(context->device, context->context);
-	if (gl_error_create(&context->error, log) == NULL) {
+	if (gl_error_create(&context->error) == NULL) {
 		return NULL;
 	}
 	return context;

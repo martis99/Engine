@@ -1,5 +1,5 @@
 #pragma once
-#include "math_types.h"
+#include "c_math.h"
 
 float deg2rad(float deg);
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "math_types.h"
+#include "c_math.h"
 
 quaternion quaternion_zero();
 

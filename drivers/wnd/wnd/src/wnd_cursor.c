@@ -1,9 +1,9 @@
 #include "wnd_cursor.h"
 #include "api/wnd_api_cursor.h"
 
-Cursor *cursor_create(Cursor *cursor, Window *window, bool enabled, LogCallbacks *log)
+Cursor *cursor_create(Cursor *cursor, Window *window, bool enabled)
 {
-	cursor->cursor = acursor_create(window->window, enabled, log);
+	cursor->cursor = acursor_create(window->window, enabled);
 	return cursor;
 }
 
