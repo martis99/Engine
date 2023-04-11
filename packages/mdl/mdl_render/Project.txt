@@ -1,0 +1,6 @@
+NAME: mdl_render
+TYPE: LIB
+SOURCE: src
+INCLUDE: include
+DEPENDS: Engine, gfx, mdl
+INCLUDES: Engine, gfx, mdl

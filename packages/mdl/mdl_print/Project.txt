@@ -1,5 +1,5 @@
 NAME: mdl_print
 TYPE: EXE
 SOURCE: src
-DEPENDS: cutils, mdl_read
-INCLUDES: cutils, mdl_read
+DEPENDS: cutils, mdl
+INCLUDES: cutils, mdl
