@@ -2,13 +2,15 @@
 #include "api/ctx_api_types.h"
 
 typedef struct CtxDriver {
-	AContext *(*ctx_create)(void *window);
-	void (*ctx_delete)(AContext *context);
-	void (*ctx_swap_buffers)(AContext *context);
+	void *(*ctx_create)(void *context, void *window);
+	void (*ctx_delete)(void *context);
+	void (*ctx_swap_buffers)(void *context);
 } CtxDriver;
 
+#define CONTEXT_SIZE 256
+
 typedef struct Context {
-	AContext *context;
 	CtxDriver *driver;
 	const char *driver_str;
+	byte context[CONTEXT_SIZE];
 } Context;

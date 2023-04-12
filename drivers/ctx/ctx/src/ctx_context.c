@@ -10,7 +10,7 @@ Context *context_create(Context *context, void *window, const char *driver)
 		return NULL;
 	}
 
-	context->context    = context->driver->ctx_create(window);
+	context->driver->ctx_create(context->context, window);
 	context->driver_str = driver;
 	return context;
 }

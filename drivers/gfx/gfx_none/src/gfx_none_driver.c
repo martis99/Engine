@@ -4,125 +4,97 @@
 
 #include "math/maths.h"
 
-struct AMaterial {
-	byte id;
-};
-
-struct AFramebuffer {
-	byte id;
-};
-
-struct AMesh {
-	byte id;
-};
-
-struct ARenderer {
+typedef struct ARenderer {
 	int lhc;
-};
+} ARenderer;
 
-struct AShader {
-	byte id;
-};
-
-struct ATexture {
-	byte id;
-};
-
-struct AUniform {
-	byte id;
-};
-
-struct AUniformBuffer {
-	byte id;
-};
-
-static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc, AMeshData data, APrimitive primitive)
+static void *mesh_create(void *vmesh, void *vrenderer, void *vshader, AShaderDesc desc, AMeshData data, APrimitive primitive)
 {
-	AMesh *mesh = m_malloc(sizeof(AMesh));
-	return mesh;
+	return vmesh;
 }
 
-static void mesh_delete(AMesh *mesh, ARenderer *renderer)
-{
-	m_free(mesh, sizeof(AMesh));
-}
-
-static void mesh_set_vertices(AMesh *mesh, ARenderer *renderer, const void *vertices, uint vertices_size)
+static void mesh_delete(void *vmesh, void *vrenderer)
 {
 }
 
-static void mesh_set_instances(AMesh *mesh, ARenderer *renderer, const void *instances, uint instances_size)
+static void mesh_set_vertices(void *vmesh, void *vrenderer, const void *vertices, uint vertices_size)
 {
 }
 
-static void mesh_set_indices(AMesh *mesh, ARenderer *renderer, const void *indices, uint indices_size)
+static void mesh_set_instances(void *vmesh, void *vrenderer, const void *instances, uint instances_size)
 {
 }
 
-static void mesh_draw(AMesh *mesh, ARenderer *renderer, uint indices)
+static void mesh_set_indices(void *vmesh, void *vrenderer, const void *indices, uint indices_size)
 {
 }
 
-static ARenderer *renderer_create(AContext *context, int lhc)
+static void mesh_draw(void *vmesh, void *vrenderer, uint indices)
 {
-	ARenderer *renderer = m_malloc(sizeof(ARenderer));
-	renderer->lhc	    = lhc;
+}
+
+static void *renderer_create(void *vrenderer, void *vcontext, int lhc)
+{
+	ARenderer *renderer = vrenderer;
+
+	renderer->lhc = lhc;
 	return renderer;
 }
 
-static void renderer_delete(ARenderer *renderer)
-{
-	m_free(renderer, sizeof(ARenderer));
-}
-
-static void renderer_depth_stencil_set(ARenderer *renderer, bool depth_enabled, bool stencil_enabled)
+static void renderer_delete(void *vrenderer)
 {
 }
 
-static void renderer_rasterizer_set(ARenderer *renderer, bool wireframe, bool cull_back, bool ccw)
+static void renderer_depth_stencil_set(void *vrenderer, bool depth_enabled, bool stencil_enabled)
 {
 }
 
-static void renderer_blend_set(ARenderer *renderer, bool enabled)
+static void renderer_rasterizer_set(void *vrenderer, bool wireframe, bool cull_back, bool ccw)
 {
 }
 
-static mat4 renderer_perspective(ARenderer *renderer, float fovy, float aspect, float zNear, float zFar)
+static void renderer_blend_set(void *vrenderer, bool enabled)
 {
+}
+
+static mat4 renderer_perspective(void *vrenderer, float fovy, float aspect, float zNear, float zFar)
+{
+	ARenderer *renderer = vrenderer;
+
 	return mat4_perspective1(fovy, aspect, zNear, zFar, renderer->lhc);
 }
 
-static mat4 renderer_ortho(ARenderer *renderer, float left, float right, float bottom, float top, float znear, float zfar)
+static mat4 renderer_ortho(void *vrenderer, float left, float right, float bottom, float top, float znear, float zfar)
 {
+	ARenderer *renderer = vrenderer;
+
 	return mat4_ortho1(left, right, bottom, top, znear, zfar, renderer->lhc);
 }
 
-static float renderer_near(ARenderer *renderer)
+static float renderer_near(void *vrenderer)
 {
 	return -1;
 }
 
-static float renderer_far(ARenderer *renderer)
+static float renderer_far(void *vrenderer)
 {
 	return 1;
 }
 
-static AShader *shader_create(ARenderer *renderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures)
+static void *shader_create(void *vshader, void *vrenderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures)
 {
-	AShader *shader = m_malloc(sizeof(AShader));
-	return shader;
+	return vshader;
 }
 
-static void shader_delete(AShader *shader, ARenderer *renderer)
-{
-	m_free(shader, sizeof(AShader));
-}
-
-static void shader_bind(AShader *shader, ARenderer *renderer)
+static void shader_delete(void *vshader, void *vrenderer)
 {
 }
 
-static void shader_bind_uniform_block(AShader *shader, const char *name, uint index)
+static void shader_bind(void *vshader, void *vrenderer)
+{
+}
+
+static void shader_bind_uniform_block(void *vshader, const char *name, uint index)
 {
 }
 
@@ -174,82 +146,75 @@ static const char *sg_get_bnf()
 	       "\0";
 }
 
-static ATexture *texture_create(ARenderer *renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void *data)
+static void *texture_create(void *vtexture, void *vrenderer, AWrap wrap, AFilter filter, int width, int height, int channels, void *data)
 {
-	ATexture *texture = m_malloc(sizeof(ATexture));
-	return texture;
+	return vtexture;
 }
 
-static void texture_bind(ATexture *texture, ARenderer *renderer, uint slot)
-{
-}
-
-static void texture_delete(ATexture *texture, ARenderer *renderer)
-{
-	m_free(texture, sizeof(ATexture));
-}
-
-static AUniformBuffer *ub_create_static(ARenderer *renderer, uint slot, uint data_size, const void *data)
-{
-	AUniformBuffer *uniform_buffer = m_malloc(sizeof(AUniformBuffer));
-	return uniform_buffer;
-}
-
-static AUniformBuffer *ub_create_dynamic(ARenderer *renderer, uint slot, uint data_size)
-{
-	AUniformBuffer *uniform_buffer = m_malloc(sizeof(AUniformBuffer));
-	return uniform_buffer;
-}
-
-static void ub_delete(AUniformBuffer *uniform_buffer, ARenderer *renderer)
-{
-	m_free(uniform_buffer, sizeof(AUniformBuffer));
-}
-
-static void ub_upload(AUniformBuffer *uniform_buffer, ARenderer *renderer, const void *data, uint data_size)
+static void texture_bind(void *texture, void *vrenderer, uint slot)
 {
 }
 
-static void ub_bind_vs(AUniformBuffer *uniform_buffer, ARenderer *renderer)
+static void texture_delete(void *texture, void *vrenderer)
 {
 }
 
-static void ub_bind_ps(AUniformBuffer *uniform_buffer, ARenderer *renderer)
+static void *ub_create_static(void *vuniform_buffer, void *vrenderer, uint slot, uint data_size, const void *data)
+{
+	return vuniform_buffer;
+}
+
+static void *ub_create_dynamic(void *vuniform_buffer, void *vrenderer, uint slot, uint data_size)
+{
+	return vuniform_buffer;
+}
+
+static void ub_delete(void *vuniform_buffer, void *vrenderer)
 {
 }
 
-static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments, uint attachments_size, int width, int height)
-{
-	AFramebuffer *framebuffer = m_malloc(sizeof(AFramebuffer));
-	return framebuffer;
-}
-
-static void fb_delete(AFramebuffer *framebuffer, ARenderer *renderer)
-{
-	m_free(framebuffer, sizeof(AFramebuffer));
-}
-
-static void fb_bind_render_targets(AFramebuffer *framebuffer, ARenderer *renderer, uint *targets, uint targets_size)
+static void ub_upload(void *vuniform_buffer, void *vrenderer, const void *data, uint data_size)
 {
 }
 
-static void fb_unbind_render_targets(AFramebuffer *framebuffer, ARenderer *renderer, uint *targets, uint targets_size)
+static void ub_bind_vs(void *vuniform_buffer, void *vrenderer)
 {
 }
 
-static void fb_clear_attachment(AFramebuffer *framebuffer, ARenderer *renderer, uint id, const void *value)
+static void ub_bind_ps(void *vuniform_buffer, void *vrenderer)
 {
 }
 
-static void fb_clear_depth_attachment(AFramebuffer *framebuffer, ARenderer *renderer, const void *value)
+static void *fb_create(void *vframebuffer, void *vrenderer, AAttachmentDesc *attachments, uint attachments_size, int width, int height)
+{
+	return vframebuffer;
+}
+
+static void fb_delete(void *framebuffer, void *vrenderer)
 {
 }
 
-static void fb_read_pixel(AFramebuffer *framebuffer, ARenderer *renderer, uint id, int x, int y, void *pixel)
+static void fb_bind_render_targets(void *framebuffer, void *vrenderer, uint *targets, uint targets_size)
 {
 }
 
-static void fb_draw(AFramebuffer *framebuffer, ARenderer *renderer, uint id)
+static void fb_unbind_render_targets(void *framebuffer, void *vrenderer, uint *targets, uint targets_size)
+{
+}
+
+static void fb_clear_attachment(void *framebuffer, void *vrenderer, uint id, const void *value)
+{
+}
+
+static void fb_clear_depth_attachment(void *framebuffer, void *vrenderer, const void *value)
+{
+}
+
+static void fb_read_pixel(void *framebuffer, void *vrenderer, uint id, int x, int y, void *pixel)
+{
+}
+
+static void fb_draw(void *framebuffer, void *vrenderer, uint id)
 {
 }
 

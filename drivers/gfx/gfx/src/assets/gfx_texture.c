@@ -6,10 +6,8 @@ Texture *texture_create(Texture *texture, Renderer *renderer, Image *image, AWra
 	texture->height	  = image->height;
 	texture->channels = image->channels;
 
-	texture->texture = renderer->driver->texture_create(renderer->renderer, wrap, filter, image->width, image->height, image->channels, image->data);
-	if (texture->texture == NULL) {
-		return NULL;
-	}
+	renderer->driver->texture_create(texture->texture, renderer->renderer, wrap, filter, image->width, image->height, image->channels, image->data);
+
 	return texture;
 }
 

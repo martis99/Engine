@@ -7,10 +7,7 @@ Shader *shader_create(Shader *shader, Renderer *renderer, const char *vert, cons
 {
 	ashaderdesc_copy(&desc, &shader->desc);
 
-	shader->shader = renderer->driver->shader_create(renderer->renderer, vert, frag, "Textures", desc.textures_count);
-	if (shader->shader == NULL) {
-		return NULL;
-	}
+	renderer->driver->shader_create(shader->shader, renderer->renderer, vert, frag, "Textures", desc.textures_count);
 
 	image_create(&shader->default_image, 1, 1, 4);
 	uint data = (uint)0xffffffff;

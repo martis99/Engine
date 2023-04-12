@@ -113,13 +113,6 @@ typedef enum ATypeType {
 	A_D,
 } ATypeType;
 
-typedef struct AUniformBuffer AUniformBuffer;
-typedef struct ATexture ATexture;
-typedef struct ARenderer ARenderer;
-typedef struct AShader AShader;
-typedef struct AMesh AMesh;
-typedef struct AFramebuffer AFramebuffer;
-
 typedef struct ABuffer {
 	uint *offsets;
 	uint *sizes;

@@ -9,7 +9,7 @@ GLError *gl_error_create(GLError *error)
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if ((flags & GL_CONTEXT_FLAG_DEBUG_BIT) == 0) {
 		log_error("debugging is disabled");
-		return NULL;
+		return error;
 	}
 #endif
 

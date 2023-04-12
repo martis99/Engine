@@ -20,31 +20,41 @@ typedef struct ShaderCreator {
 	Bnf to_bnf;
 } ShaderCreator;
 
+#define MESH_SIZE 128
+
 typedef struct Mesh {
-	AMesh *mesh;
+	byte mesh[MESH_SIZE];
 } Mesh;
 
-typedef struct Framebuffer {
-	AFramebuffer *framebuffer;
-} Framebuffer;
+#define TEXTURE_SIZE 64
 
 typedef struct Texture {
-	ATexture *texture;
 	int width;
 	int height;
 	int channels;
+	byte texture[TEXTURE_SIZE];
 } Texture;
+
+#define SHADER_SIZE 64
 
 typedef struct Shader {
 	AShaderDesc desc;
-	AShader *shader;
 	Image default_image;
 	Texture default_texture;
+	byte shader[SHADER_SIZE];
 } Shader;
+
+#define FRAMEBUFFER_SIZE (MESH_SIZE + SHADER_SIZE + 64)
+
+typedef struct Framebuffer {
+	byte framebuffer[FRAMEBUFFER_SIZE];
+} Framebuffer;
+
+#define UNIFORM_BUFFER_SIZE 64
 
 typedef struct UniformBuffer {
 	ABuffer values;
-	AUniformBuffer *buffer;
+	byte buffer[UNIFORM_BUFFER_SIZE];
 } UniformBuffer;
 
 typedef struct Material {
@@ -145,56 +155,57 @@ typedef struct LineVertex {
 } LineVertex;
 
 typedef struct GfxDriver {
-	AFramebuffer *(*fb_create)(ARenderer *renderer, AAttachmentDesc *attachments, uint attachments_size, int width, int height);
-	void (*fb_delete)(AFramebuffer *framebuffer, ARenderer *renderer);
-	void (*fb_bind_render_targets)(AFramebuffer *framebuffer, ARenderer *renderer, uint *targets, uint targets_size);
-	void (*fb_unbind_render_targets)(AFramebuffer *framebuffer, ARenderer *renderer, uint *targets, uint targets_size);
-	void (*fb_clear_attachment)(AFramebuffer *framebuffer, ARenderer *renderer, uint id, const void *value);
-	void (*fb_clear_depth_attachment)(AFramebuffer *framebuffer, ARenderer *renderer, const void *value);
-	void (*fb_read_pixel)(AFramebuffer *framebuffer, ARenderer *renderer, uint id, int x, int y, void *pixel);
-	void (*fb_draw)(AFramebuffer *framebuffer, ARenderer *renderer, uint id);
+	void *(*fb_create)(void *framebuffer, void *renderer, AAttachmentDesc *attachments, uint attachments_size, int width, int height);
+	void (*fb_delete)(void *framebuffer, void *renderer);
+	void (*fb_bind_render_targets)(void *framebuffer, void *renderer, uint *targets, uint targets_size);
+	void (*fb_unbind_render_targets)(void *framebuffer, void *renderer, uint *targets, uint targets_size);
+	void (*fb_clear_attachment)(void *framebuffer, void *renderer, uint id, const void *value);
+	void (*fb_clear_depth_attachment)(void *framebuffer, void *renderer, const void *value);
+	void (*fb_read_pixel)(void *framebuffer, void *renderer, uint id, int x, int y, void *pixel);
+	void (*fb_draw)(void *framebuffer, void *renderer, uint id);
 
-	AMesh *(*mesh_create)(ARenderer *renderer, AShader *shader, AShaderDesc desc, AMeshData data, APrimitive primitive);
-	void (*mesh_delete)(AMesh *mesh, ARenderer *renderer);
-	void (*mesh_set_vertices)(AMesh *mesh, ARenderer *renderer, const void *vertices, uint vertices_size);
-	void (*mesh_set_instances)(AMesh *mesh, ARenderer *renderer, const void *instances, uint instances_size);
-	void (*mesh_set_indices)(AMesh *mesh, ARenderer *renderer, const void *indices, uint indices_size);
-	void (*mesh_draw)(AMesh *mesh, ARenderer *renderer, uint indices);
+	void *(*mesh_create)(void *mesh, void *renderer, void *shader, AShaderDesc desc, AMeshData data, APrimitive primitive);
+	void (*mesh_delete)(void *mesh, void *renderer);
+	void (*mesh_set_vertices)(void *mesh, void *renderer, const void *vertices, uint vertices_size);
+	void (*mesh_set_instances)(void *mesh, void *renderer, const void *instances, uint instances_size);
+	void (*mesh_set_indices)(void *mesh, void *renderer, const void *indices, uint indices_size);
+	void (*mesh_draw)(void *mesh, void *renderer, uint indices);
 
-	ARenderer *(*renderer_create)(AContext *context, int lhc);
-	void (*renderer_delete)(ARenderer *renderer);
-	void (*renderer_depth_stencil_set)(ARenderer *renderer, bool depth_enabled, bool stencil_enabled);
-	void (*renderer_rasterizer_set)(ARenderer *renderer, bool wireframe, bool cull_back, bool ccw);
-	void (*renderer_blend_set)(ARenderer *renderer, bool enabled);
-	mat4 (*renderer_perspective)(ARenderer *renderer, float fovy, float aspect, float zNear, float zFar);
-	mat4 (*renderer_ortho)(ARenderer *renderer, float left, float right, float bottom, float top, float near, float far);
-	float (*renderer_near)(ARenderer *renderer);
-	float (*renderer_far)(ARenderer *renderer);
+	void *(*renderer_create)(void *renderer, void *context, int lhc);
+	void (*renderer_delete)(void *renderer);
+	void (*renderer_depth_stencil_set)(void *renderer, bool depth_enabled, bool stencil_enabled);
+	void (*renderer_rasterizer_set)(void *renderer, bool wireframe, bool cull_back, bool ccw);
+	void (*renderer_blend_set)(void *renderer, bool enabled);
+	mat4 (*renderer_perspective)(void *renderer, float fovy, float aspect, float zNear, float zFar);
+	mat4 (*renderer_ortho)(void *renderer, float left, float right, float bottom, float top, float near, float far);
+	float (*renderer_near)(void *renderer);
+	float (*renderer_far)(void *renderer);
 
-	AShader *(*shader_create)(ARenderer *renderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures);
-	void (*shader_delete)(AShader *shader, ARenderer *renderer);
-	void (*shader_bind)(AShader *shader, ARenderer *renderer);
+	void *(*shader_create)(void *shader, void *renderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures);
+	void (*shader_delete)(void *shader, void *renderer);
+	void (*shader_bind)(void *shader, void *renderer);
 
 	void (*sg_generate)(AShaderDesc desc, Str *vert, Str *frag);
 	const char *(*sg_get_bnf)();
 
-	ATexture *(*texture_create)(ARenderer *renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void *data);
-	void (*texture_bind)(ATexture *texture, ARenderer *renderer, uint slot);
-	void (*texture_delete)(ATexture *texture, ARenderer *renderer);
+	void *(*texture_create)(void *texture, void *renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void *data);
+	void (*texture_bind)(void *texture, void *renderer, uint slot);
+	void (*texture_delete)(void *texture, void *renderer);
 
-	AUniformBuffer *(*ub_create_static)(ARenderer *renderer, uint slot, uint data_size, const void *data);
-	AUniformBuffer *(*ub_create_dynamic)(ARenderer *renderer, uint slot, uint data_size);
-	void (*ub_delete)(AUniformBuffer *uniform_buffer, ARenderer *renderer);
-	void (*ub_upload)(AUniformBuffer *uniform_buffer, ARenderer *renderer, const void *data, uint data_size);
-	void (*ub_bind_vs)(AUniformBuffer *uniform_buffer, ARenderer *renderer);
-	void (*ub_bind_ps)(AUniformBuffer *uniform_buffer, ARenderer *renderer);
+	void *(*ub_create_static)(void *uniform_buffer, void *renderer, uint slot, uint data_size, const void *data);
+	void *(*ub_create_dynamic)(void *uniform_buffer, void *renderer, uint slot, uint data_size);
+	void (*ub_delete)(void *uniform_buffer, void *renderer);
+	void (*ub_upload)(void *uniform_buffer, void *renderer, const void *data, uint data_size);
+	void (*ub_bind_vs)(void *uniform_buffer, void *renderer);
+	void (*ub_bind_ps)(void *uniform_buffer, void *renderer);
 
 } GfxDriver;
+
+#define RENDERER_SIZE 256
 
 typedef struct Renderer {
 	int width;
 	int height;
-	ARenderer *renderer;
 	ShaderCreator shader_creator;
 	Framebuffer framebuffer;
 	Shader shader;
@@ -203,6 +214,7 @@ typedef struct Renderer {
 	int lhc;
 	int cull_back;
 	int draw_calls;
+	byte renderer[RENDERER_SIZE];
 } Renderer;
 
 typedef struct BatchRenderer {

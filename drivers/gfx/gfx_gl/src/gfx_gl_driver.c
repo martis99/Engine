@@ -19,20 +19,20 @@ typedef struct GLAttachment {
 	GLint slot;
 } GLAttachment;
 
-struct AFramebuffer {
+typedef struct AFramebuffer {
 	int height;
 
 	GLuint fb;
-	GLAttachment **attachments;
+	GLAttachment *attachments;
 	uint attachments_count;
 
 	GLuint depth_stencil;
 
-	AShader *shader;
-	AMesh *mesh;
-};
+	byte shader[SHADER_SIZE];
+	byte mesh[MESH_SIZE];
+} AFramebuffer;
 
-struct AMesh {
+typedef struct AMesh {
 	GLuint va;
 
 	uint vertex_size;
@@ -49,28 +49,28 @@ struct AMesh {
 	GLenum index_type;
 
 	GLenum primitive;
-};
+} AMesh;
 
-struct ARenderer {
+typedef struct ARenderer {
 	GLError *error;
 	int lhc;
-};
+} ARenderer;
 
-struct AShader {
+typedef struct AShader {
 	GLuint program;
 	GLint textures_location;
 	GLuint num_textures;
 	GLint *textures;
-};
+} AShader;
 
-struct ATexture {
+typedef struct ATexture {
 	GLuint id;
-};
+} ATexture;
 
-struct AUniformBuffer {
+typedef struct AUniformBuffer {
 	GLuint buffer;
 	GLuint slot;
-};
+} AUniformBuffer;
 
 GLenum gl_aprimitive(APrimitive primitive)
 {
@@ -226,9 +226,9 @@ GLenum gl_atype_format(AType type)
 	return 0;
 }
 
-GLAttachment *gl_attachment_create(ARenderer *renderer, AAttachmentDesc desc, GLsizei width, GLsizei height, GLuint index)
+static GLAttachment *gl_attachment_create(GLAttachment *attachment, void *vrenderer, AAttachmentDesc desc, GLsizei width, GLsizei height, GLuint index)
 {
-	GLAttachment *attachment = m_malloc(sizeof(GLAttachment));
+	ARenderer *renderer = vrenderer;
 
 	attachment->format  = gl_atype_format(desc.type);
 	attachment->type    = gl_atype_type(desc.type);
@@ -248,37 +248,49 @@ GLAttachment *gl_attachment_create(ARenderer *renderer, AAttachmentDesc desc, GL
 	return attachment;
 }
 
-void gl_attachment_delete(GLAttachment *attachment, ARenderer *renderer)
+static void gl_attachment_delete(GLAttachment *attachment, void *vrenderer)
 {
+	ARenderer *renderer = vrenderer;
+
 	if (attachment->texture != 0) {
 		gl_texture_delete(renderer->error, attachment->texture);
 		attachment->texture = 0;
 	}
-	m_free(attachment, sizeof(GLAttachment));
 }
 
-void gl_attachment_bind(ARenderer *renderer, GLAttachment *attachment, GLuint slot)
+static void gl_attachment_bind(void *vrenderer, GLAttachment *attachment, GLuint slot)
 {
+	ARenderer *renderer = vrenderer;
+
 	gl_texture_bind(renderer->error, attachment->texture, slot);
 }
 
-void gl_attachment_unbind(ARenderer *renderer, GLAttachment *attachment, GLuint slot)
+static void gl_attachment_unbind(void *vrenderer, GLAttachment *attachment, GLuint slot)
 {
+	ARenderer *renderer = vrenderer;
+
 	gl_texture_bind(renderer->error, 0, slot);
 }
 
-void gl_attachment_clear(ARenderer *renderer, GLAttachment *attachment, GLint index, const void *value)
+static void gl_attachment_clear(void *vrenderer, GLAttachment *attachment, GLint index, const void *value)
 {
+	ARenderer *renderer = vrenderer;
+
 	gl_cb_clear(renderer->error, attachment->type, index, value);
 }
 
-void gl_attachment_read_pixel(ARenderer *renderer, GLAttachment *attachment, int x, int y, void *pixel)
+static void gl_attachment_read_pixel(void *vrenderer, GLAttachment *attachment, int x, int y, void *pixel)
 {
+	ARenderer *renderer = vrenderer;
+
 	gl_read_pixels(renderer->error, attachment->target, x, y, 1, 1, attachment->format, attachment->type, pixel);
 }
 
-static GLuint create_vertex_buffer(ARenderer *renderer, AMesh *mesh, ABufferDesc *desc, ABufferData data)
+static GLuint create_vertex_buffer(void *vrenderer, void *vmesh, ABufferDesc *desc, ABufferData data)
 {
+	ARenderer *renderer = vrenderer;
+	AMesh *mesh	    = vmesh;
+
 	mesh->vertex_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
 		mesh->vertices	     = gl_vb_create_dynamic(renderer->error, desc->max_count * mesh->vertex_size);
@@ -290,8 +302,11 @@ static GLuint create_vertex_buffer(ARenderer *renderer, AMesh *mesh, ABufferDesc
 	return mesh->vertices;
 }
 
-static GLuint create_instance_buffer(ARenderer *renderer, AMesh *mesh, ABufferDesc *desc, ABufferData data)
+static GLuint create_instance_buffer(void *vrenderer, void *vmesh, ABufferDesc *desc, ABufferData data)
 {
+	ARenderer *renderer = vrenderer;
+	AMesh *mesh	    = vmesh;
+
 	mesh->instance_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
 		mesh->instances	      = gl_vb_create_dynamic(renderer->error, desc->max_count * mesh->instance_size);
@@ -303,8 +318,11 @@ static GLuint create_instance_buffer(ARenderer *renderer, AMesh *mesh, ABufferDe
 	return mesh->instances;
 }
 
-static GLuint create_index_buffer(ARenderer *renderer, AMesh *mesh, ABufferDesc *desc, ABufferData data)
+static GLuint create_index_buffer(void *vrenderer, void *vmesh, ABufferDesc *desc, ABufferData data)
 {
+	ARenderer *renderer = vrenderer;
+	AMesh *mesh	    = vmesh;
+
 	mesh->index_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
 		mesh->indices	    = gl_ib_create_dynamic(renderer->error, desc->max_count * mesh->index_size);
@@ -317,8 +335,10 @@ static GLuint create_index_buffer(ARenderer *renderer, AMesh *mesh, ABufferDesc 
 	return mesh->indices;
 }
 
-static bool add_layout(ARenderer *renderer, ABufferDesc *desc, uint *index, GLuint divisor)
+static bool add_layout(void *vrenderer, ABufferDesc *desc, uint *index, GLuint divisor)
 {
+	ARenderer *renderer = vrenderer;
+
 	uint layout_count = desc->values_size / sizeof(AValue);
 
 	GLuint stride = 0;
@@ -341,9 +361,15 @@ static bool add_layout(ARenderer *renderer, ABufferDesc *desc, uint *index, GLui
 	return A_SUCCESS;
 }
 
-static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc, AMeshData data, APrimitive primitive)
+static void *mesh_create(void *vmesh, void *vrenderer, void *vshader, AShaderDesc desc, AMeshData data, APrimitive primitive)
 {
-	AMesh *mesh = m_malloc(sizeof(AMesh));
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+
+	if (sizeof(AMesh) > MESH_SIZE) {
+		log_error("mesh is too large: %zu", sizeof(AMesh));
+		return mesh;
+	}
 
 	ABufferDesc *vertices_desc  = ashaderdesc_get_bufferdesc(desc, A_BFR_VS_IN0);
 	ABufferDesc *instances_desc = ashaderdesc_get_bufferdesc(desc, A_BFR_VS_IN1);
@@ -354,11 +380,9 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 	if (vertices_desc != NULL) {
 		if (create_vertex_buffer(renderer, mesh, vertices_desc, data.vertices) == 0) {
 			log_error("failed to create vertex buffer");
-			return NULL;
 		}
 		if (add_layout(renderer, vertices_desc, &index, 0) == A_FAIL) {
 			log_error("failed to add vertex layout");
-			return NULL;
 		}
 	} else {
 		mesh->vertices	     = 0;
@@ -368,11 +392,9 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 	if (instances_desc != NULL) {
 		if (create_instance_buffer(renderer, mesh, instances_desc, data.instances) == 0) {
 			log_error("failed to create instance buffer");
-			return NULL;
 		}
 		if (add_layout(renderer, instances_desc, &index, 1) == A_FAIL) {
 			log_error("failed to add instance layout");
-			return NULL;
 		}
 	} else {
 		mesh->instances	      = 0;
@@ -382,7 +404,6 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 	if (indices_desc != NULL && data.indices.size > 0) {
 		if (create_index_buffer(renderer, mesh, indices_desc, data.indices) == 0) {
 			log_error("failed to create index buffer");
-			return NULL;
 		}
 	} else {
 		mesh->indices	    = 0;
@@ -394,8 +415,11 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 	return mesh;
 }
 
-static void mesh_delete(AMesh *mesh, ARenderer *renderer)
+static void mesh_delete(void *vmesh, void *vrenderer)
 {
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+
 	if (mesh->va != 0) {
 		gl_va_delete(renderer->error, mesh->va);
 		mesh->va = 0;
@@ -412,29 +436,40 @@ static void mesh_delete(AMesh *mesh, ARenderer *renderer)
 		gl_ib_delete(renderer->error, mesh->indices);
 		mesh->indices = 0;
 	}
-	m_free(mesh, sizeof(AMesh));
 }
 
-static void mesh_set_vertices(AMesh *mesh, ARenderer *renderer, const void *vertices, uint vertices_size)
+static void mesh_set_vertices(void *vmesh, void *vrenderer, const void *vertices, uint vertices_size)
 {
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+
 	gl_vb_set_data(renderer->error, mesh->vertices, vertices, vertices_size);
 	mesh->vertices_count = vertices_size / mesh->vertex_size;
 }
 
-static void mesh_set_instances(AMesh *mesh, ARenderer *renderer, const void *instances, uint instances_size)
+static void mesh_set_instances(void *vmesh, void *vrenderer, const void *instances, uint instances_size)
 {
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+
 	gl_vb_set_data(renderer->error, mesh->instances, instances, instances_size);
 	mesh->instances_count = instances_size / mesh->instance_size;
 }
 
-static void mesh_set_indices(AMesh *mesh, ARenderer *renderer, const void *indices, uint indices_size)
+static void mesh_set_indices(void *vmesh, void *vrenderer, const void *indices, uint indices_size)
 {
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+
 	gl_ib_set_data(renderer->error, mesh->indices, indices, indices_size);
 	mesh->vertices_count = indices_size / mesh->index_size;
 }
 
-static void mesh_draw(AMesh *mesh, ARenderer *renderer, uint indices)
+static void mesh_draw(void *vmesh, void *vrenderer, uint indices)
 {
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+
 	gl_va_bind(renderer->error, mesh->va);
 	if (mesh->indices == 0) {
 		if (mesh->instances == 0) {
@@ -453,11 +488,18 @@ static void mesh_draw(AMesh *mesh, ARenderer *renderer, uint indices)
 	}
 }
 
-static ARenderer *renderer_create(AContext *context, int lhc)
+static void *renderer_create(void *vrenderer, void *vcontext, int lhc)
 {
-	ARenderer *renderer = m_malloc(sizeof(ARenderer));
-	renderer->error	    = &context->error;
-	renderer->lhc	    = lhc;
+	ARenderer *renderer = vrenderer;
+	AContext *context   = vcontext;
+
+	if (sizeof(ARenderer) > RENDERER_SIZE) {
+		log_error("renderer is too large: %zu", sizeof(ARenderer));
+		return renderer;
+	}
+
+	renderer->error = &context->error;
+	renderer->lhc	= lhc;
 
 	gl_cull_face_back(renderer->error);
 	gl_blend_func(renderer->error, gl_afactor(A_SRC_ALPHA), gl_afactor(A_ONE_MINUS_SRC_ALPHA));
@@ -475,13 +517,14 @@ static ARenderer *renderer_create(AContext *context, int lhc)
 	return renderer;
 }
 
-static void renderer_delete(ARenderer *renderer)
+static void renderer_delete(void *vrenderer)
 {
-	m_free(renderer, sizeof(ARenderer));
 }
 
-static void renderer_depth_stencil_set(ARenderer *renderer, bool depth_enabled, bool stencil_enabled)
+static void renderer_depth_stencil_set(void *vrenderer, bool depth_enabled, bool stencil_enabled)
 {
+	ARenderer *renderer = vrenderer;
+
 	if (depth_enabled == 0) {
 		gl_depth_test_disable(renderer->error);
 	} else {
@@ -489,8 +532,10 @@ static void renderer_depth_stencil_set(ARenderer *renderer, bool depth_enabled, 
 	}
 }
 
-static void renderer_rasterizer_set(ARenderer *renderer, bool wireframe, bool cull_back, bool ccw)
+static void renderer_rasterizer_set(void *vrenderer, bool wireframe, bool cull_back, bool ccw)
 {
+	ARenderer *renderer = vrenderer;
+
 	if (wireframe == 0) {
 		gl_polygon_mode_fill(renderer->error);
 	} else {
@@ -510,8 +555,10 @@ static void renderer_rasterizer_set(ARenderer *renderer, bool wireframe, bool cu
 	}
 }
 
-static void renderer_blend_set(ARenderer *renderer, bool enabled)
+static void renderer_blend_set(void *vrenderer, bool enabled)
 {
+	ARenderer *renderer = vrenderer;
+
 	if (enabled == 0) {
 		gl_blend_disable(renderer->error);
 	} else {
@@ -519,22 +566,26 @@ static void renderer_blend_set(ARenderer *renderer, bool enabled)
 	}
 }
 
-static mat4 renderer_perspective(ARenderer *renderer, float fovy, float aspect, float zNear, float zFar)
+static mat4 renderer_perspective(void *vrenderer, float fovy, float aspect, float zNear, float zFar)
 {
+	ARenderer *renderer = vrenderer;
+
 	return mat4_perspective1(fovy, aspect, zNear, zFar, renderer->lhc);
 }
 
-static mat4 renderer_ortho(ARenderer *renderer, float left, float right, float bottom, float top, float znear, float zfar)
+static mat4 renderer_ortho(void *vrenderer, float left, float right, float bottom, float top, float znear, float zfar)
 {
+	ARenderer *renderer = vrenderer;
+
 	return mat4_ortho1(left, right, bottom, top, znear, zfar, renderer->lhc);
 }
 
-static float renderer_near(ARenderer *renderer)
+static float renderer_near(void *vrenderer)
 {
 	return -1;
 }
 
-static float renderer_far(ARenderer *renderer)
+static float renderer_far(void *vrenderer)
 {
 	return 1;
 }
@@ -760,8 +811,10 @@ static const char *sg_get_bnf()
 	       "\0";
 }
 
-static GLuint create_program(ARenderer *renderer, GLuint vert, GLuint frag)
+static GLuint create_program(void *vrenderer, GLuint vert, GLuint frag)
 {
+	ARenderer *renderer = vrenderer;
+
 	GLuint program = gl_program_create(renderer->error);
 	if (program == 0) {
 		return 0;
@@ -792,8 +845,10 @@ static GLuint create_program(ARenderer *renderer, GLuint vert, GLuint frag)
 	return program;
 }
 
-static GLuint compile_shader(ARenderer *renderer, GLenum type, const char *source)
+static GLuint compile_shader(void *vrenderer, GLenum type, const char *source)
 {
+	ARenderer *renderer = vrenderer;
+
 	int status;
 	GLuint shader = gl_shader_create(renderer->error, type, source, &status);
 	if (shader == 0) {
@@ -813,28 +868,31 @@ static GLuint compile_shader(ARenderer *renderer, GLenum type, const char *sourc
 	return shader;
 }
 
-static AShader *shader_create(ARenderer *renderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures)
+static void *shader_create(void *vshader, void *vrenderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures)
 {
-	AShader *shader = m_malloc(sizeof(AShader));
+	AShader *shader	    = vshader;
+	ARenderer *renderer = vrenderer;
+
+	if (sizeof(AShader) > SHADER_SIZE) {
+		log_error("shader is too large: %zu", sizeof(AShader));
+		return shader;
+	}
 
 	shader->num_textures = num_textures;
 
 	GLuint vert = compile_shader(renderer, gl_ashadertype(A_VERTEX), src_vert);
 	if (vert == 0) {
 		log_error("failed to compile vertex shader");
-		return NULL;
 	}
 
 	GLuint frag = compile_shader(renderer, gl_ashadertype(A_FRAGMENT), src_frag);
 	if (frag == 0) {
 		log_error("failed to compile fragment shader");
-		return NULL;
 	}
 
 	shader->program = create_program(renderer, vert, frag);
 	if (shader->program == 0) {
 		log_error("failed to create shader program");
-		return NULL;
 	}
 
 	gl_shader_delete(renderer->error, vert);
@@ -848,7 +906,6 @@ static AShader *shader_create(ARenderer *renderer, const char *src_vert, const c
 		shader->textures_location = gl_program_get_uniform_location(renderer->error, shader->program, textures);
 		if (shader->textures_location == -1) {
 			log_error("failed to get textures location");
-			return NULL;
 		}
 	} else {
 		shader->textures_location = -1;
@@ -856,8 +913,11 @@ static AShader *shader_create(ARenderer *renderer, const char *src_vert, const c
 	return shader;
 }
 
-static void shader_delete(AShader *shader, ARenderer *renderer)
+static void shader_delete(void *vshader, void *vrenderer)
 {
+	AShader *shader	    = vshader;
+	ARenderer *renderer = vrenderer;
+
 	if (shader->num_textures > 0) {
 		m_free(shader->textures, shader->num_textures * sizeof(GLint));
 	}
@@ -865,20 +925,28 @@ static void shader_delete(AShader *shader, ARenderer *renderer)
 		gl_program_delete(renderer->error, shader->program);
 		shader->program = 0;
 	}
-	m_free(shader, sizeof(AShader));
 }
 
-static void shader_bind(AShader *shader, ARenderer *renderer)
+static void shader_bind(void *vshader, void *vrenderer)
 {
+	AShader *shader	    = vshader;
+	ARenderer *renderer = vrenderer;
+
 	gl_program_use(renderer->error, shader->program);
 	if (shader->num_textures > 0) {
 		gl_uniform_vec1i(renderer->error, shader->textures_location, shader->num_textures, shader->textures);
 	}
 }
 
-static ATexture *texture_create(ARenderer *renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void *data)
+static void *texture_create(void *vtexture, void *vrenderer, AWrap wrap, AFilter filter, int width, int height, int channels, void *data)
 {
-	ATexture *texture = m_malloc(sizeof(ATexture));
+	ATexture *texture   = vtexture;
+	ARenderer *renderer = vrenderer;
+
+	if (sizeof(ATexture) > TEXTURE_SIZE) {
+		log_error("texture is too large: %zu", sizeof(ATexture));
+		return texture;
+	}
 
 	GLint internal_format = 0;
 	GLenum format	      = 0;
@@ -905,24 +973,56 @@ static ATexture *texture_create(ARenderer *renderer, AWrap wrap, AFilter filter,
 	return texture;
 }
 
-static void texture_bind(ATexture *texture, ARenderer *renderer, uint slot)
+static void texture_bind(void *vtexture, void *vrenderer, uint slot)
 {
+	ATexture *texture   = vtexture;
+	ARenderer *renderer = vrenderer;
+
 	gl_texture_bind(renderer->error, texture->id, slot);
 }
 
-static void texture_delete(ATexture *texture, ARenderer *renderer)
+static void texture_delete(void *vtexture, void *vrenderer)
 {
+	ATexture *texture   = vtexture;
+	ARenderer *renderer = vrenderer;
+
 	if (texture->id != 0) {
 		gl_texture_delete(renderer->error, texture->id);
 		texture->id = 0;
 	}
-	m_free(texture, sizeof(ATexture));
 }
 
-static AUniformBuffer *ub_create_static(ARenderer *renderer, uint slot, uint data_size, const void *data)
+static void *ub_create_static(void *vuniform_buffer, void *vrenderer, uint slot, uint data_size, const void *data)
 {
-	AUniformBuffer *uniform_buffer = m_malloc(sizeof(AUniformBuffer));
-	uniform_buffer->buffer	       = gl_ub_create_static(renderer->error, data, data_size);
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
+
+	if (sizeof(AUniformBuffer) > UNIFORM_BUFFER_SIZE) {
+		log_error("uniform buffer is too large: %zu", sizeof(AUniformBuffer));
+		return uniform_buffer;
+	}
+
+	uniform_buffer->buffer = gl_ub_create_static(renderer->error, data, data_size);
+
+	if (uniform_buffer->buffer == 0) {
+		log_error("failed to create uniform buffer");
+	}
+	uniform_buffer->slot = slot;
+	return uniform_buffer;
+}
+
+static void *ub_create_dynamic(void *vuniform_buffer, void *vrenderer, uint slot, uint data_size)
+{
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
+
+	if (sizeof(AUniformBuffer) > UNIFORM_BUFFER_SIZE) {
+		log_error("uniform buffer is too large: %zu", sizeof(AUniformBuffer));
+		return uniform_buffer;
+	}
+
+	uniform_buffer->buffer = gl_ub_create_dynamic(renderer->error, data_size);
+
 	if (uniform_buffer->buffer == 0) {
 		log_error("failed to create uniform buffer");
 		return NULL;
@@ -931,44 +1031,45 @@ static AUniformBuffer *ub_create_static(ARenderer *renderer, uint slot, uint dat
 	return uniform_buffer;
 }
 
-static AUniformBuffer *ub_create_dynamic(ARenderer *renderer, uint slot, uint data_size)
+static void ub_delete(void *vuniform_buffer, void *vrenderer)
 {
-	AUniformBuffer *uniform_buffer = m_malloc(sizeof(AUniformBuffer));
-	uniform_buffer->buffer	       = gl_ub_create_dynamic(renderer->error, data_size);
-	if (uniform_buffer->buffer == 0) {
-		log_error("failed to create uniform buffer");
-		return NULL;
-	}
-	uniform_buffer->slot = slot;
-	return uniform_buffer;
-}
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
 
-static void ub_delete(AUniformBuffer *uniform_buffer, ARenderer *renderer)
-{
 	if (uniform_buffer->buffer != 0) {
 		gl_ub_delete(renderer->error, uniform_buffer->buffer);
 		uniform_buffer->buffer = 0;
 	}
-	m_free(uniform_buffer, sizeof(AUniformBuffer));
 }
 
-static void ub_upload(AUniformBuffer *uniform_buffer, ARenderer *renderer, const void *data, uint data_size)
+static void ub_upload(void *vuniform_buffer, void *vrenderer, const void *data, uint data_size)
 {
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
+
 	gl_ub_set_data(renderer->error, uniform_buffer->buffer, data, data_size);
 }
 
-static void ub_bind_vs(AUniformBuffer *uniform_buffer, ARenderer *renderer)
+static void ub_bind_vs(void *vuniform_buffer, void *vrenderer)
 {
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
+
 	gl_ub_bind_base(renderer->error, uniform_buffer->buffer, uniform_buffer->slot);
 }
 
-static void ub_bind_ps(AUniformBuffer *uniform_buffer, ARenderer *renderer)
+static void ub_bind_ps(void *vuniform_buffer, void *vrenderer)
 {
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
+
 	gl_ub_bind_base(renderer->error, uniform_buffer->buffer, uniform_buffer->slot);
 }
 
-static GLuint create_depth_stencil_attachment(ARenderer *renderer, GLsizei width, GLsizei height)
+static GLuint create_depth_stencil_attachment(void *vrenderer, GLsizei width, GLsizei height)
 {
+	ARenderer *renderer = vrenderer;
+
 	GLuint texture = gl_texture_create(renderer->error, 0, 0, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 	if (texture == 0) {
 		log_error("failed to create depth stencil texture");
@@ -981,37 +1082,37 @@ static GLuint create_depth_stencil_attachment(ARenderer *renderer, GLsizei width
 	return texture;
 }
 
-static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments, uint attachments_size, int width, int height)
+static void *fb_create(void *vframebuffer, void *vrenderer, AAttachmentDesc *attachments, uint attachments_size, int width, int height)
 {
-	AFramebuffer *framebuffer = m_malloc(sizeof(AFramebuffer));
-	framebuffer->height	  = height;
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
+	if (sizeof(AFramebuffer) > FRAMEBUFFER_SIZE) {
+		log_error("framebuffer is too large: %zu", sizeof(AFramebuffer));
+		return framebuffer;
+	}
+
+	framebuffer->height = height;
 
 	framebuffer->fb = gl_fb_create(renderer->error);
 	if (framebuffer->fb == 0) {
 		log_error("failed to create framebuffer");
-		return NULL;
 	}
 
 	framebuffer->attachments_count = attachments_size / sizeof(AAttachmentDesc);
-	framebuffer->attachments       = m_malloc(framebuffer->attachments_count * sizeof(GLAttachment *));
+	framebuffer->attachments       = m_malloc(framebuffer->attachments_count * sizeof(GLAttachment));
 
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
-		framebuffer->attachments[i] = gl_attachment_create(renderer, attachments[i], width, height, i);
-		if (framebuffer->attachments[i] == NULL) {
-			log_error("failed to create attachment");
-			return NULL;
-		}
+		gl_attachment_create(&framebuffer->attachments[i], renderer, attachments[i], width, height, i);
 	}
 
 	framebuffer->depth_stencil = create_depth_stencil_attachment(renderer, width, height);
 	if (framebuffer->depth_stencil == 0) {
 		log_error("failed to create depth stencil attachment");
-		return NULL;
 	}
 
 	if (gl_fb_check_status(renderer->error, framebuffer->fb) == 0) {
 		log_error("framebuffer is not complete");
-		return NULL;
 	}
 
 	const char *src_vert = "#version 330 core\n"
@@ -1031,10 +1132,9 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 			       "	FragColor = texture(Texture, VTexCoord);\n"
 			       "}\0";
 
-	framebuffer->shader = shader_create(renderer, src_vert, src_frag, "Texture", 1);
+	shader_create(framebuffer->shader, renderer, src_vert, src_frag, "Texture", 1);
 	if (framebuffer->shader == NULL) {
 		log_error("failed to create shader");
-		return NULL;
 	}
 
 	AValue vertex[] = {
@@ -1084,80 +1184,96 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 		.indices.size  = sizeof(indices),
 	};
 
-	framebuffer->mesh = mesh_create(renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
-	if (framebuffer->mesh == NULL) {
-		log_error("failed to create mesh");
-		return NULL;
-	}
+	mesh_create((AMesh *)framebuffer->mesh, renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
 
 	return framebuffer;
 }
 
-static void fb_delete(AFramebuffer *framebuffer, ARenderer *renderer)
+static void fb_delete(void *vframebuffer, void *vrenderer)
 {
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
-		gl_attachment_delete(framebuffer->attachments[i], renderer);
+		gl_attachment_delete(&framebuffer->attachments[i], renderer);
 	}
-	m_free(framebuffer->attachments, framebuffer->attachments_count * sizeof(GLAttachment *));
+	m_free(framebuffer->attachments, framebuffer->attachments_count * sizeof(GLAttachment));
 
 	if (framebuffer->depth_stencil != 0) {
 		gl_texture_delete(renderer->error, framebuffer->depth_stencil);
 		framebuffer->depth_stencil = 0;
 	}
 
-	mesh_delete(framebuffer->mesh, renderer);
+	mesh_delete((AMesh *)framebuffer->mesh, renderer);
 	shader_delete(framebuffer->shader, renderer);
 
 	if (framebuffer->fb != 0) {
 		gl_fb_delete(renderer->error, framebuffer->fb);
 		framebuffer->fb = 0;
 	}
-
-	m_free(framebuffer, sizeof(AFramebuffer));
 }
 
-static void fb_bind_render_targets(AFramebuffer *framebuffer, ARenderer *renderer, uint *targets, uint targets_size)
+static void fb_bind_render_targets(void *vframebuffer, void *vrenderer, uint *targets, uint targets_size)
 {
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
 	GLenum buffers[8]  = { 0 };
 	uint targets_count = targets_size / sizeof(uint);
 	for (uint i = 0; i < targets_count; i++) {
-		buffers[i]				   = framebuffer->attachments[targets[i]]->target;
-		framebuffer->attachments[targets[i]]->slot = i;
+		buffers[i] = framebuffer->attachments[targets[i]].target;
+
+		framebuffer->attachments[targets[i]].slot = i;
 	}
 	gl_draw_buffers(renderer->error, targets_count, buffers);
 }
 
-static void fb_unbind_render_targets(AFramebuffer *framebuffer, ARenderer *renderer, uint *targets, uint targets_size)
+static void fb_unbind_render_targets(void *vframebuffer, void *vrenderer, uint *targets, uint targets_size)
 {
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
 	GLenum buffers[8]  = { 0 };
 	uint targets_count = targets_size / sizeof(uint);
 	gl_draw_buffers(renderer->error, targets_count, buffers);
 }
 
-static void fb_clear_attachment(AFramebuffer *framebuffer, ARenderer *renderer, uint id, const void *value)
+static void fb_clear_attachment(void *vframebuffer, void *vrenderer, uint id, const void *value)
 {
-	gl_attachment_clear(renderer, framebuffer->attachments[id], framebuffer->attachments[id]->slot, value);
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
+	gl_attachment_clear(renderer, &framebuffer->attachments[id], framebuffer->attachments[id].slot, value);
 }
 
-static void fb_clear_depth_attachment(AFramebuffer *framebuffer, ARenderer *renderer, const void *value)
+static void fb_clear_depth_attachment(void *vframebuffer, void *vrenderer, const void *value)
 {
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
 	gl_dsb_clear(renderer->error, renderer->lhc == 1 ? 0.0f : 1.0f, 0);
 }
 
-static void fb_read_pixel(AFramebuffer *framebuffer, ARenderer *renderer, uint id, int x, int y, void *pixel)
+static void fb_read_pixel(void *vframebuffer, void *vrenderer, uint id, int x, int y, void *pixel)
 {
-	gl_attachment_read_pixel(renderer, framebuffer->attachments[id], x, framebuffer->height - y, pixel);
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
+	gl_attachment_read_pixel(renderer, &framebuffer->attachments[id], x, framebuffer->height - y, pixel);
 }
 
-static void fb_draw(AFramebuffer *framebuffer, ARenderer *renderer, uint id)
+static void fb_draw(void *vframebuffer, void *vrenderer, uint id)
 {
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
 	gl_fb_bind(renderer->error, 0);
 
 	gl_clear(renderer->error, 0, 0, 0, 1, renderer->lhc == 1 ? 0 : 1);
 	shader_bind(framebuffer->shader, renderer);
-	gl_attachment_bind(renderer, framebuffer->attachments[id], 0);
-	mesh_draw(framebuffer->mesh, renderer, 0xFFFFFFFF);
-	gl_attachment_unbind(renderer, framebuffer->attachments[id], 0);
+	gl_attachment_bind(renderer, &framebuffer->attachments[id], 0);
+	mesh_draw((AMesh *)framebuffer->mesh, renderer, 0xFFFFFFFF);
+	gl_attachment_unbind(renderer, &framebuffer->attachments[id], 0);
 	gl_fb_bind(renderer->error, framebuffer->fb);
 }
 

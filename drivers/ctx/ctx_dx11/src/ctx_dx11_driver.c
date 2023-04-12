@@ -12,11 +12,17 @@ typedef struct AWindow {
 	HWND window;
 } AWindow;
 
-static AContext *ctx_create(void *window)
+static void *ctx_create(void *vcontext, void *vwindow)
 {
-	AWindow *awindow  = window;
-	AContext *context = m_malloc(sizeof(AContext));
-	context->window	  = awindow->window;
+	AContext *context = vcontext;
+	AWindow *window	  = vwindow;
+
+	if (sizeof(AContext) > CONTEXT_SIZE) {
+		log_error("context is too large: %zu", sizeof(AContext));
+		return context;
+	}
+
+	context->window = window->window;
 
 	DXGI_SWAP_CHAIN_DESC sd = {
 		.BufferDesc = {
@@ -58,8 +64,10 @@ static AContext *ctx_create(void *window)
 	return context;
 }
 
-static void ctx_delete(AContext *context)
+static void ctx_delete(void *vcontext)
 {
+	AContext *context = vcontext;
+
 #ifdef _DEBUG
 	dx11_error_delete(&context->error);
 #endif
@@ -75,11 +83,12 @@ static void ctx_delete(AContext *context)
 	if (context->device != NULL) {
 		context->device->lpVtbl->Release(context->device);
 	}
-	m_free(context, sizeof(AContext));
 }
 
-static void ctx_swap_buffers(AContext *context)
+static void ctx_swap_buffers(void *vcontext)
 {
+	AContext *context = vcontext;
+
 	if (DX11_FAILED(&context->error, "Failed to present", context->swap_chain->lpVtbl->Present(context->swap_chain, 0, 0))) {
 		if (DX11_FAILED(&context->error, "Device removed reason", context->device->lpVtbl->GetDeviceRemovedReason(context->device))) {
 			return;

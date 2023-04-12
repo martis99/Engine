@@ -2,23 +2,16 @@
 
 #include "ctx_none_types.h"
 
-typedef struct AWindow {
-	byte id;
-} AWindow;
-
-AContext *ctx_create(void *window)
+void *ctx_create(void *vcontext, void *vwindow)
 {
-	AWindow *awindow  = window;
-	AContext *context = m_malloc(sizeof(AContext));
-	return context;
+	return vcontext;
 }
 
-void ctx_delete(AContext *context)
+void ctx_delete(void *vcontext)
 {
-	m_free(context, sizeof(AContext));
 }
 
-void ctx_swap_buffers(AContext *context)
+void ctx_swap_buffers(void *context)
 {
 }
 

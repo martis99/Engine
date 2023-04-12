@@ -138,12 +138,18 @@ typedef struct AWindow {
 	Window window;
 } AWindow;
 
-static AContext *ctx_create(void *window)
+static void *ctx_create(void *vcontext, void *vwindow)
 {
-	AWindow *awindow  = window;
-	AContext *context = m_malloc(sizeof(AContext));
-	context->display  = awindow->display;
-	context->window	  = awindow->window;
+	AContext *context = vcontext;
+	AWindow *window	  = vwindow;
+
+	if (sizeof(AContext) > CONTEXT_SIZE) {
+		log_error("context is too large: %zu", sizeof(AContext));
+		return context;
+	}
+
+	context->display = window->display;
+	context->window	 = window->window;
 
 	if (load_functions() == 0) {
 		printf("Failed to load opengl functions");
@@ -183,16 +189,19 @@ static AContext *ctx_create(void *window)
 	return context;
 }
 
-static void ctx_delete(AContext *context)
+static void ctx_delete(void *vcontext)
 {
+	AContext *context = vcontext;
+
 	gl_error_delete(&context->error);
 	glXMakeCurrent(context->display, None, NULL);
 	glXDestroyContext(context->display, context->context);
-	m_free(context, sizeof(AContext));
 }
 
-static void ctx_swap_buffers(AContext *context)
+static void ctx_swap_buffers(void *vcontext)
 {
+	AContext *context = vcontext;
+
 	glXSwapBuffers(context->display, context->window);
 }
 

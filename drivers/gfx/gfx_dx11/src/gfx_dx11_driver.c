@@ -22,7 +22,7 @@ typedef union RasterizerStates {
 
 } RasterizerStates;
 
-struct ARenderer {
+typedef struct ARenderer {
 	ID3D11Device *device;
 	ID3D11DeviceContext *context;
 	AContext *acontext;
@@ -36,16 +36,16 @@ struct ARenderer {
 	DX11Error *error;
 	int lhc;
 	int cull_back;
-};
+} ARenderer;
 
-struct AShader {
+typedef struct AShader {
 	ID3DBlob *vs_blob;
 	ID3D11VertexShader *vs;
 	ID3DBlob *ps_blob;
 	ID3D11PixelShader *ps;
-};
+} AShader;
 
-struct AMesh {
+typedef struct AMesh {
 	UINT vertex_size;
 	ID3D11Buffer *vertices;
 	UINT vertices_count;
@@ -61,13 +61,13 @@ struct AMesh {
 
 	ID3D11InputLayout *layout;
 	D3D11_PRIMITIVE_TOPOLOGY primitive;
-};
+} AMesh;
 
-struct ATexture {
+typedef struct ATexture {
 	ID3D11Texture2D *texture;
 	ID3D11ShaderResourceView *srv;
 	ID3D11SamplerState *ss;
-};
+} ATexture;
 
 typedef struct DX11Attachment {
 	AType type;
@@ -79,23 +79,23 @@ typedef struct DX11Attachment {
 	uint pixel_size;
 } DX11Attachment;
 
-struct AFramebuffer {
+typedef struct AFramebuffer {
 	ID3D11RenderTargetView *rtv;
 
 	uint attachments_count;
-	DX11Attachment **attachments;
+	DX11Attachment *attachments;
 
 	ID3D11Texture2D *dst;
 	ID3D11DepthStencilView *dsv;
 
-	AShader *shader;
-	AMesh *mesh;
-};
+	byte shader[SHADER_SIZE];
+	byte mesh[MESH_SIZE];
+} AFramebuffer;
 
-struct AUniformBuffer {
+typedef struct AUniformBuffer {
 	ID3D11Buffer *buffer;
 	UINT slot;
-};
+} AUniformBuffer;
 
 static D3D11_PRIMITIVE_TOPOLOGY dx11_aprimitive(APrimitive primitive)
 {
@@ -171,10 +171,10 @@ static DXGI_FORMAT dx11_atype_format(AType type)
 	return 0;
 }
 
-static DX11Attachment *dx11_attachment_create(ARenderer *renderer, AAttachmentDesc desc, UINT width, UINT height)
+static DX11Attachment *dx11_attachment_create(DX11Attachment *attachment, void *vrenderer, AAttachmentDesc desc, UINT width, UINT height)
 {
-	DX11Attachment *attachment = m_malloc(sizeof(DX11Attachment));
-	attachment->type	   = desc.type;
+	ARenderer *renderer = vrenderer;
+	attachment->type    = desc.type;
 
 	DXGI_FORMAT format = dx11_atype_format(desc.type);
 
@@ -239,7 +239,6 @@ static void dx11_attachment_delete(DX11Attachment *attachment)
 		dx11_texture_delete(attachment->st);
 		attachment->st = NULL;
 	}
-	m_free(attachment, sizeof(DX11Attachment));
 }
 
 static void dx11_attachment_srv_bind(DX11Attachment *attachment, ID3D11DeviceContext *context, UINT slot)
@@ -261,14 +260,18 @@ static void dx11_attachment_clear(DX11Attachment *attachment, ID3D11DeviceContex
 	context->lpVtbl->ClearRenderTargetView(context, attachment->rtv, fvalue);
 }
 
-static void dx11_attachment_read_pixel(ARenderer *renderer, DX11Attachment *attachment, ID3D11DeviceContext *context, int x, int y, void *pixel)
+static void dx11_attachment_read_pixel(void *vrenderer, DX11Attachment *attachment, ID3D11DeviceContext *context, int x, int y, void *pixel)
 {
+	ARenderer *renderer = vrenderer;
+
 	context->lpVtbl->CopyResource(context, (ID3D11Resource *)attachment->st, (ID3D11Resource *)attachment->texture);
 	dx11_texture_read_pixel(renderer->error, attachment->st, context, x, y, attachment->pixel_size, pixel);
 }
 
-static ID3D11RenderTargetView *create_back_buffer_attachment(ARenderer *renderer, ID3D11RenderTargetView **view)
+static ID3D11RenderTargetView *create_back_buffer_attachment(void *vrenderer, ID3D11RenderTargetView **view)
 {
+	ARenderer *renderer = vrenderer;
+
 	ID3D11Resource *back_buffer = NULL;
 	if (DX11_FAILED(renderer->error, "Failed to get back buffer",
 			renderer->acontext->swap_chain->lpVtbl->GetBuffer(renderer->acontext->swap_chain, 0, &IID_ID3D11Resource, (void **)(&back_buffer)))) {
@@ -283,8 +286,10 @@ static ID3D11RenderTargetView *create_back_buffer_attachment(ARenderer *renderer
 	return *view;
 }
 
-static ID3D11DepthStencilView *create_depth_stencil_attachment(ARenderer *renderer, UINT width, UINT height, ID3D11Texture2D **texture, ID3D11DepthStencilView **view)
+static ID3D11DepthStencilView *create_depth_stencil_attachment(void *vrenderer, UINT width, UINT height, ID3D11Texture2D **texture, ID3D11DepthStencilView **view)
 {
+	ARenderer *renderer = vrenderer;
+
 	D3D11_TEXTURE2D_DESC td = {
 		.Width		    = width,
 		.Height		    = height,
@@ -315,8 +320,11 @@ static ID3D11DepthStencilView *create_depth_stencil_attachment(ARenderer *render
 	return *view;
 }
 
-static ID3D11Buffer *create_vertex_buffer(ARenderer *renderer, AMesh *mesh, ABufferDesc *desc, ABufferData data)
+static ID3D11Buffer *create_vertex_buffer(void *vrenderer, void *vmesh, ABufferDesc *desc, ABufferData data)
 {
+	ARenderer *renderer = vrenderer;
+	AMesh *mesh	    = vmesh;
+
 	mesh->vertex_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
 		mesh->vertices	     = dx11_vb_create_dynamic(renderer->error, renderer->device, desc->max_count * mesh->vertex_size, mesh->vertex_size);
@@ -328,8 +336,11 @@ static ID3D11Buffer *create_vertex_buffer(ARenderer *renderer, AMesh *mesh, ABuf
 	return mesh->vertices;
 }
 
-static ID3D11Buffer *create_instance_buffer(ARenderer *renderer, AMesh *mesh, ABufferDesc *desc, ABufferData data)
+static ID3D11Buffer *create_instance_buffer(void *vrenderer, void *vmesh, ABufferDesc *desc, ABufferData data)
 {
+	ARenderer *renderer = vrenderer;
+	AMesh *mesh	    = vmesh;
+
 	mesh->instance_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
 		mesh->instances	      = dx11_vb_create_dynamic(renderer->error, renderer->device, desc->max_count * mesh->instance_size, mesh->instance_size);
@@ -341,8 +352,11 @@ static ID3D11Buffer *create_instance_buffer(ARenderer *renderer, AMesh *mesh, AB
 	return mesh->instances;
 }
 
-static ID3D11Buffer *create_index_buffer(ARenderer *renderer, AMesh *mesh, ABufferDesc *desc, ABufferData data)
+static ID3D11Buffer *create_index_buffer(void *vrenderer, void *vmesh, ABufferDesc *desc, ABufferData data)
 {
+	ARenderer *renderer = vrenderer;
+	AMesh *mesh	    = vmesh;
+
 	mesh->index_size = abufferdesc_size(desc);
 	if (data.data == NULL) {
 		mesh->indices	    = dx11_ib_create_dynamic(renderer->error, renderer->device, desc->max_count * mesh->index_size, mesh->index_size);
@@ -368,9 +382,16 @@ static void add_layout(D3D11_INPUT_ELEMENT_DESC *ied, ABufferDesc *desc, UINT *i
 	}
 }
 
-static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc, AMeshData data, APrimitive primitive)
+static void *mesh_create(void *vmesh, void *vrenderer, void *vshader, AShaderDesc desc, AMeshData data, APrimitive primitive)
 {
-	AMesh *mesh = m_malloc(sizeof(AMesh));
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+	AShader *shader	    = vshader;
+
+	if (sizeof(AMesh) > MESH_SIZE) {
+		log_error("mesh is too large: %zu", sizeof(AMesh));
+		return mesh;
+	}
 
 	ABufferDesc *vertices_desc  = ashaderdesc_get_bufferdesc(desc, A_BFR_VS_IN0);
 	ABufferDesc *instances_desc = ashaderdesc_get_bufferdesc(desc, A_BFR_VS_IN1);
@@ -384,7 +405,6 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 	if (vertices_desc != NULL) {
 		if (create_vertex_buffer(renderer, mesh, vertices_desc, data.vertices) == NULL) {
 			log_error("failed to create vertex buffer");
-			return NULL;
 		}
 		add_layout(ied, vertices_desc, &index, 0, D3D11_INPUT_PER_VERTEX_DATA, 0);
 	} else {
@@ -395,7 +415,6 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 	if (instances_desc != NULL) {
 		if (create_instance_buffer(renderer, mesh, instances_desc, data.instances) == NULL) {
 			log_error("failed to create instance buffer");
-			return NULL;
 		}
 		add_layout(ied, instances_desc, &index, 1, D3D11_INPUT_PER_INSTANCE_DATA, 1);
 	} else {
@@ -406,7 +425,6 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 	if (indices_desc != NULL && data.indices.size > 0) {
 		if (create_index_buffer(renderer, mesh, indices_desc, data.indices) == NULL) {
 			log_error("failed to create indices buffer");
-			return NULL;
 		}
 	} else {
 		mesh->indices	    = 0;
@@ -416,7 +434,6 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 	mesh->layout = dx11_il_create(renderer->error, renderer->device, ied, num_elements, shader->vs_blob);
 	if (mesh->layout == NULL) {
 		log_error("failed to create input layout");
-		return NULL;
 	}
 	m_free(ied, num_elements * sizeof(D3D11_INPUT_ELEMENT_DESC));
 
@@ -425,8 +442,10 @@ static AMesh *mesh_create(ARenderer *renderer, AShader *shader, AShaderDesc desc
 	return mesh;
 }
 
-static void mesh_delete(AMesh *mesh, ARenderer *renderer)
+static void mesh_delete(void *vmesh, void *vrenderer)
 {
+	AMesh *mesh = vmesh;
+
 	if (mesh->vertices != NULL) {
 		dx11_vb_delete(mesh->vertices);
 		mesh->vertices = NULL;
@@ -443,11 +462,13 @@ static void mesh_delete(AMesh *mesh, ARenderer *renderer)
 		dx11_il_delete(mesh->layout);
 		mesh->layout = NULL;
 	}
-	m_free(mesh, sizeof(AMesh));
 }
 
-static void mesh_set_vertices(AMesh *mesh, ARenderer *renderer, const void *vertices, uint vertices_size)
+static void mesh_set_vertices(void *vmesh, void *vrenderer, const void *vertices, uint vertices_size)
 {
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+
 	if (mesh->vertices == NULL) {
 		return;
 	}
@@ -455,8 +476,11 @@ static void mesh_set_vertices(AMesh *mesh, ARenderer *renderer, const void *vert
 	mesh->vertices_count = vertices_size / mesh->vertex_size;
 }
 
-static void mesh_set_instances(AMesh *mesh, ARenderer *renderer, const void *instances, uint instances_size)
+static void mesh_set_instances(void *vmesh, void *vrenderer, const void *instances, uint instances_size)
 {
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+
 	if (mesh->instances == NULL) {
 		return;
 	}
@@ -464,8 +488,11 @@ static void mesh_set_instances(AMesh *mesh, ARenderer *renderer, const void *ins
 	mesh->instances_count = instances_size / mesh->instance_size;
 }
 
-static void mesh_set_indices(AMesh *mesh, ARenderer *renderer, const void *indices, uint indices_size)
+static void mesh_set_indices(void *vmesh, void *vrenderer, const void *indices, uint indices_size)
 {
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+
 	if (mesh->indices == NULL) {
 		return;
 	}
@@ -473,8 +500,11 @@ static void mesh_set_indices(AMesh *mesh, ARenderer *renderer, const void *indic
 	mesh->indices_count = indices_size / mesh->index_size;
 }
 
-static void mesh_draw(AMesh *mesh, ARenderer *renderer, uint indices)
+static void mesh_draw(void *vmesh, void *vrenderer, uint indices)
 {
+	AMesh *mesh	    = vmesh;
+	ARenderer *renderer = vrenderer;
+
 	renderer->context->lpVtbl->IASetPrimitiveTopology(renderer->context, mesh->primitive);
 	dx11_il_bind(mesh->layout, renderer->context);
 
@@ -508,14 +538,21 @@ static void mesh_draw(AMesh *mesh, ARenderer *renderer, uint indices)
 	}
 }
 
-static ARenderer *renderer_create(AContext *context, int lhc)
+static void *renderer_create(void *vrenderer, void *vcontext, int lhc)
 {
-	ARenderer *renderer = m_malloc(sizeof(ARenderer));
-	renderer->device    = context->device;
-	renderer->context   = context->context;
-	renderer->acontext  = context;
-	renderer->error	    = &context->error;
-	renderer->lhc	    = lhc;
+	ARenderer *renderer = vrenderer;
+	AContext *context   = vcontext;
+
+	if (sizeof(ARenderer) > RENDERER_SIZE) {
+		log_error("renderer is too large: %zu", sizeof(ARenderer));
+		return renderer;
+	}
+
+	renderer->device   = context->device;
+	renderer->context  = context->context;
+	renderer->acontext = context;
+	renderer->error	   = &context->error;
+	renderer->lhc	   = lhc;
 
 	D3D11_VIEWPORT vp = {
 		.Width	  = 1600,
@@ -580,8 +617,10 @@ static ARenderer *renderer_create(AContext *context, int lhc)
 	return renderer;
 }
 
-static void renderer_delete(ARenderer *renderer)
+static void renderer_delete(void *vrenderer)
 {
+	ARenderer *renderer = vrenderer;
+
 	if (renderer->depth_stencil != NULL) {
 		dx11_depth_stencil_delete(renderer->depth_stencil);
 		renderer->depth_stencil = NULL;
@@ -612,11 +651,12 @@ static void renderer_delete(ARenderer *renderer)
 		dx11_blend_delete(renderer->blend_disabled);
 		renderer->blend_disabled = NULL;
 	}
-	m_free(renderer, sizeof(ARenderer));
 }
 
-static void renderer_depth_stencil_set(ARenderer *renderer, bool depth_enabled, bool stencil_enabled)
+static void renderer_depth_stencil_set(void *vrenderer, bool depth_enabled, bool stencil_enabled)
 {
+	ARenderer *renderer = vrenderer;
+
 	if (depth_enabled == 0) {
 		if (stencil_enabled == 0) {
 			dx11_depth_stencil_bind(renderer->depth_stencil, renderer->context);
@@ -632,14 +672,18 @@ static void renderer_depth_stencil_set(ARenderer *renderer, bool depth_enabled, 
 	}
 }
 
-static void renderer_rasterizer_set(ARenderer *renderer, bool wireframe, bool cull_back, bool ccw)
+static void renderer_rasterizer_set(void *vrenderer, bool wireframe, bool cull_back, bool ccw)
 {
+	ARenderer *renderer = vrenderer;
+
 	renderer->cull_back = cull_back;
 	dx11_rasterizer_bind(renderer->raster_states.states[ccw * 4 + wireframe * 2 + cull_back], renderer->context);
 }
 
-static void renderer_blend_set(ARenderer *renderer, bool enabled)
+static void renderer_blend_set(void *vrenderer, bool enabled)
 {
+	ARenderer *renderer = vrenderer;
+
 	if (enabled == 0) {
 		dx11_blend_bind(renderer->blend_disabled, renderer->context);
 	} else {
@@ -647,22 +691,26 @@ static void renderer_blend_set(ARenderer *renderer, bool enabled)
 	}
 }
 
-static mat4 renderer_perspective(ARenderer *renderer, float fovy, float aspect, float zNear, float zFar)
+static mat4 renderer_perspective(void *vrenderer, float fovy, float aspect, float zNear, float zFar)
 {
+	ARenderer *renderer = vrenderer;
+
 	return mat4_perspective0(fovy, aspect, zNear, zFar, renderer->lhc);
 }
 
-static mat4 renderer_ortho(ARenderer *renderer, float left, float right, float bottom, float top, float znear, float zfar)
+static mat4 renderer_ortho(void *vrenderer, float left, float right, float bottom, float top, float znear, float zfar)
 {
+	ARenderer *renderer = vrenderer;
+
 	return mat4_ortho0(left, right, bottom, top, znear, zfar, renderer->lhc);
 }
 
-static float renderer_near(ARenderer *renderer)
+static float renderer_near(void *vrenderer)
 {
 	return 0;
 }
 
-static float renderer_far(ARenderer *renderer)
+static float renderer_far(void *vrenderer)
 {
 	return 1;
 }
@@ -718,26 +766,33 @@ static const char *sg_get_bnf()
 	       "\0";
 }
 
-static AShader *shader_create(ARenderer *renderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures)
+static void *shader_create(void *vshader, void *vrenderer, const char *src_vert, const char *src_frag, const char *textures, uint num_textures)
 {
-	AShader *shader = m_malloc(sizeof(AShader));
+	AShader *shader	    = vshader;
+	ARenderer *renderer = vrenderer;
+
+	if (sizeof(AShader) > SHADER_SIZE) {
+		log_error("shader is too large: %zu", sizeof(AShader));
+		return shader;
+	}
 
 	shader->vs = dx11_vs_create(renderer->error, renderer->device, src_vert, &shader->vs_blob);
 	if (shader->vs == NULL) {
 		log_error("failed to create vertex shader");
-		return NULL;
 	}
 
 	shader->ps = dx11_ps_create(renderer->error, renderer->device, src_frag, &shader->ps_blob);
 	if (shader->ps == NULL) {
 		log_error("failed to create pixel shader");
-		return NULL;
 	}
+
 	return shader;
 }
 
-static void shader_delete(AShader *shader, ARenderer *renderer)
+static void shader_delete(void *vshader, void *vrenderer)
 {
+	AShader *shader = vshader;
+
 	if (shader->vs != NULL && shader->vs_blob != NULL) {
 		dx11_vs_delete(shader->vs, shader->vs_blob);
 		shader->vs	= NULL;
@@ -748,18 +803,26 @@ static void shader_delete(AShader *shader, ARenderer *renderer)
 		shader->ps	= NULL;
 		shader->ps_blob = NULL;
 	}
-	m_free(shader, sizeof(AShader));
 }
 
-static void shader_bind(AShader *shader, ARenderer *renderer)
+static void shader_bind(void *vshader, void *vrenderer)
 {
+	AShader *shader	    = vshader;
+	ARenderer *renderer = vrenderer;
+
 	dx11_vs_bind(shader->vs, renderer->context);
 	dx11_ps_bind(shader->ps, renderer->context);
 }
 
-static ATexture *texture_create(ARenderer *renderer, AWrap wrap, AFilter filter, int width, int height, int channels, void *data)
+static void *texture_create(void *vtexture, void *vrenderer, AWrap wrap, AFilter filter, int width, int height, int channels, void *data)
 {
-	ATexture *texture = m_malloc(sizeof(ATexture));
+	ATexture *texture   = vtexture;
+	ARenderer *renderer = vrenderer;
+
+	if (sizeof(ATexture) > TEXTURE_SIZE) {
+		log_error("texture is too large: %zu", sizeof(ATexture));
+		return texture;
+	}
 
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	switch (channels) {
@@ -798,14 +861,19 @@ static ATexture *texture_create(ARenderer *renderer, AWrap wrap, AFilter filter,
 	return texture;
 }
 
-static void texture_bind(ATexture *texture, ARenderer *renderer, uint slot)
+static void texture_bind(void *vtexture, void *vrenderer, uint slot)
 {
+	ATexture *texture   = vtexture;
+	ARenderer *renderer = vrenderer;
+
 	dx11_srv_bind(texture->srv, renderer->context, slot);
 	dx11_ss_bind(texture->ss, renderer->context, slot);
 }
 
-static void texture_delete(ATexture *texture, ARenderer *renderer)
+static void texture_delete(void *vtexture, void *vrenderer)
 {
+	ATexture *texture = vtexture;
+
 	if (texture->texture != NULL) {
 		dx11_texture_delete(texture->texture);
 		texture->texture = NULL;
@@ -818,80 +886,103 @@ static void texture_delete(ATexture *texture, ARenderer *renderer)
 		dx11_ss_delete(texture->ss);
 		texture->ss = NULL;
 	}
-	m_free(texture, sizeof(ATexture));
 }
 
-static AUniformBuffer *ub_create_static(ARenderer *renderer, uint slot, uint data_size, const void *data)
+static void *ub_create_static(void *vuniform_buffer, void *vrenderer, uint slot, uint data_size, const void *data)
 {
-	AUniformBuffer *uniform_buffer = m_malloc(sizeof(AUniformBuffer));
-	uniform_buffer->buffer	       = dx11_cb_create_static(renderer->error, renderer->device, data, data_size);
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
+
+	if (sizeof(AUniformBuffer) > UNIFORM_BUFFER_SIZE) {
+		log_error("uniform buffer is too large: %zu", sizeof(AUniformBuffer));
+		return uniform_buffer;
+	}
+
+	uniform_buffer->buffer = dx11_cb_create_static(renderer->error, renderer->device, data, data_size);
+
 	if (uniform_buffer->buffer == NULL) {
 		log_error("failed to create static constant buffer");
-		return NULL;
 	}
 	uniform_buffer->slot = slot;
 	return uniform_buffer;
 }
 
-static AUniformBuffer *ub_create_dynamic(ARenderer *renderer, uint slot, uint data_size)
+static void *ub_create_dynamic(void *vuniform_buffer, void *vrenderer, uint slot, uint data_size)
 {
-	AUniformBuffer *uniform_buffer = m_malloc(sizeof(AUniformBuffer));
-	uniform_buffer->buffer	       = dx11_cb_create_dynamic(renderer->error, renderer->device, data_size);
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
+
+	if (sizeof(AUniformBuffer) > UNIFORM_BUFFER_SIZE) {
+		log_error("uniform buffer is too large: %zu", sizeof(AUniformBuffer));
+		return uniform_buffer;
+	}
+
+	uniform_buffer->buffer = dx11_cb_create_dynamic(renderer->error, renderer->device, data_size);
+
 	if (uniform_buffer->buffer == NULL) {
 		log_error("failed to create dynamic constant buffer");
-		return NULL;
 	}
 	uniform_buffer->slot = slot;
 	return uniform_buffer;
 }
 
-static void ub_delete(AUniformBuffer *uniform_buffer, ARenderer *renderer)
+static void ub_delete(void *vuniform_buffer, void *vrenderer)
 {
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+
 	if (uniform_buffer->buffer != NULL) {
 		dx11_cb_delete(uniform_buffer->buffer);
 		uniform_buffer->buffer = NULL;
 	}
-	m_free(uniform_buffer, sizeof(AUniformBuffer));
 }
 
-static void ub_upload(AUniformBuffer *uniform_buffer, ARenderer *renderer, const void *data, uint data_size)
+static void ub_upload(void *vuniform_buffer, void *vrenderer, const void *data, uint data_size)
 {
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
+
 	dx11_cb_set_data(renderer->error, uniform_buffer->buffer, renderer->context, data, data_size);
 }
 
-static void ub_bind_vs(AUniformBuffer *uniform_buffer, ARenderer *renderer)
+static void ub_bind_vs(void *vuniform_buffer, void *vrenderer)
 {
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
+
 	dx11_cb_bind_vs(uniform_buffer->buffer, renderer->context, uniform_buffer->slot);
 }
 
-static void ub_bind_ps(AUniformBuffer *uniform_buffer, ARenderer *renderer)
+static void ub_bind_ps(void *vuniform_buffer, void *vrenderer)
 {
+	AUniformBuffer *uniform_buffer = vuniform_buffer;
+	ARenderer *renderer	       = vrenderer;
+
 	dx11_cb_bind_ps(uniform_buffer->buffer, renderer->context, uniform_buffer->slot);
 }
 
-static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments, uint attachments_size, int width, int height)
+static void *fb_create(void *vframebuffer, void *vrenderer, AAttachmentDesc *attachments, uint attachments_size, int width, int height)
 {
-	AFramebuffer *framebuffer = m_malloc(sizeof(AFramebuffer));
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
+	if (sizeof(AFramebuffer) > FRAMEBUFFER_SIZE) {
+		log_error("framebuffer is too large: %zu", sizeof(AFramebuffer));
+		return framebuffer;
+	}
 
 	if (create_back_buffer_attachment(renderer, &framebuffer->rtv) == NULL) {
 		log_error("failed to create back buffer attachment");
-		return NULL;
 	}
 
 	framebuffer->attachments_count = attachments_size / sizeof(AAttachmentDesc);
-	framebuffer->attachments       = m_malloc(framebuffer->attachments_count * sizeof(DX11Attachment *));
+	framebuffer->attachments       = m_malloc(framebuffer->attachments_count * sizeof(DX11Attachment));
 
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
-		framebuffer->attachments[i] = dx11_attachment_create(renderer, attachments[i], width, height);
-		if (framebuffer->attachments[i] == NULL) {
-			log_error("failed to create attachment");
-			return NULL;
-		}
+		dx11_attachment_create(&framebuffer->attachments[i], renderer, attachments[i], width, height);
 	}
 
 	if (create_depth_stencil_attachment(renderer, width, height, &framebuffer->dst, &framebuffer->dsv) == NULL) {
 		log_error("failed to create depth stencil attachment");
-		return NULL;
 	}
 
 	const char *src_vert = "struct Input {\n"
@@ -919,11 +1010,7 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 			       "	return Texture.Sample(Sampler, input.tex_coord);\n"
 			       "}\0";
 
-	framebuffer->shader = shader_create(renderer, src_vert, src_frag, "Texture", 1);
-	if (framebuffer->shader == NULL) {
-		log_error("failed to create shader");
-		return NULL;
-	}
+	shader_create(framebuffer->shader, renderer, src_vert, src_frag, "Texture", 1);
 
 	AValue vertex[] = {
 		{ VEC3F, "Position" },
@@ -972,26 +1059,25 @@ static AFramebuffer *fb_create(ARenderer *renderer, AAttachmentDesc *attachments
 		.indices.size  = sizeof(indices),
 	};
 
-	framebuffer->mesh = mesh_create(renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
-	if (framebuffer->mesh == NULL) {
-		log_error("failed to create mesh");
-		return NULL;
-	}
+	mesh_create((AMesh *)framebuffer->mesh, renderer, framebuffer->shader, shader_desc, md, A_TRIANGLES);
 
 	return framebuffer;
 }
 
-static void fb_delete(AFramebuffer *framebuffer, ARenderer *renderer)
+static void fb_delete(void *vframebuffer, void *vrenderer)
 {
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
 	if (framebuffer->rtv != NULL) {
 		framebuffer->rtv->lpVtbl->Release(framebuffer->rtv);
 		framebuffer->rtv = NULL;
 	}
 
 	for (uint i = 0; i < framebuffer->attachments_count; i++) {
-		dx11_attachment_delete(framebuffer->attachments[i]);
+		dx11_attachment_delete(&framebuffer->attachments[i]);
 	}
-	m_free(framebuffer->attachments, framebuffer->attachments_count * sizeof(DX11Attachment *));
+	m_free(framebuffer->attachments, framebuffer->attachments_count * sizeof(DX11Attachment));
 
 	if (framebuffer->dst != NULL) {
 		framebuffer->dst->lpVtbl->Release(framebuffer->dst);
@@ -1004,45 +1090,61 @@ static void fb_delete(AFramebuffer *framebuffer, ARenderer *renderer)
 
 	shader_delete(framebuffer->shader, renderer);
 	mesh_delete(framebuffer->mesh, renderer);
-
-	m_free(framebuffer, sizeof(AFramebuffer));
 }
 
-static void fb_bind_render_targets(AFramebuffer *framebuffer, ARenderer *renderer, uint *targets, uint targets_size)
+static void fb_bind_render_targets(void *vframebuffer, void *vrenderer, uint *targets, uint targets_size)
 {
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
 	ID3D11RenderTargetView *rtvs[8] = { 0 };
 
 	uint targets_count = targets_size / sizeof(uint);
 	for (uint i = 0; i < targets_count; i++) {
-		rtvs[i] = framebuffer->attachments[targets[i]]->rtv;
+		rtvs[i] = framebuffer->attachments[targets[i]].rtv;
 	}
 	renderer->context->lpVtbl->OMSetRenderTargets(renderer->context, targets_count, rtvs, framebuffer->dsv);
 }
 
-static void fb_unbind_render_targets(AFramebuffer *framebuffer, ARenderer *renderer, uint *targets, uint targets_size)
+static void fb_unbind_render_targets(void *vframebuffer, void *vrenderer, uint *targets, uint targets_size)
 {
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
 	ID3D11RenderTargetView *rtvs[8] = { 0 };
 	uint targets_count		= targets_size / sizeof(uint);
 	renderer->context->lpVtbl->OMSetRenderTargets(renderer->context, targets_count, rtvs, NULL);
 }
 
-static void fb_clear_attachment(AFramebuffer *framebuffer, ARenderer *renderer, uint id, const void *value)
+static void fb_clear_attachment(void *vframebuffer, void *vrenderer, uint id, const void *value)
 {
-	dx11_attachment_clear(framebuffer->attachments[id], renderer->context, value);
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
+	dx11_attachment_clear(&framebuffer->attachments[id], renderer->context, value);
 }
 
-static void fb_clear_depth_attachment(AFramebuffer *framebuffer, ARenderer *renderer, const void *value)
+static void fb_clear_depth_attachment(void *vframebuffer, void *vrenderer, const void *value)
 {
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
 	renderer->context->lpVtbl->ClearDepthStencilView(renderer->context, framebuffer->dsv, D3D11_CLEAR_DEPTH, renderer->lhc == 1 ? 1.0f : 0.0f, 0);
 }
 
-static void fb_read_pixel(AFramebuffer *framebuffer, ARenderer *renderer, uint id, int x, int y, void *pixel)
+static void fb_read_pixel(void *vframebuffer, void *vrenderer, uint id, int x, int y, void *pixel)
 {
-	dx11_attachment_read_pixel(renderer, framebuffer->attachments[1], renderer->context, x, y, pixel);
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
+	dx11_attachment_read_pixel(renderer, &framebuffer->attachments[1], renderer->context, x, y, pixel);
 }
 
-static void fb_draw(AFramebuffer *framebuffer, ARenderer *renderer, uint id)
+static void fb_draw(void *vframebuffer, void *vrenderer, uint id)
 {
+	AFramebuffer *framebuffer = vframebuffer;
+	ARenderer *renderer	  = vrenderer;
+
 	renderer->context->lpVtbl->OMSetRenderTargets(renderer->context, 1, &framebuffer->rtv, framebuffer->dsv);
 
 	FLOAT color[] = { 1, 0, 0, 0 };
@@ -1051,9 +1153,9 @@ static void fb_draw(AFramebuffer *framebuffer, ARenderer *renderer, uint id)
 	renderer->context->lpVtbl->ClearDepthStencilView(renderer->context, framebuffer->dsv, D3D11_CLEAR_DEPTH, renderer->lhc == 1 ? 1.0f : 0.0f, 0);
 
 	shader_bind(framebuffer->shader, renderer);
-	dx11_attachment_srv_bind(framebuffer->attachments[id], renderer->context, 0);
+	dx11_attachment_srv_bind(&framebuffer->attachments[id], renderer->context, 0);
 	mesh_draw(framebuffer->mesh, renderer, 0xFFFFFFFF);
-	dx11_attachment_srv_unbind(framebuffer->attachments[id], renderer->context, 0);
+	dx11_attachment_srv_unbind(&framebuffer->attachments[id], renderer->context, 0);
 }
 
 static GfxDriver driver = {

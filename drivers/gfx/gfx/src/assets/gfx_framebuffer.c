@@ -2,10 +2,7 @@
 
 Framebuffer *framebuffer_create(Framebuffer *framebuffer, Renderer *renderer, AAttachmentDesc *attachments, uint attachments_size, int width, int height)
 {
-	framebuffer->framebuffer = renderer->driver->fb_create(renderer->renderer, attachments, attachments_size, width, height);
-	if (framebuffer->framebuffer == NULL) {
-		return NULL;
-	}
+	renderer->driver->fb_create(framebuffer->framebuffer, renderer->renderer, attachments, attachments_size, width, height);
 	return framebuffer;
 }
 

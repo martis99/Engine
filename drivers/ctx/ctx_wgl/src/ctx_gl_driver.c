@@ -202,32 +202,40 @@ typedef struct AWindow {
 	HWND window;
 } AWindow;
 
-static AContext *ctx_create(void *window)
+static void *ctx_create(void *vcontext, void *vwindow)
 {
-	AWindow *awindow  = window;
-	AContext *context = m_malloc(sizeof(AContext));
-	context->window	  = awindow->window;
-	context->library  = load_opengl_functions(awindow->module, awindow->class_name);
-	context->device	  = GetDC(context->window);
-	context->context  = create_context(context->device);
-	wglMakeCurrent(context->device, context->context);
-	if (gl_error_create(&context->error) == NULL) {
-		return NULL;
+	AContext *context = vcontext;
+	AWindow *window	  = vwindow;
+
+	if (sizeof(AContext) > CONTEXT_SIZE) {
+		log_error("context is too large: %zu", sizeof(AContext));
+		return context;
 	}
+
+	context->window	 = window->window;
+	context->library = load_opengl_functions(window->module, window->class_name);
+	context->device	 = GetDC(context->window);
+	context->context = create_context(context->device);
+	wglMakeCurrent(context->device, context->context);
+	gl_error_create(&context->error);
+
 	return context;
 }
 
-static void ctx_delete(AContext *context)
+static void ctx_delete(void *vcontext)
 {
+	AContext *context = vcontext;
+
 	gl_error_delete(&context->error);
 	FreeLibrary(context->library);
 	ReleaseDC(context->window, context->device);
 	wglDeleteContext(context->context);
-	m_free(context, sizeof(AContext));
 }
 
-static void ctx_swap_buffers(AContext *context)
+static void ctx_swap_buffers(void *vcontext)
 {
+	AContext *context = vcontext;
+
 	wglSwapLayerBuffers(context->device, WGL_SWAP_MAIN_PLANE);
 }
 

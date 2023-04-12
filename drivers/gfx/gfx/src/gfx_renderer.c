@@ -12,12 +12,8 @@ Renderer *renderer_create(Renderer *renderer, Context *context, int width, int h
 		return NULL;
 	}
 
-	renderer->renderer = renderer->driver->renderer_create(context->context, lhc);
-	renderer->lhc	   = lhc;
-
-	if (renderer->renderer == NULL) {
-		return NULL;
-	}
+	renderer->driver->renderer_create(renderer->renderer, context->context, lhc);
+	renderer->lhc	     = lhc;
 	renderer->width	     = width;
 	renderer->height     = height;
 	renderer->draw_calls = 0;

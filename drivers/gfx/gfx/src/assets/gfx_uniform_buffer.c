@@ -4,20 +4,14 @@
 UniformBuffer *uniformbuffer_create_static(UniformBuffer *uniform_buffer, Renderer *renderer, ABufferDesc *desc, const void *data)
 {
 	buffer_create(&uniform_buffer->values, desc->values, desc->values_size, data);
-	uniform_buffer->buffer = renderer->driver->ub_create_static(renderer->renderer, desc->slot, uniform_buffer->values.size, uniform_buffer->values.data);
-	if (uniform_buffer->buffer == NULL) {
-		return NULL;
-	}
+	renderer->driver->ub_create_static(uniform_buffer->buffer, renderer->renderer, desc->slot, uniform_buffer->values.size, uniform_buffer->values.data);
 	return uniform_buffer;
 }
 
 UniformBuffer *uniformbuffer_create_dynamic(UniformBuffer *uniform_buffer, Renderer *renderer, ABufferDesc *desc)
 {
 	buffer_create(&uniform_buffer->values, desc->values, desc->values_size, NULL);
-	uniform_buffer->buffer = renderer->driver->ub_create_dynamic(renderer->renderer, desc->slot, uniform_buffer->values.size);
-	if (uniform_buffer->buffer == NULL) {
-		return NULL;
-	}
+	renderer->driver->ub_create_dynamic(uniform_buffer->buffer, renderer->renderer, desc->slot, uniform_buffer->values.size);
 	return uniform_buffer;
 }
 
