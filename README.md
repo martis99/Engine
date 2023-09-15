@@ -40,6 +40,6 @@ git clone --recursive https://github.com/martis99/Engine.git
 ```
 2. Refer to [build usage](https://github.com/martis99/build#usage).
 
-***
-### Gallery
+## Gallery
 ![screenshot](/gallery/screenshot.png?raw=true)
+
